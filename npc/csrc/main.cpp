@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     Vtop* top = new Vtop{contextp};
 
     // Simulate until $finish
-    while (!contextp->gotFinish()) {
+    for (int i=0;i<10;i++) {
         int a = rand() & 1;
         int b = rand() & 1;
         top->a = a;
