@@ -165,6 +165,7 @@ int op_priority (int op){
     res = 4;
     break;
   default:
+    printf("op %c invalid\n",op);
     assert(0);
     break;
   }
