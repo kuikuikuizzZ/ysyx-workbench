@@ -129,8 +129,6 @@ static bool make_token(char *e) {
       return false;
     }
   }
-  memset(tokens,0,32*sizeof(Token));
-  nr_token = 0;
   return true;
 }
 
@@ -228,5 +226,8 @@ word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     return 0;
   }
-  return eval(0,nr_token);;
+  word_t res = eval(0,nr_token);
+  memset(tokens,0,32*sizeof(Token));
+  nr_token = 0;
+  return res;
 }
