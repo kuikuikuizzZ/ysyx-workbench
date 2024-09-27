@@ -30,14 +30,16 @@ int main(int argc, char *argv[]) {
   FILE *f = fopen(argv[1],"rb+");
 
   while(fgets(buf,65536,f)!=NULL){
+    
      char *result = strtok(buf," ");
      char *expression = strtok(NULL," ");
      bool success;
+     printf("result %s, expr %s\n",result,expression);
      int res = expr(expression,&success);
      if (!success){
        printf("expression %s invalid\n",expression);
      }
-     printf("result:%s, expr result: %d ,expression %s\n",result,res,expression);
+     printf("result:%s, expr result: %d\n",result,res);
   }
   /* Initialize the monitor. */
 // #ifdef CONFIG_TARGET_AM
