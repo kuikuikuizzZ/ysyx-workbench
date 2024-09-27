@@ -14,13 +14,31 @@
 ***************************************************************************************/
 
 #include <common.h>
-
+#include "monitor/sdb/sdb.h"
+#include <stdlib.h>
 void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
+  if (argc<2){
+    printf("need inputfile");
+    return 0;
+  }
+  char buf[65536];
+  FILE *f = fopen(argv[1],"rb+");
+
+  while(fgets(buf,65536,f)!=NULL){
+     char *result = strtok(buf," ");
+     char *expression = strtok(NULL," ");
+     bool success;
+     int res = expr(expression,&success);
+     if (!success){
+       printf("expression %s invalid\n",expression);
+     }
+     printf("result:%s, expr result: %d ,expression %s\n",result,res,expression);
+  }
   /* Initialize the monitor. */
 #ifdef CONFIG_TARGET_AM
   am_init_monitor();
