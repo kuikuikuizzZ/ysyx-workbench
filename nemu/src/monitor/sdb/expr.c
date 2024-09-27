@@ -227,7 +227,7 @@ word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     return 0;
   }
-  word_t res = eval(0,nr_token);
+  word_t res = eval(0,nr_token-1);
   memset(tokens,0,32*sizeof(Token));
   nr_token = 0;
   return res;
