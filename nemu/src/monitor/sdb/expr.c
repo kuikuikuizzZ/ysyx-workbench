@@ -185,7 +185,7 @@ int main_op_pos(int p,int q){
     if (tokens[i].type == TK_DEC)continue;
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
-      while(i<=q&&tokens[q].type != ')') q--;
+      while(i<q&&tokens[q].type != ')') q--;
     } else if (op_pos == -1){
        op_pos = i;
     }else{
