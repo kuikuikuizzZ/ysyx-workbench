@@ -181,13 +181,20 @@ int op_order(int a,int b){
 }
 int main_op_pos(int p,int q){
   int op_pos = -1;
-  int j = q; // use for right parentheses match
   for (int i=p;i<=q;i++){
     if (tokens[i].type == TK_DEC)continue;
     else if (tokens[i].type=='('){
+      int count = 1;
       // num of parentheses must be equal
-      while(i<=j&&tokens[j].type != ')'){ j--;}
-      i = j;
+      while(i<=q&& count>0){
+        if (tokens[i].type != ')'){
+          count--;
+        } 
+        if  (tokens[i].type=='('){
+          count++;
+        }
+        i++;
+      }
     } else if (op_pos == -1){
        op_pos = i;
     }else{
