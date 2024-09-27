@@ -100,8 +100,8 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
         
-        if (substr_len>=MAX_TOKEN){
-            printf("length of %s out of %d",substr_start,MAX_TOKEN);
+        if (substr_len>=32){
+            printf("length of %s out of 32",substr_start);
             assert(0);
             return false;
         }
@@ -117,8 +117,8 @@ static bool make_token(char *e) {
         break;
       }
     }
-    if (nr_token>=32){
-        printf("num of token is limit to 32. Please shrink the expression");
+    if (nr_token>=MAX_TOKEN){
+        printf("num of token is limit to %d. Please shrink the expression",MAX_TOKEN);
         return false;
     }
 
