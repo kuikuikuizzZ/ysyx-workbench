@@ -129,7 +129,8 @@ static bool make_token(char *e) {
       return false;
     }
   }
-
+  memset(tokens,0,32*sizeof(Token));
+  nr_token = 0;
   return true;
 }
 
