@@ -194,7 +194,7 @@ int main_op_pos(int p,int q){
       op_pos = op_order(op_pos,i);
     }
   }
-  assert(op_pos == -1);
+  assert(op_pos != -1);
   return op_pos;
 }
 
