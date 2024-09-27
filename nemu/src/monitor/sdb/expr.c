@@ -19,9 +19,9 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
-
+#include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEC
 
   /* TODO: Add more token types */
 
@@ -39,6 +39,11 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"-",'-'},
+  {"\\(",'('},
+  {"\\)",')'},
+  {"0x[\\d[a-f][A-F]]",TK_HEX},
+  {"\\d",TK_DEC},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -93,13 +98,35 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
+        
+        if (substr_len>=32){
+            printf("length of %s out of 32",substr_start);
+            return false;
+        }
+        char substr[32];
+        strncpy(substr,substr_start,substr_len);
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_NOTYPE: break;
+          // case '+': 
+          // case '-': break;
+          // case '(': break;
+          // case ')': break;
+          // case TK_EQ: break;
+          // case TK_HEX: break;
+          // case TK_DEC: break;
+          default: 
+            Token t ;
+            tokens[i] = t;
+            nr_token++;
+            break;
         }
 
         break;
       }
+    }
+    if (nr_token>=32){
+        printf("num of token is limit to 32. Please shrink the expression");
+        return false;
     }
 
     if (i == NR_REGEX) {

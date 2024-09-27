@@ -86,7 +86,6 @@ static int cmd_x(char *args) {
     printf("x n expr: expr invalid");
     return -1;
   }
-  printf("n: %d\n",n);
   for (int i=0;i<n;i=i+4){
     if (n-i<4){
       word_t res = vaddr_read(address+i,n-i);
