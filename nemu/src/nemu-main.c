@@ -22,6 +22,11 @@ void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
+  #ifdef CONFIG_TARGET_AM
+  am_init_monitor();
+  #else
+    init_monitor(argc, argv);
+  #endif
   if (argc<2){
     printf("need inputfile");
     return 0;
@@ -42,11 +47,7 @@ int main(int argc, char *argv[]) {
      printf("result:%s, expr result: %d\n",result,res);
   }
   /* Initialize the monitor. */
-// #ifdef CONFIG_TARGET_AM
-//   am_init_monitor();
-// #else
-//   init_monitor(argc, argv);
-// #endif
+
 
 //   /* Start engine. */
 //   engine_start();
