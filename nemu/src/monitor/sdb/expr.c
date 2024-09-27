@@ -48,7 +48,7 @@ static struct rule {
 };
 
 #define NR_REGEX ARRLEN(rules)
-
+#define MAX_TOKEN 65536
 static regex_t re[NR_REGEX] = {};
 
 /* Rules are used for many times.
@@ -73,7 +73,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[65536] __attribute__((used)) = {};
+static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -100,8 +100,8 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
         
-        if (substr_len>=32){
-            printf("length of %s out of 32",substr_start);
+        if (substr_len>=MAX_TOKEN){
+            printf("length of %s out of %d",substr_start,MAX_TOKEN);
             assert(0);
             return false;
         }
