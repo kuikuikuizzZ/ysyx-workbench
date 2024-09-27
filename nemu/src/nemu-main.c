@@ -40,14 +40,14 @@ int main(int argc, char *argv[]) {
      printf("result:%s, expr result: %d ,expression %s\n",result,res,expression);
   }
   /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-#else
-  init_monitor(argc, argv);
-#endif
+// #ifdef CONFIG_TARGET_AM
+//   am_init_monitor();
+// #else
+//   init_monitor(argc, argv);
+// #endif
 
-  /* Start engine. */
-  engine_start();
+//   /* Start engine. */
+//   engine_start();
 
   return is_exit_status_bad();
 }
