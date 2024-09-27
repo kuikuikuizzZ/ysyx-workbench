@@ -187,7 +187,7 @@ int main_op_pos(int p,int q){
       int count = 1;
       // num of parentheses must be equal
       while(i<=q&& count>0){
-        if (tokens[i].type != ')'){
+        if (tokens[i].type == ')'){
           count--;
         } 
         if  (tokens[i].type=='('){
