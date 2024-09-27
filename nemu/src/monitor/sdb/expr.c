@@ -111,7 +111,7 @@ static bool make_token(char *e) {
             Token t ;
             strncpy(t.str,substr_start,substr_len);
             t.type = rules[i].token_type;
-            tokens[i] = t;
+            tokens[nr_token] = t;
             nr_token++;
             break;
         }
