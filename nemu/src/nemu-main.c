@@ -39,12 +39,8 @@ int main(int argc, char *argv[]) {
      char *result = strtok(buf," ");
      char *expression = strtok(NULL," ");
      expression = strtok(expression,"\n");
-     bool success;
      printf("result %s, expr %s\n",result,expression);
-     int res = expr(expression,&success);
-     if (!success){
-       printf("expression %s invalid\n",expression);
-     }
+     int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
   }
   /* Initialize the monitor. */
