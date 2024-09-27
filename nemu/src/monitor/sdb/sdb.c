@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include "sdb.h"
 
+
 static int is_batch_mode = false;
 
 void init_regex();
@@ -54,8 +55,24 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   char* ptr = strtok(args," ");
+  if (ptr == NULL) return -1;
+
   int n = atoi(ptr);
   cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char* ptr = strtok(args," ");
+  if (ptr == NULL) return -1;
+
+  if (strcmp(ptr,"r")==0){
+    isa_reg_display();
+  }else if(strcmp(ptr,"w")==0){
+     // TODO
+  }else{
+    printf("Usage: info r/w\n");
+  }
   return 0;
 }
 
@@ -70,7 +87,8 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  {"si","si n exec n instruction then pause,default n = 1",cmd_si},
+  {"si","Exec n instruction then pause,default n = 1",cmd_si},
+  {"info","Display register(info r) or watchpoint(info w) states",cmd_info},
 
   /* TODO: Add more commands */
 
