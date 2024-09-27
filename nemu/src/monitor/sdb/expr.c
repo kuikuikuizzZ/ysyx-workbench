@@ -103,8 +103,6 @@ static bool make_token(char *e) {
             printf("length of %s out of 32",substr_start);
             return false;
         }
-        char substr[32];
-        strncpy(substr,substr_start,substr_len);
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
           // case '+': 
@@ -116,6 +114,8 @@ static bool make_token(char *e) {
           // case TK_DEC: break;
           default: 
             Token t ;
+            strncpy(t.str,substr_start,substr_len);
+            t.type = rules[i].token_type;
             tokens[i] = t;
             nr_token++;
             break;
