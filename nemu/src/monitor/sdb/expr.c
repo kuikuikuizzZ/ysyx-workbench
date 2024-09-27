@@ -21,7 +21,7 @@
 #include <regex.h>
 #include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEC
+  TK_NOTYPE = 256, TK_EQ,TK_DEC
 
   /* TODO: Add more token types */
 
@@ -40,9 +40,10 @@ static struct rule {
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
   {"-",'-'},
+  {"/",'/'},
+  {"\\*",'*'},
   {"\\(",'('},
   {"\\)",')'},
-  {"0x[\\d[a-f][A-F]]",TK_HEX},
   {"\\d",TK_DEC},
 };
 
@@ -101,17 +102,11 @@ static bool make_token(char *e) {
         
         if (substr_len>=32){
             printf("length of %s out of 32",substr_start);
+            assert(0);
             return false;
         }
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
-          // case '+': 
-          // case '-': break;
-          // case '(': break;
-          // case ')': break;
-          // case TK_EQ: break;
-          // case TK_HEX: break;
-          // case TK_DEC: break;
           default: 
             Token t ;
             strncpy(t.str,substr_start,substr_len);
@@ -139,14 +134,97 @@ static bool make_token(char *e) {
 }
 
 
+bool check_parentheses(int p,int q){
+  int left_count = 0;
+  int right_count = 0;
+  bool res = (tokens[p].type == '(' && tokens[q].type == ')')? true:false;
+  for (int i=p;i<=q;i++){
+     if (tokens[i].type == '(') {
+        left_count++;
+     } else if (tokens[i].type == ')'){
+        right_count++;
+     }
+  }
+  if (right_count!=left_count){
+    printf("num of parentheses invalid \"(\":%d,  \")\":%d",left_count,right_count);
+    assert(0);
+    return false;
+  }
+  return res;
+}
+
+int op_priority (int op){
+  int res = -1; 
+  switch (op)
+  {
+  case '*':
+  case '/':
+    res = 5;
+    break;
+  case '-':
+  case '+':
+    res = 4;
+    break;
+  default:
+    assert(0);
+    break;
+  }
+  return res;
+}
+
+// if q>p and tokens[a].type== tokens[b].type return b
+int op_order(int a,int b){
+  int priority_a = op_priority(tokens[a].type);
+  int priority_b =  op_priority(tokens[b].type);
+  if (priority_a == priority_b) {
+    return (a>b)?a:b;
+  }  
+  return (priority_a < priority_b)?a:b;
+}
+int main_op_pos(int p,int q){
+  int op_pos = -1;
+  for (int i=p;i<=q;i++){
+    if (tokens[i].type == TK_DEC)continue;
+    else if (tokens[i].type=='('){
+      // num of parentheses must be equal
+      while(i<=q&&tokens[i].type != ')') i++;
+    } else if (op_pos == -1){
+       op_pos = i;
+    }else{
+      op_pos = op_order(op_pos,i);
+    }
+  }
+  assert(op_pos == -1);
+  return op_pos;
+}
+
+int eval(int p,int q){
+  if (p>q){
+    printf("exprssion eval %d>%d ",p,q);
+    assert(0);
+  } else if(p==q){
+    return atoi(tokens[p].str);
+  } else if (check_parentheses(p,q)==true) {
+    return eval(p+1,q-1);
+  } else {
+    int op_pos = main_op_pos(p,q);
+    int val1 = eval(p,op_pos-1);
+    int val2 = eval(op_pos+1,q);
+
+    switch (tokens[op_pos].type) {
+          case '+': return val1 + val2;
+          case '-': return val1-val2;
+          case '*': return val1*val2;
+          case '/': return val1/val2;
+          default: assert(0);
+    }
+  }
+}
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
+  return eval(0,nr_token);;
 }
