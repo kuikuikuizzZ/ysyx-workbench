@@ -130,6 +130,25 @@ static bool make_token(char *e) {
   return true;
 }
 
+bool find_parentheses_match(int p,int q){
+    int j=p;
+    int count =1;
+    for (; j<=q&&count!=0;j++){
+      if (tokens[j].type == '(') {
+        count++;
+      } else if (tokens[j].type == ')'){
+          count--;
+      }
+      if (count ==0){
+        break;
+      }
+      if (count<0){
+          Log("parentheses invalid in [%d,%d]",p,q);
+      }
+    }
+    return j;
+}
+
 
 bool check_parentheses(int p,int q){
   int count = 0;
@@ -147,17 +166,12 @@ bool check_parentheses(int p,int q){
   }
   bool res = false;
   if (tokens[p].type == '(' && tokens[q].type == ')'){
-      res = true;
-      for (int i=p;i<q;i++){
-          if (tokens[i].type == ')'){
-             res = false;
-             break;
-          }
-      }
+      int j = find_parentheses_match(p+1,q);
+      res = (j==q)?true:false;
   }
-
   return res;
 }
+
 
 int op_priority (int op){
   int res = -1; 
@@ -197,19 +211,7 @@ int main_op_pos(int p,int q){
     if (tokens[i].type == TK_DEC) {continue;}
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
-        int count =1;
-        int j=i+1;
-        for (; j<=q&&count!=0;j++){
-          if (tokens[j].type == '(') {
-            count++;
-          } else if (tokens[j].type == ')'){
-              count--;
-          }
-          if (count<0){
-             Log("parentheses invalid in [%d,%d]",p,q);
-          }
-        }
-        i = j-1;
+        i = find_parentheses_match(p+1,q);
     }else if (op_valid(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
