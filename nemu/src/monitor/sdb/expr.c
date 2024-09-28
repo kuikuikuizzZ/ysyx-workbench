@@ -229,7 +229,7 @@ int main_op_pos(int p,int q){
     }else if (op_valid(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
-      Log("tokens[i].type %c, tokens[op_pos].type %c, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
+      Log("tokens[i].type %d, tokens[op_pos].type %d, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
     }
   }
   assert(op_pos != -1);
