@@ -163,8 +163,8 @@ int op_priority (int op){
     break;
   default:
     printf("op %d invalid\n",op);
-    assert(0);
-    break;
+    // assert(0);
+    return -1;
   }
   return res;
 }
@@ -181,21 +181,11 @@ int op_order(int a,int b){
 int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
-    if (tokens[i].type == TK_DEC)continue;
-    // else if (tokens[i].type=='('){
-    //   int count = 1;
-    //   // num of parentheses must be equal
-    //   while(i<=q&& count>0){
-    //     if (tokens[i].type == ')'){
-    //       count--;
-    //     } 
-    //     if  (tokens[i].type=='('){
-    //       count++;
-    //     }
-    //     i++;
-    //   }
-    // } 
-    else if (op_pos == -1){
+    if (tokens[i].type == TK_DEC||tokens[i].type == ')')continue;
+    else if (tokens[i].type=='('){
+      // num of parentheses must be equal
+      while(i<=q&& tokens[i].type != ')') i++;
+    }else if (op_pos == -1){
        op_pos = i;
     }else{
       op_pos = op_order(op_pos,i);
