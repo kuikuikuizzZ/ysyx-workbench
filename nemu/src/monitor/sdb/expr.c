@@ -194,7 +194,7 @@ int op_order(int a,int b){
 int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
-    if (tokens[i].type == TK_DEC) continue;
+    if (tokens[i].type == TK_DEC) {continue;}
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
         int count =1;
