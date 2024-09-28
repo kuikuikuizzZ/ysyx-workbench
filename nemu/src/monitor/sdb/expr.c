@@ -78,6 +78,10 @@ typedef struct token {
 static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
+bool op_valid(int op){
+  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ)?true:false;
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i=0;
@@ -118,10 +122,16 @@ static bool make_token(char *e) {
           case '(': tokens[nr_token].type = TK_LEFTP; break;
           case ')': tokens[nr_token].type = TK_RIGHTP; break;
           case '-': 
-              tokens[nr_token].type = TK_SUB; break;
+              if (nr_token == 0 || op_valid( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+                  tokens[nr_token].type = TK_NEG; 
+              else
+                  tokens[nr_token].type = TK_SUB; 
               break;
           case '*':
-              tokens[nr_token].type = TK_MUL; break;
+              if (nr_token == 0 || op_valid( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+                  tokens[nr_token].type = TK_DEREF; 
+              else
+                  tokens[nr_token].type = TK_MUL; 
               break;
           default: 
             Log("invalid token type %d",rules[i].token_type);
@@ -205,9 +215,6 @@ int op_priority (int op){
     return -1;
   }
   return res;
-}
-bool op_valid(int op){
-  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB)?true:false;
 }
 
 // if q>p and tokens[a].type== tokens[b].type return b
