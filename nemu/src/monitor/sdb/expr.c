@@ -191,12 +191,12 @@ int op_priority (int op){
   int res = -1; 
   switch (op)
   {
-  case '*':
-  case '/':
+  case TK_MUL:
+  case TK_DIV:
     res = 5;
     break;
-  case '-':
-  case '+':
+  case TK_SUB:
+  case TK_ADD:
     res = 4;
     break;
   default:
