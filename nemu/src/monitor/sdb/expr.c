@@ -83,7 +83,7 @@ bool binary_op(int op){
 }
 
 bool unary_op(int op){
-  return (op==TK_DEREF||TK_NEG);
+  return (op==TK_DEREF||op==TK_NEG);
 }
 
 bool is_num_type(int typ){
