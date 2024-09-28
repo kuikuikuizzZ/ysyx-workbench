@@ -82,6 +82,15 @@ bool binary_op(int op){
   return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ)?true:false;
 }
 
+bool unary_op(int op){
+  return (op==TK_DEREF||TK_NEG);
+}
+
+bool is_num_type(int typ){
+  //TODO: support HEX num
+  return (typ == TK_DEC);
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i=0;
@@ -252,9 +261,32 @@ int eval(int p,int q){
     return atoi(tokens[p].str);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
-  } else if (0){
+  } else if (unary_op(p)){
     // unary operator
-    return 0;
+    word_t res;
+    int expr_end;
+    if (tokens[p+1].type == TK_LEFTP){
+        expr_end = find_parentheses_match(p+2,q);
+        res = eval(p+1,expr_end);
+    }else if (is_num_type( tokens[p+1].type)){
+        //TODO: atoi -> support HEX
+        res = atoi(tokens[p+1].str);
+        expr_end = p+1;
+    } else{
+        Log("unary operator invalid %s, callee %s",tokens[p].str,tokens[p+1].str);
+    }
+    switch (tokens[p].type){
+      case TK_DEREF : break; //TODO
+      case TK_NEG: 
+          res = -res;
+          break;
+    }
+    char str[32];
+    int n = sprintf(str,"%d",res); 
+    // TODO: support HEX
+    strncpy(tokens[expr_end].str,str,n);
+    tokens[expr_end].type = TK_DEC;
+    return eval(expr_end,p);
   } else {
     // binary operator
     int op_pos = main_op_pos(p,q);
