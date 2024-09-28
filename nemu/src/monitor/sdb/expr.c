@@ -130,7 +130,7 @@ static bool make_token(char *e) {
   return true;
 }
 
-bool find_parentheses_match(int p,int q){
+int find_parentheses_match(int p,int q){
     int j=p;
     int count =1;
     for (; j<=q&&count!=0;j++){
