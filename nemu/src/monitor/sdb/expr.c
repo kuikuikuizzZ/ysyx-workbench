@@ -286,7 +286,7 @@ int eval(int p,int q){
     // TODO: support HEX
     strncpy(tokens[expr_end].str,str,n);
     tokens[expr_end].type = TK_DEC;
-    return (expr_end>p)?res:eval(expr_end,p);
+    return (expr_end>q)?res:eval(expr_end,q);
   } else {
     // binary operator
     int op_pos = main_op_pos(p,q);
