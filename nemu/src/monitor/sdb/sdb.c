@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <memory/vaddr.h>
 
 static int is_batch_mode = false;
 
@@ -52,6 +53,53 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  char* ptr = strtok(args," ");
+  if (ptr == NULL) return -1;
+
+  int n = atoi(ptr);
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char* ptr = strtok(args," ");
+  if (ptr == NULL) return -1;
+
+  if (strcmp(ptr,"r")==0){
+    isa_reg_display();
+  }else if(strcmp(ptr,"w")==0){
+     // TODO
+  }else{
+    printf("Usage: info r/w\n");
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char* ptr = strtok(args," ");
+  int n = atoi(ptr);
+  char *expr = strtok(NULL," ");
+  unsigned int address;
+  int res = sscanf(expr,"%x",&address);
+  if (res <1){
+    printf("x n expr: expr invalid");
+    return -1;
+  }
+  for (int i=0;i<n;i=i+4){
+    if (n-i<4){
+      word_t res = vaddr_read(address+i,n-i);
+      printf("%x ",res);
+      break;
+    }
+    word_t res = vaddr_read(address+i,4);
+    printf("%x ",res);
+  }
+  printf("\n");
+  return 0;
+}
+
+
 static int cmd_help(char *args);
 
 static struct {
@@ -62,7 +110,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  {"si","Exec n instruction then pause,default n = 1",cmd_si},
+  {"info","Display register(info r) or watchpoint(info w) states",cmd_info},
+  {"x","Display n bytes from EXPR address(x N EXPR)",cmd_x},
   /* TODO: Add more commands */
 
 };

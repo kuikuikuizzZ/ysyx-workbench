@@ -19,9 +19,9 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
-
+#include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ,TK_DEC
 
   /* TODO: Add more token types */
 
@@ -39,10 +39,16 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"-",'-'},
+  {"/",'/'},
+  {"\\*",'*'},
+  {"\\(",'('},
+  {"\\)",')'},
+  {"[0-9]+",TK_DEC},
 };
 
 #define NR_REGEX ARRLEN(rules)
-
+#define MAX_TOKEN 65536
 static regex_t re[NR_REGEX] = {};
 
 /* Rules are used for many times.
@@ -67,12 +73,12 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
   int position = 0;
-  int i;
+  int i=0;
   regmatch_t pmatch;
 
   nr_token = 0;
@@ -84,8 +90,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -93,33 +99,161 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
+        
+        if (substr_len>=32){
+            printf("length of %s out of 32",substr_start);
+            assert(0);
+            return false;
+        }
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_NOTYPE: break;
+          default: 
+            strncpy(tokens[nr_token].str,substr_start,substr_len);
+            tokens[nr_token].type = rules[i].token_type;
+            nr_token++;
+            break;
         }
 
         break;
       }
     }
+    if (nr_token>=MAX_TOKEN){
+        Log("num of token is limit to %d. Please shrink the expression",MAX_TOKEN);
+        return false;
+    }
 
     if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+      Log("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }
   }
-
   return true;
 }
 
+int find_parentheses_match(int p,int q){
+    int j=p;
+    int count =1;
+    for (; j<=q&&count!=0;j++){
+      if (tokens[j].type == '(') {
+        count++;
+      } else if (tokens[j].type == ')'){
+          count--;
+      }
+      if (count ==0){
+        break;
+      }
+      if (count<0){
+          Log("parentheses invalid in [%d,%d]",p,q);
+      }
+    }
+    return j;
+}
+
+
+bool check_parentheses(int p,int q){
+  int count = 0;
+  for (int i=p;i<=q;i++){
+     if (tokens[i].type == '(') {
+        count++;
+     } else if (tokens[i].type == ')'){
+        count--;
+     }
+  }
+  if (count!=0){
+    Log("diff of parentheses invalid \"(\":%d,  between %d, %d",count,p,q);
+    assert(0);
+    return false;
+  }
+  bool res = false;
+  if (tokens[p].type == '(' && tokens[q].type == ')'){
+      int j = find_parentheses_match(p+1,q);
+      res = (j==q)?true:false;
+  }
+  return res;
+}
+
+
+int op_priority (int op){
+  int res = -1; 
+  switch (op)
+  {
+  case '*':
+  case '/':
+    res = 5;
+    break;
+  case '-':
+  case '+':
+    res = 4;
+    break;
+  default:
+    printf("op %d invalid\n",op);
+    // assert(0);
+    return -1;
+  }
+  return res;
+}
+bool op_valid(int op){
+  return (op=='*'||op=='/'||op=='+'||op=='-')?true:false;
+}
+
+// if q>p and tokens[a].type== tokens[b].type return b
+int op_order(int a,int b){
+  int priority_a = op_priority(tokens[a].type);
+  int priority_b =  op_priority(tokens[b].type);
+  if (priority_a == priority_b) {
+    return (a>b)?a:b;
+  }  
+  return (priority_a < priority_b)?a:b;
+}
+int main_op_pos(int p,int q){
+  int op_pos = -1;
+  for (int i=p;i<=q;i++){
+    if (tokens[i].type == TK_DEC) {continue;}
+    else if (tokens[i].type=='('){
+        // num of parentheses must be equal
+        i = find_parentheses_match(i+1,q);
+    }else if (op_valid(tokens[i].type)){
+       op_pos = (op_pos<0)?i:op_order(op_pos,i);
+    }else{
+      Log("tokens[i].type %c, tokens[op_pos].type %c, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
+    }
+  }
+  assert(op_pos != -1);
+  return op_pos;
+}
+
+int eval(int p,int q){
+  if (p>q){
+    printf("exprssion eval %d>%d ",p,q);
+    assert(0);
+  } else if(p==q){
+    return atoi(tokens[p].str);
+  } else if (check_parentheses(p,q)==true) {
+    return eval(p+1,q-1);
+  } else {
+    int op_pos = main_op_pos(p,q);
+    int val1 = eval(p,op_pos-1);
+    int val2 = eval(op_pos+1,q);
+    word_t val;
+    switch (tokens[op_pos].type) {
+          case '+': val = val1 + val2;
+          case '-': val = val1-val2;
+          case '*': val = val1*val2;
+          case '/': 
+            if (val2 == 0) assert(0);
+            val = val1/val2;
+          default: assert(0);
+    }
+  }
+  memset(tokens,0,32*sizeof(Token));
+  nr_token = 0;
+  return val;
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
-    *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
+  word_t res = eval(0,nr_token-1);    //eval(p,q), p,q should valid.
+  return res;
 }

@@ -14,22 +14,40 @@
 ***************************************************************************************/
 
 #include <common.h>
-
+#include "monitor/sdb/sdb.h"
+#include <stdlib.h>
 void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
-  /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
+  #ifdef CONFIG_TARGET_AM
   am_init_monitor();
-#else
-  init_monitor(argc, argv);
-#endif
+  #else
+    init_monitor(argc, argv);
+  #endif
+  if (argc<2){
+    printf("need inputfile");
+    return 0;
+  }
+  char buf[65536];
+  FILE *f = fopen(argv[1],"rb+");
 
-  /* Start engine. */
-  engine_start();
+  while(fgets(buf,65536,f)!=NULL){
+    
+     char *result = strtok(buf," ");
+     char *expression = strtok(NULL," ");
+     expression = strtok(expression,"\n");
+     printf("result %s, expr %s\n",result,expression);
+     int res = expr(expression,NULL);
+     printf("result:%s, expr result: %d\n",result,res);
+  }
+  /* Initialize the monitor. */
+
+
+//   /* Start engine. */
+//   engine_start();
 
   return is_exit_status_bad();
 }
