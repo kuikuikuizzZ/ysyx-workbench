@@ -186,7 +186,7 @@ int main_op_pos(int p,int q){
       // num of parentheses must be equal
       while(i<=q&& tokens[i].type != ')') i++;
     }else if (op_pos == -1){
-       op_pos = (op_priority(i)==-1)?-1:i;
+       op_pos = (op_priority(tokens[i].type)==-1)?-1:i;
     }else{
       op_pos = op_order(op_pos,i);
     }
