@@ -118,12 +118,12 @@ static bool make_token(char *e) {
       }
     }
     if (nr_token>=MAX_TOKEN){
-        printf("num of token is limit to %d. Please shrink the expression",MAX_TOKEN);
+        Log("num of token is limit to %d. Please shrink the expression",MAX_TOKEN);
         return false;
     }
 
     if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+      Log("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }
   }
@@ -142,7 +142,7 @@ bool check_parentheses(int p,int q){
      }
   }
   if (count!=0){
-    printf("diff of parentheses invalid \"(\":%d,  \")\" between %d, %d",count,p,q);
+    Log("diff of parentheses invalid \"(\":%d,  \")\" between %d, %d",count,p,q);
     assert(0);
     return false;
   }
