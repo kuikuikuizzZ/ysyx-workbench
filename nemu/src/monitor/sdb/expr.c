@@ -111,10 +111,10 @@ static bool make_token(char *e) {
         strncpy(tokens[nr_token].str,substr_start,substr_len);
 
         switch (rules[i].token_type) {
-          case '+': tokens[nr_token].type = TK_ADD; break;
-          case '/': tokens[nr_token].type = TK_DIV; break;
           case TK_DEC: tokens[nr_token].type = TK_DEC; break;
           case TK_EQ: tokens[nr_token].type = TK_EQ; break;
+          case '+': tokens[nr_token].type = TK_ADD; break;
+          case '/': tokens[nr_token].type = TK_DIV; break;
           case '(': tokens[nr_token].type = TK_LEFTP; break;
           case ')': tokens[nr_token].type = TK_RIGHTP; break;
           case '-': 
@@ -200,7 +200,7 @@ int op_priority (int op){
     res = 4;
     break;
   default:
-    printf("op %d invalid\n",op);
+    Log("op %d invalid\n",op);
     // assert(0);
     return -1;
   }
