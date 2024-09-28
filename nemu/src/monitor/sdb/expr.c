@@ -132,18 +132,17 @@ static bool make_token(char *e) {
 
 
 bool check_parentheses(int p,int q){
-  int left_count = 0;
-  int right_count = 0;
+  int count = 0;
   bool res = (tokens[p].type == '(' && tokens[q].type == ')')? true:false;
   for (int i=p;i<=q;i++){
      if (tokens[i].type == '(') {
-        left_count++;
+        count++;
      } else if (tokens[i].type == ')'){
-        right_count++;
+        count--;
      }
   }
-  if (right_count!=left_count){
-    printf("num of parentheses invalid \"(\":%d,  \")\":%d",left_count,right_count);
+  if (!count){
+    printf("diff of parentheses invalid \"(\":%d,  \")\"",count);
     assert(0);
     return false;
   }
@@ -183,19 +182,20 @@ int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
     if (tokens[i].type == TK_DEC)continue;
-    else if (tokens[i].type=='('){
-      int count = 1;
-      // num of parentheses must be equal
-      while(i<=q&& count>0){
-        if (tokens[i].type == ')'){
-          count--;
-        } 
-        if  (tokens[i].type=='('){
-          count++;
-        }
-        i++;
-      }
-    } else if (op_pos == -1){
+    // else if (tokens[i].type=='('){
+    //   int count = 1;
+    //   // num of parentheses must be equal
+    //   while(i<=q&& count>0){
+    //     if (tokens[i].type == ')'){
+    //       count--;
+    //     } 
+    //     if  (tokens[i].type=='('){
+    //       count++;
+    //     }
+    //     i++;
+    //   }
+    // } 
+    else if (op_pos == -1){
        op_pos = i;
     }else{
       op_pos = op_order(op_pos,i);
