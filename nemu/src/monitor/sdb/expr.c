@@ -78,7 +78,7 @@ typedef struct token {
 static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
-bool op_valid(int op){
+bool binary_op(int op){
   return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ)?true:false;
 }
 
@@ -122,13 +122,13 @@ static bool make_token(char *e) {
           case '(': tokens[nr_token].type = TK_LEFTP; break;
           case ')': tokens[nr_token].type = TK_RIGHTP; break;
           case '-': 
-              if (nr_token == 0 || op_valid( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+              if (nr_token == 0 || binary_op( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
                   tokens[nr_token].type = TK_NEG; 
               else
                   tokens[nr_token].type = TK_SUB; 
               break;
           case '*':
-              if (nr_token == 0 || op_valid( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+              if (nr_token == 0 || binary_op( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
                   tokens[nr_token].type = TK_DEREF; 
               else
                   tokens[nr_token].type = TK_MUL; 
@@ -233,7 +233,7 @@ int main_op_pos(int p,int q){
     else if (tokens[i].type == TK_LEFTP){
         // num of parentheses must be equal
         i = find_parentheses_match(i+1,q);
-    }else if (op_valid(tokens[i].type)){
+    }else if (binary_op(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
       Log("tokens[i].type %d, tokens[op_pos].type %d, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
@@ -252,7 +252,11 @@ int eval(int p,int q){
     return atoi(tokens[p].str);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
+  } else if (0){
+    // unary operator
+    return 0;
   } else {
+    // binary operator
     int op_pos = main_op_pos(p,q);
     int val1 = eval(p,op_pos-1);
     int val2 = eval(op_pos+1,q);
@@ -261,9 +265,9 @@ int eval(int p,int q){
           case TK_SUB: val = val1-val2; break;
           case TK_MUL: val = val1*val2; break;
           case TK_DIV: 
-            if (val2 == 0) {Log("divide by zero");assert(0);}
-            val = val1/val2;
-            break;
+              if (val2 == 0) {Log("divide by zero");assert(0);}
+              val = val1/val2;
+              break;
           default: assert(0);
     }
   }
