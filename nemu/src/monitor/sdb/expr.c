@@ -261,7 +261,7 @@ int eval(int p,int q){
     return atoi(tokens[p].str);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
-  } else if (unary_op(p)){
+  } else if (unary_op(tokens[p].type)){
     // unary operator
     word_t res;
     int expr_end;
