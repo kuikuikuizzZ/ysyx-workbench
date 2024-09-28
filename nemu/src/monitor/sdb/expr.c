@@ -198,7 +198,7 @@ int main_op_pos(int p,int q){
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
         int count =1;
-        for (i=i+1; i<q&&count!=0;i++){
+        for (i=i+1; i<=q&&count!=0;i++){
           if (tokens[i].type == '(') {
             count++;
           } else if (tokens[i].type == ')'){
