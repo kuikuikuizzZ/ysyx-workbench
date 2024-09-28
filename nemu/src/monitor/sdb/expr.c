@@ -212,7 +212,6 @@ int main_op_pos(int p,int q){
     else if (tokens[i].type=='('){
         // num of parentheses must be equal
         i = find_parentheses_match(p+1,q);
-        printf("i %d",i);
     }else if (op_valid(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
