@@ -21,7 +21,9 @@
 #include <regex.h>
 #include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_DEC
+  TK_NOTYPE = 256, TK_EQ,TK_DEC,TK_DEREF,
+  TK_NEG,TK_LEFTP,TK_RIGHTP,TK_ADD,TK_SUB,
+  TK_MUL,TK_DIV,
 
   /* TODO: Add more token types */
 
@@ -105,15 +107,27 @@ static bool make_token(char *e) {
             assert(0);
             return false;
         }
+        if(rules[i].token_type == TK_NOTYPE) continue; 
+        strncpy(tokens[nr_token].str,substr_start,substr_len);
+
         switch (rules[i].token_type) {
-          case TK_NOTYPE: break;
+          case TK_DEC: tokens[nr_token].type = TK_DEC; break;
+          case TK_EQ: tokens[nr_token].type = TK_EQ; break;
+          case '+': tokens[nr_token].type = TK_ADD; break;
+          case '/': tokens[nr_token].type = TK_DIV; break;
+          case '(': tokens[nr_token].type = TK_LEFTP; break;
+          case ')': tokens[nr_token].type = TK_RIGHTP; break;
+          case '-': 
+              tokens[nr_token].type = TK_SUB; break;
+              break;
+          case '*':
+              tokens[nr_token].type = TK_MUL; break;
+              break;
           default: 
-            strncpy(tokens[nr_token].str,substr_start,substr_len);
-            tokens[nr_token].type = rules[i].token_type;
-            nr_token++;
+            Log("invalid token type %d",rules[i].token_type);
             break;
         }
-
+        nr_token++;
         break;
       }
     }
@@ -134,9 +148,9 @@ int find_parentheses_match(int p,int q){
     int j=p;
     int count =1;
     for (; j<=q&&count!=0;j++){
-      if (tokens[j].type == '(') {
+      if (tokens[j].type == TK_LEFTP) {
         count++;
-      } else if (tokens[j].type == ')'){
+      } else if (tokens[j].type == TK_RIGHTP){
           count--;
       }
       if (count ==0){
@@ -153,9 +167,9 @@ int find_parentheses_match(int p,int q){
 bool check_parentheses(int p,int q){
   int count = 0;
   for (int i=p;i<=q;i++){
-     if (tokens[i].type == '(') {
+     if (tokens[i].type == TK_LEFTP) {
         count++;
-     } else if (tokens[i].type == ')'){
+     } else if (tokens[i].type == TK_RIGHTP){
         count--;
      }
   }
@@ -165,7 +179,7 @@ bool check_parentheses(int p,int q){
     return false;
   }
   bool res = false;
-  if (tokens[p].type == '(' && tokens[q].type == ')'){
+  if (tokens[p].type == TK_LEFTP && tokens[q].type == TK_RIGHTP){
       int j = find_parentheses_match(p+1,q);
       res = (j==q)?true:false;
   }
@@ -177,23 +191,23 @@ int op_priority (int op){
   int res = -1; 
   switch (op)
   {
-  case '*':
-  case '/':
+  case TK_MUL:
+  case TK_DIV:
     res = 5;
     break;
-  case '-':
-  case '+':
+  case TK_SUB:
+  case TK_ADD:
     res = 4;
     break;
   default:
-    printf("op %d invalid\n",op);
+    Log("op %d invalid\n",op);
     // assert(0);
     return -1;
   }
   return res;
 }
 bool op_valid(int op){
-  return (op=='*'||op=='/'||op=='+'||op=='-')?true:false;
+  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB)?true:false;
 }
 
 // if q>p and tokens[a].type== tokens[b].type return b
@@ -209,13 +223,13 @@ int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
     if (tokens[i].type == TK_DEC) {continue;}
-    else if (tokens[i].type=='('){
+    else if (tokens[i].type == TK_LEFTP){
         // num of parentheses must be equal
         i = find_parentheses_match(i+1,q);
     }else if (op_valid(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
-      Log("tokens[i].type %c, tokens[op_pos].type %c, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
+      Log("tokens[i].type %d, tokens[op_pos].type %d, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
     }
   }
   assert(op_pos != -1);
@@ -223,6 +237,7 @@ int main_op_pos(int p,int q){
 }
 
 int eval(int p,int q){
+  word_t val;
   if (p>q){
     printf("exprssion eval %d>%d ",p,q);
     assert(0);
@@ -234,19 +249,17 @@ int eval(int p,int q){
     int op_pos = main_op_pos(p,q);
     int val1 = eval(p,op_pos-1);
     int val2 = eval(op_pos+1,q);
-    word_t val;
     switch (tokens[op_pos].type) {
-          case '+': val = val1 + val2;
-          case '-': val = val1-val2;
-          case '*': val = val1*val2;
-          case '/': 
-            if (val2 == 0) assert(0);
+          case TK_ADD: val = val1 + val2; break;
+          case TK_SUB: val = val1-val2; break;
+          case TK_MUL: val = val1*val2; break;
+          case TK_DIV: 
+            if (val2 == 0) {Log("divide by zero");assert(0);}
             val = val1/val2;
+            break;
           default: assert(0);
     }
   }
-  memset(tokens,0,32*sizeof(Token));
-  nr_token = 0;
   return val;
 }
 
@@ -255,5 +268,7 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
   word_t res = eval(0,nr_token-1);    //eval(p,q), p,q should valid.
+  memset(tokens,0,32*sizeof(Token));
+  nr_token = 0;
   return res;
 }
