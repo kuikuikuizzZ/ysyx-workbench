@@ -200,9 +200,9 @@ int main_op_pos(int p,int q){
         int count =1;
         int j=i+1;
         for (; j<=q&&count!=0;j++){
-          if (tokens[i].type == '(') {
+          if (tokens[j].type == '(') {
             count++;
-          } else if (tokens[i].type == ')'){
+          } else if (tokens[j].type == ')'){
               count--;
           }
           if (count<0){
