@@ -142,7 +142,7 @@ bool check_parentheses(int p,int q){
      }
   }
   if (count!=0){
-    printf("diff of parentheses invalid \"(\":%d,  \")\"",count);
+    printf("diff of parentheses invalid \"(\":%d,  \")\" between %d, %d",count,p,q);
     assert(0);
     return false;
   }
@@ -224,7 +224,7 @@ word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     return 0;
   }
-  word_t res = eval(0,nr_token-1);
+  word_t res = eval(0,nr_token-1);    //eval(p,q), p,q should valid.
   memset(tokens,0,32*sizeof(Token));
   nr_token = 0;
   return res;
