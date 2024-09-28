@@ -142,7 +142,7 @@ bool check_parentheses(int p,int q){
      }
   }
   if (count!=0){
-    Log("diff of parentheses invalid \"(\":%d,  \")\" between %d, %d",count,p,q);
+    Log("diff of parentheses invalid \"(\":%d,  between %d, %d",count,p,q);
     assert(0);
     return false;
   }
@@ -186,7 +186,7 @@ int main_op_pos(int p,int q){
       // num of parentheses must be equal
       while(i<=q&& tokens[i].type != ')') i++;
     }else if (op_pos == -1){
-       op_pos = i;
+       op_pos = (op_priority(i)==-1)?-1:i;
     }else{
       op_pos = op_order(op_pos,i);
     }
