@@ -50,7 +50,7 @@ static struct rule {
 };
 
 #define NR_REGEX ARRLEN(rules)
-#define MAX_TOKEN 65536
+#define MAX_TOKEN 1024
 static regex_t re[NR_REGEX] = {};
 
 /* Rules are used for many times.
@@ -282,7 +282,7 @@ int eval(int p,int q){
           break;
     }
     char str[32];
-    int n = sprintf(str,"%d",res); 
+    int n = sprintf(str,"%u",res); 
     // TODO: support HEX
     strncpy(tokens[expr_end].str,str,n);
     tokens[expr_end].type = TK_DEC;
