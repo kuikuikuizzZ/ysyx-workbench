@@ -260,8 +260,6 @@ int eval(int p,int q){
           default: assert(0);
     }
   }
-  memset(tokens,0,32*sizeof(Token));
-  nr_token = 0;
   return val;
 }
 
@@ -270,5 +268,7 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
   word_t res = eval(0,nr_token-1);    //eval(p,q), p,q should valid.
+  memset(tokens,0,32*sizeof(Token));
+  nr_token = 0;
   return res;
 }
