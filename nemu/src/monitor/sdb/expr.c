@@ -178,6 +178,9 @@ int op_priority (int op){
   }
   return res;
 }
+bool op_valid(int op){
+  return (op=='*'||op=='/'||op=='+'||op=='-')?true:false;
+}
 
 // if q>p and tokens[a].type== tokens[b].type return b
 int op_order(int a,int b){
@@ -205,10 +208,10 @@ int main_op_pos(int p,int q){
              Log("parentheses invalid in [%d,%d]",p,q);
           }
         }  
-    }else if (op_pos == -1){
-       op_pos = (op_priority(tokens[i].type)==-1)?-1:i;
+    }else if (op_valid(tokens[i].type)){
+       op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
-      op_pos = op_order(op_pos,i);
+      Log("tokens[i].type %c, tokens[op_pos].type %c, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
     }
   }
   assert(op_pos != -1);
