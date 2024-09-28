@@ -198,7 +198,8 @@ int main_op_pos(int p,int q){
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
         int count =1;
-        for (i=i+1; i<=q&&count!=0;i++){
+        int j=i+1;
+        for (; j<=q&&count!=0;j++){
           if (tokens[i].type == '(') {
             count++;
           } else if (tokens[i].type == ')'){
@@ -208,6 +209,7 @@ int main_op_pos(int p,int q){
              Log("parentheses invalid in [%d,%d]",p,q);
           }
         }
+        i = j-1;
     }else if (op_valid(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
