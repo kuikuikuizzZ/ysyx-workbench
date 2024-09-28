@@ -205,7 +205,7 @@ int main_op_pos(int p,int q){
              Log("parentheses invalid in [%d,%d]",p,q);
           }
           i++;
-        }while(i<=q&&count!=0);  
+        }while(i<q&&count!=0);  
     }else if (op_pos == -1){
        op_pos = (op_priority(tokens[i].type)==-1)?-1:i;
     }else{
