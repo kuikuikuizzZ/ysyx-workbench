@@ -191,10 +191,21 @@ int op_order(int a,int b){
 int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
-    if (tokens[i].type == TK_DEC||tokens[i].type == ')')continue;
+    if (tokens[i].type == TK_DEC) continue;
     else if (tokens[i].type=='('){
       // num of parentheses must be equal
-      while(i<=q&& tokens[i].type != ')') i++;
+        int count =1;
+        while(i<=q&&count!=0) {
+          if (tokens[i].type == '(') {
+            count++;
+          } else if (tokens[i].type == ')'){
+              count--;
+          }
+          if (count<0){
+             Log("parentheses invalid in [%d,%d]",p,q);
+          }
+          i++;
+        };  
     }else if (op_pos == -1){
        op_pos = (op_priority(tokens[i].type)==-1)?-1:i;
     }else{
