@@ -60,7 +60,10 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   char* ptr = strtok(args," ");
-  if (ptr == NULL) return -1;
+  if (ptr == NULL) {
+    cpu_exec(1);
+    return 0;
+  }
 
   int n = atoi(ptr);
   cpu_exec(n);
