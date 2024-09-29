@@ -89,6 +89,7 @@ bool wps_diff(){
           cur->value = new;
           change = true;
       }
+      cur = cur->next;
   }
   return change;
 }
