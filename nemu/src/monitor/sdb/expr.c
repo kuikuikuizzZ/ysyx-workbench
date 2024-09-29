@@ -15,7 +15,7 @@
 
 #include <isa.h>
 #include <memory/vaddr.h>
-
+#include <isa.h>
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
@@ -115,6 +115,11 @@ int str2num(char* str,int typ){
   case TK_HEX:
     n = sscanf(str,"%x",&res);
     Assert(n>=1,"%s is not a hex num",str);
+    break;
+  case TK_REG:
+    bool success;
+    res = isa_reg_str2val(str,&success);
+    Assert(success,"%s is not a register name",str);
     break;
   default:
     Assert(0,"type %d is no a num type",typ);
