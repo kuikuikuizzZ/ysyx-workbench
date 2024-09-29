@@ -100,12 +100,12 @@ static int cmd_x(char *args) {
         default:
           break;
       }
-      snprintf(p, 32, " %02x", res);
+      snprintf(p, 32, " %08x", res);
       puts(log_buf);
       break;
     }
     res = vaddr_read(address+i,4);
-    snprintf(p, 32, " %02x", res);
+    snprintf(p, 32, " %08x", res);
     puts(log_buf);
   }
   return 0;
