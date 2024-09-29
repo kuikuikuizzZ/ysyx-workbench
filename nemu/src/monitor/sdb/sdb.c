@@ -101,14 +101,14 @@ static int cmd_x(char *args) {
           break;
       }
       for (int j=0;j<n-i;j++){
-        p += snprintf(p, 4, " %02x", res+j);
+        p += snprintf(p, 16, " %02x", res+j);
       }
       puts(log_buf);
       break;
     }
     res = vaddr_read(address+i,4);
     for (int j=0;j<4;j++){
-      p += snprintf(p, 4, " %02x", res+j);
+      p += snprintf(p, 16, " %02x", res+j);
     }
     puts(log_buf);
   }
