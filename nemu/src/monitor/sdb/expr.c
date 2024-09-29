@@ -269,7 +269,7 @@ int op_order(int a,int b){
   if (priority_a == priority_b) {
     return (a>b)?a:b;
   }  
-  return (priority_a < priority_b)?a:b;
+  return (priority_a < priority_b)?b:a;
 }
 int main_op_pos(int p,int q){
   int op_pos = -1;
