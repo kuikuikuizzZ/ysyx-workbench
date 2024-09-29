@@ -92,7 +92,7 @@ static int cmd_x(char *args) {
     char *p = log_buf;
     if (n-i<4){
       switch (n-i){
-        case 1: 
+        case 3: 
           res = vaddr_read(address+i,1);
           p+=snprintf(p, 8, "%02x", res);
         break;
@@ -100,7 +100,7 @@ static int cmd_x(char *args) {
           res = vaddr_read(address+i,2);
           p+=snprintf(p, 8, "%04x", res);
           break;
-        case 3: 
+        case 1: 
           res = vaddr_read(address+i+2,1);
           p+=snprintf(p, 4, "%04x", res);
           res = vaddr_read(address+i,2);
