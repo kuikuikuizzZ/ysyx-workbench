@@ -21,9 +21,10 @@
 #include <regex.h>
 #include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_DEC,TK_DEREF,
+  TK_NOTYPE = 256, TK_EQ,TK_NOTEQ,TK_DEC,TK_DEREF,
   TK_NEG,TK_LEFTP,TK_RIGHTP,TK_ADD,TK_SUB,
-  TK_MUL,TK_DIV,
+  TK_MUL,TK_DIV,TK_LESSEQ,TK_GREATEREQ,
+  TK_GREATER,TK_LESS,TK_OR,TK_AND,
 
   /* TODO: Add more token types */
 
@@ -41,16 +42,23 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"!=", TK_NOTEQ},        // equal
   {"-",'-'},
   {"/",'/'},
   {"\\*",'*'},
   {"\\(",'('},
   {"\\)",')'},
   {"[0-9]+",TK_DEC},
+  {"<=",TK_LESSEQ},
+  {">=",TK_GREATEREQ},
+  {">",TK_GREATER},
+  {"<",TK_LESS},
+  {"\\|\\|",TK_OR},
+  {"&&",TK_AND},
 };
 
 #define NR_REGEX ARRLEN(rules)
-#define MAX_TOKEN 65536
+#define MAX_TOKEN 1024
 static regex_t re[NR_REGEX] = {};
 
 /* Rules are used for many times.
@@ -77,6 +85,20 @@ typedef struct token {
 
 static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
+
+bool binary_op(int op){
+  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ|| op==TK_NOTEQ||
+          op==TK_LESSEQ||op==TK_GREATEREQ||op==TK_GREATER||op==TK_LESS||op==TK_OR||op==TK_AND)?true:false;
+}
+
+bool unary_op(int op){
+  return (op==TK_DEREF||op==TK_NEG);
+}
+
+bool is_num_type(int typ){
+  //TODO: support HEX num
+  return (typ == TK_DEC);
+}
 
 static bool make_token(char *e) {
   int position = 0;
@@ -111,18 +133,32 @@ static bool make_token(char *e) {
         strncpy(tokens[nr_token].str,substr_start,substr_len);
 
         switch (rules[i].token_type) {
-          case TK_DEC: tokens[nr_token].type = TK_DEC; break;
-          case TK_EQ: tokens[nr_token].type = TK_EQ; break;
           case '+': tokens[nr_token].type = TK_ADD; break;
           case '/': tokens[nr_token].type = TK_DIV; break;
           case '(': tokens[nr_token].type = TK_LEFTP; break;
           case ')': tokens[nr_token].type = TK_RIGHTP; break;
           case '-': 
-              tokens[nr_token].type = TK_SUB; break;
+              if (nr_token == 0 || binary_op( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+                  tokens[nr_token].type = TK_NEG; 
+              else
+                  tokens[nr_token].type = TK_SUB; 
               break;
           case '*':
-              tokens[nr_token].type = TK_MUL; break;
+              if (nr_token == 0 || binary_op( tokens[nr_token-1].type)||tokens[nr_token-1].type==TK_LEFTP)
+                  tokens[nr_token].type = TK_DEREF; 
+              else
+                  tokens[nr_token].type = TK_MUL; 
               break;
+          case TK_DEC: 
+          case TK_EQ: 
+          case TK_NOTEQ: 
+          case TK_LESSEQ:
+          case TK_GREATEREQ:
+          case TK_LESS:
+          case TK_GREATER:
+          case TK_OR:
+          case TK_AND:
+              tokens[nr_token].type = rules[i].token_type; break;
           default: 
             Log("invalid token type %d",rules[i].token_type);
             break;
@@ -186,18 +222,37 @@ bool check_parentheses(int p,int q){
   return res;
 }
 
-
+enum{
+  OP_LEVEL0=256, OP_LEVEL1, OP_LEVEL2, OP_LEVEL3, OP_LEVEL4, 
+  OP_LEVEL5, OP_LEVEL6, OP_LEVEL7, OP_LEVEL8,OP_LEVEL9,
+};
 int op_priority (int op){
   int res = -1; 
   switch (op)
   {
   case TK_MUL:
   case TK_DIV:
-    res = 5;
+    res = OP_LEVEL2;
     break;
   case TK_SUB:
   case TK_ADD:
-    res = 4;
+    res = OP_LEVEL3;
+    break;
+  case TK_LESSEQ:
+  case TK_GREATEREQ:
+  case TK_LESS:
+  case TK_GREATER:
+    res = OP_LEVEL6;
+    break;
+  case TK_EQ: 
+  case TK_NOTEQ: 
+    res = OP_LEVEL7;
+    break;
+  case TK_AND:
+    res = OP_LEVEL8;
+    break;
+  case TK_OR:
+    res = OP_LEVEL9;
     break;
   default:
     Log("op %d invalid\n",op);
@@ -205,9 +260,6 @@ int op_priority (int op){
     return -1;
   }
   return res;
-}
-bool op_valid(int op){
-  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB)?true:false;
 }
 
 // if q>p and tokens[a].type== tokens[b].type return b
@@ -226,7 +278,7 @@ int main_op_pos(int p,int q){
     else if (tokens[i].type == TK_LEFTP){
         // num of parentheses must be equal
         i = find_parentheses_match(i+1,q);
-    }else if (op_valid(tokens[i].type)){
+    }else if (binary_op(tokens[i].type)){
        op_pos = (op_pos<0)?i:op_order(op_pos,i);
     }else{
       Log("tokens[i].type %d, tokens[op_pos].type %d, i %d, op_pos %d",tokens[i].type, tokens[op_pos].type, i, op_pos);
@@ -245,7 +297,34 @@ int eval(int p,int q){
     return atoi(tokens[p].str);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
+  } else if (unary_op(tokens[p].type)){
+    // unary operator
+    word_t res;
+    int expr_end;
+    if (tokens[p+1].type == TK_LEFTP){
+        expr_end = find_parentheses_match(p+2,q);
+        res = eval(p+1,expr_end);
+    }else if (is_num_type( tokens[p+1].type)){
+        //TODO: atoi -> support HEX
+        res = atoi(tokens[p+1].str);
+        expr_end = p+1;
+    } else{
+        Log("unary operator invalid %s, callee %s",tokens[p].str,tokens[p+1].str);
+    }
+    switch (tokens[p].type){
+      case TK_DEREF : break; //TODO
+      case TK_NEG: 
+          res = -res;
+          break;
+    }
+    char str[32];
+    int n = sprintf(str,"%d",res); 
+    // TODO: support HEX
+    strncpy(tokens[expr_end].str,str,n);
+    tokens[expr_end].type = TK_DEC;
+    return (expr_end>q)?res:eval(expr_end,q);
   } else {
+    // binary operator
     int op_pos = main_op_pos(p,q);
     int val1 = eval(p,op_pos-1);
     int val2 = eval(op_pos+1,q);
@@ -254,10 +333,18 @@ int eval(int p,int q){
           case TK_SUB: val = val1-val2; break;
           case TK_MUL: val = val1*val2; break;
           case TK_DIV: 
-            if (val2 == 0) {Log("divide by zero");assert(0);}
-            val = val1/val2;
-            break;
-          default: assert(0);
+              if (val2 == 0) {Log("divide by zero");assert(0);}
+              val = val1/val2;
+              break;
+          case TK_EQ:         val = val1 == val2; break;
+          case TK_NOTEQ:      val = val1 != val2; break; 
+          case TK_LESSEQ:     val = val1 <= val2; break;
+          case TK_GREATEREQ:  val = val1 >= val2; break;
+          case TK_LESS:       val = val1 < val2; break;
+          case TK_GREATER:    val = val1 > val2; break;
+          case TK_OR:         val = val1 || val2; break;
+          case TK_AND:        val = val1 && val2; break;
+          default: assert(0); 
     }
   }
   return val;
