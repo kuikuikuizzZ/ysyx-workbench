@@ -21,12 +21,11 @@
 typedef struct watchpoint {
   int NO;
   struct watchpoint *next;
-
-  /* TODO: Add more members if necessary */
   struct watchpoint *prev;
 
   word_t watch_address;
   char args[32];
+  word_t value;
 } WP;
 
 word_t expr(char *e, bool *success);

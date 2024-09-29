@@ -14,7 +14,7 @@
 ***************************************************************************************/
 
 #include "sdb.h"
-
+#include <memory/vaddr.h>
 #define NR_WP 32
 
 
@@ -76,4 +76,19 @@ void delete_wp(int no){
 
 int head_wp_no(){
   return head->NO;
+}
+
+/* return watchpoint change or not*/
+bool wps_diff(){
+  WP *cur = head;
+  bool change;
+  while(cur !=NULL){
+      word_t new = vaddr_read(cur->watch_address,4);
+      if (new != cur->value){
+          printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
+          cur->value = new;
+          change = true;
+      }
+  }
+  return change;
 }

@@ -33,8 +33,7 @@ static bool g_print_step = false;
 void device_update();
 
 // src/monitor/sdb/watchpoint.c
-extern int new_wp(word_t i,char* args);
-extern void delete_wp(int no);
+extern bool wps_diff();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -42,7 +41,9 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc)); 
-  new_wp(0,"ss");
+  if (wps_diff()){
+      nemu_state.state = NEMU_STOP;
+  }
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
