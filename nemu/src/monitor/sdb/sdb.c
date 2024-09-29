@@ -103,8 +103,8 @@ static int cmd_x(char *args) {
         case 3: 
           res = vaddr_read(address+i+2,1);
           p+=snprintf(p, 8, "%04x", res);
-          res = vaddr_read(address+i,2);
-          p+=snprintf(p, 8, "%04x", res);  
+          // res = vaddr_read(address+i,2);
+          // p+=snprintf(p, 8, "%04x", res);  
  
           break; 
         default:
