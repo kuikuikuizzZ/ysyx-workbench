@@ -269,6 +269,7 @@ int op_order(int a,int b){
   if (priority_a == priority_b) {
     return (a>b)?a:b;
   }  
+  // "a*b-a ===> '*' priority < '+' priority, return '+'"
   return (priority_a < priority_b)?b:a;
 }
 int main_op_pos(int p,int q){
