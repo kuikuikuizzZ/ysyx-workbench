@@ -88,6 +88,8 @@ static int cmd_x(char *args) {
   word_t address = expr(expression,&success);
   for (int i=0;i<n;i=i+4){
     word_t res ;
+    char log_buf[128];
+    char *p = log_buf;
     if (n-i<4){
       switch (n-i){
         case 1: res = vaddr_read(address,1);break;
@@ -98,11 +100,13 @@ static int cmd_x(char *args) {
         default:
           break;
       }
-      printf("%x ",res);
+      snprintf(p, 4, " %02x", res);
+      puts(log_buf);
       break;
     }
     res = vaddr_read(address-i,4);
-    printf("%x ",res);
+    snprintf(p, 4, " %02x", res);
+    puts(log_buf);
   }
   printf("\n");
   return 0;
