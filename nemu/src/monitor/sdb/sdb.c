@@ -140,14 +140,14 @@ static int cmd_w(char *args) {
   bool success;
   word_t res = expr(args,&success);
   int no = new_wp(res,args);
-  printf("Watchpoint %d, What: %s",no,args);
+  printf("Watchpoint %d, What: %s\n",no,args);
   return 0;
 }
 
 static int cmd_d(char *args) {
   int no;
   int n = sscanf(args,"%d",&no);
-  Assert(n<1,"d command invalid: %s",args);
+  Assert(n<1,"d command invalid: %s\n",args);
   delete_wp(no);
   return 0;
 }
