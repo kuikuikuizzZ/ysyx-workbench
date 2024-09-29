@@ -37,9 +37,8 @@ int main(int argc, char *argv[]) {
   while(fgets(buf,65536,f)!=NULL){
     
      char *result = strtok(buf," ");
-    //  char *expression = strtok(NULL," ");
-    //  expression = strtok(expression,"\n");
-    char *expression= "1+ 3*(- 4)";
+     char *expression = strtok(NULL," ");
+     expression = strtok(expression,"\n");
      printf("result %s, expr %s\n",result,expression);
      int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
