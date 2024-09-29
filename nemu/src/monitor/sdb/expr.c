@@ -347,11 +347,11 @@ int eval(int p,int q){
     char str[32];
     int n = sprintf(str,"%d",res); 
     // TODO: support HEX
-    strncpy(tokens[expr_end].str,str,n);
     for (int i=p;i<=expr_end;i++){
         tokens[i].type = TK_NOTYPE;
         memset(tokens[i].str,0,32*sizeof(char));
     }
+    strncpy(tokens[expr_end].str,str,n);
     tokens[expr_end].type = TK_DEC;
     // replace [p,expr) with TK_NOTYPE
     return (expr_end>q)?res:eval(expr_end,q);
