@@ -223,7 +223,8 @@ bool check_parentheses(int p,int q){
 }
 
 enum{
-  OP_LEVEL1=256, OP_LEVEL2, OP_LEVEL3, OP_LEVEL4, OP_LEVEL5, OP_LEVEL6, OP_LEVEL7, OP_LEVEL8,
+  OP_LEVEL0=256, OP_LEVEL1, OP_LEVEL2, OP_LEVEL3, OP_LEVEL4, 
+  OP_LEVEL5, OP_LEVEL6, OP_LEVEL7, OP_LEVEL8,OP_LEVEL9,
 };
 int op_priority (int op){
   int res = -1; 
@@ -231,11 +232,11 @@ int op_priority (int op){
   {
   case TK_MUL:
   case TK_DIV:
-    res = OP_LEVEL3;
+    res = OP_LEVEL2;
     break;
   case TK_SUB:
   case TK_ADD:
-    res = OP_LEVEL4;
+    res = OP_LEVEL3;
     break;
   case TK_LESSEQ:
   case TK_GREATEREQ:
@@ -245,9 +246,13 @@ int op_priority (int op){
     break;
   case TK_EQ: 
   case TK_NOTEQ: 
-  case TK_OR:
+    res = OP_LEVEL7;
+    break;
   case TK_AND:
     res = OP_LEVEL8;
+    break;
+  case TK_OR:
+    res = OP_LEVEL9;
     break;
   default:
     Log("op %d invalid\n",op);
