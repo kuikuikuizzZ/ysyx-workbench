@@ -108,7 +108,6 @@ static int cmd_x(char *args) {
     snprintf(p, 4, " %02x", res);
     puts(log_buf);
   }
-  printf("\n");
   return 0;
 }
 
