@@ -113,7 +113,7 @@ static int cmd_x(char *args) {
       break;
     }
     res = vaddr_read(address+i,4);
-    p+=snprintf(p, 8, "%08x ", res);
+    p+=snprintf(p, 8, "%08x", res);
     puts(log_buf);
   }
   return 0;
