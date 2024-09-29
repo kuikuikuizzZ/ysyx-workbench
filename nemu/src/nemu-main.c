@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
      char *result = strtok(buf," ");
     //  char *expression = strtok(NULL," ");
     //  expression = strtok(expression,"\n");
-    char *expression= "1+ 3*(- 4)-43/2+(34&&1||1!=4||23>4)";
+    char *expression= "1+ 3*(- 4)- 43/     2+(34 && 1||1!=4|| 23>    4) ";
      printf("result %s, expr %s\n",result,expression);
      int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
