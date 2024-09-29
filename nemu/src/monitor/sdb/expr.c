@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -336,7 +337,9 @@ int eval(int p,int q){
         Log("unary operator invalid %s, callee %s",tokens[p].str,tokens[p+1].str);
     }
     switch (tokens[p].type){
-      case TK_DEREF : break; //TODO
+      case TK_DEREF : 
+          word_t res = vaddr_read(res,4);
+          break; 
       case TK_NEG: 
           res = -res;
           break;
