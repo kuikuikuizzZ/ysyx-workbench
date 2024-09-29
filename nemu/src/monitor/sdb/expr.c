@@ -339,7 +339,7 @@ int eval(int p,int q){
     switch (tokens[p].type){
       case TK_DEREF : 
           printf("%x",res);
-          word_t res = vaddr_read(res,4);
+          res = vaddr_read(res,4);
           break; 
       case TK_NEG: 
           res = -res;
