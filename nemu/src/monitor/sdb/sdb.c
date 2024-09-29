@@ -77,25 +77,53 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  char* ptr = strtok(args," ");
+  char *args_end = args + strlen(args);
+  char *ptr = strtok(args," ");
   int n = atoi(ptr);
-  char *expr = strtok(NULL," ");
-  unsigned int address;
-  int res = sscanf(expr,"%x",&address);
-  if (res <1){
-    printf("x n expr: expr invalid");
-    return -1;
+  char *expression = ptr + strlen(ptr) + 1;
+  if (args >= args_end) {
+      args = NULL;
   }
+  bool success;
+  word_t address = expr(expression,&success);
   for (int i=0;i<n;i=i+4){
+    word_t res ;
+    char log_buf[128];
+    char *p = log_buf;
     if (n-i<4){
-      word_t res = vaddr_read(address+i,n-i);
-      printf("%x ",res);
+      switch (n-i){
+        case 1: 
+          res = vaddr_read(address+i,1);
+          p+=snprintf(p, 4, "%02x", res);
+        break;
+        case 2: 
+          res = vaddr_read(address+i,2);
+          p+=snprintf(p, 8, "%04x", res);
+          break;
+        case 3: 
+          res = vaddr_read(address+i+2,1);
+          p+=snprintf(p, 4, "%02x", res);
+          res = vaddr_read(address+i,2);
+          p+=snprintf(p, 8, "%04x", res);  
+ 
+          break; 
+        default:
+          break;
+      }
+      puts(log_buf);
       break;
     }
-    word_t res = vaddr_read(address+i,4);
-    printf("%x ",res);
+    res = vaddr_read(address+i,4);
+    p+=snprintf(p, 16, "%08x", res);
+    puts(log_buf);
   }
-  printf("\n");
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  bool success;
+  word_t res = expr(args,&success);
+  printf("%d\n",res);
   return 0;
 }
 
@@ -113,6 +141,7 @@ static struct {
   {"si","Exec n instruction then pause,default n = 1",cmd_si},
   {"info","Display register(info r) or watchpoint(info w) states",cmd_info},
   {"x","Display n bytes from EXPR address(x N EXPR)",cmd_x},
+  {"p","Display result of EXPR (p EXPR)",cmd_p},
   /* TODO: Add more commands */
 
 };

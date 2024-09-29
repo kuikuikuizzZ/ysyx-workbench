@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -21,7 +22,7 @@
 #include <regex.h>
 #include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_NOTEQ,TK_DEC,TK_DEREF,
+  TK_NOTYPE = 256, TK_DEC,TK_HEX,TK_EQ,TK_NOTEQ,TK_DEREF,
   TK_NEG,TK_LEFTP,TK_RIGHTP,TK_ADD,TK_SUB,
   TK_MUL,TK_DIV,TK_LESSEQ,TK_GREATEREQ,
   TK_GREATER,TK_LESS,TK_OR,TK_AND,
@@ -48,6 +49,7 @@ static struct rule {
   {"\\*",'*'},
   {"\\(",'('},
   {"\\)",')'},
+  {"0x[0-9a-f]+",TK_HEX},
   {"[0-9]+",TK_DEC},
   {"<=",TK_LESSEQ},
   {">=",TK_GREATEREQ},
@@ -97,7 +99,27 @@ bool unary_op(int op){
 
 bool is_num_type(int typ){
   //TODO: support HEX num
-  return (typ == TK_DEC);
+  return (typ == TK_DEC||typ == TK_HEX);
+}
+
+int str2num(char* str,int typ){
+  word_t res;
+  int n;
+  switch (typ)
+  {
+  case TK_DEC:
+    n = sscanf(str,"%u",&res);
+    Assert(n>=1,"%s is not a decimal num",str);
+    break;
+  case TK_HEX:
+    n = sscanf(str,"%x",&res);
+    Assert(n>=1,"%s is not a hex num",str);
+    break;
+  default:
+    Assert(0,"type %d is no a num type",typ);
+    break;
+  }
+  return res;
 }
 
 static bool make_token(char *e) {
@@ -150,6 +172,7 @@ static bool make_token(char *e) {
                   tokens[nr_token].type = TK_MUL; 
               break;
           case TK_DEC: 
+          case TK_HEX:
           case TK_EQ: 
           case TK_NOTEQ: 
           case TK_LESSEQ:
@@ -255,7 +278,7 @@ int op_priority (int op){
     res = OP_LEVEL9;
     break;
   default:
-    Log("op %d invalid\n",op);
+    Assert(0,"op %d invalid\n",op);
     // assert(0);
     return -1;
   }
@@ -269,12 +292,13 @@ int op_order(int a,int b){
   if (priority_a == priority_b) {
     return (a>b)?a:b;
   }  
-  return (priority_a < priority_b)?a:b;
+  // NOTE: a*b-a ===> '*' priority < '+' priority, return '+'"
+  return (priority_a < priority_b)?b:a;
 }
 int main_op_pos(int p,int q){
   int op_pos = -1;
   for (int i=p;i<=q;i++){
-    if (tokens[i].type == TK_DEC) {continue;}
+    if (is_num_type( tokens[i].type) ) {continue;}
     else if (tokens[i].type == TK_LEFTP){
         // num of parentheses must be equal
         i = find_parentheses_match(i+1,q);
@@ -291,12 +315,13 @@ int main_op_pos(int p,int q){
 int eval(int p,int q){
   word_t val;
   if (p>q){
-    printf("exprssion eval %d>%d ",p,q);
-    assert(0);
+    Assert(p<=q,"exprssion eval %d>%d ",p,q);
   } else if(p==q){
-    return atoi(tokens[p].str);
+    return str2num(tokens[p].str,tokens[p].type);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
+  } else if (tokens[p].type == TK_NOTYPE){
+      return eval(p+1,q);
   } else if (unary_op(tokens[p].type)){
     // unary operator
     word_t res;
@@ -305,23 +330,28 @@ int eval(int p,int q){
         expr_end = find_parentheses_match(p+2,q);
         res = eval(p+1,expr_end);
     }else if (is_num_type( tokens[p+1].type)){
-        //TODO: atoi -> support HEX
-        res = atoi(tokens[p+1].str);
+        res = str2num(tokens[p+1].str,tokens[p+1].type);
         expr_end = p+1;
     } else{
         Log("unary operator invalid %s, callee %s",tokens[p].str,tokens[p+1].str);
     }
     switch (tokens[p].type){
-      case TK_DEREF : break; //TODO
+      case TK_DEREF : 
+          res = vaddr_read(res,4);
+          break; 
       case TK_NEG: 
           res = -res;
           break;
     }
     char str[32];
-    int n = sprintf(str,"%d",res); 
-    // TODO: support HEX
+    int n = sprintf(str,"%u",res); 
+    for (int i=p;i<=expr_end;i++){
+        tokens[i].type = TK_NOTYPE;
+        memset(tokens[i].str,0,32*sizeof(char));
+    }
     strncpy(tokens[expr_end].str,str,n);
     tokens[expr_end].type = TK_DEC;
+    // replace [p,expr) with TK_NOTYPE
     return (expr_end>q)?res:eval(expr_end,q);
   } else {
     // binary operator

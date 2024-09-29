@@ -21,15 +21,10 @@ void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
-int main(int argc, char *argv[]) {
-  #ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-  #else
-    init_monitor(argc, argv);
-  #endif
+void test_expr(int argc,char* argv[]){
   if (argc<2){
-    printf("need inputfile");
-    return 0;
+  printf("need inputfile");
+  return ;
   }
   char buf[65536];
   FILE *f = fopen(argv[1],"rb+");
@@ -43,11 +38,24 @@ int main(int argc, char *argv[]) {
      int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
   }
+  return ;
+}
+
+int main(int argc, char *argv[]) {
+
+
   /* Initialize the monitor. */
+  #ifdef CONFIG_TARGET_AM
+  am_init_monitor();
+  #else
+    init_monitor(argc, argv);
+  #endif
 
+// test expr in debug phase
+// test_expr(argc,argv);
 
-//   /* Start engine. */
-//   engine_start();
-
+  /* Start engine. */
+  engine_start();
   return is_exit_status_bad();
 }
+
