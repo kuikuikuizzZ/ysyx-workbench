@@ -94,15 +94,15 @@ static int cmd_x(char *args) {
       switch (n-i){
         case 1: 
           res = vaddr_read(address+i,1);
-          p+=snprintf(p, 2, "%08x", res);
+          p+=snprintf(p, 2, "%02x", res);
         break;
         case 2: 
           res = vaddr_read(address+i,2);
-          p+=snprintf(p, 4, "%08x", res);
+          p+=snprintf(p, 4, "%04x", res);
           break;
         case 3: 
           res = vaddr_read(address+i,2);
-          p+=snprintf(p, 4, "%08x", res);  
+          p+=snprintf(p, 4, "%04x", res);  
           res = vaddr_read(address+i+2,1);
           p+=snprintf(p, 8, "%08x", res); 
           break; 
