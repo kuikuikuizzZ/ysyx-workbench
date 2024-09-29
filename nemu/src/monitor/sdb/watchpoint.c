@@ -17,15 +17,7 @@
 
 #define NR_WP 32
 
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
 
-  /* TODO: Add more members if necessary */
-  struct watchpoint *prev;
-
-  word_t watch_address;
-} WP;
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
@@ -44,7 +36,7 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 // return watchpoint NO
-int new_wp(){
+int new_wp(word_t address, char* args){
     if(!free_) {
       assert(0);
     } 
@@ -55,6 +47,9 @@ int new_wp(){
     }
     head = temp;
     free_ = free_->next;
+    temp->watch_address = address;
+    char* res = strncpy(temp->args,args,32);
+    Assert(res!=NULL,"watch point args: %s invalid",args); 
     return head->NO;
 }
 
