@@ -21,9 +21,10 @@
 #include <regex.h>
 #include <string.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_DEC,TK_DEREF,
+  TK_NOTYPE = 256, TK_EQ,TK_NOTEQ,TK_DEC,TK_DEREF,
   TK_NEG,TK_LEFTP,TK_RIGHTP,TK_ADD,TK_SUB,
-  TK_MUL,TK_DIV,
+  TK_MUL,TK_DIV,TK_LESSEQ,TK_GREATEREQ,
+  TK_GREATER,TK_LESS,TK_OR,TK_AND,
 
   /* TODO: Add more token types */
 
@@ -41,12 +42,19 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"!=", TK_NOTEQ},        // equal
   {"-",'-'},
   {"/",'/'},
   {"\\*",'*'},
   {"\\(",'('},
   {"\\)",')'},
   {"[0-9]+",TK_DEC},
+  {"\\<=",TK_LESSEQ},
+  {"\\>=",TK_GREATEREQ},
+  {"\\>",TK_GREATER},
+  {"\\<",TK_LESS},
+  {"\\|\\|",TK_OR},
+  {"&&",TK_AND},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -79,7 +87,8 @@ static Token tokens[MAX_TOKEN] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 bool binary_op(int op){
-  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ)?true:false;
+  return (op==TK_MUL||op==TK_DIV||op==TK_ADD||op==TK_SUB||op==TK_EQ|| op==TK_NOTEQ||
+          op==TK_LESSEQ||op==TK_GREATEREQ||op==TK_GREATER||op==TK_LESS||op==TK_OR||op==TK_AND)?true:false;
 }
 
 bool unary_op(int op){
@@ -124,8 +133,6 @@ static bool make_token(char *e) {
         strncpy(tokens[nr_token].str,substr_start,substr_len);
 
         switch (rules[i].token_type) {
-          case TK_DEC: tokens[nr_token].type = TK_DEC; break;
-          case TK_EQ: tokens[nr_token].type = TK_EQ; break;
           case '+': tokens[nr_token].type = TK_ADD; break;
           case '/': tokens[nr_token].type = TK_DIV; break;
           case '(': tokens[nr_token].type = TK_LEFTP; break;
@@ -142,6 +149,16 @@ static bool make_token(char *e) {
               else
                   tokens[nr_token].type = TK_MUL; 
               break;
+          case TK_DEC: 
+          case TK_EQ: 
+          case TK_NOTEQ: 
+          case TK_LESSEQ:
+          case TK_GREATEREQ:
+          case TK_LESS:
+          case TK_GREATER:
+          case TK_OR:
+          case TK_AND:
+              tokens[nr_token].type = rules[i].token_type; break;
           default: 
             Log("invalid token type %d",rules[i].token_type);
             break;
