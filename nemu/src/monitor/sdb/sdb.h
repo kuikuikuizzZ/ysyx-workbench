@@ -23,7 +23,6 @@ typedef struct watchpoint {
   struct watchpoint *next;
   struct watchpoint *prev;
 
-  word_t watch_address;
   char args[32];
   word_t value;
 } WP;

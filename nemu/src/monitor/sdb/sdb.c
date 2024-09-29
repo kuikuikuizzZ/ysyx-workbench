@@ -76,7 +76,7 @@ static int cmd_info(char *args) {
   }else if(strcmp(ptr,"w")==0){
     WP* cur = head;
     while (cur != NULL){
-        printf("Num: %04d, Address: %08x, What: %s\n",cur->NO,cur->watch_address,cur->args);
+        printf("Num: %04d, Value: %08x, What: %s\n",cur->NO,cur->value,cur->args);
         cur = cur->next;
     }
   }else{

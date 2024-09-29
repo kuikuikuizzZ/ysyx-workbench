@@ -15,6 +15,7 @@
 
 #include "sdb.h"
 #include <memory/vaddr.h>
+#include <isa.h>
 #define NR_WP 32
 
 
@@ -36,7 +37,7 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 // return watchpoint NO
-int new_wp(word_t address, char* args){
+int new_wp(word_t value, char* args){
     if(!free_) {
       assert(0);
     } 
@@ -47,7 +48,7 @@ int new_wp(word_t address, char* args){
     }
     head = temp;
     free_ = free_->next;
-    temp->watch_address = address;
+    temp->value = value;
     char* res = strncpy(temp->args,args,32);
     Assert(res!=NULL,"watch point args: %s invalid",args); 
     return head->NO;
@@ -83,7 +84,8 @@ bool wps_diff(){
   WP *cur = head;
   bool change;
   while(cur !=NULL){
-      word_t new = vaddr_read(cur->watch_address,4);
+      //TODO: should support different expr
+      word_t new = isa_reg_str2val(cur->args,NULL);
       if (new != cur->value){
           printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
           cur->value = new;
