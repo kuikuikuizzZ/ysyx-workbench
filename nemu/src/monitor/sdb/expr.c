@@ -103,7 +103,7 @@ bool is_num_type(int typ){
 }
 
 int str2num(char* str,int typ){
-  int res;
+  word_t res;
   int n;
   switch (typ)
   {
@@ -338,6 +338,7 @@ int eval(int p,int q){
     }
     switch (tokens[p].type){
       case TK_DEREF : 
+          printf("%x",res);
           word_t res = vaddr_read(res,4);
           break; 
       case TK_NEG: 
