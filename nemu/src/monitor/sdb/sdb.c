@@ -92,22 +92,26 @@ static int cmd_x(char *args) {
     char *p = log_buf;
     if (n-i<4){
       switch (n-i){
-        case 1: res = vaddr_read(address,1);break;
-        case 2: res = vaddr_read(address,2);break;
+        case 1: res = vaddr_read(address,1);
+        p+=snprintf(p, 4, "%02x", res);
+        break;
+        case 2: 
+          res = vaddr_read(address,2);
+          p+=snprintf(p, 8, "%04x", res);
+          break;
         case 3: 
-          res = vaddr_read(address,2);break;  
-          // res = vaddr_read(address+2,1);break;
+          res = vaddr_read(address,2);
+          p+=snprintf(p, 4, "%02x", res);  
+          res = vaddr_read(address+2,1);break;
+          p+=snprintf(p, 8, "%04x", res);  
         default:
           break;
       }
-      snprintf(p, 4, " %02x ", res);
       puts(log_buf);
       break;
     }
     res = vaddr_read(address+i,4);
-    for (int j=0;j<4;j++){
-      p+=snprintf(p, 4, "%02x ", res+j);
-    }
+    p+=snprintf(p, 16, "%08x ", res);
     puts(log_buf);
   }
   return 0;
