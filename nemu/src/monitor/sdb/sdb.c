@@ -77,11 +77,15 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  char* ptr = strtok(args," ");
+  char *args_end = args + strlen(args);
+  char *ptr = strtok(args," ");
   int n = atoi(ptr);
-  char *e = strtok(NULL," ");
+  char *expression = ptr + strlen(ptr) + 1;
+  if (args >= args_end) {
+      args = NULL;
+  }
   bool success;
-  word_t address = expr(e,&success);
+  word_t address = expr(expression,&success);
   for (int i=0;i<n;i=i+4){
     if (n-i<4){
       word_t res = vaddr_read(address+i,n-i);
@@ -96,9 +100,8 @@ static int cmd_x(char *args) {
 }
 
 static int cmd_p(char *args) {
-  char* e = strtok(args," ");
   bool success;
-  word_t res = expr(e,&success);
+  word_t res = expr(args,&success);
   printf("%d\n",res);
   return 0;
 }
