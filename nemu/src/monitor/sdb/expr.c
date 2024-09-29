@@ -338,7 +338,6 @@ int eval(int p,int q){
     }
     switch (tokens[p].type){
       case TK_DEREF : 
-          printf("%x",res);
           res = vaddr_read(res,4);
           break; 
       case TK_NEG: 
