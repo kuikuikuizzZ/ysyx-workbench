@@ -87,12 +87,21 @@ static int cmd_x(char *args) {
   bool success;
   word_t address = expr(expression,&success);
   for (int i=0;i<n;i=i+4){
+    word_t res ;
     if (n-i<4){
-      word_t res = vaddr_read(address+i,n-i);
+      switch (n-i){
+        case 1: res = vaddr_read(address,1);break;
+        case 2: res = vaddr_read(address,2);break;
+        case 3: 
+          res = vaddr_read(address,2);break;  
+          res = vaddr_read(address+2,1);break;
+        default:
+          break;
+      }
       printf("%x ",res);
       break;
     }
-    word_t res = vaddr_read(address+i,4);
+    res = vaddr_read(address+i,4);
     printf("%x ",res);
   }
   printf("\n");
