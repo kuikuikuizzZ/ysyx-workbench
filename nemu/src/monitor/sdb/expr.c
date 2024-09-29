@@ -345,7 +345,6 @@ int eval(int p,int q){
     }
     char str[32];
     int n = sprintf(str,"%u",res); 
-    // TODO: support HEX
     for (int i=p;i<=expr_end;i++){
         tokens[i].type = TK_NOTYPE;
         memset(tokens[i].str,0,32*sizeof(char));
