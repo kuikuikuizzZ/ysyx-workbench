@@ -96,7 +96,7 @@ static int cmd_x(char *args) {
         case 2: res = vaddr_read(address,2);break;
         case 3: 
           res = vaddr_read(address,2);break;  
-          res = vaddr_read(address+2,1);break;
+          // res = vaddr_read(address+2,1);break;
         default:
           break;
       }
@@ -106,7 +106,7 @@ static int cmd_x(char *args) {
       puts(log_buf);
       break;
     }
-    res = vaddr_read(address-i,4);
+    res = vaddr_read(address+i,4);
     for (int j=0;j<4;j++){
       p += snprintf(p, 4, " %02x", res+j);
     }
