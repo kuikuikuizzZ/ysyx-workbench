@@ -140,7 +140,7 @@ static int cmd_w(char *args) {
   bool success;
   word_t res = expr(args,&success);
   int no = new_wp(res,args);
-  printf("Watchpoint %dd: %s",no,args);
+  printf("Watchpoint %d, What: %s",no,args);
   return 0;
 }
 
