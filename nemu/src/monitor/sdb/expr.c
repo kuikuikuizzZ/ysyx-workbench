@@ -222,18 +222,32 @@ bool check_parentheses(int p,int q){
   return res;
 }
 
-
+enum{
+  OP_LEVEL1=256, OP_LEVEL2, OP_LEVEL3, OP_LEVEL4, OP_LEVEL5, OP_LEVEL6, OP_LEVEL7, OP_LEVEL8,
+};
 int op_priority (int op){
   int res = -1; 
   switch (op)
   {
   case TK_MUL:
   case TK_DIV:
-    res = 5;
+    res = OP_LEVEL3;
     break;
   case TK_SUB:
   case TK_ADD:
-    res = 4;
+    res = OP_LEVEL4;
+    break;
+  case TK_LESSEQ:
+  case TK_GREATEREQ:
+  case TK_LESS:
+  case TK_GREATER:
+    res = OP_LEVEL6;
+    break;
+  case TK_EQ: 
+  case TK_NOTEQ: 
+  case TK_OR:
+  case TK_AND:
+    res = OP_LEVEL8;
     break;
   default:
     Log("op %d invalid\n",op);
@@ -317,7 +331,15 @@ int eval(int p,int q){
               if (val2 == 0) {Log("divide by zero");assert(0);}
               val = val1/val2;
               break;
-          default: assert(0);
+          case TK_EQ:         val = val1 == val2; break;
+          case TK_NOTEQ:      val = val1 != val2; break; 
+          case TK_LESSEQ:     val = val1 <= val2; break;
+          case TK_GREATEREQ:  val = val1 >= val2; break;
+          case TK_LESS:       val = val1 > val2; break;
+          case TK_GREATER:    val = val1 < val2; break;
+          case TK_OR:         val = val1 || val2; break;
+          case TK_AND:        val = val1 && val2; break;
+          default: assert(0); 
     }
   }
   return val;
