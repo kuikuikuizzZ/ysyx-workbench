@@ -117,7 +117,7 @@ static struct {
   {"si","Exec n instruction then pause,default n = 1",cmd_si},
   {"info","Display register(info r) or watchpoint(info w) states",cmd_info},
   {"x","Display n bytes from EXPR address(x N EXPR)",cmd_x},
-  {"d","Display result of EXPR (p EXPR)",cmd_p},
+  {"p","Display result of EXPR (p EXPR)",cmd_p},
   /* TODO: Add more commands */
 
 };
