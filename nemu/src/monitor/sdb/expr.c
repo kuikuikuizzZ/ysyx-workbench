@@ -340,8 +340,8 @@ int eval(int p,int q){
           case TK_NOTEQ:      val = val1 != val2; break; 
           case TK_LESSEQ:     val = val1 <= val2; break;
           case TK_GREATEREQ:  val = val1 >= val2; break;
-          case TK_LESS:       val = val1 > val2; break;
-          case TK_GREATER:    val = val1 < val2; break;
+          case TK_LESS:       val = val1 < val2; break;
+          case TK_GREATER:    val = val1 > val2; break;
           case TK_OR:         val = val1 || val2; break;
           case TK_AND:        val = val1 && val2; break;
           default: assert(0); 
