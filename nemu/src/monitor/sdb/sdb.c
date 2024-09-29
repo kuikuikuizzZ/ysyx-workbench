@@ -101,7 +101,7 @@ static int cmd_x(char *args) {
       printf("%x ",res);
       break;
     }
-    res = vaddr_read(address+i,4);
+    res = vaddr_read(address-i,4);
     printf("%x ",res);
   }
   printf("\n");
