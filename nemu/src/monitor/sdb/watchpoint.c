@@ -85,7 +85,8 @@ bool wps_diff(){
   bool change;
   while(cur !=NULL){
       //TODO: should support different expr
-      word_t new = isa_reg_str2val(cur->args,NULL);
+      bool success;
+      word_t new = isa_reg_str2val(cur->args,&success);
       if (new != cur->value){
           printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
           cur->value = new;
