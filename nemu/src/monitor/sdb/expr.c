@@ -108,7 +108,7 @@ int str2num(char* str,int typ){
   switch (typ)
   {
   case TK_DEC:
-    n = sscanf(str,"%d",&res);
+    n = sscanf(str,"%u",&res);
     Assert(n>=1,"%s is not a decimal num",str);
     break;
   case TK_HEX:
@@ -315,8 +315,7 @@ int main_op_pos(int p,int q){
 int eval(int p,int q){
   word_t val;
   if (p>q){
-    printf("exprssion eval %d>%d ",p,q);
-    assert(0);
+    Assert(p<=q,"exprssion eval %d>%d ",p,q);
   } else if(p==q){
     return str2num(tokens[p].str,tokens[p].type);
   } else if (check_parentheses(p,q)==true) {
@@ -345,7 +344,7 @@ int eval(int p,int q){
           break;
     }
     char str[32];
-    int n = sprintf(str,"%d",res); 
+    int n = sprintf(str,"%u",res); 
     // TODO: support HEX
     for (int i=p;i<=expr_end;i++){
         tokens[i].type = TK_NOTYPE;
