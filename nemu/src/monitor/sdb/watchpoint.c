@@ -14,18 +14,11 @@
 ***************************************************************************************/
 
 #include "sdb.h"
-
+#include <memory/vaddr.h>
+#include <isa.h>
 #define NR_WP 32
 
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
 
-  /* TODO: Add more members if necessary */
-  struct watchpoint *prev;
-
-  word_t watch_address;
-} WP;
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
@@ -44,7 +37,7 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 // return watchpoint NO
-int new_wp(){
+int new_wp(word_t value, char* args){
     if(!free_) {
       assert(0);
     } 
@@ -55,6 +48,9 @@ int new_wp(){
     }
     head = temp;
     free_ = free_->next;
+    temp->value = value;
+    char* res = strncpy(temp->args,args,32);
+    Assert(res!=NULL,"watch point args: %s invalid",args); 
     return head->NO;
 }
 
@@ -81,4 +77,22 @@ void delete_wp(int no){
 
 int head_wp_no(){
   return head->NO;
+}
+
+/* return watchpoint change or not*/
+bool wps_diff(){
+  WP *cur = head;
+  bool change;
+  while(cur !=NULL){
+      //TODO: should support different expr
+      bool success;
+      word_t new = isa_reg_str2val(cur->args,&success);
+      if (new != cur->value){
+          printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
+          cur->value = new;
+          change = true;
+      }
+      cur = cur->next;
+  }
+  return change;
 }

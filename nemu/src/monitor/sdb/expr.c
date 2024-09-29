@@ -15,7 +15,7 @@
 
 #include <isa.h>
 #include <memory/vaddr.h>
-
+#include <isa.h>
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
@@ -25,7 +25,7 @@ enum {
   TK_NOTYPE = 256, TK_DEC,TK_HEX,TK_EQ,TK_NOTEQ,TK_DEREF,
   TK_NEG,TK_LEFTP,TK_RIGHTP,TK_ADD,TK_SUB,
   TK_MUL,TK_DIV,TK_LESSEQ,TK_GREATEREQ,
-  TK_GREATER,TK_LESS,TK_OR,TK_AND,
+  TK_GREATER,TK_LESS,TK_OR,TK_AND,TK_REG,
 
   /* TODO: Add more token types */
 
@@ -57,6 +57,7 @@ static struct rule {
   {"<",TK_LESS},
   {"\\|\\|",TK_OR},
   {"&&",TK_AND},
+  {"\\$[a-z]*[0-9]*",TK_REG},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -114,6 +115,11 @@ int str2num(char* str,int typ){
   case TK_HEX:
     n = sscanf(str,"%x",&res);
     Assert(n>=1,"%s is not a hex num",str);
+    break;
+  case TK_REG:
+    bool success;
+    res = isa_reg_str2val(str,&success);
+    Assert(success,"%s is not a register name",str);
     break;
   default:
     Assert(0,"type %d is no a num type",typ);
@@ -181,6 +187,7 @@ static bool make_token(char *e) {
           case TK_GREATER:
           case TK_OR:
           case TK_AND:
+          case TK_REG:
               tokens[nr_token].type = rules[i].token_type; break;
           default: 
             Log("invalid token type %d",rules[i].token_type);

@@ -25,6 +25,11 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 
+static WP* head;
+extern int new_wp(word_t addr, char* args);
+extern int delete_wp(int wp);
+
+
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -55,7 +60,10 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   char* ptr = strtok(args," ");
-  if (ptr == NULL) return -1;
+  if (ptr == NULL) {
+    cpu_exec(1);
+    return 0;
+  }
 
   int n = atoi(ptr);
   cpu_exec(n);
@@ -69,7 +77,11 @@ static int cmd_info(char *args) {
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
   }else if(strcmp(ptr,"w")==0){
-     // TODO
+    WP* cur = head;
+    while (cur != NULL){
+        printf("Num: %04d, Value: %08x, What: %s\n",cur->NO,cur->value,cur->args);
+        cur = cur->next;
+    }
   }else{
     printf("Usage: info r/w\n");
   }
@@ -127,6 +139,21 @@ static int cmd_p(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args) {
+  bool success;
+  word_t res = expr(args,&success);
+  int no = new_wp(res,args);
+  printf("Watchpoint %d, What: %s\n",no,args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  int no;
+  int n = sscanf(args,"%d",&no);
+  Assert(n<1,"d command invalid: %s\n",args);
+  delete_wp(no);
+  return 0;
+}
 
 static int cmd_help(char *args);
 
@@ -142,6 +169,8 @@ static struct {
   {"info","Display register(info r) or watchpoint(info w) states",cmd_info},
   {"x","Display n bytes from EXPR address(x N EXPR)",cmd_x},
   {"p","Display result of EXPR (p EXPR)",cmd_p},
+  {"w","create a watchpoint (w EXPR)",cmd_w},
+  {"d","delete watchpoint (d NO)",cmd_d},
   /* TODO: Add more commands */
 
 };
