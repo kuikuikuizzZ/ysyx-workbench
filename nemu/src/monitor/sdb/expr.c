@@ -297,6 +297,8 @@ int eval(int p,int q){
     return atoi(tokens[p].str);
   } else if (check_parentheses(p,q)==true) {
     return eval(p+1,q-1);
+  } else if (tokens[p].type == TK_NOTYPE){
+      return eval(p+1,q);
   } else if (unary_op(tokens[p].type)){
     // unary operator
     word_t res;
@@ -322,6 +324,10 @@ int eval(int p,int q){
     // TODO: support HEX
     strncpy(tokens[expr_end].str,str,n);
     tokens[expr_end].type = TK_DEC;
+    // replace [p,expr) with TK_NOTYPE
+    for (int i=p;i<expr_end;i++){
+        tokens[i].type = TK_NOTYPE;
+    }
     return (expr_end>q)?res:eval(expr_end,q);
   } else {
     // binary operator
