@@ -108,11 +108,11 @@ int str2num(char* str,int typ){
   {
   case TK_DEC:
     n = sscanf(str,"%d",&res);
-    Assert(n<1,"%s is not a decimal num",str);
+    Assert(n>=1,"%s is not a decimal num",str);
     break;
   case TK_HEX:
     n = sscanf(str,"%x",&res);
-    Assert(n<1,"%s is not a hex num",str);
+    Assert(n>=1,"%s is not a hex num",str);
     break;
   default:
     Assert(0,"type %d is no a num type",typ);
