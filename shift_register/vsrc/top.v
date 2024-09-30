@@ -1,6 +1,4 @@
 module top(
-    input clk,
-    input rst,
     input [15:0] sw,
     input [1:0] btn,
     output [7:0] seg0,

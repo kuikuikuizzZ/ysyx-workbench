@@ -8,17 +8,19 @@ module shifter8(
   integer i;
   reg [7:0] state;
   always@(posedge clk) begin
-      newbit = state[4]^state[3]^state[2]^state[0];
-      for(i=0;i<7;i++) begin
-        Result[7-i] = state[7-i-1];
-      end
-      Result[0] = newbit;
+    if (rst) begin
+      state <= seed;
     end
-  always@(*) begin
-    if (rst) 
-      state = seed;
-    else
-      state = Result;
+    else begin
+        newbit = state[4]^state[3]^state[2]^state[0];
+        for(i=0;i<7;i++) begin
+          state[i] <= state[i+1];
+        end
+        state[7] <= newbit;
+    end
   end
+
+  assign Result = state;
+  
 endmodule
 
