@@ -97,7 +97,11 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
     int ret = system("gcc /tmp/.code.c -Werror -o /tmp/.expr");
-    if (ret != 0) continue;
+    if (ret != 0) {
+      memset(buf,0,buf_end+1);
+      buf_end=0;
+      continue;
+    };
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
