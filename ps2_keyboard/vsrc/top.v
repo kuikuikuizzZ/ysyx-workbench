@@ -13,7 +13,7 @@ module top(
     output [7:0] seg5
 );
 
-wire ready,nextdata_n,overflow;
+wire ready,overflow,nextdata_n ;
 reg [7:0] data;
 
 
@@ -33,7 +33,7 @@ assign ledr[2:0] =  {ready,nextdata_n,overflow};
 
 bcd7seg my_seg(
     .clk(clk),
-    .rst(rst),
+    .rst(sw[0]),
     .ready(ready),
     .data(data),
     .o_seg0(seg0),
@@ -41,7 +41,8 @@ bcd7seg my_seg(
     .o_seg2(seg2),
     .o_seg3(seg3),
     .o_seg4(seg4),
-    .o_seg5(seg5)
+    .o_seg5(seg5),
+    .nextdata_n(nextdata_n)
 );
 
 endmodule

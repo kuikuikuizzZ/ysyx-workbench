@@ -41,7 +41,7 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,
                     w_ptr <= w_ptr+3'b1;
                     ready <= 1'b1;
                     overflow <= overflow | (r_ptr == (w_ptr + 3'b1));
-                    $display("receive %x %d,%d,%d", buffer[8:1],ready,overflow,nextdata_n);
+                    $display("receive %x %b,%b,%b", buffer[8:1],ready,overflow,nextdata_n);
                 end
                 count <= 0;     // for next
               end else begin
@@ -50,7 +50,6 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,
               end
             end
         end
-        $display("data %x", fifo[r_ptr]);
     end
     assign data = fifo[r_ptr]; //always set output data
 endmodule
