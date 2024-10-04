@@ -21,7 +21,7 @@ module bcd7seg(
             4'hd : seg = ~8'b01111010;
             4'he : seg = ~8'b10011110;
             4'hf : seg = ~8'b10001110;
-            default seg = ~8'b00000000;
+            default seg =~8'b00000000;
         endcase
 
 endmodule
