@@ -153,8 +153,8 @@ config ITRACE_COND
 
 config WATCHPOINT
   depends on TRACE
-  string "Only trace watchpoint when the condition is true"
-  default 1
+  bool "Only trace watchpoint when the condition is true"
+  default y
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF

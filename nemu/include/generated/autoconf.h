@@ -6,7 +6,6 @@
  */
 #define CONFIG_DIFFTEST_REF_NAME "none"
 #define CONFIG_ENGINE "interpreter"
-#define CONFIG_WATCHPOINT "0"
 #define CONFIG_VGA_SIZE_400x300 1
 #define CONFIG_VGA_SHOW_SCREEN 1
 #define CONFIG_PC_RESET_OFFSET 0x0
