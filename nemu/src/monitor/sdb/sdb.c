@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include "sdb.h"
 #include <memory/vaddr.h>
+#include <stdlib.h>
 
 static int is_batch_mode = false;
 
@@ -28,7 +29,6 @@ void init_wp_pool();
 static WP* head;
 extern int new_wp(word_t addr, char* args);
 extern int delete_wp(int wp);
-
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -55,6 +55,7 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
   return -1;
 }
 

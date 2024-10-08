@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
     init_monitor(argc, argv);
   #endif
 
-// test expr in debug phase
-// test_expr(argc,argv);
+  // test expr in debug phase
+  // test_expr(argc,argv);
 
   /* Start engine. */
   engine_start();
