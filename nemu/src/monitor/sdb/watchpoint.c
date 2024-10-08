@@ -83,7 +83,7 @@ int head_wp_no(){
 /* return watchpoint change or not*/
 bool wps_diff(){
   WP *cur = head;
-  bool change;
+  bool change=false;
   while(cur !=NULL){
       //TODO: should support different expr
       bool success;
