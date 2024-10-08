@@ -26,9 +26,9 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 
-static WP* head;
 extern int new_wp(word_t addr, char* args,int type);
 extern int delete_wp(int wp);
+extern WP* get_head();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -78,7 +78,7 @@ static int cmd_info(char *args) {
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
   }else if(strcmp(ptr,"w")==0){
-    WP* cur = head;
+    WP* cur = get_head();
     while (cur != NULL){
         printf("Num: %04d, Value: %08x, What: %s\n",cur->NO,cur->value,cur->args);
         cur = cur->next;

@@ -35,6 +35,10 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
+WP* get_head(){
+  return head;
+}
+
 /* TODO: Implement the functionality of watchpoint */
 // return watchpoint NO
 int new_wp(word_t value, char* args,int wp_type){
