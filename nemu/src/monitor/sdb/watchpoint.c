@@ -99,7 +99,7 @@ bool wps_diff(){
       } else if (cur->wp_type == WP_BREAK && new==cur->value){
           // arrive break point should stop.
           change = true;
-          printf("BreakPoint Num: %d, pc %u,\n",cur->NO,new);
+          printf("BreakPoint Num: %d, pc %x,\n",cur->NO,new);
       }
       cur = cur->next;
   }
