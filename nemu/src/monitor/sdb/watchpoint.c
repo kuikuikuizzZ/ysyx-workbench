@@ -50,8 +50,12 @@ int new_wp(word_t value, char* args,int wp_type){
     free_ = free_->next;
     temp->value = value;
     temp->wp_type = wp_type;
-    char* res = strncpy(temp->args,args,32);
-    Assert(res!=NULL,"watch point args: %s invalid",args); 
+    if (wp_type==WP_BREAK){
+      strncpy(temp->args,"$pc",4);
+    } else {
+      char* res = strncpy(temp->args,args,32);
+      Assert(res!=NULL,"watch point args: %s invalid",args); 
+    }
     return head->NO;
 }
 
