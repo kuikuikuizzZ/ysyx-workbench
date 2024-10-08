@@ -25,11 +25,12 @@ module bcd7seg(
   001: ready+input
   010: ready+f0
   */ 
-  reg [2:0] current_state,next_state;
+  parameter [1:0] S1=2'b00,S2=2'b01,S3=2'b10
+  reg [1:0] current_state,next_state;
 
   always @(posedge clk) begin
     if (rst)  begin 
-      current_state=3'b000;
+      current_state=S1;
       count =0;
     end
     else current_state = next_state;
@@ -37,7 +38,7 @@ module bcd7seg(
 
   always@(current_state or data) begin
     case(current_state)
-      3'b000: begin
+      S1: begin
           num1 = ~8'b00000000;
           num2 = ~8'b00000000;
           num3 = ~8'b00000000;
@@ -50,15 +51,15 @@ module bcd7seg(
                   num2 = new2;
                   num3 = new3;
                   num4 = new4;
-                  next_state = 3'b001;
+                  next_state = S2;
               end else if (data==8'hf0) begin
-                  next_state = 3'b010;
+                  next_state = S3;
               end else begin
                   next_state = current_state;
               end
           end
       end
-      3'b001: begin
+      S2: begin
           if (!ready) next_state = current_state;  
           else begin
               nextdata_n = 0;
@@ -69,18 +70,18 @@ module bcd7seg(
                   num4 = new4;
                   next_state = current_state;
               end else if (data==8'hf0) begin
-                  next_state = 3'b010;
+                  next_state = S3;
               end else begin
                   next_state = current_state;
               end
           end
       end
-      3'b010: begin
+      S3: begin
           if (!ready) next_state = current_state;  
           else begin
               nextdata_n = 0;
               if (data!=8'hf0) begin
-                  next_state = 3'b000;
+                  next_state = S1;
                   count = count+1;
               end else 
                   next_state = current_state;
@@ -92,7 +93,7 @@ module bcd7seg(
       end
       // 3'b011: begin
       //     nextdata_n = 0;
-      //     next_state = 3'b000;
+      //     next_state = S1;
       // end
       default:
           next_state = current_state;
