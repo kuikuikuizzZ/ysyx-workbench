@@ -93,13 +93,13 @@ bool wps_diff(){
       bool success;
       word_t new = isa_reg_str2val(cur->args,&success);
       if (cur->wp_type == WP_RAW&&new != cur->value){
-          printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
+          printf("Num: %d, Old %x, New: %x\n",cur->NO,cur->value,new);
           cur->value = new;
           change = true;
       } else if (cur->wp_type == WP_BREAK && new==cur->value){
           // arrive break point should stop.
           change = true;
-          printf("BreakPoint Num: %d, pc %x,\n",cur->NO,new);
+          printf("BreakPoint Num: %d, pc:0x%x,\n",cur->NO,new);
       }
       cur = cur->next;
   }
