@@ -17,6 +17,10 @@
 #define __SDB_H__
 
 #include <common.h>
+enum {
+  WP_RAW=0,
+  WP_BREAK=1,
+};
 
 typedef struct watchpoint {
   int NO;
@@ -25,6 +29,7 @@ typedef struct watchpoint {
 
   char args[32];
   word_t value;
+  int wp_type; 
 } WP;
 
 word_t expr(char *e, bool *success);

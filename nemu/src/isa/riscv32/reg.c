@@ -37,6 +37,8 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       if (strstr(s,regs[i])){
         val = gpr(check_reg_idx(i));
         *success = true;
+      } else if(strstr(s,"$pc")){
+        val = cpu.pc;
       }
   }
   return val;
