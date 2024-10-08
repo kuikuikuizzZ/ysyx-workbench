@@ -25,7 +25,7 @@ module bcd7seg(
   001: ready+input
   010: ready+f0
   */ 
-  parameter [1:0] S1=2'b00,S2=2'b01,S3=2'b10
+  parameter [1:0] S1=2'b00,S2=2'b01,S3=2'b10;
   reg [1:0] current_state,next_state;
 
   always @(posedge clk) begin

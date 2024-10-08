@@ -35,9 +35,13 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
+WP* get_head(){
+  return head;
+}
+
 /* TODO: Implement the functionality of watchpoint */
 // return watchpoint NO
-int new_wp(word_t value, char* args){
+int new_wp(word_t value, char* args,int wp_type){
     if(!free_) {
       assert(0);
     } 
@@ -49,8 +53,13 @@ int new_wp(word_t value, char* args){
     head = temp;
     free_ = free_->next;
     temp->value = value;
-    char* res = strncpy(temp->args,args,32);
-    Assert(res!=NULL,"watch point args: %s invalid",args); 
+    temp->wp_type = wp_type;
+    if (wp_type==WP_BREAK){
+      strncpy(temp->args,"$pc",4);
+    } else {
+      char* res = strncpy(temp->args,args,32);
+      Assert(res!=NULL,"watch point args: %s invalid",args); 
+    }
     return head->NO;
 }
 
@@ -82,15 +91,19 @@ int head_wp_no(){
 /* return watchpoint change or not*/
 bool wps_diff(){
   WP *cur = head;
-  bool change;
+  bool change=false;
   while(cur !=NULL){
       //TODO: should support different expr
       bool success;
       word_t new = isa_reg_str2val(cur->args,&success);
-      if (new != cur->value){
-          printf("Num: %d, Old %u, New: %u\n",cur->NO,cur->value,new);
+      if (cur->wp_type == WP_RAW&&new != cur->value){
+          printf("Num: %d, Old %x, New: %x\n",cur->NO,cur->value,new);
           cur->value = new;
           change = true;
+      } else if (cur->wp_type == WP_BREAK && new==cur->value){
+          // arrive break point should stop.
+          change = true;
+          printf("BreakPoint Num: %d, pc:0x%x,\n",cur->NO,new);
       }
       cur = cur->next;
   }

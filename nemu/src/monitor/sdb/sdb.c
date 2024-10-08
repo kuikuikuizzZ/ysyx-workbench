@@ -26,9 +26,9 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 
-static WP* head;
-extern int new_wp(word_t addr, char* args);
+extern int new_wp(word_t addr, char* args,int type);
 extern int delete_wp(int wp);
+extern WP* get_head();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -78,9 +78,9 @@ static int cmd_info(char *args) {
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
   }else if(strcmp(ptr,"w")==0){
-    WP* cur = head;
+    WP* cur = get_head();
     while (cur != NULL){
-        printf("Num: %04d, Value: %08x, What: %s\n",cur->NO,cur->value,cur->args);
+        printf("Num: %d, Value: %08x, What: %s\n",cur->NO,cur->value,cur->args);
         cur = cur->next;
     }
   }else{
@@ -143,7 +143,7 @@ static int cmd_p(char *args) {
 static int cmd_w(char *args) {
   bool success;
   word_t res = expr(args,&success);
-  int no = new_wp(res,args);
+  int no = new_wp(res,args,WP_RAW);
   printf("Watchpoint %d, What: %s\n",no,args);
   return 0;
 }
@@ -151,10 +151,19 @@ static int cmd_w(char *args) {
 static int cmd_d(char *args) {
   int no;
   int n = sscanf(args,"%d",&no);
-  Assert(n<1,"d command invalid: %s\n",args);
+  Assert(n<1,"Command invalid: %s\n",args);
   delete_wp(no);
   return 0;
 }
+
+static int cmd_b(char *args) {
+  bool success;
+  word_t res = expr(args,&success);
+  int no = new_wp(res,args,WP_BREAK);
+  printf("Breakpoint %d, What: %s\n",no,args);
+  return 0;
+}
+
 
 static int cmd_help(char *args);
 
@@ -172,8 +181,8 @@ static struct {
   {"p","Display result of EXPR (p EXPR)",cmd_p},
   {"w","create a watchpoint (w EXPR)",cmd_w},
   {"d","delete watchpoint (d NO)",cmd_d},
+  {"b","break point (b address)",cmd_b},
   /* TODO: Add more commands */
-
 };
 
 #define NR_CMD ARRLEN(cmd_table)
