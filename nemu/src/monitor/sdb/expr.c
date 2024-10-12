@@ -370,7 +370,7 @@ int eval(int p,int q){
           case TK_SUB: val = val1-val2; break;
           case TK_MUL: val = val1*val2; break;
           case TK_DIV: 
-              if (val2 == 0) {Log("divide by zero");assert(0);}
+              Assert(val2!=0,"divide by zero");
               val = val1/val2;
               break;
           case TK_EQ:         val = val1 == val2; break;
