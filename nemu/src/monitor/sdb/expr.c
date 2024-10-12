@@ -364,6 +364,9 @@ int eval(int p,int q){
     // binary operator
     int op_pos = main_op_pos(p,q);
     int val1 = eval(p,op_pos-1);
+    if ((val1&&tokens[op_pos].type==TK_OR) || 
+          (!val1&&tokens[op_pos].type==TK_AND) )
+          return val1;
     int val2 = eval(op_pos+1,q);
     switch (tokens[op_pos].type) {
           case TK_ADD: val = val1 + val2; break;
