@@ -28,6 +28,7 @@ void test_expr(int argc,char* argv[]){
   }
   char buf[65536];
   FILE *f = fopen(argv[1],"rb+");
+  Assert(f!=NULL,"open file %s failed\n",argv[1]);
 
   while(fgets(buf,65536,f)!=NULL){
     
