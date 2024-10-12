@@ -34,7 +34,7 @@ void test_expr(int argc,char* argv[]){
     
      char *result = strtok(buf," ");
      int len = strlen(result);
-     char *expression = result+len;
+     char *expression = buf+len;
     //  expression = strtok(expression,"\n");
      printf("result %s, expr %s\n",result,expression);
      int res = expr(expression,NULL);
