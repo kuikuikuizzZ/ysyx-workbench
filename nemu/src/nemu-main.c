@@ -23,8 +23,8 @@ int is_exit_status_bad();
 
 void test_expr(int argc,char* argv[]){
   if (argc<2){
-  printf("need inputfile");
-  return ;
+    printf("need inputfile\n");
+    return ;
   }
   char buf[65536];
   FILE *f = fopen(argv[1],"rb+");
