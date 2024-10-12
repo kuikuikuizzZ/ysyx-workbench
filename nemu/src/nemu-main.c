@@ -39,6 +39,8 @@ void test_expr(int argc,char* argv[]){
      int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
   }
+  fclose(f);
+  exit(0);
   return ;
 }
 
