@@ -364,6 +364,7 @@ int eval(int p,int q){
     // binary operator
     int op_pos = main_op_pos(p,q);
     int val1 = eval(p,op_pos-1);
+    // shortcut if val1 is 1 for "||" and 0 for "&&"
     if ((val1&&tokens[op_pos].type==TK_OR) || 
           (!val1&&tokens[op_pos].type==TK_AND) )
           return val1;
