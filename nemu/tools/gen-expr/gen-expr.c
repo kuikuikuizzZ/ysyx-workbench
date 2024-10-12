@@ -20,7 +20,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define NUM_OP 4
+#define NUM_OP 12
 // this should be enough
 static char buf[65536] = {};
 int buf_end = 0;
@@ -35,18 +35,20 @@ static char *code_format =
 
 void gen_num(){
   buf_end += sprintf(buf+buf_end,"%u", rand()%1000);
-  if (buf_end >= 65535){
-     assert(0);
-  }
+  // if (buf_end >= 100){
+  //   //  assert(0);
+  //   return;
+  // }
   return;
 }
 
 // not confirm num of '(' and ')' is valid
 void gen(char c){
   buf_end+= sprintf(buf+buf_end,"%c",c);
-  if (buf_end >= 65535){
-     assert(0);
-  }
+  // if (buf_end >= 100){
+  //   //  assert(0);
+  //   return;
+  // }
   return;
 }
 
@@ -56,23 +58,29 @@ void gen_rand_op(){
       case 0: gen('+');break;
       case 1: gen('-');break;
       case 2: gen('/');break;
-      default:gen('*');break;
+      case 3: gen('*');break;
+      case 4: gen('&');gen('&');break;
+      case 5: gen('|');gen('|');break;
+      case 6: gen('=');gen('=');break;
+      case 7: gen('!');gen('=');break;
+      case 8: gen('<');gen('=');break;
+      case 9: gen('>');gen('=');break;
+      case 10: gen('<');break;
+      default : gen('>');break;
     }
     return;
 }
 
 void gen_rand_expr() {
-  if (buf_end >= 65536){
-    assert(0);
+  if (buf_end >= 1000){
+    gen_num();
     return;
   }
-  switch (rand()%3) {
+  switch (rand()%4) {
     case 0:
-      if (buf_end>= 65530){     // gen_num() only add 2 bytes;
-        return;
-      }
       gen_num(); break;
     case 1: gen('('); gen_rand_expr(); gen(')'); break;
+    case 2: gen(' ');gen_rand_expr();break;
     default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
   }
 }

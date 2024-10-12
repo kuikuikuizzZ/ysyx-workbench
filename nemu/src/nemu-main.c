@@ -23,21 +23,25 @@ int is_exit_status_bad();
 
 void test_expr(int argc,char* argv[]){
   if (argc<2){
-  printf("need inputfile");
-  return ;
+    printf("need inputfile\n");
+    return ;
   }
   char buf[65536];
   FILE *f = fopen(argv[1],"rb+");
+  Assert(f!=NULL,"open file %s failed\n",argv[1]);
 
   while(fgets(buf,65536,f)!=NULL){
     
      char *result = strtok(buf," ");
-     char *expression = strtok(NULL," ");
+     int len = strlen(result);
+     char *expression = buf+len+1;
      expression = strtok(expression,"\n");
      printf("result %s, expr %s\n",result,expression);
      int res = expr(expression,NULL);
      printf("result:%s, expr result: %d\n",result,res);
   }
+  fclose(f);
+  exit(0);
   return ;
 }
 
@@ -52,7 +56,9 @@ int main(int argc, char *argv[]) {
   #endif
 
   // test expr in debug phase
-  // test_expr(argc,argv);
+  #ifdef CONFIG_TEST_EXPR
+  test_expr(argc,argv);
+  #endif
 
   /* Start engine. */
   engine_start();
