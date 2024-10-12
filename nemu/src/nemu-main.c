@@ -52,7 +52,9 @@ int main(int argc, char *argv[]) {
   #endif
 
   // test expr in debug phase
-  // test_expr(argc,argv);
+  #ifdef CONFIG_TEST_EXPR
+  test_expr(argc,argv);
+  #endif
 
   /* Start engine. */
   engine_start();
