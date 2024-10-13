@@ -28,7 +28,7 @@ void init_wp_pool() {
   for (i = 0; i < NR_WP; i ++) {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
-    wp_pool[i].prev = (i == 0 ? NULL : &wp_pool[i - 1]);
+    // wp_pool[i].prev = (i == 0 ? NULL : &wp_pool[i - 1]);
   } 
 
   head = NULL;
@@ -46,12 +46,10 @@ int new_wp(word_t value, char* args,int wp_type){
       assert(0);
     } 
     WP* temp = free_;
-    temp->next = head;
-    if (head){
-      head->prev = temp;
-    }
-    head = temp;
     free_ = free_->next;
+    temp->next = head;
+    head = temp;
+    
     temp->value = value;
     temp->wp_type = wp_type;
     if (wp_type==WP_BREAK){
@@ -64,23 +62,27 @@ int new_wp(word_t value, char* args,int wp_type){
 }
 
 void free_wp(WP *wp){
-    if (wp->next){
-      wp->next->prev = wp->prev; 
+    
+    if (head == wp){
+      head = head->next;
+    } else{
+      WP* cur = head;
+      while(cur->next != NULL && cur->next!=wp){
+          cur = cur->next;
+      }
+      if (cur->next != NULL){
+        cur->next = cur->next->next;
+      }
     }
-    if (wp->prev){
-      wp->prev->next = wp->next;
-    }
+    
     wp->next = free_;
-    if (free_){
-      free_->prev = wp;
-    }
     free_ = wp;
     return;
 }
 
 void delete_wp(int no){
-    WP wp = wp_pool[no];
-    free_wp(&wp);
+    WP *wp = &wp_pool[no];
+    free_wp(wp);
     return;
 }
 

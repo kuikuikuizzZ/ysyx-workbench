@@ -25,7 +25,6 @@ enum {
 typedef struct watchpoint {
   int NO;
   struct watchpoint *next;
-  struct watchpoint *prev;
 
   char args[32];
   word_t value;

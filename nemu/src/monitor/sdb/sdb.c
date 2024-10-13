@@ -151,7 +151,7 @@ static int cmd_w(char *args) {
 static int cmd_d(char *args) {
   int no;
   int n = sscanf(args,"%d",&no);
-  Assert(n<1,"Command invalid: %s\n",args);
+  Assert(n>0,"Command invalid: %s\n",args);
   delete_wp(no);
   return 0;
 }
