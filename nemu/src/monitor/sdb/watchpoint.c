@@ -81,8 +81,8 @@ void free_wp(WP *wp){
 }
 
 void delete_wp(int no){
-    WP wp = wp_pool[no];
-    free_wp(&wp);
+    WP *wp = &wp_pool[no];
+    free_wp(wp);
     return;
 }
 
