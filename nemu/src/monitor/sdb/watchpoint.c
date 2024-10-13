@@ -48,6 +48,7 @@ int new_wp(word_t value, char* args,int wp_type){
     WP* temp = free_;
     free_ = free_->next;
     temp->next = head;
+    
     if (head){
       head->prev = temp;
     }
