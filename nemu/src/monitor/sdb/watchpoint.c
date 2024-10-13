@@ -46,12 +46,13 @@ int new_wp(word_t value, char* args,int wp_type){
       assert(0);
     } 
     WP* temp = free_;
+    free_ = free_->next;
     temp->next = head;
     if (head){
       head->prev = temp;
     }
     head = temp;
-    free_ = free_->next;
+    
     temp->value = value;
     temp->wp_type = wp_type;
     if (wp_type==WP_BREAK){
