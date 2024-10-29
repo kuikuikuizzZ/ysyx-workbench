@@ -48,7 +48,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     default: panic("unsupported type = %d", type);
   }
   if (s->pc==0x8000000c)
-    printf("imm: %x\n",*imm);
+    printf("imm: %x，%ls\n",*imm,imm);
   return;
 }
 
