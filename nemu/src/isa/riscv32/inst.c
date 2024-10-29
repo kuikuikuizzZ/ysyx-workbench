@@ -48,7 +48,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     default: panic("unsupported type = %d", type);
   }
   if (s->pc==0x80000010)
-    printf("imm: %x, \n",*imm);
+    printf("imm: %x, %llx, %llx, %llx, %llx\n",*imm,(BITS(i, 31, 31) << 20),(BITS(i,30,21)<<1),(BITS(i,20,20)<<11),(BITS(i,19,12)<<12));
   return;
 }
 
