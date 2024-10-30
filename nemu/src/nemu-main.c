@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   #ifdef CONFIG_TARGET_AM
   am_init_monitor();
   #else
-    init_monitor(argc, argv);
+    // init_monitor(argc, argv);
   #endif
 
   // test expr in debug phase
