@@ -331,8 +331,8 @@ int eval(int p,int q){
       return eval(p+1,q);
   } else if (unary_op(tokens[p].type)){
     // unary operator
-    word_t res;
-    int expr_end;
+    word_t res=0;
+    int expr_end = 0;
     if (tokens[p+1].type == TK_LEFTP){
         expr_end = find_parentheses_match(p+2,q);
         res = eval(p+1,expr_end);
