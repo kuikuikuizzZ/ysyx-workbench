@@ -34,8 +34,8 @@ char *strncpy(char *dst, const char *src, size_t n) {
 
 char *strcat(char *dst, const char *src) {
     int l1 = strlen(dst);
-    char *res = strcpy(&dst[l1],src);
-    return res;
+    strcpy(&dst[l1],src);
+    return dst;
 }
 
 int strcmp(const char *s1, const char *s2) {
