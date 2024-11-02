@@ -57,17 +57,17 @@ int sprintf(char *out, const char *fmt, ...) {
         switch (fmt[i])
         {
         case 'd':
-          int *out_int = va_arg(argp,int *); 
+          int out_int = va_arg(argp,int ); 
           char s[12];
-          itoa(*out_int,s);
+          itoa(out_int,s);
           len = strlen(s);
           strncpy(&out[rc],s,len);
           rc+= len;
           break;
         case 's':
-          char** out_string = va_arg(argp,char**);
-          len = strlen(*out_string);
-          strncpy(&out[rc],*out_string,len);
+          char* out_string = va_arg(argp,char*);
+          len = strlen(out_string);
+          strncpy(&out[rc],out_string,len);
           rc+= len;
           break;
         default:
