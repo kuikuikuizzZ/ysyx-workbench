@@ -78,6 +78,7 @@ int sprintf(char *out, const char *fmt, ...) {
          rc++;
       }
   }
+  out[rc]='\0';
   va_end(argp);
   return rc;
 }
