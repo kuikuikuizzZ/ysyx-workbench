@@ -137,7 +137,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
 
   INSTPAT_END();
-  // printf("pc: %x a0: %x a1: %x a3: %x  a4: %x a5: %x\n",s->pc,R(10),R(11),R(13),R(14),R(15));
+  // printf("pc: %x a0: %x a4: %x a5: %x s4:%x \n",s->pc,R(10),R(14),R(15),R(20));
   R(0) = 0; // reset $zero to 0
   return 0;
 }
