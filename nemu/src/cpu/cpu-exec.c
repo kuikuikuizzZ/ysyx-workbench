@@ -38,6 +38,7 @@ extern bool wps_diff();
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   char temp_buf [LOG_BUFSIZE];
+  // print the invalid inst
   if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING&&nemu_state.state!=NEMU_END)) {
     RingBuffer_get(_this->logbuf,temp_buf,LOG_BUFSIZE);
     log_write("%s\n", temp_buf); }
