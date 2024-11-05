@@ -38,7 +38,7 @@ extern bool wps_diff();
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   char temp_buf [LOG_BUFSIZE];
-  if (ITRACE_COND) {
+  if (ITRACE_COND&&nemu_state.state!=NEMU_RUNNING) {
     RingBuffer_get(_this->logbuf,temp_buf,LOG_BUFSIZE);
     log_write("%s\n", temp_buf); }
 #endif
@@ -60,7 +60,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #ifdef CONFIG_ITRACE
   char temp_buf[LOG_BUFSIZE];
   char *p = temp_buf;
-  p += snprintf(p, LOG_BUFSIZE, FMT_WORD ":", s->pc);
+  if (nemu_state.state == NEMU_RUNNING)
+    p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
+  else
+    p += snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst;
