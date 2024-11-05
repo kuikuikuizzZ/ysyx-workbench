@@ -17,13 +17,16 @@
 #define __CPU_DECODE_H__
 
 #include <isa.h>
+#include <ringbuffer.h>
+
+#define LOG_BUFSIZE 256
 
 typedef struct Decode {
   vaddr_t pc;
   vaddr_t snpc; // static next pc
   vaddr_t dnpc; // dynamic next pc
   ISADecodeInfo isa;
-  IFDEF(CONFIG_ITRACE, char logbuf[128]);
+  IFDEF(CONFIG_ITRACE, RingBuffer *logbuf);
 } Decode;
 
 // --- pattern matching mechanism ---
