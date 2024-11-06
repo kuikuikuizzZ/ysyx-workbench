@@ -46,7 +46,7 @@ static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
 
-extern RingBuffer *log_buff ;
+RingBuffer *log_buff = NULL;
 
 
 static long load_img() {

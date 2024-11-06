@@ -35,7 +35,7 @@ void device_update();
 extern bool wps_diff();
 
 // 
-RingBuffer *log_buff = NULL;
+extern RingBuffer *log_buff;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
