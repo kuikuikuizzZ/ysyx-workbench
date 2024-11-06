@@ -42,7 +42,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   // print the invalid inst
   if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
     RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
-    log_write("%s\n", temp_buf); }
+    log_write("%s", temp_buf); }
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc)); 
@@ -85,7 +85,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
-  RingBuffer_put(log_buff,s->logbuf,LOG_BUFSIZE);
+  int len = strlen(s->logbuf);
+  s->logbuf[len] = '\n';
+  if(RingBuffer_available(log_buff)<(len+1)){
+    RingBuffer_commit_read(log_buff,len+1);
+  }
+  RingBuffer_put(log_buff,s->logbuf,len+1);
   memset(s->logbuf,0,LOG_BUFSIZE);
 #endif
 }
