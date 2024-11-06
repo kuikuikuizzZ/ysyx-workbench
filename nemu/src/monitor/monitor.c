@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <ringbuffer.h>
 
 void init_rand();
 void init_log(const char *log_file);
@@ -44,6 +45,9 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
+
+RingBuffer *log_buff = NULL;
+
 
 static long load_img() {
   if (img_file == NULL) {
@@ -108,6 +112,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log(log_file);
+
+  /* init ringlog */
+  log_buff = RingBuffer_create(LOG_BUFSIZE);
 
   /* Initialize memory. */
   init_mem();

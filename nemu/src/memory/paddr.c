@@ -17,11 +17,16 @@
 #include <memory/paddr.h>
 #include <device/mmio.h>
 #include <isa.h>
+#include <ringbuffer.h>
 
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+#endif
+
+#ifdef CONFIG_ITRACE
+  extern RingBuffer *log_buff;
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
@@ -37,6 +42,11 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
+  if (ITRACE_COND){
+    char temp_buf[LOG_BUFSIZE];
+    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
+    log_write("%s\n", temp_buf);
+  }
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }

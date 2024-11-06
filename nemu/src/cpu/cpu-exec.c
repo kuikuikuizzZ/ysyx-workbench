@@ -17,7 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
-
+#include <ringbuffer.h>
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -29,17 +29,22 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
-
 void device_update();
 
 // src/monitor/sdb/watchpoint.c
 extern bool wps_diff();
 
+extern RingBuffer *log_buff;
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
-  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
+  char temp_buf [LOG_BUFSIZE];
+  // print the invalid inst
+  if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
+    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
+    log_write("%s", temp_buf); }
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
+  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc)); 
 #ifdef CONFIG_WATCHPOINT
   if (nemu_state.state != NEMU_END && wps_diff()){
@@ -56,7 +61,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  if (nemu_state.state == NEMU_RUNNING)
+    p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
+  else
+    p += snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst;
@@ -75,8 +83,15 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p += space_len;
 
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-  disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
+  disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+  int len = strlen(s->logbuf);
+  s->logbuf[len] = '\n';
+  if(RingBuffer_available(log_buff)<(len+1)){
+    RingBuffer_commit_read(log_buff,len+1);
+  }
+  RingBuffer_put(log_buff,s->logbuf,len+1);
+  memset(s->logbuf,0,LOG_BUFSIZE);
 #endif
 }
 
