@@ -29,18 +29,20 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
-
 void device_update();
 
 // src/monitor/sdb/watchpoint.c
 extern bool wps_diff();
+
+// 
+RingBuffer *log_buff = NULL;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   char temp_buf [LOG_BUFSIZE];
   // print the invalid inst
   if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
-    RingBuffer_get(_this->logbuf,temp_buf,LOG_BUFSIZE);
+    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
     log_write("%s\n", temp_buf); }
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
@@ -59,8 +61,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   isa_exec_once(s);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
-  char temp_buf[LOG_BUFSIZE];
-  char *p = temp_buf;
+  char *p = s->logbuf;
   if (nemu_state.state == NEMU_RUNNING)
     p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
   else
@@ -83,15 +84,14 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p += space_len;
 
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-  disassemble(p, temp_buf + LOG_BUFSIZE - p,
+  disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
-  RingBuffer_put(s->logbuf,temp_buf,LOG_BUFSIZE);
+  RingBuffer_put(log_buff,s->logbuf,LOG_BUFSIZE);
 #endif
 }
 
 static void execute(uint64_t n) {
   Decode s;
-  s.logbuf = RingBuffer_create(LOG_BUFSIZE);
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;

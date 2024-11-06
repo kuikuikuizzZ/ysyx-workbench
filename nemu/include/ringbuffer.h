@@ -1,6 +1,8 @@
 #ifndef _lchthw_RingBuffer_h
 #define _lchthw_RingBuffer_h
 
+#define LOG_BUFSIZE 256
+
 typedef struct 
 {
    char *buffer;
@@ -8,6 +10,8 @@ typedef struct
    int end;
    int mask;
 } RingBuffer;
+
+extern RingBuffer *log_buff;
 
 // length must be power of 2
 RingBuffer *RingBuffer_create(int power_of_two);
