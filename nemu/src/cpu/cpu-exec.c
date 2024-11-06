@@ -41,7 +41,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   char temp_buf [LOG_BUFSIZE];
   // print the invalid inst
-  if (ITRACE_COND) {
+  if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
     RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
     log_write("%s\n", temp_buf); }
 #endif
