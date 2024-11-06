@@ -9,7 +9,6 @@ static inline size_t min(size_t a, size_t b) {
 
 RingBuffer *RingBuffer_create(int power_of_two){
     RingBuffer *buffer = calloc(1,sizeof(RingBuffer));
-    buffer->mask = power_of_two-1;
     buffer->buffer = calloc(power_of_two,1);
     memset(buffer->buffer,0,power_of_two);
     buffer->start = buffer->end = 0;
