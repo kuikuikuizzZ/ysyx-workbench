@@ -85,8 +85,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
-  RingBuffer_put(log_buff,s->logbuf,64);
-  // memset(s->logbuf,0,LOG_BUFSIZE);
+  RingBuffer_put(log_buff,s->logbuf,strlen(s->logbuf));
+  memset(s->logbuf,0,LOG_BUFSIZE);
 #endif
 }
 
