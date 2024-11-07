@@ -6,7 +6,7 @@
 // #include <stdlib.h>
 
 int elf_check_file(Elf32_Ehdr *header){
-    int result = memcmp(ELFMAG,header->e_ident, 4);
+    int result = memcmp(header->e_ident,ELFMAG, 4);
     return result;
 }
 
