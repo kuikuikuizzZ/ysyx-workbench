@@ -6,7 +6,9 @@
 // #include <stdlib.h>
 
 int elf_check_file(Elf32_Ehdr *header){
-   
+    char temp[4];
+    memcpy(temp,header->e_ident,4);
+    printf("indent %s",temp);
     return memcmp(header->e_ident, ELFMAG, 4) == 0;
 }
 
