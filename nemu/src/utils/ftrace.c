@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <isa.h>
 
 #define NUM_STRTB 4
 #define ST_FUNC 18      //elf symtable type for func
@@ -161,16 +162,30 @@ Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
     return sym_entries;
 }
 
-int is_jtype(char* inst){
-    return strcmp(inst,"jal")==0 || strcmp(inst,"jalr")==0 || strcmp(inst,"jr")==0;
+int is_jrtype(char* inst){
+    return strcmp(inst,"jalr")==0 || strcmp(inst,"jr")==0;
 }
 
-void ftrace_message(uint32_t pc, char* inst,char* ops){
-    if (strcmp(inst,"ret") ==0|| is_jtype(inst)){
-        printf("0x%x:\t %s \t %s \n",pc,inst,ops);
+
+int is_jal(char* inst){
+    return strcmp(inst,"jal")==0 ;
+}
+
+int is_ret(char* inst){
+    return strcmp(inst,"ret")==0 ;
+}
+
+void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
+    if (is_jal(inst)){
+        printf("0x%x: \t %s@0x%x",pc,inst,dnpc);
+    }else if (is_jrtype(inst)){
+        printf("0x%x: \t %s@0x%x",pc,inst,dnpc);
+
+    }else if (is_ret(inst)){
+        printf("0x%x: \t %s@0x%x",pc,inst,dnpc);
+
     }
+
     return;
 }
-
-
 
