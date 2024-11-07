@@ -8,8 +8,9 @@
 int elf_check_file(Elf32_Ehdr *header){
     char temp[4];
     memcpy(temp,header->e_ident,4);
-    printf("indent %s",temp);
-    return memcmp(header->e_ident, ELFMAG, 4) == 0;
+    printf("indent %s\n",temp);
+    int result = memcmp(temp, ELFMAG, 4);
+    return result;
 }
 
 void init_ftrace(char* elf_file){
