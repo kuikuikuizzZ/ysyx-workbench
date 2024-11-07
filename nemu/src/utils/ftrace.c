@@ -23,11 +23,11 @@ typedef struct string_table{
     char*   contents;
 } string_table;
 
-typedef struct ftrace_meta 
+typedef struct FtraceMeta 
 {   
     func_meta   *fm_entries;
     uint32_t    size;
-}ftrace_meta;
+}FtraceMeta;
 
 
 int elf_check_file(Elf32_Ehdr *header){
@@ -36,8 +36,10 @@ int elf_check_file(Elf32_Ehdr *header){
 
 char* read_string_table (uint32_t offset, uint32_t size,FILE *fp);
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
-ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
+FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
 
+
+FtraceMeta *ftrace_meta = NULL;
 
 void init_ftrace(char* elf_file){
     FILE *fp = fopen(elf_file, "rb");
@@ -59,7 +61,7 @@ void init_ftrace(char* elf_file){
         return;
     }
     /* Parse the rest of the ELF file here. */
-    ftrace_meta * ftrace_meta = read_func_meta(&ehdr,fp);
+    ftrace_meta = read_func_meta(&ehdr,fp);
     for(int i =0;i<ftrace_meta->size;i++){
         func_meta fm = ftrace_meta->fm_entries[i];
         printf("name: %s \t %x \n",fm.name,fm.addr);
@@ -69,7 +71,7 @@ void init_ftrace(char* elf_file){
     return;
 }
 
-ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
+FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     if(fseek(fp,ehdr->e_shoff,SEEK_SET)==-1) {
         fprintf(stderr, "segment table offset is invalid\n");
         return NULL;
@@ -133,7 +135,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             fm_index++;
         }
     }
-    ftrace_meta * ft = malloc(sizeof(ftrace_meta));
+    FtraceMeta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
     ft->size = fm_index;
     free(sym_entries);
