@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <stdlib.h>
 
 #define NUM_STRTB 4
 #define ST_FUNC 18      //elf symtable type for func
