@@ -8,6 +8,11 @@
 
 #define NUM_STRTB 4
 #define ST_FUNC 18      //elf symtable type for func
+#define SEG_STR_SYM 3
+#define SEG_STR 2
+#define SEG_SYM 1
+
+
 typedef struct func_meta{
     uint32_t addr;
     char*   name;
@@ -79,16 +84,19 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     uint32_t symtb_offset = 0; 
     uint32_t symtb_size = 0;
     uint32_t symtb_entsize = 0;     // symbol table each entry size;
-    
-    uint32_t strtb_index = 0;
+    char seg_flag = 0;                  // 000x for symtab, 00x0 for strtab
     char* strtb_contents=""; 
 
     for(int i=0;i<num;i++){
+        if (seg_flag==SEG_STR_SYM){
+            break;
+        }
         if(shdr[i].sh_type == SHT_SYMTAB){
             symtb_offset = shdr[i].sh_offset; 
             symtb_size = shdr[i].sh_size;
             symtb_entsize = shdr[i].sh_entsize;
             printf("symbol table in %d\n",i);
+            seg_flag|=SEG_SYM;
         }
         if (shdr[i].sh_type == SHT_STRTAB){
             char *content = read_string_table(shdr[i].sh_offset,shdr[i].sh_size,fp);
@@ -100,9 +108,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             memcpy(strtb_contents,content,shdr[i].sh_size);
             // printf("string table in %d, content: %s size %d\n",
             //     shdr[i].sh_name,content+1,shdr[i].sh_size);
-            strtb_index++;
             free(content);
-            break;
+            seg_flag|=SEG_STR;
         }
     }
 
