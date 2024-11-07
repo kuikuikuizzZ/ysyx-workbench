@@ -154,8 +154,8 @@ Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
         return NULL;
     }
 
-    Elf32_Sym* sym_entries = malloc(size);
-    uint32_t num = fread(sym_entries,entsize,size/entsize,fp);
+    Elf32_Sym* sym_entries = calloc(size/entsize,sizeof(Elf32_Sym));
+    uint32_t num = fread(sym_entries,sizeof(Elf32_Sym),size/entsize,fp);
     if (num != size/entsize){
         fprintf(stderr, "symbol table is invalid,should be %d entries, but got %d\n",
                 size/entsize,num);
