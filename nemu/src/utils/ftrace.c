@@ -140,7 +140,7 @@ void read_string_table (uint32_t offset, uint32_t size, char** str_tb,FILE *fp){
         fprintf(stderr, "string table offset is invalid\n");
         return ;
     }
-    size_t num = fread(str_tb,1,size,fp);
+    size_t num = fread(str_tb,sizeof(char),size,fp);
     if (num != size){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
