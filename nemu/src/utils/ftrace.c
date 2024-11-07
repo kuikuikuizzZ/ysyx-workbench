@@ -81,11 +81,12 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             symtb_offset = shdr[i].sh_offset; 
             symtb_size = shdr[i].sh_size;
             symtb_entsize = shdr[i].sh_entsize;
-
+            printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
             strtb_offset = shdr[i].sh_offset; 
             strtb_size = shdr[i].sh_size;
+            printf("string table in %d\n",i);
         }
     }
 
@@ -109,6 +110,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             func_entries[fm_index] = fm;
             fm_index++; 
         }
+        printf("symbol %d : type: %d\n",i,entry.st_info);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
