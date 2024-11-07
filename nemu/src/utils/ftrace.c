@@ -29,7 +29,7 @@ int elf_check_file(Elf32_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
 
-char* read_string_table (uint32_t offset, uint32_t size, char *content,FILE *fp);
+void read_string_table (uint32_t offset, uint32_t size, char **content,FILE *fp);
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
 ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
 
@@ -91,7 +91,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         }
         if (shdr[i].sh_type == SHT_STRTAB){
             char* content = calloc(shdr[i].sh_size,1);
-            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,content,fp);
+            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,&content,fp);
             if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
                 return NULL;
@@ -135,19 +135,19 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     return ft;
 }
 
-char* read_string_table (uint32_t offset, uint32_t size, char* str_tb,FILE *fp){
+void read_string_table (uint32_t offset, uint32_t size, char** str_tb,FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "string table offset is invalid\n");
-        return NULL;
+        return ;
     }
     size_t num = fread(str_tb,1,size,fp);
     if (num != size){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
         free(str_tb);
-        return NULL;
+        return ;
     }
-    return str_tb;
+    return ;
 }
 
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
