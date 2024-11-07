@@ -29,7 +29,7 @@ int elf_check_file(Elf32_Ehdr *header){
 }
 
 char* read_string_table (uint32_t offset, uint32_t size, FILE *fp);
-Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
+Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
 ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
 
 
@@ -102,7 +102,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         }
     }
 
-    Elf64_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
+    Elf32_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
     if (!sym_entries) return NULL;
     uint32_t n_symbol = symtb_size/symtb_entsize; 
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
@@ -112,7 +112,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
-        Elf64_Sym entry = sym_entries[i];
+        Elf32_Sym entry = sym_entries[i];
         if (entry.st_info == STT_NOTYPE){
             func_meta fm;
             char* name = malloc(entry.st_size);
@@ -122,7 +122,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             func_entries[fm_index] = fm;
             fm_index++; 
         }
-        printf("symbol %d : type: %d,value: %lx name %d size: %ld\n",i,entry.st_info, entry.st_value,entry.st_name,entry.st_size);
+        printf("symbol %d : type: %d,value: %x name %d size: %d\n",i,entry.st_info, entry.st_value,entry.st_name,entry.st_size);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
@@ -148,14 +148,14 @@ char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
     return str_tb;
 }
 
-Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
+Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "symbol table offset is invalid\n");
         return NULL;
     }
 
-    Elf64_Sym* sym_entries = calloc(size/entsize,sizeof(Elf32_Sym));
-    uint32_t num = fread(sym_entries,sizeof(Elf32_Sym),size/entsize,fp);
+    Elf32_Sym* sym_entries = malloc(size);
+    uint32_t num = fread(sym_entries,entsize,size/entsize,fp);
     if (num != size/entsize){
         fprintf(stderr, "symbol table is invalid,should be %d entries, but got %d\n",
                 size/entsize,num);
