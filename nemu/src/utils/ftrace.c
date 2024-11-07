@@ -109,15 +109,15 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
     
     
-    // string_table str_tb = strtb_entries[0];
+    string_table str_tb = strtb_entries[0];
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
         Elf32_Sym entry = sym_entries[i];
         if (entry.st_info == ST_FUNC){
             func_meta fm;
-            char* name = malloc(entry.st_size);
-            // strcpy(name,str_tb.contents+entry.st_name);
+            char* name = malloc(128);
+            strcpy(name,str_tb.contents+entry.st_name);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
