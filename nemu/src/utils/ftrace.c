@@ -81,8 +81,6 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     uint32_t symtb_entsize = 0;     // symbol table each entry size;
     
     uint32_t strtb_index = 0;
-
-    // string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
     char* strtb_contents=""; 
 
     for(int i=0;i<num;i++){
@@ -100,9 +98,10 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             }
             strtb_contents = malloc(shdr[i].sh_size);
             memcpy(strtb_contents,content,shdr[i].sh_size);
-            printf("string table in %d, content: %s size %d\n",
-                shdr[i].sh_name,content+1,shdr[i].sh_size);
+            // printf("string table in %d, content: %s size %d\n",
+            //     shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
+            free(content);
             break;
         }
     }
@@ -124,7 +123,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
-            fm_index++; 
+            fm_index++;
         }
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
