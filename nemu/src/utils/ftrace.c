@@ -18,13 +18,13 @@ typedef struct ftrace_meta
 }ftrace_meta;
 
 
-int elf_check_file(Elf32_Ehdr *header){
+int elf_check_file(Elf64_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
 
 char* read_string_table (uint32_t offset, uint32_t size, FILE *fp);
-Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
-ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
+Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
+ftrace_meta* read_func_meta(Elf64_Ehdr* ehdr,FILE *fp);
 
 
 void init_ftrace(char* elf_file){
@@ -34,7 +34,7 @@ void init_ftrace(char* elf_file){
         return;
     }
 
-    Elf32_Ehdr ehdr;
+    Elf64_Ehdr ehdr;
     if (fread(&ehdr, sizeof(ehdr), 1, fp) != 1) {
         fprintf(stderr, "fread: %s\n", strerror(errno));
         fclose(fp);
@@ -57,13 +57,13 @@ void init_ftrace(char* elf_file){
     return;
 }
 
-ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
+ftrace_meta* read_func_meta(Elf64_Ehdr* ehdr,FILE *fp){
     if(fseek(fp,ehdr->e_shoff,SEEK_SET)==-1) {
         fprintf(stderr, "segment table offset is invalid\n");
         return NULL;
     }
     
-    Elf32_Shdr * shdr = calloc(ehdr->e_shnum,ehdr->e_shentsize);
+    Elf64_Shdr * shdr = calloc(ehdr->e_shnum,ehdr->e_shentsize);
     size_t num = fread(shdr,ehdr->e_shentsize,ehdr->e_shnum,fp);
     if(num!=ehdr->e_shnum){
         fprintf(stderr, "segment table is invalid, expect %d items, but got %ld \n", 
@@ -91,7 +91,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
 
     char *str_tb = read_string_table(strtb_offset,strtb_size,fp);
     if (!str_tb) return NULL;
-    Elf32_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
+    Elf64_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
     if (!sym_entries) return NULL;
     uint32_t n_symbol = symtb_size/symtb_entsize; 
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
@@ -99,7 +99,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
-        Elf32_Sym entry = sym_entries[i];
+        Elf64_Sym entry = sym_entries[i];
         if (entry.st_info == STT_FUNC){
             func_meta fm;
             char* name = malloc(entry.st_size);
@@ -135,13 +135,13 @@ char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
     return str_tb;
 }
 
-Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
+Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "symbol table offset is invalid\n");
         return NULL;
     }
 
-    Elf32_Sym* sym_entries = malloc(size);
+    Elf64_Sym* sym_entries = malloc(size);
     uint32_t num = fread(sym_entries,entsize,size/entsize,fp);
     if (num != size/entsize){
         fprintf(stderr, "symbol table is invalid,should be %d entries, but got %d\n",
