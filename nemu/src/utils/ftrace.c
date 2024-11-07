@@ -125,7 +125,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == ST_FUNC){
             func_meta fm;
             char* name = malloc(128);
-            // strcpy(name,(*str_tb.contents)+entry.st_name);
+            strcpy(name,strtb_entries.contents+entry.st_name);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
