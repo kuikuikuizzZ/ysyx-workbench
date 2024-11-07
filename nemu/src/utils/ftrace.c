@@ -119,7 +119,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             func_entries[fm_index] = fm;
             fm_index++; 
         }
-        printf("symbol %d : type: %d,value: %d name %d\n",i,entry.st_info, entry.st_value,entry.st_name);
+        printf("symbol %d : type: %d,value: %x name %d\n",i,entry.st_info, entry.st_value,entry.st_name);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
