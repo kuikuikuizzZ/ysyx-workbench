@@ -15,7 +15,7 @@ typedef struct func_meta{
 
 typedef struct string_table{
     uint32_t name;
-    char**   contents;
+    char*   contents;
 } string_table;
 
 typedef struct ftrace_meta 
@@ -115,7 +115,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     
     
     string_table str_tb = strtb_entries[0];
-    printf("%s",*str_tb.contents+1);
+    printf("%s",str_tb.contents+1);
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
