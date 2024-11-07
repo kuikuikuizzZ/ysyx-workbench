@@ -69,11 +69,11 @@ ftrace_meta* read_func_meta(Elf64_Ehdr* ehdr,FILE *fp){
         fprintf(stderr, "segment table is invalid, expect %d items, but got %ld \n", 
                 ehdr->e_shnum,num);
     }
-    uint32_t symtb_offset = 0; 
-    uint32_t symtb_size = 0;
+    Elf64_Off symtb_offset = 0; 
+    uint64_t symtb_size = 0;
     uint32_t symtb_entsize = 0;     // symbol table each entry size;
-    uint32_t strtb_offset = 0;
-    uint32_t strtb_size = 0;
+    Elf64_Off strtb_offset = 0;
+    uint64_t strtb_size = 0;
 
 
     for(int i=0;i<num;i++){
@@ -125,7 +125,7 @@ char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
         return NULL;
     }
     char* str_tb = calloc(size,1);
-    size_t num = fread(str_tb,1,size,fp);
+    uint32_t num = fread(str_tb,1,size,fp);
     if (num != size){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
