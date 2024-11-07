@@ -117,7 +117,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     
     
     // string_table str_tb = strtb_entries[0];
-    printf("%s",strtb_entries.contents);
+    printf("%s",strtb_entries.contents+1);
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
