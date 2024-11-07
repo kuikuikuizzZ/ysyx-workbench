@@ -96,7 +96,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             }
             strtb_entries[i].contents = content;
             strtb_entries[i].name = shdr[i].sh_name;
-            printf("string table in %d, content: %s\n",shdr[i].sh_name,content);
+            printf("string table in %d, content: %s\n",shdr[i].sh_name,content+1);
             strtb_index++;
         }
     }
