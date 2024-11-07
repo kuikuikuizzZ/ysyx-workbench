@@ -81,6 +81,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     uint32_t symtb_entsize = 0;     // symbol table each entry size;
     
     uint32_t strtb_index = 0;
+    char* content = NULL;
+
     string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
     for(int i=0;i<num;i++){
         if(shdr[i].sh_type == SHT_SYMTAB){
@@ -90,7 +92,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
-            char* content = calloc(shdr[i].sh_size,1);
+            content = calloc(shdr[i].sh_size,1);
             read_string_table(shdr[i].sh_offset,shdr[i].sh_size,content,fp);
             if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
@@ -102,6 +104,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("string table in %d, content: %s size %d\n",
                 shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
+            break;
         }
     }
 
