@@ -109,7 +109,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
     
     
-    string_table str_tb = strtb_entries[0];
+    // string_table str_tb = strtb_entries[0];
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
@@ -122,8 +122,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             fm.name = name;
             func_entries[fm_index] = fm;
             fm_index++; 
-            printf("symbol %d : type: %d,value: %x name %d content: %s\n",i,entry.st_info, entry.st_value,entry.st_name,str_tb.contents+entry.st_name);
         }
+        printf("symbol %d : type: %d,value: %x name %d \n",i,entry.st_info, entry.st_value,entry.st_name);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
