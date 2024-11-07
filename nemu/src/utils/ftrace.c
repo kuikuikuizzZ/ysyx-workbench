@@ -164,6 +164,6 @@ Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
 
 void ftrace_message(uint32_t pc, char* inst){
 
-    // printf("0x%x:\t %s\n",pc,inst);
+    printf("0x%x:\t %s\n",pc,inst);
     return;
 }

@@ -67,7 +67,7 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
 	size_t count = cs_disasm_dl(handle, code, nbyte, pc, 0, &insn);
   assert(count == 1);
   #ifdef CONFIG_FTRACE
-    if (CONFIG_FTRACE_COND) ftrace_message(pc,insn->op_str);
+    if (CONFIG_FTRACE_COND) ftrace_message(pc,insn->mnemonic);
   #endif
   int ret = snprintf(str, size, "%s", insn->mnemonic);
   if (insn->op_str[0] != '\0') {
