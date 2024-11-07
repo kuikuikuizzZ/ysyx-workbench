@@ -167,7 +167,7 @@ int is_jtype(char* inst){
 }
 
 void ftrace_message(uint32_t pc, char* inst){
-    if (strcmp(inst,"ret") || is_jtype(inst)){
+    if (strcmp(inst,"ret") ==0|| is_jtype(inst)){
         printf("0x%x:\t %s\n",pc,inst);
     }
     return;
