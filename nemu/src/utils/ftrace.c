@@ -117,13 +117,13 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == ST_FUNC){
             func_meta fm;
             char* name = malloc(entry.st_size);
-            memcpy(name,str_tb.contents+33,entry.st_size);
+            // memcpy(name,str_tb.contents+entry.st_name,entry.st_size);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
             fm_index++; 
         }
-        printf("symbol %d : type: %d,value: %x name %d size: %d\n",i,entry.st_info, entry.st_value,entry.st_name,entry.st_size);
+        printf("symbol %d : type: %d,value: %x name %d content: %s\n",i,entry.st_info, entry.st_value,entry.st_name,str_tb.contents+entry.st_name);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
