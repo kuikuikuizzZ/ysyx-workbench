@@ -47,10 +47,12 @@ void init_ftrace(char* elf_file){
     }
     /* Parse the rest of the ELF file here. */
     ftrace_meta = read_func_meta(&ehdr,fp);
+    #ifdef CONFIG_FTRACE_DEBUG
     for(int i =0;i<ftrace_meta->size;i++){
         func_meta fm = ftrace_meta->fm_entries[i];
         printf("name: %s \t %x \n",fm.name,fm.addr);
     }
+    #endif
     /* Don't forget to close the file. */
     fclose(fp);
     return;
