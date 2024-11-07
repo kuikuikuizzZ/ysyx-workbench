@@ -26,7 +26,7 @@ void init_ftrace(char* elf_file){
         return;
     }
 
-    if (!elf_check_file(&ehdr)) {
+    if (elf_check_file(&ehdr)) {
         fprintf(stderr, "'%s' is not an ELF file\n", elf_file);
         fclose(fp);
         return;
