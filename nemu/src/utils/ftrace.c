@@ -83,7 +83,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     uint32_t strtb_index = 0;
 
     // string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
-    string_table strtb_entries; 
+    char* strtb_contents=""; 
 
     for(int i=0;i<num;i++){
         if(shdr[i].sh_type == SHT_SYMTAB){
@@ -98,9 +98,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
                 return NULL;
             }
-            strtb_entries.contents = calloc(shdr[i].sh_size,1);
-            memcpy(strtb_entries.contents,content,shdr[i].sh_size);
-            strtb_entries.name = shdr[i].sh_name;
+            strtb_contents = malloc(shdr[i].sh_size);
+            memcpy(strtb_contents,content,shdr[i].sh_size);
             printf("string table in %d, content: %s size %d\n",
                 shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
@@ -121,13 +120,12 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == ST_FUNC){
             func_meta fm;
             char* name = malloc(128);
-            strcpy(name,strtb_entries.contents+entry.st_name);
+            strcpy(name,strtb_contents+entry.st_name);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
             fm_index++; 
         }
-        printf("symbol %d : type: %d,value: %x name %d size %d \n",i,entry.st_info, entry.st_value,entry.st_name,entry.st_size);
     }
     ftrace_meta * ft = malloc(sizeof(ftrace_meta));
     ft->fm_entries = func_entries;
