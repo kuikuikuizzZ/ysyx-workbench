@@ -42,11 +42,11 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  // if (ITRACE_COND){
-  //   char temp_buf[LOG_BUFSIZE];
-  //   RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
-  //   log_write("%s\n", temp_buf);
-  // }
+  if (ITRACE_COND){
+    char temp_buf[LOG_BUFSIZE];
+    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
+    log_write("%s\n", temp_buf);
+  }
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }
