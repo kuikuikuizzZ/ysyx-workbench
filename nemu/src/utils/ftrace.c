@@ -29,7 +29,7 @@ int elf_check_file(Elf32_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
 
-void read_string_table (uint32_t offset, uint32_t size, char **ptr_tb,FILE *fp);
+char* read_string_table (uint32_t offset, uint32_t size,FILE *fp);
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
 ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
 
@@ -93,13 +93,11 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
-            char *content = calloc(shdr[i].sh_size,1);
-            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,&content,fp);
+            char *content = read_string_table(shdr[i].sh_offset,shdr[i].sh_size,fp);
             if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
                 return NULL;
             }
-
             strtb_entries.contents = calloc(shdr[i].sh_size,1);
             memcpy(strtb_entries.contents,content,shdr[i].sh_size);
             strtb_entries.name = shdr[i].sh_name;
@@ -116,8 +114,6 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
     
     
-    // string_table str_tb = strtb_entries[0];
-    printf("%s",strtb_entries.contents+1);
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
@@ -141,19 +137,20 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     return ft;
 }
 
-void read_string_table (uint32_t offset, uint32_t size, char** str_tb,FILE *fp){
+char* read_string_table (uint32_t offset, uint32_t size,FILE *fp){
+    char *content = calloc(size,1);
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "string table offset is invalid\n");
-        return ;
+        return NULL;
     }
-    char* res = fgets(*str_tb,size,fp);
+    char* res = fgets(content,size,fp);
     if (! res){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
-        free(str_tb);
-        return ;
+        free(content);
+        return NULL;
     }
-    return ;
+    return content;
 }
 
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
