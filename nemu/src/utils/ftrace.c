@@ -7,7 +7,7 @@
 
 int elf_check_file(Elf32_Ehdr *header){
    
-    return memcmp(header->e_ident, ELFMAG, 3) == 0;
+    return memcmp(header->e_ident, ELFMAG, 4) == 0;
 }
 
 void init_ftrace(char* elf_file){
