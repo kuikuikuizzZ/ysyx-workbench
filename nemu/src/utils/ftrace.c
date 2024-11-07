@@ -29,7 +29,7 @@ int elf_check_file(Elf32_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
 
-void read_string_table (uint32_t offset, uint32_t size, char *content,FILE *fp);
+void read_string_table (uint32_t offset, uint32_t size, char **ptr_tb,FILE *fp);
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
 ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
 
@@ -91,16 +91,17 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
-            strtb_entries[i].contents = calloc(shdr[i].sh_size,1);
-            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,strtb_entries[i].contents,fp);
-            // if (!content) {
-            //     fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
-            //     return NULL;
-            // }
+            char *content = calloc(shdr[i].sh_size,1);
+            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,&content,fp);
+            if (!content) {
+                fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
+                return NULL;
+            }
 
+            strtb_entries[i].contents = content;
             strtb_entries[i].name = shdr[i].sh_name;
             printf("string table in %d, content: %s size %d\n",
-                shdr[i].sh_name,strtb_entries[i].contents+1,shdr[i].sh_size);
+                shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
             break;
         }
@@ -137,12 +138,12 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     return ft;
 }
 
-void read_string_table (uint32_t offset, uint32_t size, char* str_tb,FILE *fp){
+void read_string_table (uint32_t offset, uint32_t size, char** str_tb,FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "string table offset is invalid\n");
         return ;
     }
-    char* res = fgets(str_tb,size,fp);
+    char* res = fgets(*str_tb,size,fp);
     if (! res){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
