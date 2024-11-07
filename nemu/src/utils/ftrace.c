@@ -96,7 +96,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             }
             strtb_entries[i].contents = content;
             strtb_entries[i].name = shdr[i].sh_name;
-            printf("string table in %d, content: %s\n",shdr[i].sh_name,content+1);
+            printf("string table in %d, content: %s flag %d\n",
+                shdr[i].sh_name,content+1,shdr[i].sh_flags==SHF_ALLOC);
             strtb_index++;
         }
     }
@@ -110,7 +111,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
         Elf32_Sym entry = sym_entries[i];
-        if (entry.st_info == STT_FUNC){
+        if (entry.st_info == STT_NOTYPE){
             func_meta fm;
             char* name = malloc(entry.st_size);
             // memcpy(name,str_tb+entry.st_name,entry.st_size);
