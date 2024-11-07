@@ -162,8 +162,16 @@ Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
     return sym_entries;
 }
 
-void ftrace_message(uint32_t pc, char* inst){
+int is_jtype(char* inst){
+    return strcmp(inst,"jal")==0 || strcmp(inst,"jalr")==0 || strcmp(inst,"jr")==0;
+}
 
-    printf("0x%x:\t %s\n",pc,inst);
+void ftrace_message(uint32_t pc, char* inst){
+    if (strcmp(inst,"ret") || is_jtype(inst)){
+        printf("0x%x:\t %s\n",pc,inst);
+    }
     return;
 }
+
+
+
