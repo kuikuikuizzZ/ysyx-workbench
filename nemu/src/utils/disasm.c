@@ -69,5 +69,5 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte, cha
     snprintf(str + ret, size - ret, "\t%s", insn->op_str);
   }
   cs_free_dl(insn, count);
-  inst_name = insn->mnemonic;
+  strcpy(inst_name, insn->mnemonic);
 }
