@@ -17,6 +17,7 @@
 #include <capstone/capstone.h>
 #include <common.h>
 
+
 static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
     size_t code_size, uint64_t address, size_t count, cs_insn **insn);
 static void (*cs_free_dl)(cs_insn *insn, size_t count);
@@ -59,7 +60,7 @@ void init_disasm() {
 #endif
 }
 
-void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte, char* inst_name) {
 	cs_insn *insn;
 	size_t count = cs_disasm_dl(handle, code, nbyte, pc, 0, &insn);
   assert(count == 1);
@@ -68,4 +69,5 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
     snprintf(str + ret, size - ret, "\t%s", insn->op_str);
   }
   cs_free_dl(insn, count);
+  strcpy(inst_name, insn->mnemonic);
 }

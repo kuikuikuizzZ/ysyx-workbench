@@ -18,6 +18,10 @@
 #include <cpu/difftest.h>
 #include <locale.h>
 #include <ringbuffer.h>
+#include <ftrace.h>
+
+extern FtraceMeta *ftrace_meta;
+
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -59,6 +63,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
+  char inst_name[32];
+
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   if (nemu_state.state == NEMU_RUNNING)
@@ -81,10 +87,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
-
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
-      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
   int len = strlen(s->logbuf);
   s->logbuf[len] = '\n';
   if(RingBuffer_available(log_buff)<(len+1)){
@@ -92,6 +97,15 @@ static void exec_once(Decode *s, vaddr_t pc) {
   }
   RingBuffer_put(log_buff,s->logbuf,len+1);
   memset(s->logbuf,0,LOG_BUFSIZE);
+#endif
+#ifdef CONFIG_FTRACE
+#ifndef CONFIG_ITRACE
+  char p[LOG_BUFSIZE];
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
+  disassemble(p,  LOG_BUFSIZE ,
+      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, s->snpc - s->pc,inst_name);
+#endif
+    ftrace_message(s->pc,s->dnpc,inst_name);
 #endif
 }
 
