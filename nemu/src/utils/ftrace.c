@@ -143,8 +143,8 @@ char* read_string_table (uint32_t offset, uint32_t size,FILE *fp){
         fprintf(stderr, "string table offset is invalid\n");
         return NULL;
     }
-    int res=fread(content,1,size,fp);
-    if ( res){
+    char* res = fgets(content,size,fp);
+    if (! res){
         fprintf(stderr, "string table is invalid\n");
         fclose(fp);
         free(content);
