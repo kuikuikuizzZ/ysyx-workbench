@@ -90,17 +90,17 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
-            char* str_tb = calloc(shdr[i].sh_size,1);
-            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,str_tb,fp);
-            if (!str_tb) {
+            char* content = calloc(shdr[i].sh_size,1);
+            read_string_table(shdr[i].sh_offset,shdr[i].sh_size,content,fp);
+            if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
                 return NULL;
             }
 
-            strtb_entries[i].contents = str_tb;
+            strtb_entries[i].contents = content;
             strtb_entries[i].name = shdr[i].sh_name;
             printf("string table in %d, content: %s size %d\n",
-                shdr[i].sh_name,str_tb+1,shdr[i].sh_size);
+                shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
         }
     }
