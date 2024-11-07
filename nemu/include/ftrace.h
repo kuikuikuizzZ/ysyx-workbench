@@ -19,8 +19,6 @@ typedef struct FtraceMeta
     uint32_t    size;
 }FtraceMeta;
 
-// extern FtraceMeta *ftrace_meta;
-
 void init_ftrace(char* elf_file);
 
 void ftrace_message(uint32_t pc, char* inst);
