@@ -177,12 +177,12 @@ int is_ret(char* inst){
 
 void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
     if (is_jal(inst)){
-        printf("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
+        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
     }else if (is_jrtype(inst)){
-        printf("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
+        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
 
     }else if (is_ret(inst)){
-        printf("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
+        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
     }
     return;
 }
