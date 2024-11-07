@@ -98,7 +98,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
                 return NULL;
             }
 
-            strtb_entries[i].contents = &content;
+            strtb_entries[i].contents = calloc(shdr[i].sh_size,1);
+            memcpy(strtb_entries[i].contents,content,shdr[i].sh_size);
             strtb_entries[i].name = shdr[i].sh_name;
             printf("string table in %d, content: %s size %d\n",
                 shdr[i].sh_name,content+1,shdr[i].sh_size);
