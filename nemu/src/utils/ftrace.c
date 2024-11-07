@@ -15,7 +15,7 @@ typedef struct func_meta{
 
 typedef struct string_table{
     uint32_t name;
-    char*   contents;
+    char**   contents;
 } string_table;
 
 typedef struct ftrace_meta 
@@ -99,7 +99,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
                 return NULL;
             }
 
-            strtb_entries[i].contents = content;
+            strtb_entries[i].contents = &content;
             strtb_entries[i].name = shdr[i].sh_name;
             printf("string table in %d, content: %s size %d\n",
                 shdr[i].sh_name,content+1,shdr[i].sh_size);
@@ -122,7 +122,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == ST_FUNC){
             func_meta fm;
             char* name = malloc(128);
-            strcpy(name,str_tb.contents+entry.st_name);
+            strcpy(name,(*str_tb.contents)+entry.st_name);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
