@@ -166,9 +166,9 @@ int is_jtype(char* inst){
     return strcmp(inst,"jal")==0 || strcmp(inst,"jalr")==0 || strcmp(inst,"jr")==0;
 }
 
-void ftrace_message(uint32_t pc, char* inst){
+void ftrace_message(uint32_t pc, char* inst,char* ops){
     if (strcmp(inst,"ret") ==0|| is_jtype(inst)){
-        printf("0x%x:\t %s\n",pc,inst);
+        printf("0x%x:\t %s \t %s \n",pc,inst,ops);
     }
     return;
 }

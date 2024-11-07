@@ -21,6 +21,6 @@ typedef struct FtraceMeta
 
 void init_ftrace(char* elf_file);
 
-void ftrace_message(uint32_t pc, char* inst);
+void ftrace_message(uint32_t pc, char* inst,char* ops);
 
 #endif
