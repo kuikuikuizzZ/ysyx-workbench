@@ -6,10 +6,16 @@
 #include <string.h>
 // #include <stdlib.h>
 
+#define NUM_STRTB 4
 typedef struct func_meta{
     uint32_t addr;
     char*   name;
 }func_meta;
+
+typedef struct string_table{
+    uint32_t name;
+    char*   contents;
+} string_table;
 
 typedef struct ftrace_meta 
 {   
@@ -72,10 +78,9 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     uint32_t symtb_offset = 0; 
     uint32_t symtb_size = 0;
     uint32_t symtb_entsize = 0;     // symbol table each entry size;
-    uint32_t strtb_offset = 0;
-    uint32_t strtb_size = 0;
-
-
+    
+    uint32_t strtb_index = 0;
+    string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
     for(int i=0;i<num;i++){
         if(shdr[i].sh_type == SHT_SYMTAB){
             symtb_offset = shdr[i].sh_offset; 
@@ -84,14 +89,18 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             printf("symbol table in %d\n",i);
         }
         if (shdr[i].sh_type == SHT_STRTAB){
-            strtb_offset = shdr[i].sh_offset; 
-            strtb_size = shdr[i].sh_size;
-            printf("string table in %d\n",i);
+            char *content = read_string_table(shdr[i].sh_offset,shdr[i].sh_size,fp);
+            if (!content) {
+                fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
+                return NULL;
+            }
+            strtb_entries[i].contents = content;
+            strtb_entries[i].name = shdr[i].sh_name;
+            printf("string table in %d, content: %s\n",shdr[i].sh_name,content);
+            strtb_index++;
         }
     }
 
-    char *str_tb = read_string_table(strtb_offset,strtb_size,fp);
-    if (!str_tb) return NULL;
     Elf32_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
     if (!sym_entries) return NULL;
     uint32_t n_symbol = symtb_size/symtb_entsize; 
@@ -104,7 +113,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == STT_FUNC){
             func_meta fm;
             char* name = malloc(entry.st_size);
-            memcpy(name,str_tb+entry.st_name,entry.st_size);
+            // memcpy(name,str_tb+entry.st_name,entry.st_size);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
@@ -116,7 +125,6 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     ft->fm_entries = func_entries;
     ft->size = fm_index;
     free(sym_entries);
-    free(str_tb);
     free(shdr);
     return ft;
 }
