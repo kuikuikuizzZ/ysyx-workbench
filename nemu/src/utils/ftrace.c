@@ -106,7 +106,9 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     if (!sym_entries) return NULL;
     uint32_t n_symbol = symtb_size/symtb_entsize; 
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
-
+    
+    
+    string_table str_tb = strtb_entries[0];
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
@@ -114,7 +116,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         if (entry.st_info == STT_NOTYPE){
             func_meta fm;
             char* name = malloc(entry.st_size);
-            // memcpy(name,str_tb+entry.st_name,entry.st_size);
+            memcpy(name,str_tb.contents+entry.st_name,entry.st_size);
             fm.addr = entry.st_value;
             fm.name = name;
             func_entries[fm_index] = fm;
