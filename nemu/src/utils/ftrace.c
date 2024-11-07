@@ -7,6 +7,7 @@
 // #include <stdlib.h>
 
 #define NUM_STRTB 4
+#define ST_FUNC 18      //elf symtable type for func
 typedef struct func_meta{
     uint32_t addr;
     char*   name;
@@ -113,7 +114,7 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
         Elf32_Sym entry = sym_entries[i];
-        if (entry.st_info == STT_NOTYPE){
+        if (entry.st_info == ST_FUNC){
             func_meta fm;
             char* name = malloc(entry.st_size);
             memcpy(name,str_tb.contents+entry.st_name,entry.st_size);
