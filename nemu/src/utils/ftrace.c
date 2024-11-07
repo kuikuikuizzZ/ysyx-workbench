@@ -183,9 +183,8 @@ void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
 
     }else if (is_ret(inst)){
         printf("0x%x: \t %s@0x%x",pc,inst,dnpc);
-
     }
-
+    printf("0x%x: \t %s@0x%x",pc,inst,dnpc);
     return;
 }
 
