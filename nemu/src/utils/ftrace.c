@@ -13,21 +13,6 @@
 #define SEG_SYM 1
 
 
-typedef struct func_meta{
-    uint32_t addr;
-    char*   name;
-}func_meta;
-
-typedef struct string_table{
-    uint32_t name;
-    char*   contents;
-} string_table;
-
-typedef struct FtraceMeta 
-{   
-    func_meta   *fm_entries;
-    uint32_t    size;
-}FtraceMeta;
 
 
 int elf_check_file(Elf32_Ehdr *header){
@@ -175,4 +160,8 @@ Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
         return NULL;
     }
     return sym_entries;
+}
+
+void ftrace_message(uint32_t pc, char* inst){
+    return;
 }
