@@ -2,13 +2,30 @@
 #include <elf.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 // #include <stdlib.h>
 
+typedef struct func_meta{
+    uint32_t addr;
+    char*   name;
+}func_meta;
+
+typedef struct ftrace_meta 
+{   
+    func_meta   *fm_entries;
+    uint32_t    size;
+}ftrace_meta;
+
+
 int elf_check_file(Elf32_Ehdr *header){
-    int result = memcmp(header->e_ident,ELFMAG, 4);
-    return result;
+    return memcmp(header->e_ident,ELFMAG, 4);
 }
+
+char* read_string_table (uint32_t offset, uint32_t size, FILE *fp);
+Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
+ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
+
 
 void init_ftrace(char* elf_file){
     FILE *fp = fopen(elf_file, "rb");
@@ -30,9 +47,107 @@ void init_ftrace(char* elf_file){
         return;
     }
     /* Parse the rest of the ELF file here. */
-
+    ftrace_meta * ftrace_meta = read_func_meta(&ehdr,fp);
+    for(int i =0;i<ftrace_meta->size;i++){
+        func_meta fm = ftrace_meta->fm_entries[i];
+        printf("name: %s \t %x \n",fm.name,fm.addr);
+    }
     /* Don't forget to close the file. */
     fclose(fp);
     return;
 }
 
+ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
+    if(fseek(fp,ehdr->e_shoff,SEEK_SET)==-1) {
+        fprintf(stderr, "segment table offset is invalid\n");
+        return NULL;
+    }
+    
+    Elf32_Shdr * shdr = calloc(ehdr->e_shnum,ehdr->e_shentsize);
+    size_t num = fread(shdr,ehdr->e_shentsize,ehdr->e_shnum,fp);
+    if(num!=ehdr->e_shnum){
+        fprintf(stderr, "segment table is invalid, expect %d items, but got %ld \n", 
+                ehdr->e_shnum,num);
+    }
+    uint32_t symtb_offset = 0; 
+    uint32_t symtb_size = 0;
+    uint32_t symtb_entsize = 0;     // symbol table each entry size;
+    uint32_t strtb_offset = 0;
+    uint32_t strtb_size = 0;
+
+
+    for(int i=0;i<num;i++){
+        if(shdr[i].sh_type == SHT_SYMTAB){
+            symtb_offset = shdr[i].sh_offset; 
+            symtb_size = shdr[i].sh_size;
+            symtb_entsize = shdr[i].sh_entsize;
+
+        }
+        if (shdr[i].sh_type == SHT_STRTAB){
+            strtb_offset = shdr[i].sh_offset; 
+            strtb_size = shdr[i].sh_size;
+        }
+    }
+
+    char *str_tb = read_string_table(strtb_offset,strtb_size,fp);
+    if (!str_tb) return NULL;
+    Elf32_Sym *sym_entries = read_symbol_table(symtb_offset,symtb_size,symtb_entsize,fp);
+    if (!sym_entries) return NULL;
+    uint32_t n_symbol = symtb_size/symtb_entsize; 
+    func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
+
+    /* read symbol name from string table, address from symbol table */
+    int fm_index = 0;
+    for(int i=0;i<n_symbol;i++){
+        Elf32_Sym entry = sym_entries[i];
+        if (entry.st_info == STT_FUNC){
+            func_meta fm;
+            char* name = malloc(entry.st_size);
+            memcpy(name,str_tb+entry.st_name,entry.st_size);
+            fm.addr = entry.st_value;
+            fm.name = name;
+            func_entries[fm_index] = fm;
+            fm_index++; 
+        }
+    }
+    ftrace_meta * ft = malloc(sizeof(ftrace_meta));
+    ft->fm_entries = func_entries;
+    ft->size = fm_index;
+    free(sym_entries);
+    free(str_tb);
+    free(shdr);
+    return ft;
+}
+
+char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
+    if(fseek(fp,offset,SEEK_SET)==-1) {
+        fprintf(stderr, "string table offset is invalid\n");
+        return NULL;
+    }
+    char* str_tb = calloc(size,1);
+    size_t num = fread(str_tb,1,size,fp);
+    if (num != size){
+        fprintf(stderr, "string table is invalid\n");
+        fclose(fp);
+        free(str_tb);
+        return NULL;
+    }
+    return str_tb;
+}
+
+Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
+    if(fseek(fp,offset,SEEK_SET)==-1) {
+        fprintf(stderr, "symbol table offset is invalid\n");
+        return NULL;
+    }
+
+    Elf32_Sym* sym_entries = malloc(size);
+    size_t num = fread(sym_entries,entsize,size/entsize,fp);
+    if (num != size){
+        fprintf(stderr, "symbol table is invalid\n");
+        fclose(fp);
+        free(sym_entries);
+        return NULL;
+    }
+    return sym_entries;
+}
