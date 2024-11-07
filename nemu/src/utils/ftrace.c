@@ -8,7 +8,7 @@
 int elf_check_file(Elf32_Ehdr *header){
     char temp[4];
     memcpy(temp,header->e_ident,4);
-    int result = memcmp(temp, ELFMAG, 4);
+    int result = memcmp(ELFMAG,header->e_ident, 4);
     return result;
 }
 
