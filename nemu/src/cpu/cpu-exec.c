@@ -85,7 +85,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
-  char inst_name[32];
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
@@ -96,9 +95,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   }
   RingBuffer_put(log_buff,s->logbuf,len+1);
   memset(s->logbuf,0,LOG_BUFSIZE);
-  #ifdef CONFIG_FTRACE
-    if (CONFIG_FTRACE_COND) ftrace_message(s->pc,s->dnpc,inst_name);
-  #endif
+#endif
+char inst_name[32];
+#ifdef CONFIG_FTRACE
+    ftrace_message(s->pc,s->dnpc,inst_name);
 #endif
 }
 

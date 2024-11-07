@@ -84,7 +84,6 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             symtb_offset = shdr[i].sh_offset; 
             symtb_size = shdr[i].sh_size;
             symtb_entsize = shdr[i].sh_entsize;
-            printf("symbol table in %d\n",i);
             seg_flag|=SEG_SYM;
         }
         if (shdr[i].sh_type == SHT_STRTAB){
