@@ -82,7 +82,9 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     
     uint32_t strtb_index = 0;
 
-    string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
+    // string_table *strtb_entries = calloc(NUM_STRTB,sizeof(string_table));
+    string_table strtb_entries; 
+
     for(int i=0;i<num;i++){
         if(shdr[i].sh_type == SHT_SYMTAB){
             symtb_offset = shdr[i].sh_offset; 
@@ -98,9 +100,9 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
                 return NULL;
             }
 
-            strtb_entries[i].contents = calloc(shdr[i].sh_size,1);
-            memcpy(strtb_entries[i].contents,content,shdr[i].sh_size);
-            strtb_entries[i].name = shdr[i].sh_name;
+            strtb_entries.contents = calloc(shdr[i].sh_size,1);
+            memcpy(strtb_entries.contents,content,shdr[i].sh_size);
+            strtb_entries.name = shdr[i].sh_name;
             printf("string table in %d, content: %s size %d\n",
                 shdr[i].sh_name,content+1,shdr[i].sh_size);
             strtb_index++;
@@ -114,8 +116,8 @@ ftrace_meta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     func_meta *func_entries = calloc(sizeof(func_meta),n_symbol);
     
     
-    string_table str_tb = strtb_entries[0];
-    printf("%s",str_tb.contents);
+    // string_table str_tb = strtb_entries[0];
+    printf("%s",strtb_entries.contents);
     /* read symbol name from string table, address from symbol table */
     int fm_index = 0;
     for(int i=0;i<n_symbol;i++){
