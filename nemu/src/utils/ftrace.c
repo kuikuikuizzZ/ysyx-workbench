@@ -22,8 +22,8 @@ int elf_check_file(Elf64_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
 
-char* read_string_table (uint32_t offset, uint32_t size, FILE *fp);
-Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
+char* read_string_table (Elf64_Off offset, uint64_t size, FILE *fp);
+Elf64_Sym* read_symbol_table (Elf64_Off offset, uint64_t size, uint32_t entsize, FILE *fp);
 ftrace_meta* read_func_meta(Elf64_Ehdr* ehdr,FILE *fp);
 
 
@@ -119,7 +119,7 @@ ftrace_meta* read_func_meta(Elf64_Ehdr* ehdr,FILE *fp){
     return ft;
 }
 
-char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
+char* read_string_table (Elf64_Off offset, uint64_t size, FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "string table offset is invalid\n");
         return NULL;
@@ -135,7 +135,7 @@ char* read_string_table (uint32_t offset, uint32_t size, FILE *fp){
     return str_tb;
 }
 
-Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, FILE *fp){
+Elf64_Sym* read_symbol_table (Elf64_Off offset, uint64_t size,uint32_t entsize, FILE *fp){
     if(fseek(fp,offset,SEEK_SET)==-1) {
         fprintf(stderr, "symbol table offset is invalid\n");
         return NULL;
@@ -144,8 +144,8 @@ Elf64_Sym* read_symbol_table (uint32_t offset, uint32_t size,uint32_t entsize, F
     Elf64_Sym* sym_entries = malloc(size);
     uint32_t num = fread(sym_entries,entsize,size/entsize,fp);
     if (num != size/entsize){
-        fprintf(stderr, "symbol table is invalid,should be %d entries, but got %d\n",
-                size,num);
+        fprintf(stderr, "symbol table is invalid,should be %ld entries, but got %d\n",
+                size/entsize,num);
         fclose(fp);
         free(sym_entries);
         return NULL;
