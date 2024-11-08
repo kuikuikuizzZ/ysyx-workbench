@@ -18,7 +18,7 @@
 int elf_check_file(Elf32_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
-
+static int space_len = 1;
 char* read_string_table (uint32_t offset, uint32_t size,FILE *fp);
 Elf32_Sym* read_symbol_table (uint32_t offset, uint32_t size, uint32_t entsize, FILE *fp);
 FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp);
@@ -177,14 +177,19 @@ int is_ret(char* inst){
 }
 
 void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
+    char* spaces = malloc(space_len*2);
+    memset(spaces,' ',space_len*2); 
     if (is_jal(inst)){
-        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
+        log_write("0x%x: %s %s@0x%x\n",pc,spaces,inst,dnpc);
+        space_len++;
     }else if (is_jrtype(inst)){
-        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
-
+        log_write("0x%x: %s %s@0x%x\n",pc,spaces,inst,dnpc);
+        space_len++;
     }else if (is_ret(inst)){
-        log_write("0x%x: \t %s@0x%x\n",pc,inst,dnpc);
+        log_write("0x%x: %s %s@0x%x\n",pc,spaces,inst,dnpc);
+        space_len = (space_len>0)?space_len-1:1;
     }
+    free(spaces);
     return;
 }
 
