@@ -28,6 +28,7 @@ void isa_reg_display() {
     for (int i= 0;i<32;i++){
         word_t val = gpr(i);
         printf("%4s%16x%16d\n",regs[i],val,val);
+        printf("  pc%16x%16d\n",cpu.pc,cpu.pc);
     }
 }
 
