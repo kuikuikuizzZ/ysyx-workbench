@@ -24,7 +24,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     return false;
   }
   for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[check_reg_idx(i)]) return false;
+     if(ref_r->gpr[i]!=cpu.gpr[check_reg_idx(i%4)]) return false;
   }  
   return true;
 }
