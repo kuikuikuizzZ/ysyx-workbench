@@ -187,22 +187,23 @@ char* func_name( uint32_t addr ){
 
 void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
     char* name = "";
-    if ((name = func_name(dnpc))!=NULL){
-        char* spaces = malloc(space_len+1);
-        memset(spaces,' ',space_len); 
-        spaces[space_len] = '\0';
-        if (is_jal(inst)){
-            log_write("0x%x: %s %s [%s@0x%x]\n",pc,spaces,inst,name,dnpc);
-            space_len++;
-        }else if (is_jrtype(inst)){
-            log_write("0x%x: %s %s[%s@0x%x]\n",pc,spaces,inst,name,dnpc);
-            space_len++;
-        }else if (is_ret(inst)){
-            log_write("0x%x: %s %s[%s@0x%x]\n",pc,spaces,inst,name,dnpc);
-            space_len = (space_len>0)?space_len-1:1;
-        }
-        free(spaces);
+    char* spaces = malloc(space_len+1);
+    memset(spaces,' ',space_len); 
+    spaces[space_len] = '\0';
+    if (is_jal(inst)){
+        if ((name = func_name(dnpc))==NULL) return;
+        log_write("0x%x: %s %s [%s@0x%x]\n",pc,spaces,inst,name,dnpc);
+        space_len++;
+    }else if (is_jrtype(inst)){
+        if ((name = func_name(dnpc))==NULL) return;
+        log_write("0x%x: %s %s[%s@0x%x]\n",pc,spaces,inst,name,dnpc);
+        space_len++;
+    }else if (is_ret(inst)){
+        log_write("0x%x: %s %s[@0x%x]\n",pc,spaces,inst,dnpc);
+        space_len = (space_len>0)?space_len-1:1;
     }
+    free(spaces);
+    
     
     return;
 }
