@@ -177,8 +177,9 @@ int is_ret(char* inst){
 }
 
 void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
-    char* spaces = malloc(space_len*2);
-    memset(spaces,' ',space_len*2); 
+    char* spaces = malloc(space_len+1);
+    memset(spaces,' ',space_len); 
+    spaces[space_len] = '\0';
     if (is_jal(inst)){
         log_write("0x%x: %s %s@0x%x\n",pc,spaces,inst,dnpc);
         space_len++;
