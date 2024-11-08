@@ -203,8 +203,6 @@ void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
         space_len = (space_len>0)?space_len-1:1;
     }
     free(spaces);
-    
-    
     return;
 }
 
