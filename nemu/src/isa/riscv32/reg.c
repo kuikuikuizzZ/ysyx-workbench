@@ -26,16 +26,17 @@ const char *regs[] = {
 
 void isa_reg_display() {
     for (int i= 0;i<32;i++){
-        word_t val = gpr(check_reg_idx(i));
+        word_t val = gpr(i);
         printf("%4s%16x%16d\n",regs[i],val,val);
     }
+    printf("  pc%16x%16d\n",cpu.pc,cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
   word_t val;
   for (int i= 0;i<32;i++){
       if (strstr(s,regs[i])){
-        val = gpr(check_reg_idx(i));
+        val = gpr(i);
         *success = true;
       } else if(strstr(s,"$pc")){
         val = cpu.pc;
