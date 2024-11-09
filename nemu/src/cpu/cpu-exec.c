@@ -63,7 +63,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
-  char inst_name[32];
+  // 
+  IFDEF(CONFIG_FTRACE, char inst_name[CS_MNEMONIC_SIZE]);
 
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
