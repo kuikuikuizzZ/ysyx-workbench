@@ -45,9 +45,7 @@ void itoa(int n , char s[]){
     memcpy(s,res,12);
     return;
   }
-  int sign;
-  int i=0;
-
+  int i=0,sign=0;
   n = ((sign=n)<0)?-n:n;
  
   do{
