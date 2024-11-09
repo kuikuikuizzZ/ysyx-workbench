@@ -42,6 +42,7 @@ void reverse(char s[]){
 void itoa(int n , char s[]){
   if (n == 0x80000000){
     s= "-2147483648";
+    return;
   }
   int sign;
   if ((sign=n)<0){
