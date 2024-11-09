@@ -64,9 +64,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   isa_exec_once(s);
   cpu.pc = s->dnpc;
   // 
-  IFDEF(CONFIG_FTRACE, char inst_name[CS_MNEMONIC_SIZE]);
 
 #ifdef CONFIG_ITRACE
+  // 32 match inst name in capstone define
+  char inst_name[32];
   char *p = s->logbuf;
   if (nemu_state.state == NEMU_RUNNING)
     p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
