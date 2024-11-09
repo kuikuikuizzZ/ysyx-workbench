@@ -40,11 +40,14 @@ void reverse(char s[]){
 }
 
 void itoa(int n , char s[]){
-  int sign;
-  if ((sign=n)<0){
-    n = -n;
+  if (n ==INT32_MIN ){
+    char *res = "-2147483648";
+    memcpy(s,res,12);
+    return;
   }
-  int i=0;
+  int i=0,sign=0;
+  n = ((sign=n)<0)?-n:n;
+ 
   do{
     s[i++] = n%10+'0';
   }while ((n/=10)>0);

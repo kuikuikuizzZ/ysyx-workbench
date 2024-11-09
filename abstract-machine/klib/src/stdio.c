@@ -17,16 +17,16 @@ int printf(const char *fmt, ...) {
         switch (fmt[i])
         {
         case 'd':
-          int *out_int = va_arg(argp,int *); 
+          int out_int = va_arg(argp,int ); 
           char s[12];
-          itoa(*out_int,s);
+          itoa(out_int,s);
           putstr(s);
           rc+= strlen(s);
           break;
         case 's':
-          char** out_string = va_arg(argp,char**);
-          putstr(*out_string);
-          rc+= strlen(*out_string);
+          char* out_string = va_arg(argp,char*);
+          putstr(out_string);
+          rc+= strlen(out_string);
           break;
         default:
           break;
