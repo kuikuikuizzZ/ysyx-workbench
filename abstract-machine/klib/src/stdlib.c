@@ -41,7 +41,8 @@ void reverse(char s[]){
 
 void itoa(int n , char s[]){
   if (n == 0x80000000){
-    s= "-2147483648";
+    char *res = "-2147483648";
+    memcpy(s,res,12);
     return;
   }
   int sign;
