@@ -39,7 +39,7 @@ void reverse(char s[]){
   }
 }
 
-void itoa(long n , char s[]){
+void itoa(int n , char s[]){
   int sign;
   if ((sign=n)<0){
     n = -n;

@@ -17,7 +17,7 @@ int printf(const char *fmt, ...) {
         switch (fmt[i])
         {
         case 'd':
-          long out_int = va_arg(argp,long ); 
+          int out_int = va_arg(argp,int ); 
           char s[12];
           itoa(out_int,s);
           putstr(s);
