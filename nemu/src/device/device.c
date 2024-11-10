@@ -45,7 +45,7 @@ void device_update() {
 
 #ifndef CONFIG_TARGET_AM
   SDL_Event event;
-  while (SDL_PollEvent(&event)!=0) {
+  while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT:
         nemu_state.state = NEMU_QUIT;
@@ -64,8 +64,9 @@ void device_update() {
       }
 // #endif
       default: break;
-      printf("in event\n");
+     ;
     }
+   printf("in event\n");
   }
   // printf("sdl key %d, down %d\n",k,is_keydown);
 #endif
