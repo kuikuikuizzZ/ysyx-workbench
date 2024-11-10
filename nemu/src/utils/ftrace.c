@@ -77,9 +77,9 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     char* strtb_contents=""; 
 
     for(int i=0;i<num;i++){
-        if (seg_flag==SEG_STR_SYM){
-            break;
-        }
+        // if (seg_flag==SEG_STR_SYM){
+        //     break;
+        // }
         if(shdr[i].sh_type == SHT_SYMTAB){
             symtb_offset = shdr[i].sh_offset; 
             symtb_size = shdr[i].sh_size;
