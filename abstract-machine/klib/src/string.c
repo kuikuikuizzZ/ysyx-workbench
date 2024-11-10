@@ -74,7 +74,7 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
-  uint32_t *s1 = (uint32_t*)out;
+  uint32_t *s1 = out;
   const uint32_t *s2 = (uint32_t*)in;
   int i=0;
   while (i<n && (*s1++=*s2++))
