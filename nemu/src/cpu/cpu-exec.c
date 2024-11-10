@@ -101,12 +101,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   memset(s->logbuf,0,LOG_BUFSIZE);
 #endif
 #ifdef CONFIG_FTRACE
-#ifndef CONFIG_ITRACE
-  char p[LOG_BUFSIZE];
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
-  disassemble(p,  LOG_BUFSIZE ,
-      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, s->snpc - s->pc,inst_name);
-#endif
     ftrace_message(s->pc,s->dnpc,inst_name);
 #endif
 }
