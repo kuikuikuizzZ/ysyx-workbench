@@ -64,7 +64,6 @@ void device_update() {
       }
 // #endif
       default: break;
-     ;
     }
    printf("in event\n");
   }
