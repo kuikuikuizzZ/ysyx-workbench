@@ -28,7 +28,6 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
     // memcpy(fb+ctl->x+2+(ctl->y+i)*w,ctl->pixels+ctl->w*i,sizeof(uint32_t));
     // memcpy(fb+ctl->x+3+(ctl->y+i)*w,ctl->pixels+ctl->w*i,sizeof(uint32_t));
   }
-  printf("%d,%d\n",ctl->w*sizeof(uint32_t),ctl->w);
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
   }
