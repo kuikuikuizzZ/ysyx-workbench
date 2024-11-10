@@ -81,7 +81,7 @@ void *memcpy(void *out, const void *in, size_t n) {
   {
     i++;
   }
-  out = s1;
+  // out = s1;
   return out;
 }
 
