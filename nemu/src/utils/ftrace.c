@@ -216,7 +216,7 @@ void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
         space_len++;
     }else if (is_ret(inst)){
         char* func_name = find_ret_name(dnpc);
-        log_write("0x%x: %s %s[%s@0x%x]\n",pc,spaces,inst,func_name,dnpc);
+        log_write("0x%x: %s %s[%s]\n",pc,spaces,inst,func_name);
         space_len = (space_len>0)?space_len-1:1;
     }
     free(spaces);
