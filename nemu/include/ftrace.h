@@ -6,6 +6,7 @@
 typedef struct func_meta{
     uint32_t addr;
     char*   name;
+    uint32_t size;
 }func_meta;
 
 typedef struct string_table{
