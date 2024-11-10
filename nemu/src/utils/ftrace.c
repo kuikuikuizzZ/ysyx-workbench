@@ -12,8 +12,7 @@
 #define SEG_STR 2
 #define SEG_SYM 1
 
-
-
+#define IN_RANGE(BEGIN,END,VAL) (((BEGIN)<(VAL))&&((END)>(VAL)))
 
 int elf_check_file(Elf32_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
@@ -63,7 +62,6 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         fprintf(stderr, "segment table offset is invalid\n");
         return NULL;
     }
-    
     Elf32_Shdr * shdr = calloc(ehdr->e_shnum,ehdr->e_shentsize);
     size_t num = fread(shdr,ehdr->e_shentsize,ehdr->e_shnum,fp);
     if(num!=ehdr->e_shnum){
@@ -86,7 +84,12 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             symtb_entsize = shdr[i].sh_entsize;
             seg_flag|=SEG_SYM;
         }
+
         if (shdr[i].sh_type == SHT_STRTAB){
+            // filter shstrtable
+            if (ehdr->e_shstrndx != SHN_UNDEF && i == ehdr->e_shstrndx){
+                continue;
+            }
             char *content = read_string_table(shdr[i].sh_offset,shdr[i].sh_size,fp);
             if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
@@ -117,6 +120,7 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             strcpy(name,strtb_contents+entry.st_name);
             fm.addr = entry.st_value;
             fm.name = name;
+            fm.size = entry.st_size;
             func_entries[fm_index] = fm;
             fm_index++;
         }
@@ -185,6 +189,18 @@ char* func_name( uint32_t addr ){
     return NULL;
 }
 
+char* find_ret_name(uint32_t addr ){
+    char *res = "";
+    for (int i=0;i<ftrace_meta->size;i++){
+        func_meta entry = ftrace_meta->fm_entries[i];
+        if(IN_RANGE(entry.addr ,entry.addr+entry.size,addr)){
+            res= entry.name;
+            break;
+        }
+    }
+    return res;
+}
+
 void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
     char* name = "";
     char* spaces = malloc(space_len+1);
@@ -199,7 +215,8 @@ void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
         log_write("0x%x: %s %s[%s@0x%x]\n",pc,spaces,inst,name,dnpc);
         space_len++;
     }else if (is_ret(inst)){
-        log_write("0x%x: %s %s[@0x%x]\n",pc,spaces,inst,dnpc);
+        char* func_name = find_ret_name(dnpc);
+        log_write("0x%x: %s %s[%s]\n",pc,spaces,inst,func_name);
         space_len = (space_len>0)?space_len-1:1;
     }
     free(spaces);
