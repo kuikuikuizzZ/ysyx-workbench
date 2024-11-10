@@ -19,6 +19,8 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
     .width = inw(VGACTL_ADDR+2), .height = inw(VGACTL_ADDR),
     .vmemsz = inl(FB_ADDR),
   };
+  w = cfg->width;
+  h = cfg->height;
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
