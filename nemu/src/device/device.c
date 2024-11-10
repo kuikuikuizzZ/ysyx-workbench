@@ -59,11 +59,12 @@ void device_update() {
         uint8_t k = event.key.keysym.scancode;
         bool is_keydown = (event.key.type == SDL_KEYDOWN);
         send_key(k, is_keydown);
-        printf("in keyborad\n");
+       
         break;
       }
 // #endif
       default: break;
+      printf("in event\n");
     }
   }
   // printf("sdl key %d, down %d\n",k,is_keydown);
