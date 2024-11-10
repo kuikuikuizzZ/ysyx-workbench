@@ -63,7 +63,6 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
         fprintf(stderr, "segment table offset is invalid\n");
         return NULL;
     }
-    
     Elf32_Shdr * shdr = calloc(ehdr->e_shnum,ehdr->e_shentsize);
     size_t num = fread(shdr,ehdr->e_shentsize,ehdr->e_shnum,fp);
     if(num!=ehdr->e_shnum){
@@ -77,16 +76,21 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
     char* strtb_contents=""; 
 
     for(int i=0;i<num;i++){
-        // if (seg_flag==SEG_STR_SYM){
-        //     break;
-        // }
+        if (seg_flag==SEG_STR_SYM){
+            break;
+        }
         if(shdr[i].sh_type == SHT_SYMTAB){
             symtb_offset = shdr[i].sh_offset; 
             symtb_size = shdr[i].sh_size;
             symtb_entsize = shdr[i].sh_entsize;
             seg_flag|=SEG_SYM;
         }
+        
         if (shdr[i].sh_type == SHT_STRTAB){
+            // filter shstrtable
+            if (ehdr->e_shstrndx != SHN_UNDEF && i == ehdr->e_shstrndx){
+                continue;
+            }
             char *content = read_string_table(shdr[i].sh_offset,shdr[i].sh_size,fp);
             if (!content) {
                 fprintf(stderr, "read string table %d failed.\n",shdr[i].sh_name);
