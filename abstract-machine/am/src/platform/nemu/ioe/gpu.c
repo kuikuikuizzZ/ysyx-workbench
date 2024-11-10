@@ -22,12 +22,17 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
+  uint32_t* p = ctl->pixels;
   for(int i=0;i<ctl->h;i++){
-    memcpy(fb+ctl->x+(ctl->y+i)*w,ctl->pixels+ctl->w*i,ctl->w*sizeof(uint32_t));
-    // memcpy(fb+ctl->x+1+(ctl->y+i)*w,ctl->pixels+ctl->w*i,sizeof(uint32_t));
-    // memcpy(fb+ctl->x+2+(ctl->y+i)*w,ctl->pixels+ctl->w*i,sizeof(uint32_t));
-    // memcpy(fb+ctl->x+3+(ctl->y+i)*w,ctl->pixels+ctl->w*i,sizeof(uint32_t));
+    memcpy(fb+ctl->x+(ctl->y+i)*w,p+ctl->w*i,ctl->w*sizeof(uint32_t));
   }
+
+  // for(int i=0;i<ctl->h;i++){
+  //   for(int j=0;j<ctl->w;i++){
+  //     fb[(ctl->y+i)*w+ctl->x+j] = (u)ctl->pixels[i*ctl->w+j];
+  //   }
+  // }
+
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
   }
