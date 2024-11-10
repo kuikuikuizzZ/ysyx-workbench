@@ -25,7 +25,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   for(int i=0;i<ctl->h;i++){
     memmove(fb+ctl->x+(ctl->y)*w,ctl->pixels+ctl->w*i,ctl->w*sizeof(uint32_t));
   }
-  printf("%d",ctl->w*sizeof(uint32_t));
+  printf("%d\n",ctl->w*sizeof(uint32_t));
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
   }
