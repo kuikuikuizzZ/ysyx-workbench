@@ -51,6 +51,8 @@ void device_update() {
         nemu_state.state = NEMU_QUIT;
         break;
 #ifdef CONFIG_HAS_KEYBOARD
+      printf("in keyborad\n");
+
       // If a key was pressed
       case SDL_KEYDOWN:
       case SDL_KEYUP: {
@@ -64,7 +66,6 @@ void device_update() {
     }
   }
   // printf("sdl key %d, down %d\n",k,is_keydown);
-  printf("in device\n");
 #endif
 }
 
