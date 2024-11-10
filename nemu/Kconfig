@@ -172,6 +172,17 @@ config FTRACE_COND
   string "Only trace function when the condition is true"
   default "true"
 
+config DTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable device tracer"
+  default n
+
+config DTRACE_COND
+  depends on ITRACE
+  string "Only trace device when the condition is true"
+  default "true"
+
+
 
 config WATCHPOINT
   depends on TRACE
