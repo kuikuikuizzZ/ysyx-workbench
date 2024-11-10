@@ -22,10 +22,9 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
-  for(int i=0;i<ctl->h;i++){
-    memcpy(fb+ctl->x+(ctl->y+i)*w,ctl->pixels+(i*ctl->h),32);
-  }
-  printf("ctl->w %d,ctl->h %d\n",ctl->w,ctl->h);
+  // for(int i=0;i<ctl->h;i++){
+  memcpy(fb+ctl->x+(ctl->y)*w,ctl->pixels,ctl->w*ctl->h*sizeof(uint32_t));
+  // }
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
   }
