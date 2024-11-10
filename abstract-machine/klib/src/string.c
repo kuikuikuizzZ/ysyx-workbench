@@ -76,8 +76,13 @@ void *memmove(void *dst, const void *src, size_t n) {
 void *memcpy(void *out, const void *in, size_t n) {
   char *s1 = out;
   const char *s2 = in;
-  strncpy(s1,s2,n);
-  return s1;
+  int i=0;
+  while (i<n && (*s1++=*s2++))
+  {
+    i++;
+  }
+  out = s1;
+  return out;
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
