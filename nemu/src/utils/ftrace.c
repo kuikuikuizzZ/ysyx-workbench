@@ -84,7 +84,7 @@ FtraceMeta* read_func_meta(Elf32_Ehdr* ehdr,FILE *fp){
             symtb_entsize = shdr[i].sh_entsize;
             seg_flag|=SEG_SYM;
         }
-        
+
         if (shdr[i].sh_type == SHT_STRTAB){
             // filter shstrtable
             if (ehdr->e_shstrndx != SHN_UNDEF && i == ehdr->e_shstrndx){
