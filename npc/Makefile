@@ -1,7 +1,7 @@
 WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 BINARY   = $(BUILD_DIR)/$(NAME)
-NAME = top 
+NAME = ysyx_24100012_top 
 IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
