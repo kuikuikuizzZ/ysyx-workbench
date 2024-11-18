@@ -7,9 +7,12 @@
 
 // Include common routines
 #include <verilated.h>
-
 // Include model header, generated from Verilating "top.v"
-#include "Vtop.h"
+#include "Vysyx_24100012_top.h"
+
+Vysyx_24100012_top* top = NULL;
+void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
+void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 
 int main(int argc, char** argv) {
     // See a similar example walkthrough in the verilator manpage.
@@ -26,17 +29,24 @@ int main(int argc, char** argv) {
     contextp->commandArgs(argc, argv);
 
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    Vtop* top = new Vtop{contextp};
+    top = new Vysyx_24100012_top{contextp};
+
+    reset(1);
 
     // Simulate until $finish
-    for (int i=0;i<10;i++) {
-        int a = rand() & 1;
-        int b = rand() & 1;
-        top->a = a;
-        top->b = b;
-        top->eval();
-        printf("a = %d, b = %d, f = %d\n", a, b, top->f);
-        assert(top->f == (a ^ b));
+    while(!top->io_halt) {
+        step();
+        printf(" io_halt %d ,pc %x, inst: %x, rs1 %d,imm %d rd: %d, wen %d,alu:%d  a0 = %d\n",
+            top->io_halt,
+            top->ysyx_24100012_top__DOT__ifu__DOT__pc,
+            top->ysyx_24100012_top__DOT__inst,
+            top->ysyx_24100012_top__DOT__rs1,
+            top->ysyx_24100012_top__DOT__imm,
+            top->ysyx_24100012_top__DOT__rd,
+            top->ysyx_24100012_top__DOT__wen,
+            top->ysyx_24100012_top__DOT__alu_sel,
+            // top->ysyx_24100012_top__DOT__alu_out,
+            top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__10__KET____DOT__x____pinNumber4);
         // Evaluate model
     }
 
