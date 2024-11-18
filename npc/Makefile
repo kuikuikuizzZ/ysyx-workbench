@@ -6,7 +6,7 @@ IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 build:
-	verilator --cc --exe --build --top-module $(NAME) -j 8  csrc/main.cpp  vsrc/*.v --trace --Mdir $(BUILD_DIR)
+	verilator --cc --exe --build --Mdir $(BUILD_DIR) --top-module $(NAME) -j 8  csrc/main.cpp  vsrc/*.v --trace 
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
