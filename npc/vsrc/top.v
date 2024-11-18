@@ -26,8 +26,9 @@ module ysyx_24100012_inst_fetch #(ADDR_WIDTH,DATA_WIDTH) (
   output [DATA_WIDTH-1:0] inst
 );
   parameter [ADDR_WIDTH-1:0] ORIGIN_ADDR=32'h80000000;
+  parameter [ADDR_WIDTH-1:0] MEM_SIZE = 4096;
   reg [ADDR_WIDTH-1:0] pc;
-  ysyx_24100012_rom  #(ADDR_WIDTH,DATA_WIDTH) mem (pc,inst);
+  ysyx_24100012_ram  #(ADDR_WIDTH,DATA_WIDTH,ORIGIN_ADDR,MEM_SIZE) mem (clk,1'b0,32'b0,32'b0,pc,inst);
 
   always@(posedge clk) begin
     if (rst== 1'b1) begin
@@ -37,3 +38,6 @@ module ysyx_24100012_inst_fetch #(ADDR_WIDTH,DATA_WIDTH) (
     end
   end
 endmodule
+
+
+

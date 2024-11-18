@@ -1,7 +1,12 @@
-TOP_MODULE=top
+WORK_DIR  = $(shell pwd)
+BUILD_DIR = $(WORK_DIR)/build
+BINARY   = $(BUILD_DIR)/$(NAME)
+NAME = top 
+IMG ?=
+NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 all:
-	verilator --cc --exe --build --top-module $(TOP_MODULE) -j 8  csrc/main.cpp  vsrc/*.v --trace
+	verilator --cc --exe --build --top-module $(NAME) -j 8  csrc/main.cpp  vsrc/*.v --trace --Mdir $(BUILD_DIR)
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -9,5 +14,8 @@ sim:
 
 include ../Makefile
 
+run: 
+	$(call git_commit, "run NPC")
+	$(NPC_EXEC)
 clean:
 	rm -r obj_dir

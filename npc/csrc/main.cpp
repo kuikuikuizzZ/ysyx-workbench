@@ -1,18 +1,19 @@
-// DESCRIPTION: Verilator: Verilog example module
-//
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2017 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
-//======================================================================
-
-// Include common routines
 #include <verilated.h>
-// Include model header, generated from Verilating "top.v"
 #include "Vysyx_24100012_top.h"
+#include <assert.h>
 
 Vysyx_24100012_top* top = NULL;
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
+void load_prog(const char *bin) {
+    FILE *fp = fopen(bin, "rb");
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    int ret = fread(&top->ysyx_24100012_top__DOT__ifu__DOT__mem__DOT__ram, 1, size, fp);
+    assert(ret == 1);
+
+    fclose(fp);
+}
 
 int main(int argc, char** argv) {
     // See a similar example walkthrough in the verilator manpage.
@@ -30,7 +31,7 @@ int main(int argc, char** argv) {
 
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     top = new Vysyx_24100012_top{contextp};
-
+    load_prog(argv[1]);
     reset(1);
 
     // Simulate until $finish

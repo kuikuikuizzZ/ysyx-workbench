@@ -1,8 +1,7 @@
 module ysyx_24100012_rom #(ADDR_WIDTH,DATA_WIDTH)(
     input [ADDR_WIDTH-1:0] addr,
-    output reg [ADDR_WIDTH-1:0] val
+    output [DATA_WIDTH-1:0] val
 );
-
 always@(*)
     case(addr)
         32'h80000000:   val=32'h00108513;       //addi a0 x0 1
@@ -14,5 +13,4 @@ always@(*)
         32'h80000018:   val=32'h00108073;       //ebreak
         default:        val=32'h00100073;
     endcase
-
 endmodule
