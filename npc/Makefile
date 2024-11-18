@@ -17,5 +17,8 @@ include ../Makefile
 run: build
 	$(call git_commit, "run NPC")
 	$(NPC_EXEC)
+
 clean:
 	rm -r obj_dir
+
+.PHONY: run build clean
