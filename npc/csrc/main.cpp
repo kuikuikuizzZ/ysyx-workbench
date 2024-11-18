@@ -2,11 +2,26 @@
 #include "Vysyx_24100012_top.h"
 #include <assert.h>
 
+// this is not consistent with uint8_t
+// but it is ok since we do not access the array directly
+static const uint32_t img [] = {
+          0x00108513,      //addi a0 x0 1
+          0x00150513,      //addi a0 a0 1
+          0x00150513,      //addi a0 a0 1
+          0x00150513,      //addi a0 a0 1
+          0x00150513,      //addi a0 a0 1
+          0x00150513,      //addi a0 a0 1
+          0x00108073,      //ebreak
+};
+
 Vysyx_24100012_top* top = NULL;
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
-void load_prog(const char *bin) {
-    FILE *fp = fopen(bin, "rb");
+void load_prog(const char *img_file) {
+    if (!img_file){
+        memcpy(&top->ysyx_24100012_top__DOT__ifu__DOT__mem__DOT__ram, img, sizeof(img));
+    }
+    FILE *fp = fopen(img_file, "rb");
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
     int ret = fread(&top->ysyx_24100012_top__DOT__ifu__DOT__mem__DOT__ram, 1, size, fp);

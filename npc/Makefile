@@ -5,7 +5,7 @@ NAME = ysyx_24100012_top
 IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
-all:
+build:
 	verilator --cc --exe --build --top-module $(NAME) -j 8  csrc/main.cpp  vsrc/*.v --trace --Mdir $(BUILD_DIR)
 
 sim:
@@ -14,7 +14,7 @@ sim:
 
 include ../Makefile
 
-run: 
+run: build
 	$(call git_commit, "run NPC")
 	$(NPC_EXEC)
 clean:
