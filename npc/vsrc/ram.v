@@ -1,8 +1,11 @@
-import "DPI-C" function void pmem_read(input int  outaddr, output int  dout);
+import "DPI-C" function void pmem_read(input int  outaddr,input int len, output int  dout);
+import "DPI-C" function void pmem_write(input int  inaddr,input int len, input int  din);
 
 module ysyx_24100012_ram #(ADDR_WIDTH,DATA_WIDTH,ORIGIN_ADDR,MEM_SIZE)(
     input clk,
     input MemWEn,
+    input [4:0] length,
+    // input sign,
     input [DATA_WIDTH-1:0] din,
     input [ADDR_WIDTH-1:0] inaddr,
     input [ADDR_WIDTH-1:0] outaddr,
@@ -10,6 +13,6 @@ module ysyx_24100012_ram #(ADDR_WIDTH,DATA_WIDTH,ORIGIN_ADDR,MEM_SIZE)(
 );
     always @(*)
         if (MemWEn)
-            ram[in_index] <= din;
-    pmem_read(outaddr,dout);
+            pmem_write(inaddr,length,din) <= din;
+    pmem_read(outaddr,length,dout);
 endmodule
