@@ -9,7 +9,11 @@ module ysyx_24100012_alu #(DATA_WIDTH,N_SEL)(
 );
     always@(*) begin
         case(alu_sel)
-            4'b0000: out = in_a+in_b;
+            
+            4'b0000: begin
+                out = in_a+in_b;
+                // $display("a: %x, b: %x",in_a,in_b);
+            end
             default: out = 0;
         endcase
     end

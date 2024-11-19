@@ -34,14 +34,19 @@ extern "C" {
     uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
 
 
-    void pmem_read(int raddr, int *rword) {
-    // printf("pmem read: raddr = %x\n", raddr);
-    if (in_pmem(raddr)) {
-        // TODO: support mask read
-        *rword = host_read(guest_to_host(raddr),WORD_SIZE);
-        return;
+    void pmem_read(int raddr, int len, int *rword) {
+        // printf("pmem read: raddr = %x\n", raddr);
+        if (in_pmem(raddr)) {
+            // TODO: support mask read
+            *rword = host_read(guest_to_host(raddr),len);
+            return;
+        }
     }
-    
+
+    void pmem_write(int waddr,int len, int *wdata){
+        if (in_pmem(waddr)){
+            host_write(guest_to_host(waddr), len, *wdata);
+        }
     }
 
 #ifdef __cplusplus
