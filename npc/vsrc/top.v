@@ -32,7 +32,7 @@ module ysyx_24100012_top (
     ADDR_WIDTH,
     DATA_WIDTH,
     ORIGIN_ADDR,
-    MEM_SIZE) IMem (clk,1'b0,5'h4,32'h0,32'h0,pc,inst);
+    MEM_SIZE) IMem (clk,1'b0,32'h4,32'h0,32'h0,pc,inst);
 
   // ysyx_24100012_rom  #(ADDR_WIDTH,DATA_WIDTH) mem (pc,inst);
   ysyx_24100012_inst_decode #(DATA_WIDTH)idu (
@@ -85,7 +85,7 @@ module ysyx_24100012_top (
     alu_b,
     inst_type,
     alu_sel,AluOut);
-  assign io_halt = inst_type== 3'b110;
+  assign io_halt = inst== 32'h00100073;
   
 endmodule
 

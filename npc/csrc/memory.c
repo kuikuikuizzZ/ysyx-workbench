@@ -45,7 +45,7 @@ extern "C" {
 
     void pmem_write(int waddr,int len, int *wdata){
         if (in_pmem(waddr)){
-            host_write(guest_to_host(addr), len, data);
+            host_write(guest_to_host(waddr), len, *wdata);
         }
     }
 
