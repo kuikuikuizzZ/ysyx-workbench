@@ -85,7 +85,7 @@ module ysyx_24100012_top (
     alu_b,
     inst_type,
     alu_sel,AluOut);
-  assign io_halt = inst_type== 3'b110;
+  assign io_halt = inst== 32'h00100073;
   
 endmodule
 

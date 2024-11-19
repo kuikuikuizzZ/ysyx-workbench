@@ -14,7 +14,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
 );
     parameter [2:0] R_Type=3'b000,I_Type=3'b001,B_Type=3'b010, S_Type=3'b100;
     parameter [2:0] J_Type=3'b011,U_Type=3'b101, E_Type = 3'b110, No_Type=3'b111;
-    parameter [1:0] WBALU=2'b00, WBLoad=2'b01,WBPc=2'b10,WBNone=2'b11;;
+    parameter [1:0] WBALU=2'b00, WBPc=2'b01,WBLoad=2'b10,WBNone=2'b11;;
     wire [6:0] opcode; 
     wire [2:0] func3;
     assign opcode = instruction[6:0];
@@ -79,7 +79,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             
             // jal 
             7'b1101111: begin
-                aluSel[2:0] = func3;
+                aluSel = 4'h0;
                 imm = { {12{instruction[31]}},instruction[19:12],instruction[20],instruction[30:21],1'b0};
                 instType = J_Type;
                 {rs2,rs1,rd} = {5'b0,5'b0,instruction[11:7]};
@@ -88,13 +88,13 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 BSel=1;   
                 PCSel=1;  
                 WBSel=WBPc;  
-                $display("jal");         
+                // $display("jal");         
             end
             // jalr
             7'b1100111: begin
                 // TODO: func3 000 not use
                 aluSel[2:0] = func3;
-                imm = { {12{instruction[31]}},instruction[19:12],instruction[20],instruction[30:21],1'b0};
+                imm =   {{28{instruction[24]}},instruction[23:20]};
                 instType = J_Type;
                 {rs2,rs1,rd} = {5'b0,instruction[19:15],instruction[11:7]};
                 WEn=1'b1;
@@ -102,7 +102,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 BSel=1;  
                 PCSel=1; 
                 WBSel=WBPc;           
-                $display("jalr");  
+                // $display("jalr");  
             end
             // auipc
             7'b0010111: begin
