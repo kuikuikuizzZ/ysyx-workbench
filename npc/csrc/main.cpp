@@ -1,17 +1,46 @@
-// DESCRIPTION: Verilator: Verilog example module
-//
-// This file ONLY is placed under the Creative Commons Public Domain, for
-// any use, without warranty, 2017 by Wilson Snyder.
-// SPDX-License-Identifier: CC0-1.0
-//======================================================================
-
-// Include common routines
 #include <verilated.h>
+#include "Vysyx_24100012_top.h"
+#include <assert.h>
+#include <memory.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-// Include model header, generated from Verilating "top.v"
-#include "Vtop.h"
+
+
+Vysyx_24100012_top* top = NULL;
+void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
+void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
+void load_prog(const char *img_file) {
+    if (!img_file){
+        printf("Use default img\n");
+        return;
+    }
+    FILE *fp = fopen(img_file, "rb");
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    int ret = fread(guest_to_host(MBASE), 1, size, fp);
+    // assert(ret == 1);
+
+    fclose(fp);
+}
+
+void watch_top(){
+            printf(" io_halt %d ,pc %x, inst: %x, rs1 %d,imm %d rd: %d, wen %d,alu:%d  a0 = %d\n",
+            top->io_halt,
+            top->ysyx_24100012_top__DOT__pc,
+            top->ysyx_24100012_top__DOT__inst,
+            top->ysyx_24100012_top__DOT__rs1,
+            top->ysyx_24100012_top__DOT__imm,
+            top->ysyx_24100012_top__DOT__rd,
+            top->ysyx_24100012_top__DOT__wen,
+            top->ysyx_24100012_top__DOT__alu_sel,
+            // top->ysyx_24100012_top__DOT__alu_out,
+            top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__10__KET____DOT__x____pinNumber4);
+}
 
 int main(int argc, char** argv) {
+    init_memory();
+    init_isa();
     // See a similar example walkthrough in the verilator manpage.
 
     // This is intended to be a minimal example.  Before copying this to start a
@@ -26,18 +55,16 @@ int main(int argc, char** argv) {
     contextp->commandArgs(argc, argv);
 
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    Vtop* top = new Vtop{contextp};
+    top = new Vysyx_24100012_top{contextp};
+    load_prog(argv[1]);
+    reset(1);
 
     // Simulate until $finish
-    for (int i=0;i<10;i++) {
-        int a = rand() & 1;
-        int b = rand() & 1;
-        top->a = a;
-        top->b = b;
-        top->eval();
-        printf("a = %d, b = %d, f = %d\n", a, b, top->f);
-        assert(top->f == (a ^ b));
+    for(int i=0;i<10;i++) {
+    // while(!top->io_halt) {
+        step();
         // Evaluate model
+        // watch_top();
     }
 
     // Final model cleanup
