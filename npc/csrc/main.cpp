@@ -28,19 +28,19 @@ void load_prog(const char *img_file) {
 }
 
 void watch_top(){
-            printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
-            top->io_halt,
-            pc,
-            top->ysyx_24100012_top__DOT__PCSel,
-            top->ysyx_24100012_top__DOT__inst,
-            top->ysyx_24100012_top__DOT__imm,
-            top->ysyx_24100012_top__DOT__rs1,
-            a0,
-            ra);
+    printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+        top->io_halt,
+        pc,
+        top->ysyx_24100012_top__DOT__PCSel,
+        top->ysyx_24100012_top__DOT__inst,
+        top->ysyx_24100012_top__DOT__imm,
+        top->ysyx_24100012_top__DOT__rs1,
+        a0,
+        ra);
 }
 
 int check_halt(){
-    printf("npc: %s at pc = ")
+    printf("npc: %s at pc = ", a0?"HIT GOOD TRAP":"HIT BAD TRAP",pc );
     return a0
 }
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
         // Evaluate model
         watch_top();
     }
-
+    int ret = check_halt();
     // Final model cleanup
     top->final();
 
