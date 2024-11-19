@@ -1,4 +1,8 @@
-module ysyx_24100012_regfiles #(ADDR_WIDTH,DATA_WIDTH,N_REG,INDEX_LEN)(
+module ysyx_24100012_regfiles #(
+    ADDR_WIDTH,
+    DATA_WIDTH,
+    N_REG,
+    INDEX_LEN)(
     input clk,
     input rst,
     input [DATA_WIDTH-1:0] RegWriteData,
@@ -14,7 +18,11 @@ wire [DATA_WIDTH-1:0] reg_input_list[N_REG-1:0];
 wire [DATA_WIDTH-1:0] reg_output_list[N_REG-1:0];
 
 // zero register should equal to zero anytime.
-ysyx_24100012_Reg #(DATA_WIDTH,0) x0 (clk,1'b1,reg_input_list[0],reg_output_list[0],1'b0);
+ysyx_24100012_Reg #(DATA_WIDTH,0) x0 (
+    clk,1'b1,
+    reg_input_list[0],
+    reg_output_list[0],
+    1'b0);
 
 genvar i;
 generate
@@ -31,15 +39,3 @@ assign RegReadData1 = reg_output_list[RegReadIndex1];
 assign RegReadData2 = reg_output_list[RegReadIndex2];
 
 endmodule
-
-// module ysyx_24100012_RegisterFile #(ADDR_WIDTH = 32, DATA_WIDTH = 32) (
-//   input clk,
-//   input [DATA_WIDTH-1:0] wdata,
-//   input [ADDR_WIDTH-1:0] waddr,
-//   input wen
-// );
-//   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
-//   always @(posedge clk) begin
-//     if (wen) rf[waddr] <= wdata;
-//   end
-// endmodule
