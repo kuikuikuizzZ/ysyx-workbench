@@ -1,9 +1,10 @@
 #include <cpu.h>
+#include <npc.h>
+#include "verilated_vpi.h"  // Required to get definitions
 
-#define gpr(Index) (top->concat3(ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__,Index,__KET____DOT__x____pinNumber4))
-#define ra (top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__1__KET____DOT__x____pinNumber4)
-#define a0 (top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__10__KET____DOT__x____pinNumber4)
+#define gpr(i) (top->ysyx_24100012_top__DOT__regfiles__DOT__reg_output_list[i])
 #define pc (top->ysyx_24100012_top__DOT__pc)
+#define halt (top->io_halt)
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -15,6 +16,7 @@ const char *regs[] = {
 
 CPU_state cpu = {};
 Vysyx_24100012_top* top = NULL;
+
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 
@@ -31,6 +33,15 @@ void init_cpu(int argc ,char** argv){
     reset(1);
 }
 
+void isa_reg_display(){
+    for (int i=0;i<RV_NR;i++){
+        printf("%4s:%.8x",regs[i],gpr(i));
+        (i%3==0)?printf("\n"):printf(" ");
+    }
+    printf("%4s:%.8x\n","pc",pc);
+}
+
+
 void watch_top(){
     printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
         top->io_halt,
@@ -39,23 +50,23 @@ void watch_top(){
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
         top->ysyx_24100012_top__DOT__rs1,
-        a0,
-        ra);
+        gpr(10),
+        gpr(1));
 }
 
 int check_halt(){
-    printf("npc: %s at pc = %.8x", gpr(10)?"***HIT BAD TRAP***":"***HIT GOOD TRAP***",pc );
-    return a0;
+    printf("npc: %s at pc = %.8x\n", gpr(10)?"***HIT BAD TRAP***":"***HIT GOOD TRAP***",pc );
+    return gpr(10);
 }
 
 void exec_once(){
     step();
     // Evaluate model
-    watch_top();
-    #ifdef SDB_ENABLE
-    cpu.pc = pc;
-
-    #endif
+    // watch_top();
+    if (halt){
+        NPCTRAP(pc,gpr(10));
+        check_halt();
+    }
     return;
 }
 
@@ -67,6 +78,7 @@ void execute(u_int64_t n){
     for(;n>0;n--){
         exec_once();
         trace_and_difftest();
+        if (npc_state.state != NPC_RUNNING) break;
     }
 }
 
@@ -78,9 +90,13 @@ void free_cpu(){
 }
 
 int cpu_exec(uint64_t n){
-    watch_top();
-    execute(n);
-    int ret = check_halt();
-    
-    return ret;
+    switch (npc_state.state) {
+        case NPC_END: case NPC_ABORT: case NPC_QUIT:
+            printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
+            return 0;
+        default: npc_state.state = NPC_RUNNING;
+    }
+    // watch_top();
+    execute(n);    
+    return 0;
 }

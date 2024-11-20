@@ -8,7 +8,7 @@ VCFLAGS := $(INCLUDES) $(CFLAGS)
 LIBS += -lreadline
 LDFLAGS +=   $(LIBS)
 
-VERILATOR_FLAGS := --cc --exe --build -j 8 $(VERILATOR_FLAGS)
+VERILATOR_FLAGS := --cc --exe --build -j 8 --vpi $(VERILATOR_FLAGS)
 VERILATOR_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 VERILATOR_FLAGS += -CFLAGS $(VCFLAGS)
