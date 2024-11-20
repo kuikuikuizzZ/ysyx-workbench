@@ -4,8 +4,8 @@
 
 #define gpr(i) (top->ysyx_24100012_top__DOT__regfiles__DOT__reg_output_list[i])
 #define pc (top->ysyx_24100012_top__DOT__pc)
-
 #define halt (top->io_halt)
+
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -32,11 +32,13 @@ void init_cpu(int argc ,char** argv){
     top = new Vysyx_24100012_top{contextp};
     reset(1);
 }
+
 void isa_reg_display(){
     for (int i=0;i<RV_NR;i++){
-        printf("%4s%16x%16d\n",regs[i],gpr(i),gpr(i));
+        printf("%4s:%.8x",regs[i],gpr(i));
+        (i%3==0)?printf("\n"):printf(" ");
     }
-    printf("  pc%16x%16d\n",pc,pc);
+    printf("%4s:%.8x\n","pc",pc);
 }
 
 

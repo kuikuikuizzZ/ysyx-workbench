@@ -25,11 +25,11 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-    for (int i= 0;i<32;i++){
-        word_t val = gpr(i);
-        printf("%4s%16x%16d\n",regs[i],val,val);
+    for (int i=0;i<MUXDEF(CONFIG_RVE, 16, 32) ;i++){
+        printf("%4s:%.8x",regs[i],gpr(i));
+        (i%3==0)?printf("\n"):printf(" ");
     }
-    printf("  pc%16x%16d\n",cpu.pc,cpu.pc);
+    printf("%4s:%.8x\n","pc",cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
