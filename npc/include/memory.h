@@ -1,6 +1,11 @@
+#ifndef __MEMORY_H__
+#define __MEMORY_H__
+
 #include <stdint.h>
 #include <assert.h>
 
+
+// use DPI-C should add this macro
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -10,8 +15,6 @@ extern "C" {
     #define WORD_SIZE 4
 
     void init_memory();
-
-    void init_isa();
 
     uint8_t* guest_to_host(uint32_t paddr) ;
 
@@ -39,4 +42,5 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
 #endif

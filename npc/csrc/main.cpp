@@ -1,16 +1,13 @@
-#include <verilated.h>
-#include "Vysyx_24100012_top.h"
-#include <assert.h>
+#include <common.h>
 #include <memory.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cpu.h>
+#include <isa.h>
+#include "monitor/sdb.h"
+#include <getopt.h>
 
-#define a0 top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__10__KET____DOT__x____pinNumber4
-#define ra top->ysyx_24100012_top__DOT__regfiles__DOT____Vcellout__x__BRA__1__KET____DOT__x____pinNumber4
-#define pc top->ysyx_24100012_top__DOT__pc
-Vysyx_24100012_top* top = NULL;
-void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
-void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
+void sdb_set_batch_mode();
+char* img_file =NULL;
+
 void load_prog(const char *img_file) {
     if (!img_file){
         printf("Use default img\n");
@@ -23,61 +20,52 @@ void load_prog(const char *img_file) {
     fseek(fp, 0, SEEK_SET);
     int ret = fread(guest_to_host(MBASE), 1, size, fp);
     assert(ret == size);
-
     fclose(fp);
 }
 
-void watch_top(){
-    printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
-        top->io_halt,
-        pc,
-        top->ysyx_24100012_top__DOT__PCSel,
-        top->ysyx_24100012_top__DOT__inst,
-        top->ysyx_24100012_top__DOT__imm,
-        top->ysyx_24100012_top__DOT__rs1,
-        a0,
-        ra);
-}
 
-int check_halt(){
-    printf("npc: %s at pc = ", a0?"HIT GOOD TRAP":"HIT BAD TRAP",pc );
-    return a0
+static int parse_args(int argc, char **argv) {
+  const struct option table[] = {
+    {"batch"    , no_argument      , NULL, 'b'},
+    // {"log"      , required_argument, NULL, 'l'},
+    // {"diff"     , required_argument, NULL, 'd'},
+    // {"port"     , required_argument, NULL, 'p'},
+    // {"help"     , no_argument      , NULL, 'h'},
+    // {"elf"      , required_argument, NULL, 'e'},
+    {0          , 0                , NULL,  0 },
+  };
+  int o;
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
+    switch (o) {
+      case 'b': sdb_set_batch_mode(); break;
+    //   case 'p': sscanf(optarg, "%d", &difftest_port); break;
+    //   case 'l': log_file = optarg; break;
+    //   case 'd': diff_so_file = optarg; break;
+    //   case 'e': elf_file = optarg;break;
+      case 1: img_file = optarg; return 0;
+      default:
+        printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
+        printf("\t-b,--batch              run with batch mode\n");
+        // printf("\t-l,--log=FILE           output log to FILE\n");
+        // printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
+        // printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        printf("\n");
+        exit(0);
+    }
+  }
+  return 0;
 }
 
 int main(int argc, char** argv) {
+    parse_args(argc, argv);
     init_memory();
     init_isa();
-    // See a similar example walkthrough in the verilator manpage.
+    init_cpu(argc,argv);
 
-    // This is intended to be a minimal example.  Before copying this to start a
-    // real project, it is better to start with a more complete example,
-    // e.g. examples/c_tracing.
-
-    // Construct a VerilatedContext to hold simulation time, etc.
-    VerilatedContext* contextp = new VerilatedContext;
-
-    // Pass arguments so Verilated code can see them, e.g. $value$plusargs
-    // This needs to be called before you create any model
-    contextp->commandArgs(argc, argv);
-
-    // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    top = new Vysyx_24100012_top{contextp};
-    load_prog(argv[1]);
-    reset(1);
-    watch_top();
-    // Simulate until $finish
-    // for(int i=0;i<20;i++) {
-    while(!top->io_halt) {
-        step();
-        // Evaluate model
-        watch_top();
-    }
-    int ret = check_halt();
-    // Final model cleanup
-    top->final();
-
-    // Destroy model
-    delete top;
+    load_prog(img_file);
+    
+    sdb_mainloop();
+    free_cpu();
 
     // Return good completion status
     return 0;
