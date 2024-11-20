@@ -41,6 +41,10 @@ void isa_reg_display(){
     printf("%4s:%.8x\n","pc",pc);
 }
 
+void assert_fail_msg() {
+  isa_reg_display();
+}
+
 
 void watch_top(){
     printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",

@@ -2,11 +2,13 @@
 #include <memory.h>
 #include <cpu.h>
 #include <isa.h>
-#include "monitor/sdb.h"
 #include <getopt.h>
+#include <utils.h>
+#include "monitor/sdb.h"
 
 void sdb_set_batch_mode();
 char* img_file =NULL;
+void init_disasm();
 
 void load_prog(const char *img_file) {
     if (!img_file){
@@ -61,6 +63,7 @@ int main(int argc, char** argv) {
     init_memory();
     init_isa();
     init_cpu(argc,argv);
+    init_disasm();
 
     load_prog(img_file);
     

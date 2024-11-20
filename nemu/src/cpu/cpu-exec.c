@@ -69,7 +69,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   // 32 match inst name in capstone define
   char inst_name[32];
   char *p = s->logbuf;
-  if (nemu_state.state == NEMU_RUNNING)
+  if (nemu_state.state != NEMU_ABORT)
     p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
   else
     p += snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
