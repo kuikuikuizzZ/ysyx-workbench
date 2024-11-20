@@ -1,3 +1,6 @@
+#ifndef __MEMORY_H__
+#define __MEMORY_H__
+
 #include <stdint.h>
 #include <assert.h>
 
@@ -39,4 +42,5 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
 #endif

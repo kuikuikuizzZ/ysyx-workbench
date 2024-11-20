@@ -11,7 +11,11 @@ VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 VERILATOR_FLAGS += -CFLAGS $(VCFLAGS)
 VERILATOR_FLAGS += $(INCLUDES)
 
+SOURCES=$(wildcard csrc/**/*.c csrc/*.c )
+# OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 # include $(BUILD_DIR)/*.mk
+VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
+
 
 
 BINARY   = $(BUILD_DIR)/$(NAME)
@@ -19,7 +23,7 @@ IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 build:
-	verilator  $(VERILATOR_FLAGS) csrc/main.cpp csrc/memory.c vsrc/*.v --trace 
+	verilator  $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

@@ -15,10 +15,20 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
     parameter [2:0] R_Type=3'b000,I_Type=3'b001,B_Type=3'b010, S_Type=3'b100;
     parameter [2:0] J_Type=3'b011,U_Type=3'b101, E_Type = 3'b110, No_Type=3'b111;
     parameter [1:0] WBALU=2'b00, WBPc=2'b01,WBLoad=2'b10,WBNone=2'b11;;
+    
     wire [6:0] opcode; 
     wire [2:0] func3;
+    wire [DATA_WIDTH-1:0] imm_S,imm_I,imm_Is,imm_B,imm_J,imm_U;
+    
     assign opcode = instruction[6:0];
     assign func3  = instruction[14:12];
+    assign imm_S = { {21{instruction[31]}},instruction[30:25],instruction[11:7]};
+    assign imm_I = {{28{instruction[24]}},instruction[23:20]};
+    assign imm_Is = { {21{instruction[31]}}, instruction[30:20]};
+    assign imm_B = { {20{instruction[31]}},instruction[7],instruction[30:25],instruction[11:8],1'b0};
+    assign imm_J = { {12{instruction[31]}},instruction[19:12],instruction[20],instruction[30:21],1'b0};
+    assign imm_U =  { instruction[31:12],12'b0};
+
     always @ (*) begin
         case (opcode)
             // R type
@@ -38,11 +48,11 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 // I* type
                 if (func3==3'b101 | func3==3'b001) begin
                     aluSel = { instruction[30], func3};
-                    imm =   {{28{instruction[24]}},instruction[23:20]};
+                    imm = imm_I;
                     instType =  I_Type; 
                 end else  begin 
                     aluSel[2:0] = func3;
-                    imm = { {21{instruction[31]}}, instruction[30:20]};
+                    imm = imm_Is;
                     instType =  I_Type;
                 end
                 {rs2,rs1,rd} = {5'b0,instruction[19:15],instruction[11:7]};
@@ -55,7 +65,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // B type
             7'b1100011: begin
                 aluSel[2:0] = func3;
-                imm = { {20{instruction[31]}},instruction[7],instruction[30:25],instruction[11:8],1'b0};
+                imm = imm_B;
                 instType = B_Type;
                 {rs2,rs1,rd} = {instruction[24:20],instruction[19:15],instruction[11:7]};  
                 WEn=1'b1;
@@ -67,7 +77,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // S type
             7'b0100011: begin
                 aluSel[2:0] = func3;
-                imm = { {21{instruction[31]}},instruction[30:25],instruction[11:7]};
+                imm = imm_S;
                 instType = S_Type;
                 {rs2,rs1,rd} = {instruction[24:20],instruction[19:15],instruction[11:7]};  
                 WEn=1'b1;
@@ -80,7 +90,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // jal 
             7'b1101111: begin
                 aluSel = 4'h0;
-                imm = { {12{instruction[31]}},instruction[19:12],instruction[20],instruction[30:21],1'b0};
+                imm = imm_J;
                 instType = J_Type;
                 {rs2,rs1,rd} = {5'b0,5'b0,instruction[11:7]};
                 WEn=1'b1;
@@ -94,7 +104,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             7'b1100111: begin
                 // TODO: func3 000 not use
                 aluSel[2:0] = func3;
-                imm =   {{28{instruction[24]}},instruction[23:20]};
+                imm = imm_I;
                 instType = J_Type;
                 {rs2,rs1,rd} = {5'b0,instruction[19:15],instruction[11:7]};
                 WEn=1'b1;
@@ -107,7 +117,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // auipc
             7'b0010111: begin
                 aluSel = 4'b0;
-                imm = { instruction[31:12],12'b0};
+                imm = imm_U;
                 instType = U_Type;
                 {rs2,rs1,rd} = {5'b0,5'b0,instruction[11:7]};
                 WEn=1'b1;
@@ -119,7 +129,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // lui
             7'b0110111: begin
                 aluSel = 4'b0;
-                imm = { instruction[31:12],12'b0};
+                imm = imm_U;
                 instType = U_Type;
                 {rs2,rs1,rd} = {5'b0,5'b0,instruction[11:7]};
                 WEn=1'b1;
@@ -131,7 +141,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
             // ebreak, ecall
             7'b1110011: begin
                 aluSel[2:0] = func3;
-                imm = { {21{instruction[30]}}, instruction[30:20]};
+                imm = imm_I;
                 instType =  E_Type;
                 {rs2,rs1,rd} = {5'b0,instruction[19:15],instruction[11:7]};
                 WEn=1'b0;
