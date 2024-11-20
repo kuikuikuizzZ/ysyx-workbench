@@ -5,16 +5,22 @@ NAME=V$(TOP_NAME)
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -I, $(INC_PATH))
 VCFLAGS := $(INCLUDES) $(CFLAGS)
-VERILATOR_FLAGS := --cc --exe --build -j 8 $(VERILATOR_FLAGS)
+LIBS += -lreadline
+LDFLAGS +=   $(LIBS)
+
+VERILATOR_FLAGS := --cc --exe --build -j 8 --vpi $(VERILATOR_FLAGS)
 VERILATOR_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 VERILATOR_FLAGS += -CFLAGS $(VCFLAGS)
 VERILATOR_FLAGS += $(INCLUDES)
+VERILATOR_FLAGS += -LDFLAGS $(LDFLAGS)
+ 
+
 
 SOURCES=$(wildcard csrc/**/*.c csrc/*.c )
+VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
 # OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 # include $(BUILD_DIR)/*.mk
-VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
 
 
 

@@ -1,4 +1,3 @@
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,7 +28,6 @@ extern "C" {
             host_write(guest_to_host(waddr), len, *wdata);
         }
     }
-
 #ifdef __cplusplus
 }
 #endif

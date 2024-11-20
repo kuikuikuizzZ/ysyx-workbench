@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <macro.h>
 
 typedef uint32_t word_t;
 typedef word_t vaddr_t;
