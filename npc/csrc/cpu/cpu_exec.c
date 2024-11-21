@@ -132,9 +132,6 @@ void exec_once(){
     // Evaluate model
     // watch_top();
     sync_cpu();
-    #ifdef CONFIG_ITRACE
-    itrace_once();
-    #endif
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));
     }
@@ -142,17 +139,17 @@ void exec_once(){
 }
 
 void trace_and_difftest(){
+    #ifdef CONFIG_DIFFTEST
+    difftest_step(cpu.pc,top_dnpc);
+    #endif
     #ifdef CONFIG_ITRACE
+    itrace_once();
     if ((npc_state.state!=NPC_RUNNING)) {
         char temp_buf [LOG_BUFSIZE];
         RingBuffer_get(rb,temp_buf,LOG_BUFSIZE);
         log_write("%s", temp_buf); 
     }
     #endif
-    #ifdef CONFIG_DIFFTEST
-    difftest_step(cpu.pc,top_dnpc);
-    #endif
-
     return;
 }
 
