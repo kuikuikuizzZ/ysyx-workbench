@@ -40,32 +40,8 @@ extern bool wps_diff();
 
 extern RingBuffer *log_buff;
 
-static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-#ifdef CONFIG_ITRACE_COND
-  char temp_buf [LOG_BUFSIZE];
-  // print the invalid inst
-  if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
-    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
-    log_write("%s", temp_buf); }
-#endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
-  IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc)); 
-#ifdef CONFIG_WATCHPOINT
-  if (nemu_state.state != NEMU_END && wps_diff()){
-
-      nemu_state.state = NEMU_STOP;
-  }
-#endif
-}
-
-static void exec_once(Decode *s, vaddr_t pc) {
-  s->pc = pc;
-  s->snpc = pc;
-  isa_exec_once(s);
-  cpu.pc = s->dnpc;
-  // 
-
-#ifdef CONFIG_ITRACE
+void itrace_once(Decode*s) {
+  #ifdef CONFIG_ITRACE
   // 32 match inst name in capstone define
   char inst_name[32];
   char *p = s->logbuf;
@@ -100,10 +76,39 @@ static void exec_once(Decode *s, vaddr_t pc) {
   Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
   RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
   memset(s->logbuf,0,ITRACE_SIZE);
-#endif
+  #endif
+
 #ifdef CONFIG_FTRACE
     ftrace_message(s->pc,s->dnpc,inst_name);
 #endif
+}
+
+
+static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
+  IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc)); 
+
+#ifdef CONFIG_ITRACE_COND
+  itrace_once(_this);
+  char itrace_log [LOG_BUFSIZE];
+  // print the invalid inst
+  if (nemu_state.state!=NEMU_RUNNING) {
+    RingBuffer_get(log_buff,itrace_log,LOG_BUFSIZE);
+    log_write("%s", itrace_log); }
+#endif
+  // if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
+#ifdef CONFIG_WATCHPOINT
+  if (nemu_state.state != NEMU_END && wps_diff()){
+
+      nemu_state.state = NEMU_STOP;
+  }
+#endif
+}
+
+static void exec_once(Decode *s, vaddr_t pc) {
+  s->pc = pc;
+  s->snpc = pc;
+  isa_exec_once(s);
+  cpu.pc = s->dnpc;
 }
 
 static void execute(uint64_t n) {
