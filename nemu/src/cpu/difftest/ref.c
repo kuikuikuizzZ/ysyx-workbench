@@ -27,12 +27,18 @@ typedef struct {
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
     word_t* word_buf = (word_t*)buf;
     if (direction == DIFFTEST_TO_DUT){
-        *word_buf = paddr_read(addr,n);
+      for(size_t i = 0; i < n; i++){
+        *word_buf = paddr_read(addr,sizeof(word_t));
+      }
     } else{
-        paddr_write(addr,n,*word_buf);
+      for(size_t i = 0; i < n; i++){
+        paddr_write(addr,sizeof(word_t),*word_buf);
+      }
+        
     }
     return;
 }
+
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   diff_context *context = (diff_context*)dut;
