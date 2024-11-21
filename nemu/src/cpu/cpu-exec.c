@@ -98,7 +98,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     RingBuffer_commit_read(log_buff,ITRACE_SIZE);
   }
   RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
-  memset(s->logbuf,0,ITRACE_SIZE);
+  memset(s->logbuf,' ',ITRACE_SIZE);
 #endif
 #ifdef CONFIG_FTRACE
     ftrace_message(s->pc,s->dnpc,inst_name);
