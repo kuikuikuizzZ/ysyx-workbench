@@ -99,8 +99,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
     Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
     RingBuffer_commit_read(log_buff,ITRACE_SIZE);
   }
+  memset(s->logbuf+len,' ',ITRACE_SIZE-len);
   RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
-  memset(s->logbuf,' ',ITRACE_SIZE);
+  memset(s->logbuf,0,ITRACE_SIZE);
 #endif
 #ifdef CONFIG_FTRACE
     ftrace_message(s->pc,s->dnpc,inst_name);
