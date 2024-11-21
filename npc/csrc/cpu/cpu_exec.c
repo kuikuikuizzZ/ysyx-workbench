@@ -119,11 +119,12 @@ void itrace_once(){
   memset(itrace_buff,0,ITRACE_SIZE);
 }
 
-vod sync_cpu{
+void sync_cpu(){
     for (int i=0;i<gpr_size;i++){
         cpu.gpr[i] = gpr(i);
     }
     cpu.pc = top_pc;
+    return;
 }
 
 void exec_once(){

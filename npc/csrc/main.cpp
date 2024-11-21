@@ -1,6 +1,7 @@
 #include <common.h>
 #include <memory.h>
 #include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <isa.h>
 #include <getopt.h>
 #include <utils.h>
@@ -14,12 +15,11 @@ static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 void init_log(const char*);
-void init_difftest(char *ref_so_file, long img_size, int port);
 
 long load_prog() {
     if (!img_file){
         printf("Use default img\n");
-        return;
+        return 0;
     }
     printf("use image: %s \n",img_file);
     FILE *fp = fopen(img_file, "rb");
@@ -29,7 +29,7 @@ long load_prog() {
     int ret = fread(guest_to_host(MBASE), 1, size, fp);
     assert(ret == size);
     fclose(fp);
-    retunr size;
+    return size;
 }
 
 
