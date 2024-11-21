@@ -1,5 +1,5 @@
-#ifndef _lchthw_RingBuffer_h
-#define _lchthw_RingBuffer_h
+#ifndef __RINGBUFFER_H__
+#define __RINGBUFFER_H__
 
 #define LOG_BUFSIZE 1024
 #define ITRACE_SIZE 64
