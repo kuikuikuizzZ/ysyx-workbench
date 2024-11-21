@@ -92,6 +92,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
   int len = strlen(s->logbuf);
+  memset(s->logbuf+len,' ',ITRACE_SIZE-len);
   s->logbuf[ITRACE_SIZE] = 0;
   s->logbuf[ITRACE_SIZE-1] = '\n';
 
@@ -99,7 +100,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
     Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
     RingBuffer_commit_read(log_buff,ITRACE_SIZE);
   }
-  memset(s->logbuf+len,' ',ITRACE_SIZE-len);
   RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
   memset(s->logbuf,0,ITRACE_SIZE);
 #endif
