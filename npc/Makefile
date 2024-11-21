@@ -1,9 +1,11 @@
 # Include all filelist.mk to merge file lists
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
+include $(NPC_HOME)/tools/difftest.mk
 
 
-override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
+override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
+override ARGS += $(ARGS_DIFF)
 
 
 WORK_DIR  = $(shell pwd)
@@ -24,7 +26,7 @@ VERILATOR_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 
 
-SRCS=$(wildcard csrc/**/*.c csrc/*.c )
+SRCS=$(wildcard csrc/**/**/*.c csrc/**/*.c csrc/*.c )
 SOURCES = $(filter-out $(SRCS-BLACKLIST-y),$(SRCS))
 VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
 BINARY   = $(BUILD_DIR)/$(NAME)
@@ -43,6 +45,7 @@ include ../Makefile
 
 
 run: build
+	@echo $(ARGS) $(IMG)
 	$(NPC_EXEC)
 
 clean:

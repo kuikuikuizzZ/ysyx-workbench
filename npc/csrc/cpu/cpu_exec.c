@@ -1,9 +1,11 @@
-#include <cpu.h>
+#include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <npc.h>
 #include <ringbuffer.h>
 #include "verilated_vpi.h"  // Required to get definitions
 
 #define gpr(i) (top->ysyx_24100012_top__DOT__regfiles__DOT__reg_output_list[i])
+#define top_dnpc (top->ysyx_24100012_top__DOT__ifu__DOT__PCIn)
 #define top_pc (top->ysyx_24100012_top__DOT__pc)
 #define top_halt (top->io_halt)
 #define top_inst (top->ysyx_24100012_top__DOT__inst)
@@ -22,6 +24,22 @@ Vysyx_24100012_top* top = NULL;
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 
+bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
+  if (ref_r->pc != cpu.pc ){
+    return false;
+  }
+  for (int i=0;i<gpr_size;i++){
+     if(ref_r->gpr[i]!=cpu.gpr[i]) return false;
+  }  
+  return true;
+}
+void sync_cpu(){
+    for (int i=0;i<gpr_size;i++)
+        cpu.gpr[i] = gpr(i);
+    cpu.pc = top_pc;
+    return;
+}
+
 void init_disasm();
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
@@ -37,6 +55,7 @@ void init_cpu(int argc ,char** argv){
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     top = new Vysyx_24100012_top{contextp};
     reset(1);
+    sync_cpu();
 }
 
 void init_itrace(){
@@ -45,7 +64,7 @@ void init_itrace(){
 }
 
 void isa_reg_display(){
-    for (int i=0;i<RV_NR;i++){
+    for (int i=0;i<gpr_size;i++){
         printf("%4s:%.8x",regs[i],gpr(i));
         (i%3==0)?printf("\n"):printf(" ");
     }
@@ -58,9 +77,10 @@ void assert_fail_msg() {
 
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
         top->io_halt,
         top_pc,
+        top_dnpc,
         top->ysyx_24100012_top__DOT__PCSel,
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
@@ -106,16 +126,17 @@ void itrace_once(){
   memset(itrace_buff,0,ITRACE_SIZE);
 }
 
+
 void exec_once(){
     step();
     // Evaluate model
     // watch_top();
+    sync_cpu();
     #ifdef CONFIG_ITRACE
     itrace_once();
     #endif
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));
-        check_halt();
     }
     return;
 }
@@ -128,6 +149,10 @@ void trace_and_difftest(){
         log_write("%s", temp_buf); 
     }
     #endif
+    #ifdef CONFIG_DIFFTEST
+    difftest_step(cpu.pc,top_dnpc);
+    #endif
+
     return;
 }
 
@@ -155,5 +180,17 @@ int cpu_exec(uint64_t n){
     }
     // watch_top();
     execute(n);    
+    switch (npc_state.state) {
+    case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+
+    case NPC_END: case NPC_ABORT:
+      Log("npc: %s at pc = " FMT_WORD,
+          (npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
+           (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+          npc_state.halt_pc);
+      // fall through
+    case NPC_QUIT: break;;
+    }
     return 0;
 }

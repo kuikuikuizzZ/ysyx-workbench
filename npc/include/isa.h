@@ -5,10 +5,10 @@
 #include <string.h>
 #include <common.h>
 
-#define RV_NR 16
+const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
 
 typedef struct {
-    word_t gpr[RV_NR];
+    word_t gpr[gpr_size];
     vaddr_t pc; 
 } CPU_state;
 
@@ -23,9 +23,12 @@ static const uint32_t img [] = {
         0x00000513,      //addi a0 x0 0
         0x00100073,      //ebreak
 };
+bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
+
 static void init_isa(){
 /* Load built-in image. */
     memcpy(guest_to_host(MBASE), img, sizeof(img));
 }
+
 
 #endif

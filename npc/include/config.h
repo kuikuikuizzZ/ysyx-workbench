@@ -3,5 +3,7 @@
 
 #define CONFIG_ITRACE
 #define CONFIG_SDB
+#define CONFIG_DIFFTEST
+#define CONFIG_RVE
 
 #endif
