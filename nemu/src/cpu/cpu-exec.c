@@ -89,13 +89,13 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 #ifdef CONFIG_ITRACE_COND
   itrace_once(_this);
-  char temp_buf [LOG_BUFSIZE];
+  char itrace_log [LOG_BUFSIZE];
   // print the invalid inst
   if (nemu_state.state!=NEMU_RUNNING) {
-    RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
-    log_write("%s", temp_buf); }
+    RingBuffer_get(log_buff,itrace_log,LOG_BUFSIZE);
+    log_write("%s", itrace_log); }
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
+  // if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(temp_buf)); }
 #ifdef CONFIG_WATCHPOINT
   if (nemu_state.state != NEMU_END && wps_diff()){
 
