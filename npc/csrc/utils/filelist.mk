@@ -13,12 +13,13 @@
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
 
-ifeq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
-SRCS-BLACKLIST-y += src/utils/disasm.c
-else
+# ifeq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
+# SRCS-BLACKLIST-y += csrc/utils/disasm.c
+# else
 LIBCAPSTONE = tools/capstone/repo/libcapstone.so.5
-CFLAGS += -I tools/capstone/repo/include
-src/utils/disasm.c: $(LIBCAPSTONE)
+INC_PATH += $(WORK_DIR)/tools/capstone/repo/include
+
+csrc/utils/disasm.c: $(LIBCAPSTONE)
 $(LIBCAPSTONE):
-	$(MAKE) -C tools/capstone
-endif
+	$(MAKE) -C $(WORK_DIR)/tools/capstone
+# endif
