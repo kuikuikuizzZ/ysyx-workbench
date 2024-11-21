@@ -2,7 +2,7 @@
 #define _lchthw_RingBuffer_h
 
 #define LOG_BUFSIZE 4096
-#define ITRACE_SIZE 256
+#define ITRACE_SIZE 512
 typedef struct 
 {
    char *buffer;
