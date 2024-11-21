@@ -32,10 +32,10 @@ int RingBuffer_length(RingBuffer *buffer);
 int RingBuffer_available(RingBuffer *buffer);
 
 #define RingBuffer_capacity(B) ((B)->mask+1)
-#define RingBuffer_length(B) (((B)->end - (B)->start) & (B)->mask) 
+#define RingBuffer_length(B) ((((B)->end - (B)->start) & (B)->mask)+1) 
 
 #define RingBuffer_available(B) (\
-    (B)->mask + 1 -  RingBuffer_length((B)))
+    (B)->mask -  RingBuffer_length((B)))
 
 #define RingBuffer_full(B) (RingBuffer_length((B))\
     == RingBuffer_capacity(B))
