@@ -93,8 +93,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
   int len = strlen(s->logbuf);
   memset(s->logbuf+len,' ',ITRACE_SIZE-len);
-  s->logbuf[ITRACE_SIZE-2] = '\n';
-  s->logbuf[ITRACE_SIZE-1] = 0;
+  s->logbuf[ITRACE_SIZE-1] = '\n';
   if(RingBuffer_available(log_buff)<ITRACE_SIZE){
     RingBuffer_commit_read(log_buff,ITRACE_SIZE);
   }
