@@ -69,10 +69,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
   // 32 match inst name in capstone define
   char inst_name[32];
   char *p = s->logbuf;
-  if (nemu_state.state != NEMU_ABORT)
-    p += snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc);
-  else
-    p += snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
+  p +=  (nemu_state.state != NEMU_ABORT) ? 
+      snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc):
+      snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst;
@@ -93,12 +92,14 @@ static void exec_once(Decode *s, vaddr_t pc) {
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
   int len = strlen(s->logbuf);
-  s->logbuf[len] = '\n';
-  if(RingBuffer_available(log_buff)<(len+1)){
-    RingBuffer_commit_read(log_buff,len+1);
+  memset(s->logbuf+len,' ',ITRACE_SIZE-len);
+  s->logbuf[ITRACE_SIZE-1] = '\n';
+  if(RingBuffer_available(log_buff)<ITRACE_SIZE){
+    RingBuffer_commit_read(log_buff,ITRACE_SIZE);
   }
-  RingBuffer_put(log_buff,s->logbuf,len+1);
-  memset(s->logbuf,0,LOG_BUFSIZE);
+  Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
+  RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
+  memset(s->logbuf,0,ITRACE_SIZE);
 #endif
 #ifdef CONFIG_FTRACE
     ftrace_message(s->pc,s->dnpc,inst_name);

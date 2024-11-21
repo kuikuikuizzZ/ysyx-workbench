@@ -2,7 +2,7 @@
 #define _lchthw_RingBuffer_h
 
 #define LOG_BUFSIZE 1024
-
+#define ITRACE_SIZE 64
 typedef struct 
 {
    char *buffer;
@@ -31,8 +31,8 @@ int RingBuffer_capacity(RingBuffer *buffer);
 int RingBuffer_length(RingBuffer *buffer);
 int RingBuffer_available(RingBuffer *buffer);
 
-#define RingBuffer_capacity(B) ((B)->mask)
-#define RingBuffer_length(B) (((B)->end - (B)->start) & (B)->mask) 
+#define RingBuffer_capacity(B) ((B)->mask+1)
+#define RingBuffer_length(B) ((((B)->end - (B)->start) & (B)->mask)+1) 
 
 #define RingBuffer_available(B) (\
     (B)->mask -  RingBuffer_length((B)))
