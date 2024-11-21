@@ -92,7 +92,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   disassemble(p, s->logbuf + LOG_BUFSIZE - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen,inst_name);
   int len = strlen(s->logbuf);
-  s->logbuf[ITRACE_SIZE] = '\n';
+  s->logbuf[ITRACE_SIZE-2] = '\n';
+  s->logbuf[ITRACE_SIZE-1] = 0;
   if(RingBuffer_available(log_buff)<(len+1)){
     Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
     RingBuffer_commit_read(log_buff,ITRACE_SIZE);
