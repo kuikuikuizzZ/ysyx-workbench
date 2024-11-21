@@ -43,7 +43,6 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   diff_context *context = (diff_context*)dut;
   size_t NXPR = sizeof(context->gpr)/sizeof(word_t);
-  printf("NXPR：%ld",NXPR);
   if (direction == DIFFTEST_TO_DUT){
     for(int i=0;i<NXPR;i++){
       context->gpr[i] = cpu.gpr[i];
