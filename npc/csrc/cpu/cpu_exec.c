@@ -1,9 +1,11 @@
-#include <cpu.h>
+#include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <npc.h>
 #include <ringbuffer.h>
 #include "verilated_vpi.h"  // Required to get definitions
 
 #define gpr(i) (top->ysyx_24100012_top__DOT__regfiles__DOT__reg_output_list[i])
+#define top_dnpc (top->ysyx_24100012_top__DOT__ifu__DOT__PCIn)
 #define top_pc (top->ysyx_24100012_top__DOT__pc)
 #define top_halt (top->io_halt)
 #define top_inst (top->ysyx_24100012_top__DOT__inst)
@@ -21,6 +23,16 @@ CPU_state cpu = {};
 Vysyx_24100012_top* top = NULL;
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
+
+bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
+  if (ref_r->pc != cpu.pc ){
+    return false;
+  }
+  for (int i=0;i<gpr_size;i++){
+     if(ref_r->gpr[i]!=cpu.gpr[i]) return false;
+  }  
+  return true;
+}
 
 void init_disasm();
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
@@ -45,7 +57,7 @@ void init_itrace(){
 }
 
 void isa_reg_display(){
-    for (int i=0;i<RV_NR;i++){
+    for (int i=0;i<gpr_size;i++){
         printf("%4s:%.8x",regs[i],gpr(i));
         (i%3==0)?printf("\n"):printf(" ");
     }
@@ -58,9 +70,10 @@ void assert_fail_msg() {
 
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
         top->io_halt,
         top_pc,
+        top_dnpc,
         top->ysyx_24100012_top__DOT__PCSel,
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
@@ -106,10 +119,18 @@ void itrace_once(){
   memset(itrace_buff,0,ITRACE_SIZE);
 }
 
+vod sync_cpu{
+    for (int i=0;i<gpr_size;i++){
+        cpu.gpr[i] = gpr(i);
+    }
+    cpu.pc = top_pc;
+}
+
 void exec_once(){
     step();
     // Evaluate model
     // watch_top();
+    sync_cpu();
     #ifdef CONFIG_ITRACE
     itrace_once();
     #endif
@@ -128,6 +149,10 @@ void trace_and_difftest(){
         log_write("%s", temp_buf); 
     }
     #endif
+    #ifdef CONFIG_DIFFTEST
+    difftest_step(cpu.pc,top_dnpc);
+    #endif
+
     return;
 }
 

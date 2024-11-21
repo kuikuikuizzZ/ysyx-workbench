@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <cpu.h>
+#include <cpu/cpu.h>
 #include <npc.h>
 
 #include "sdb.h"
