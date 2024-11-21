@@ -6,10 +6,12 @@
 #include <utils.h>
 #include "monitor/sdb.h"
 
-void sdb_set_batch_mode();
-char* img_file =NULL;
-void init_disasm();
 
+char* img_file = NULL;
+char* log_file = NULL;
+
+void sdb_set_batch_mode();
+void init_log(const char*);
 void load_prog(const char *img_file) {
     if (!img_file){
         printf("Use default img\n");
@@ -29,7 +31,7 @@ void load_prog(const char *img_file) {
 static int parse_args(int argc, char **argv) {
   const struct option table[] = {
     {"batch"    , no_argument      , NULL, 'b'},
-    // {"log"      , required_argument, NULL, 'l'},
+    {"log"      , required_argument, NULL, 'l'},
     // {"diff"     , required_argument, NULL, 'd'},
     // {"port"     , required_argument, NULL, 'p'},
     // {"help"     , no_argument      , NULL, 'h'},
@@ -41,7 +43,7 @@ static int parse_args(int argc, char **argv) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
     //   case 'p': sscanf(optarg, "%d", &difftest_port); break;
-    //   case 'l': log_file = optarg; break;
+      case 'l': log_file = optarg; break;
     //   case 'd': diff_so_file = optarg; break;
     //   case 'e': elf_file = optarg;break;
       case 1: img_file = optarg; return 0;
@@ -63,7 +65,10 @@ int main(int argc, char** argv) {
     init_memory();
     init_isa();
     init_cpu(argc,argv);
-    init_disasm();
+    init_log(log_file);
+    #ifdef CONFIG_ITRACE
+    init_itrace();
+    #endif
 
     load_prog(img_file);
     

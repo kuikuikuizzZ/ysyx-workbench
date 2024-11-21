@@ -29,7 +29,7 @@ override ARGS += $(ARGS_DIFF)
 
 # Command to execute NEMU
 IMG ?=
-NEMU_EXEC := $(BINARY) /root/code/github.com/OSCPU/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv32-nemu.bin $(ARGS) $(IMG)
+NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
 
