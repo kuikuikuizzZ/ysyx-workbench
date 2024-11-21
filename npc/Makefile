@@ -4,7 +4,7 @@ include $(FILELIST_MK)
 include $(NPC_HOME)/tools/difftest.mk
 
 
-override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
+override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
 
@@ -45,6 +45,7 @@ include ../Makefile
 
 
 run: build
+	@echo $(ARGS) $(IMG)
 	$(NPC_EXEC)
 
 clean:
