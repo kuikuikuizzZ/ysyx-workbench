@@ -33,6 +33,12 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   }  
   return true;
 }
+void sync_cpu(){
+    for (int i=0;i<gpr_size;i++)
+        cpu.gpr[i] = gpr(i);
+    cpu.pc = top_pc;
+    return;
+}
 
 void init_disasm();
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
@@ -49,6 +55,7 @@ void init_cpu(int argc ,char** argv){
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     top = new Vysyx_24100012_top{contextp};
     reset(1);
+    sync_cpu();
 }
 
 void init_itrace(){
@@ -119,13 +126,6 @@ void itrace_once(){
   memset(itrace_buff,0,ITRACE_SIZE);
 }
 
-void sync_cpu(){
-    for (int i=0;i<gpr_size;i++){
-        cpu.gpr[i] = gpr(i);
-    }
-    cpu.pc = top_pc;
-    return;
-}
 
 void exec_once(){
     step();
@@ -137,7 +137,6 @@ void exec_once(){
     #endif
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));
-        check_halt();
     }
     return;
 }
@@ -181,5 +180,17 @@ int cpu_exec(uint64_t n){
     }
     // watch_top();
     execute(n);    
+    switch (npc_state.state) {
+    case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+
+    case NPC_END: case NPC_ABORT:
+      Log("npc: %s at pc = " FMT_WORD,
+          (npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
+           (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+          npc_state.halt_pc);
+      // fall through
+    case NPC_QUIT: break;;
+    }
     return 0;
 }
