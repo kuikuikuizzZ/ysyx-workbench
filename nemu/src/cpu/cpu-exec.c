@@ -42,7 +42,7 @@ extern RingBuffer *log_buff;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
-  char temp_buf [LOG_BUFSIZE];
+  char temp_buf [ITRACE_SIZE];
   // print the invalid inst
   if (ITRACE_COND&&(nemu_state.state!=NEMU_RUNNING)) {
     RingBuffer_get(log_buff,temp_buf,LOG_BUFSIZE);
@@ -94,10 +94,11 @@ static void exec_once(Decode *s, vaddr_t pc) {
   int len = strlen(s->logbuf);
   s->logbuf[len] = '\n';
   if(RingBuffer_available(log_buff)<(len+1)){
-    RingBuffer_commit_read(log_buff,len+1);
-  }
-  RingBuffer_put(log_buff,s->logbuf,len+1);
-  memset(s->logbuf,0,LOG_BUFSIZE);
+    Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
+    RingBuffer_commit_read(log_buff,ITRACE_SIZE);
+  } 
+  RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
+  memset(s->logbuf,0,ITRACE_SIZE);
 #endif
 #ifdef CONFIG_FTRACE
     ftrace_message(s->pc,s->dnpc,inst_name);
