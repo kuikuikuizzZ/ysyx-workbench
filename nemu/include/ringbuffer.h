@@ -1,8 +1,8 @@
 #ifndef _lchthw_RingBuffer_h
 #define _lchthw_RingBuffer_h
 
-#define LOG_BUFSIZE 1024
-#define ITRACE_SIZE 64
+#define LOG_BUFSIZE 4096
+#define ITRACE_SIZE 128
 typedef struct 
 {
    char *buffer;
