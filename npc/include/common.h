@@ -11,9 +11,11 @@
 #include <stdlib.h>
 #include <macro.h>
 #include <debug.h>
+#include <config.h>
 
 typedef uint32_t word_t;
 typedef word_t vaddr_t;
+#define FMT_WORD  "0x%08" PRIx32
 
 
 #endif

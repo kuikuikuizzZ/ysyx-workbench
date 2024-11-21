@@ -11,6 +11,8 @@ int cpu_exec(uint64_t n);
 void free_cpu();
 void set_npc_state(int state, vaddr_t pc, int halt_ret);
 void isa_reg_display();
+void init_itrace();
+
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)
 
 #endif

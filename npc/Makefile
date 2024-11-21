@@ -2,6 +2,10 @@
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
+
+override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
+
+
 WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 TOP_NAME = ysyx_24100012_top 
