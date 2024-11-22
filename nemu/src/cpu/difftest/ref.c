@@ -25,14 +25,14 @@ typedef struct {
 }diff_context;
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-    uint8_t* word_buf = (uint8_t*)buf;
+    uint8_t* buf_in_byte = (uint8_t*)buf;
     if (direction == DIFFTEST_TO_DUT){
       for(size_t i = 0; i < n; i++){
-        *(word_buf+i) = paddr_read(addr+i,1);
+        *(buf_in_byte+i) = paddr_read(addr+i,1);
       }
     } else{
       for(size_t i = 0; i < n; i++){
-        paddr_write(addr,1,*(word_buf+i));
+        paddr_write(addr,1,*(buf_in_byte+i));
       }
     }
     return;
