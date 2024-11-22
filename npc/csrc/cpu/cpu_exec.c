@@ -64,6 +64,7 @@ void init_itrace(){
 }
 
 void isa_reg_display(){
+    printf("npc register: \n");
     for (int i=0;i<gpr_size;i++){
         printf("%4s:%.8x",regs[i],gpr(i));
         (i%3==0)?printf("\n"):printf(" ");

@@ -14,7 +14,6 @@
 ***************************************************************************************/
 
 #include <dlfcn.h>
-
 #include <isa.h>
 #include <cpu/cpu.h>
 #include <utils.h>
@@ -32,7 +31,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
-
+extern char* regs[];
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NPC
 void difftest_skip_ref() {
@@ -94,11 +93,23 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
+void ref_reg_display(){
+  CPU_state ref_r;
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  printf("reg register: \n");
+    for (int i=0;i<gpr_size;i++){
+        printf("%4s:%.8x",regs[i],ref_r.gpr[i]);
+        (i%3==0)?printf("\n"):printf(" ");
+    }
+  printf("%4s:%.8x\n","pc",ref_r.pc);
+}
+
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
     isa_reg_display();
+    ref_reg_display();
   }
 }
 
