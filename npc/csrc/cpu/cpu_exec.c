@@ -29,10 +29,14 @@ void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
+    printf("checkreg pc, ref %x, top %x \n",ref_r->pc,cpu.pc);
     return false;
   }
   for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[i]) return false;
+     if(ref_r->gpr[i]!=cpu.gpr[i]) {
+        printf("checkreg x%d, ref %x, top %x \n",i,ref_r->gpr[i],cpu.gpr[i]);
+        return false;
+     }
   }  
   return true;
 }
@@ -44,7 +48,7 @@ void sync_cpu(){
 }
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x,s1 = %x\n",
         top->io_halt,
         top_pc,
         top_dnpc,
@@ -53,7 +57,8 @@ void watch_top(){
         top->ysyx_24100012_top__DOT__imm,
         top->ysyx_24100012_top__DOT__rs1,
         gpr(10),
-        gpr(1));
+        gpr(1),
+        gpr(9));
 }
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.
@@ -67,7 +72,9 @@ void init_cpu(int argc ,char** argv){
     top = new Vysyx_24100012_top{contextp};
     reset(1);
     sync_cpu();
+    #ifdef CONFIG_WATCH_TOP
     watch_top();
+    #endif
 }
 
 void init_itrace(){
@@ -131,8 +138,9 @@ void itrace_once(){
 
 void exec_once(){
     step();
-    // Evaluate model
+    #ifdef CONFIG_WATCH_TOP
     watch_top();
+    #endif
     sync_cpu();
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));

@@ -5,5 +5,5 @@
 #define CONFIG_SDB
 #define CONFIG_DIFFTEST
 #define CONFIG_RVE
-
+#define CONFIG_WATCH_TOP
 #endif

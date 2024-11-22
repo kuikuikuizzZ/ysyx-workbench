@@ -12,6 +12,10 @@ module ysyx_24100012_alu #(DATA_WIDTH,N_SEL)(
             
             4'b0000: begin
                 out = in_a+in_b;
+                $display("a %x,b %x",in_a,in_b);
+            end
+            4'b1000: begin
+                out = in_a-in_b;  
             end
             default: out = 0;
         endcase
