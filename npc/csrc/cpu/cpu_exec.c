@@ -24,6 +24,9 @@ Vysyx_24100012_top* top = NULL;
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 
+void init_disasm();
+void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
+void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
     return false;
@@ -40,10 +43,18 @@ void sync_cpu(){
     return;
 }
 
-void init_disasm();
-void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
-void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
-
+void watch_top(){
+    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+        top->io_halt,
+        top_pc,
+        top_dnpc,
+        top->ysyx_24100012_top__DOT__PCSel,
+        top->ysyx_24100012_top__DOT__inst,
+        top->ysyx_24100012_top__DOT__imm,
+        top->ysyx_24100012_top__DOT__rs1,
+        gpr(10),
+        gpr(1));
+}
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.
     VerilatedContext* contextp = new VerilatedContext;
@@ -56,6 +67,7 @@ void init_cpu(int argc ,char** argv){
     top = new Vysyx_24100012_top{contextp};
     reset(1);
     sync_cpu();
+    watch_top();
 }
 
 void init_itrace(){
@@ -77,18 +89,7 @@ void assert_fail_msg() {
 }
 
 
-void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
-        top->io_halt,
-        top_pc,
-        top_dnpc,
-        top->ysyx_24100012_top__DOT__PCSel,
-        top->ysyx_24100012_top__DOT__inst,
-        top->ysyx_24100012_top__DOT__imm,
-        top->ysyx_24100012_top__DOT__rs1,
-        gpr(10),
-        gpr(1));
-}
+
 
 int check_halt(){
     printf("npc: %s at pc = %.8x\n", gpr(10)?"***HIT BAD TRAP***":"***HIT GOOD TRAP***",top_pc );
@@ -131,7 +132,7 @@ void itrace_once(){
 void exec_once(){
     step();
     // Evaluate model
-    // watch_top();
+    watch_top();
     sync_cpu();
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));

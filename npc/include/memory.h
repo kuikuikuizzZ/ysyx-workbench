@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
     #define MBASE 0x80000000
-    #define MSIZE 4096
+    #define MSIZE 0x8000000
     #define WORD_SIZE 4
 
     void init_memory();

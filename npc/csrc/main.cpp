@@ -69,13 +69,13 @@ int main(int argc, char** argv) {
     parse_args(argc, argv);
     init_memory();
     init_isa();
-    init_cpu(argc,argv);
     init_log(log_file);
     #ifdef CONFIG_ITRACE
     init_itrace();
     #endif
-
     long img_size = load_prog();
+
+    init_cpu(argc,argv);
     #ifdef CONFIG_DIFFTEST
     init_difftest(diff_so_file, img_size, difftest_port);
     #endif

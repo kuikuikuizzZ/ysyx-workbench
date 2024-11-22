@@ -8,6 +8,7 @@
 
 static int is_batch_mode = false;
 #define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
+void ref_reg_display();
 
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -55,6 +56,7 @@ static int cmd_info(char *args) {
 
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
+    ref_reg_display();
   }else{
     printf("Usage: info r\n");
   }
