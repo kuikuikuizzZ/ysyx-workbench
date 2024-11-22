@@ -24,6 +24,9 @@ Vysyx_24100012_top* top = NULL;
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 
+void init_disasm();
+void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
+void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
     return false;
@@ -40,42 +43,6 @@ void sync_cpu(){
     return;
 }
 
-void init_disasm();
-void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
-void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
-
-void init_cpu(int argc ,char** argv){
-    // Construct a VerilatedContext to hold simulation time, etc.
-    VerilatedContext* contextp = new VerilatedContext;
-
-    // Pass arguments so Verilated code can see them, e.g. $value$plusargs
-    // This needs to be called before you create any model
-    contextp->commandArgs(argc, argv);
-
-    // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    top = new Vysyx_24100012_top{contextp};
-    reset(1);
-    sync_cpu();
-}
-
-void init_itrace(){
-    init_disasm();
-    rb = RingBuffer_create(LOG_BUFSIZE);
-}
-
-void isa_reg_display(){
-    for (int i=0;i<gpr_size;i++){
-        printf("%4s:%.8x",regs[i],gpr(i));
-        (i%3==0)?printf("\n"):printf(" ");
-    }
-    printf("%4s:%.8x\n","pc",top_pc);
-}
-
-void assert_fail_msg() {
-  isa_reg_display();
-}
-
-
 void watch_top(){
     printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
         top->io_halt,
@@ -88,6 +55,43 @@ void watch_top(){
         gpr(10),
         gpr(1));
 }
+void init_cpu(int argc ,char** argv){
+    // Construct a VerilatedContext to hold simulation time, etc.
+    VerilatedContext* contextp = new VerilatedContext;
+
+    // Pass arguments so Verilated code can see them, e.g. $value$plusargs
+    // This needs to be called before you create any model
+    contextp->commandArgs(argc, argv);
+
+    // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
+    top = new Vysyx_24100012_top{contextp};
+    reset(1);
+    sync_cpu();
+    #ifdef CONFIG_WATCH_TOP
+    watch_top();
+    #endif
+}
+
+void init_itrace(){
+    init_disasm();
+    rb = RingBuffer_create(LOG_BUFSIZE);
+}
+
+void isa_reg_display(){
+    printf("npc register: \n");
+    for (int i=0;i<gpr_size;i++){
+        printf("%4s:%.8x",regs[i],gpr(i));
+        (i%3==0)?printf("\n"):printf(" ");
+    }
+    printf("%4s:%.8x\n","pc",top_pc);
+}
+
+void assert_fail_msg() {
+  isa_reg_display();
+}
+
+
+
 
 int check_halt(){
     printf("npc: %s at pc = %.8x\n", gpr(10)?"***HIT BAD TRAP***":"***HIT GOOD TRAP***",top_pc );
@@ -129,12 +133,10 @@ void itrace_once(){
 
 void exec_once(){
     step();
-    // Evaluate model
-    // watch_top();
-    sync_cpu();
-    #ifdef CONFIG_ITRACE
-    itrace_once();
+    #ifdef CONFIG_WATCH_TOP
+    watch_top();
     #endif
+    sync_cpu();
     if (top_halt){
         NPCTRAP(top_pc,gpr(10));
     }
@@ -142,17 +144,17 @@ void exec_once(){
 }
 
 void trace_and_difftest(){
+    #ifdef CONFIG_DIFFTEST
+    difftest_step(cpu.pc,top_dnpc);
+    #endif
     #ifdef CONFIG_ITRACE
+    itrace_once();
     if ((npc_state.state!=NPC_RUNNING)) {
         char temp_buf [LOG_BUFSIZE];
         RingBuffer_get(rb,temp_buf,LOG_BUFSIZE);
         log_write("%s", temp_buf); 
     }
     #endif
-    #ifdef CONFIG_DIFFTEST
-    difftest_step(cpu.pc,top_dnpc);
-    #endif
-
     return;
 }
 
