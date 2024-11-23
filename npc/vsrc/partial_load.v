@@ -44,4 +44,8 @@ module ysyx_24100012_partial_load #(
             3'b100, mem_data,
             3'b101, mem_data
         });
+    // always@(*) 
+    //     if (MemREn)
+            // $display("load %x,%x,len %d",out_addr,mem_data,length);
+
 endmodule

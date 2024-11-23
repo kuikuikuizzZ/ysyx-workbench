@@ -7,7 +7,7 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=10)(
     input [N_SEL-1:0] alu_sel,
     output reg [DATA_WIDTH-1:0] out
 );
-
+    wire [DATA_WIDTH-1:0] mid_out;
     ysyx_24100012_MuxKey #(10,4,DATA_WIDTH) alu (
         out,
         alu_sel,{
@@ -22,5 +22,8 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=10)(
             4'b0110, in_a | in_b,                       //or
             4'b0111, in_a & in_b                        //and
         });
+    // always@(*)
+    //     $display("alu a: %x, b: %x, code %b", in_a,in_b,alu_sel);
+
 endmodule
 

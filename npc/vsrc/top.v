@@ -13,7 +13,7 @@ module ysyx_24100012_top (
   wire WEn,ASel,BSel,PCSel,MemWEn,MemREn;
   wire [1:0] WBSel;
   wire [2:0] inst_type;
-  wire [3:0] func7_6_func3;
+  wire [3:0] func7_6_func3, ALUSel;
   wire [4:0] rs1,rs2,rd;
   wire [DATA_WIDTH-1:0] imm,alu_a,alu_b;
   wire [DATA_WIDTH-1:0] readData1,readData2,writeData;
@@ -39,11 +39,11 @@ module ysyx_24100012_top (
     inst,
     imm,
     func7_6_func3,
+    ALUSel,
     inst_type,
     rs1,rs2,rd,
     ASel,
     BSel,
-    PCSel,
     WEn,
     MemWEn,
     MemREn,
@@ -86,7 +86,7 @@ module ysyx_24100012_top (
     alu_a,
     alu_b,
     inst_type,
-    func7_6_func3,AluOut);
+    ALUSel,AluOut);
   
    ysyx_24100012_partial_load #(ADDR_WIDTH,DATA_WIDTH) partial_load (
     clk,

@@ -27,9 +27,11 @@ module ysyx_24100012_partial_store #(
         MemWEn,
         1'b0,
         length,
-        data,
         addr,
+        data,
         32'b0,
         dout
     );
+    // always@(*)
+    //     $display("store %x,%x",addr,data);
 endmodule
