@@ -9,7 +9,6 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
     wire [2:0] func3;
     wire [DATA_WIDTH-1:0] signedRes, unSignRes;
     wire branchPCSel;
-    assign signedRes = $signed(rs1)-$signed(rs2);
     assign unSignRes = rs1-rs2;
     assign func3 = func7_6_func3[2:0];
     ysyx_24100012_MuxKeyWithDefault #( 6,3 ) branch_comp (
@@ -18,8 +17,8 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
         1'b0,{
         3'b000, unSignRes == 0,
         3'b001, unSignRes != 0,
-        3'b100, $signed(signedRes)<0,
-        3'b101, $signed(signedRes)>=0,
+        3'b100, $signed(rs1)<$signed(rs2),          // ??
+        3'b101, $signed(rs1)>=$signed(rs2),
         3'b110, unSignRes>rs1,
         3'b111, unSignRes<=rs1
     });

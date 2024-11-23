@@ -18,12 +18,12 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=10)(
             4'b0011, (in_a<in_b)? 32'h1 :32'h0,         //sltu
             4'b0100, in_a^in_b,                         //xor
             4'b0101, in_a>>in_b,                        //srl
-            4'b1101, $signed(in_a)>>in_b,               //sra
+            4'b1101, $signed(in_a)>>>in_b,                       //sra
             4'b0110, in_a | in_b,                       //or
             4'b0111, in_a & in_b                        //and
         });
     // always@(*)
-    //     $display("alu a: %x, b: %x, code %b", in_a,in_b,alu_sel);
+        // $display("alu a: %x, b: %x, code %b", in_a,in_b,alu_sel);
 
 endmodule
 
