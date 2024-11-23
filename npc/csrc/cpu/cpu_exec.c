@@ -29,10 +29,14 @@ void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
+    printf("checkreg pc, ref %x, top %x \n",ref_r->pc,cpu.pc);
     return false;
   }
   for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[i]) return false;
+     if(ref_r->gpr[i]!=cpu.gpr[i]) {
+        printf("checkreg x%d, ref %x, top %x \n",i,ref_r->gpr[i],cpu.gpr[i]);
+        return false;
+     }
   }  
   return true;
 }
@@ -44,16 +48,18 @@ void sync_cpu(){
 }
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, pcsel: %d, inst: %.8x, imm %d,rs1: %d a0 = %x,ra = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, Wen: %d, inst: %.8x, imm %u,rd: %u writedata: %x a0 = %x,ra = %x,a8 = %x\n",
         top->io_halt,
         top_pc,
         top_dnpc,
-        top->ysyx_24100012_top__DOT__PCSel,
+        top->ysyx_24100012_top__DOT__WEn,
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
-        top->ysyx_24100012_top__DOT__rs1,
+        top->ysyx_24100012_top__DOT__rd,
+        top->ysyx_24100012_top__DOT__writeData,
         gpr(10),
-        gpr(1));
+        gpr(1),
+        gpr(8));
 }
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.
