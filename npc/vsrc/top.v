@@ -4,16 +4,16 @@ module ysyx_24100012_top (
   output io_halt
 );
   parameter ADDR_WIDTH=32,DATA_WIDTH = 32,N_REG=32,REG_INDEX_LEN=5;
-  parameter [ADDR_WIDTH-1:0] MEM_SIZE = 4096;
+  parameter [ADDR_WIDTH-1:0] MEM_SIZE = 32'h08000000;
   parameter [ADDR_WIDTH-1:0] ORIGIN_ADDR=32'h80000000;
 // ;
   reg [DATA_WIDTH-1:0] inst,AluOut,DMemLoad,DMemStore;
   reg [ADDR_WIDTH-1:0] pc,PCNext;
 
-  wire WEn,ASel,BSel,PCSel;
+  wire WEn,ASel,BSel,PCSel,MemWEn,MemREn;
   wire [1:0] WBSel;
   wire [2:0] inst_type;
-  wire [3:0] alu_sel;
+  wire [3:0] func7_6_func3, ALUSel;
   wire [4:0] rs1,rs2,rd;
   wire [DATA_WIDTH-1:0] imm,alu_a,alu_b;
   wire [DATA_WIDTH-1:0] readData1,readData2,writeData;
@@ -32,19 +32,21 @@ module ysyx_24100012_top (
     ADDR_WIDTH,
     DATA_WIDTH,
     ORIGIN_ADDR,
-    MEM_SIZE) IMem (clk,1'b0,32'h4,32'h0,32'h0,pc,inst);
+    MEM_SIZE) IMem (clk,1'b0,1'b1,32'h4,32'h0,32'h0,pc,inst);
 
   // ysyx_24100012_rom  #(ADDR_WIDTH,DATA_WIDTH) mem (pc,inst);
   ysyx_24100012_inst_decode #(DATA_WIDTH)idu (
     inst,
     imm,
-    alu_sel,
+    func7_6_func3,
+    ALUSel,
     inst_type,
     rs1,rs2,rd,
     ASel,
     BSel,
-    PCSel,
     WEn,
+    MemWEn,
+    MemREn,
     WBSel);
   ysyx_24100012_regfiles #(
     ADDR_WIDTH,
@@ -70,6 +72,39 @@ module ysyx_24100012_top (
       1'b1, imm
     }); 
   
+  ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) branch_comp (
+    func7_6_func3,
+    inst_type,
+    readData1,
+    readData2,
+    PCSel
+  ) ;
+
+
+  ysyx_24100012_alu #(DATA_WIDTH,4)alu (
+    clk,rst,
+    alu_a,
+    alu_b,
+    inst_type,
+    ALUSel,AluOut);
+  
+   ysyx_24100012_partial_load #(ADDR_WIDTH,DATA_WIDTH) partial_load (
+    clk,
+    rst,
+    MemREn,
+    func7_6_func3,
+    AluOut,
+    DMemLoad
+  );
+  ysyx_24100012_partial_store #(ADDR_WIDTH,DATA_WIDTH) partial_store (
+    clk,
+    rst,
+    MemWEn,
+    func7_6_func3,
+    AluOut,
+    readData2
+  );
+
   ysyx_24100012_MuxKey #(4,2,DATA_WIDTH) mulWB (
     writeData,
     WBSel,{ 
@@ -79,14 +114,8 @@ module ysyx_24100012_top (
       2'b11, 32'b0
     }); 
 
-  ysyx_24100012_alu #(DATA_WIDTH,4)alu (
-    clk,rst,
-    alu_a,
-    alu_b,
-    inst_type,
-    alu_sel,AluOut);
   assign io_halt = inst== 32'h00100073;
-  
+
 endmodule
 
 

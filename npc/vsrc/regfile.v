@@ -16,6 +16,7 @@ module ysyx_24100012_regfiles #(
 
 wire [DATA_WIDTH-1:0] reg_input_list[N_REG-1:0];
 wire [DATA_WIDTH-1:0] reg_output_list[N_REG-1:0];
+wire  WEn_list[N_REG-1:0];
 
 // zero register should equal to zero anytime.
 ysyx_24100012_Reg #(DATA_WIDTH,0) x0 (
@@ -30,10 +31,11 @@ generate
     ysyx_24100012_Reg #(DATA_WIDTH,0) x (clk,rst,
         reg_input_list[i],
         reg_output_list[i],
-        RegWEn);
+        WEn_list[i]);
     end
 endgenerate
 
+assign WEn_list[RegWriteIndex] = RegWEn;
 assign reg_input_list[RegWriteIndex] = RegWriteData;
 assign RegReadData1 = reg_output_list[RegReadIndex1];
 assign RegReadData2 = reg_output_list[RegReadIndex2];
