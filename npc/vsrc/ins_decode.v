@@ -25,8 +25,8 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
     assign opcode = instruction[6:0];
     assign func3  = instruction[14:12];
     assign imm_S = { {21{instruction[31]}},instruction[30:25],instruction[11:7]};
-    assign imm_I = {{28{instruction[24]}},instruction[23:20]};
-    assign imm_Is = { {21{instruction[31]}}, instruction[30:20]};
+    assign imm_I = { {21{instruction[31]}}, instruction[30:20]};
+    assign imm_Is = {{28{instruction[24]}},instruction[23:20]};
     assign imm_B = { {20{instruction[31]}},instruction[7],instruction[30:25],instruction[11:8],1'b0};
     assign imm_J = { {12{instruction[31]}},instruction[19:12],instruction[20],instruction[30:21],1'b0};
     assign imm_U =  { instruction[31:12],12'b0};
@@ -54,7 +54,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=0;
                 BSel=0;
-                PCSel=0;
                 WBSel=WBALU;
             end
             // I type
@@ -62,18 +61,17 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 // I* type
                 if (func3==3'b101 | func3==3'b001) begin
                     func7_6_func3 = { instruction[30], func3};
-                    imm = imm_I;
+                    imm = imm_Is;
                     instType =  I_Type; 
                 end else  begin 
                     func7_6_func3[2:0] = func3;
-                    imm = imm_Is;
+                    imm = imm_I;
                     instType =  I_Type;
                 end
                 {rs2,rs1,rd} = {5'b0,instruction[19:15],instruction[11:7]};
                 WEn=1'b1;
                 ASel=0;
                 BSel=1;
-                PCSel=0;
                 WBSel=WBALU;
             end
             // B type
@@ -85,7 +83,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=1;
                 BSel=1;
-                PCSel=1;
                 WBSel=WBNone;
             end
             // S type
@@ -97,7 +94,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=0;
                 BSel=1;
-                PCSel=0;
                 WBSel=WBNone;
             end
             
@@ -110,9 +106,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=1;
                 BSel=1;   
-                PCSel=1;  
                 WBSel=WBPc;  
-                // $display("jal");         
             end
             // jalr
             7'b1100111: begin
@@ -124,9 +118,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=0;
                 BSel=1;  
-                PCSel=1; 
                 WBSel=WBPc;           
-                // $display("jalr");  
             end
             // auipc
             7'b0010111: begin
@@ -137,7 +129,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=1;
                 BSel=1;
-                PCSel=0;
                 WBSel=WBALU;
             end
             // lui
@@ -149,7 +140,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b1;
                 ASel=0;
                 BSel=1;
-                PCSel=0;
                 WBSel=WBALU;
             end
             // ebreak, ecall
@@ -161,7 +151,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b0;
                 ASel=0;
                 BSel=1;
-                PCSel=0;
                 WBSel=WBNone;
             end
             default: begin
@@ -172,7 +161,6 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
                 WEn=1'b0;
                 ASel=0;
                 BSel=0;
-                PCSel=0;
                 WBSel=WBALU;
             end
         endcase

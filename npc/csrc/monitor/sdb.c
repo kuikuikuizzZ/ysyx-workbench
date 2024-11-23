@@ -56,7 +56,7 @@ static int cmd_info(char *args) {
 
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
-    ref_reg_display();
+    IFDEF(CONFIG_DIFFTEST, ref_reg_display());
   }else{
     printf("Usage: info r\n");
   }

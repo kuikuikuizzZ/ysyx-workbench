@@ -72,6 +72,14 @@ module ysyx_24100012_top (
       1'b1, imm
     }); 
   
+  ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) branch_comp (
+    func7_6_func3,
+    inst_type,
+    readData1,
+    readData2,
+    PCSel
+  ) ;
+
 
   ysyx_24100012_alu #(DATA_WIDTH,4)alu (
     clk,rst,
