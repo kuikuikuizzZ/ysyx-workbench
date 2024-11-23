@@ -15,7 +15,7 @@ static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 void init_log(const char*);
-
+int is_exit_status_bad();
 long load_prog() {
     if (!img_file){
         printf("Use default img\n");
@@ -83,5 +83,5 @@ int main(int argc, char** argv) {
     free_cpu();
 
     // Return good completion status
-    return 0;
+    return is_exit_status_bad();
 }
