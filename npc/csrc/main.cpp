@@ -15,6 +15,7 @@ static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 void init_log(const char*);
+void init_device();
 int is_exit_status_bad();
 long load_prog() {
     if (!img_file){
@@ -70,7 +71,7 @@ int main(int argc, char** argv) {
     
     init_memory();
     
-    IFDEF(CONFIG_DEVICE, init_device());
+    init_device();
     
     init_isa();
     
