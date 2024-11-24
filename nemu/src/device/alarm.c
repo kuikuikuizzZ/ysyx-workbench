@@ -32,6 +32,7 @@ static void alarm_sig_handler(int signum) {
   int i;
   for (i = 0; i < idx; i ++) {
     handler[i]();
+    printf("alarm\n");
   }
 }
 
