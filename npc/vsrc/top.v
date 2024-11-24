@@ -3,7 +3,7 @@ module ysyx_24100012_top (
   input rst,
   output io_halt
 );
-  parameter ADDR_WIDTH=32,DATA_WIDTH = 32,N_REG=32,REG_INDEX_LEN=5;
+  parameter ADDR_WIDTH=32,DATA_WIDTH = 32,N_REG=16,REG_INDEX_LEN=4,INPUT_INDEX_LEN=5;
   parameter [ADDR_WIDTH-1:0] MEM_SIZE = 32'h08000000;
   parameter [ADDR_WIDTH-1:0] ORIGIN_ADDR=32'h80000000;
 // ;
@@ -52,6 +52,7 @@ module ysyx_24100012_top (
     ADDR_WIDTH,
     DATA_WIDTH,
     N_REG,
+    INPUT_INDEX_LEN,
     REG_INDEX_LEN) regfiles (
       clk,rst,
       writeData,

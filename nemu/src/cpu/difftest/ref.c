@@ -20,7 +20,7 @@
 
 void cpu_exec(uint64_t n);
 typedef struct {
-    word_t gpr[32];
+    word_t gpr[MUXDEF(CONFIG_RVE,16,32)];
     word_t pc;
 }diff_context;
 

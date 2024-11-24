@@ -5,7 +5,9 @@
 #include <string.h>
 #include <common.h>
 
-const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
+// const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
+const int gpr_size = 16;
+
 
 typedef struct {
     word_t gpr[gpr_size];
