@@ -1,5 +1,5 @@
 #include <common.h>
-#include <memory.h>
+#include <memory/memory.h>
 #include <cpu/cpu.h>
 #include <cpu/difftest.h>
 #include <isa.h>
@@ -67,12 +67,19 @@ static int parse_args(int argc, char **argv) {
 
 int main(int argc, char** argv) {
     parse_args(argc, argv);
+    
     init_memory();
+    
+    IFDEF(CONFIG_DEVICE, init_device());
+    
     init_isa();
+    
     init_log(log_file);
+    
     #ifdef CONFIG_ITRACE
     init_itrace();
     #endif
+    
     long img_size = load_prog();
 
     init_cpu(argc,argv);

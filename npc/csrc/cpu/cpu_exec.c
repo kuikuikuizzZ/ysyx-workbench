@@ -169,6 +169,7 @@ void execute(u_int64_t n){
         exec_once();
         trace_and_difftest();
         if (npc_state.state != NPC_RUNNING) break;
+        IFDEF(CONFIG_DEVICE,device_update()); 
     }
 }
 

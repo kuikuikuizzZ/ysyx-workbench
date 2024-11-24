@@ -1,7 +1,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    #include <memory.h>
+    #include <memory/memory.h>
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>

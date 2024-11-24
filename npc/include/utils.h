@@ -18,6 +18,9 @@
 
 #include <common.h>
 
+// ----------- timer -----------
+
+uint64_t get_time();
 
 // ----------- log -----------
 
