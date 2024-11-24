@@ -16,6 +16,7 @@
 #include <device/map.h>
 #include <device/alarm.h>
 #include <utils.h>
+#include <npc.h>
 
 static uint32_t *rtc_port_base = NULL;
 
@@ -28,14 +29,14 @@ static void rtc_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 
-// #ifndef CONFIG_TARGET_AM
-// static void timer_intr() {
-//   if (npc.state == NEMU_RUNNING) {
-//     extern void dev_raise_intr();
-//     dev_raise_intr();
-//   }
-// }
-// #endif
+#ifndef CONFIG_TARGET_AM
+static void timer_intr() {
+  if (npc_state.state == NPC_RUNNING) {
+    extern void dev_raise_intr();
+    dev_raise_intr();
+  }
+}
+#endif
 
 void init_timer() {
   rtc_port_base = (uint32_t *)new_space(8);
@@ -44,5 +45,5 @@ void init_timer() {
 #else
   add_mmio_map("rtc", CONFIG_RTC_MMIO, rtc_port_base, 8, rtc_io_handler);
 #endif
-  // IFNDEF(CONFIG_TARGET_AM, add_alarm_handle(timer_intr));
+  IFNDEF(CONFIG_TARGET_AM, add_alarm_handle(timer_intr));
 }
