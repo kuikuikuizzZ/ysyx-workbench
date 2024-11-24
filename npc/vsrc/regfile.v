@@ -45,6 +45,6 @@ endgenerate
 assign WEn_list[writeIdx] = RegWEn;
 assign reg_input_list[writeIdx] = RegWriteData;
 assign RegReadData1 = reg_output_list[readIdx1];
-assign RegReadData2 = reg_output_list[readIdx1];
+assign RegReadData2 = reg_output_list[readIdx2];
 
 endmodule
