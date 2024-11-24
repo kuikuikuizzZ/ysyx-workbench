@@ -3,15 +3,17 @@
 
 #include <stdint.h>
 #include <assert.h>
-
+#include <config.h>
 
 // use DPI-C should add this macro
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    #define MBASE 0x80000000
-    #define MSIZE 0x8000000
+    #define MBASE CONFIG_MBASE 
+    #define MSIZE CONFIG_MSIZE 
+    #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
+    #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
     #define WORD_SIZE 4
 
     void init_memory();

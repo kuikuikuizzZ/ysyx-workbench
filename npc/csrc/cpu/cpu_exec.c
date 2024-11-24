@@ -25,6 +25,7 @@ char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 
 void init_disasm();
+void device_update();
 void step() { top->clk = 0; top->eval(); top->clk = 1; top->eval(); }
 void reset(int n) { top->rst = 1; while (n --) { step(); } top->rst = 0; }
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
@@ -169,6 +170,7 @@ void execute(u_int64_t n){
         exec_once();
         trace_and_difftest();
         if (npc_state.state != NPC_RUNNING) break;
+        device_update(); 
     }
 }
 

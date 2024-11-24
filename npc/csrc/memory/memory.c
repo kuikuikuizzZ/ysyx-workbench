@@ -1,10 +1,13 @@
+#include <device/mmio.h>
+#include <memory/memory.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-    #include <memory.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include <stdio.h>
+
 
     static uint8_t *pmem = NULL;
 
@@ -21,6 +24,9 @@ extern "C" {
             // printf("pmem read: raddr = %x, data %x len %d\n", raddr,*rword,len);
             return;
         }
+        if (raddr==CONFIG_RTC_MMIO)
+            *rword = mmio_read(raddr, len);
+        return;
     }
 
     void pmem_write(int waddr,int len, int wdata){
@@ -28,6 +34,9 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
+        if (waddr==CONFIG_SERIAL_MMIO)
+            mmio_write(waddr, len, wdata);
+        return;
     }
 #ifdef __cplusplus
 }

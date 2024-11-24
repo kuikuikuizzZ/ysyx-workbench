@@ -1,7 +1,7 @@
 #ifndef __ISA_H__
 #define __ISA_H__
 
-#include <memory.h>
+#include <memory/memory.h>
 #include <string.h>
 #include <common.h>
 
