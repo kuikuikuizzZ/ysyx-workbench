@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
     static uint8_t *pmem = NULL;
+    // uint32_t screen_size();
 
     void init_memory() {
         pmem = (uint8_t*)malloc(MSIZE);
@@ -34,7 +34,7 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
-        if (waddr==CONFIG_SERIAL_MMIO)
+        if (waddr==CONFIG_SERIAL_MMIO|| (waddr>=CONFIG_VGA_CTL_MMIO  ))
             mmio_write(waddr, len, wdata);
         return;
     }

@@ -16,12 +16,12 @@ INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS :=  $(CFLAGS) $(INCLUDES)
 LIBS += -lreadline
-LDFLAGS +=   $(LIBS)
+LDFLAGS +=   $(addprefix -LDFLAGS , $(LIBS))
 
 
 VERILATOR_FLAGS := --cc --exe --build -j 8 --vpi $(VERILATOR_FLAGS)
 VERILATOR_FLAGS +=  $(VCFLAGS) 
-VERILATOR_FLAGS += -LDFLAGS $(LDFLAGS)
+VERILATOR_FLAGS +=  $(LDFLAGS)
 VERILATOR_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 
