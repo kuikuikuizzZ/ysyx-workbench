@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+uint32_t screen_size = 800*600;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
     static uint8_t *pmem = NULL;
-    // uint32_t screen_size();
 
     void init_memory() {
         pmem = (uint8_t*)malloc(MSIZE);
@@ -18,13 +19,15 @@ extern "C" {
     uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
 
     void pmem_read(int raddr, int len, int *rword) {
+        // printf("pmem read: raddr = %x, data %x len %d\n", raddr,*rword,len);
         if (in_pmem(raddr)) {
             // TODO: support mask read
             *rword = host_read(guest_to_host(raddr),len);
-            // printf("pmem read: raddr = %x, data %x len %d\n", raddr,*rword,len);
             return;
         }
-        if (raddr==CONFIG_RTC_MMIO)
+        if (raddr==CONFIG_RTC_MMIO|| raddr==CONFIG_VGA_CTL_MMIO || (
+            raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size
+        ))
             *rword = mmio_read(raddr, len);
         return;
     }
@@ -34,7 +37,10 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
-        if (waddr==CONFIG_SERIAL_MMIO|| (waddr>=CONFIG_VGA_CTL_MMIO  ))
+        if (waddr==CONFIG_SERIAL_MMIO || waddr==CONFIG_VGA_CTL_MMIO || (
+            waddr>=CONFIG_FB_ADDR && waddr< CONFIG_FB_ADDR+ screen_size
+        ))
+            
             mmio_write(waddr, len, wdata);
         return;
     }

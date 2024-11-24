@@ -43,7 +43,7 @@ void device_update() {
     return;
   }
   last = now;
-
+  
   // IFDEF(CONFIG_HAS_VGA, vga_update_screen());
   vga_update_screen();
 #ifndef CONFIG_TARGET_AM
@@ -77,7 +77,6 @@ void sdl_clear_event_queue() {
 }
 
 void init_device() {
-  printf("init device \n");
   // IFDEF(CONFIG_TARGET_AM, ioe_init());
   init_map();
 
