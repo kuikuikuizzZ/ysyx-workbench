@@ -20,7 +20,7 @@
 
 void cpu_exec(uint64_t n);
 typedef struct {
-    word_t gpr[32];
+    word_t gpr[MUXDEF(CONFIG_RVE,16,32)];
     word_t pc;
 }diff_context;
 
@@ -41,7 +41,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   diff_context *context = (diff_context*)dut;
-  size_t NXPR = sizeof(context->gpr)/sizeof(word_t);
+  size_t NXPR = MUXDEF(CONFIG_RVE,16,32);
   if (direction == DIFFTEST_TO_DUT){
     for(int i=0;i<NXPR;i++){
       context->gpr[i] = cpu.gpr[i];
