@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-uint32_t screen_size = 800*600;
+uint32_t screen_size = 300*400*sizeof(uint32_t);
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,8 +25,9 @@ extern "C" {
             *rword = host_read(guest_to_host(raddr),len);
             return;
         }
-        if (raddr==CONFIG_RTC_MMIO|| raddr==CONFIG_VGA_CTL_MMIO || (
-            raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size
+        if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
+            raddr==CONFIG_VGA_CTL_MMIO || raddr==(CONFIG_VGA_CTL_MMIO+4) || 
+            (raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size
         ))
             *rword = mmio_read(raddr, len);
         return;
@@ -37,9 +38,9 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
-        if (waddr==CONFIG_SERIAL_MMIO || waddr==CONFIG_VGA_CTL_MMIO || (
-            waddr>=CONFIG_FB_ADDR && waddr< CONFIG_FB_ADDR+ screen_size
-        ))
+        if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
+             waddr==CONFIG_VGA_CTL_MMIO || waddr==(CONFIG_VGA_CTL_MMIO+4) ||
+            (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)))
             
             mmio_write(waddr, len, wdata);
         return;
