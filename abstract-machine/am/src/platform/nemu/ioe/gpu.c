@@ -43,7 +43,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //     }
   //   }
   // }
-  // printf("h %d, w %d, ctl_h %d, ctl_w %d\n",h,w,ctl->h,ctl->w);
+  printf("h %d, w %d, ctl_h %d, ctl_w %d,ctl_y %d, ctl_x %d\n",h,w,ctl->h,ctl->w,ctl->y,ctl->x);
   for(int i=0;i<=ctl->h;i++){
     for(int j=0;j<=ctl->w;j++){
       fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
