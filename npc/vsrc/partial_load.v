@@ -38,7 +38,7 @@ module ysyx_24100012_partial_load #(
         load_sel,
         mem_data,
         {
-            3'b000, {{25{mem_data[15]}},mem_data[6:0]},
+            3'b000, {{25{mem_data[7]}},mem_data[6:0]},
             3'b001, {{17{mem_data[15]}},mem_data[14:0]},
             3'b010, mem_data,
             3'b100, mem_data,
