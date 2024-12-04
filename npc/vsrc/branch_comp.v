@@ -19,8 +19,8 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
         3'b001, unSignRes != 0,
         3'b100, $signed(rs1)<$signed(rs2),          // ??
         3'b101, $signed(rs1)>=$signed(rs2),
-        3'b110, unSignRes>rs1,
-        3'b111, unSignRes<=rs1
+        3'b110, rs1<rs2,
+        3'b111, rs1>=rs2
     });
     ysyx_24100012_MuxKeyWithDefault #(
         2,3) mul_pc (
