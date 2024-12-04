@@ -51,9 +51,9 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
   //   }
   // }
 
-  if (draw->sync) {
-    outl(SYNC_ADDR, 1);
-  }
+  // if (draw->sync) {
+  //   outl(SYNC_ADDR, 1);
+  // }
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
