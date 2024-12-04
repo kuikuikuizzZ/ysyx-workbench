@@ -24,12 +24,6 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
-  // uint32_t* p = ctl->pixels;
-  // for(int i=0;i<ctl->h;i++){
-  //   memcpy(fb+ctl->x+(ctl->y+i)*w,p+ctl->w*i,ctl->w*sizeof(uint32_t));
-  // }
-
-
   int x = draw->x, y = draw->y, w = draw->w, h = draw->h;
   int W = display_w, H = display_h;
   uint32_t *pixels = draw->pixels;
@@ -44,16 +38,9 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
     }
   }
 
-  // printf("h %d, w %d, ctl_h %d, ctl_w %d,ctl_y %d, ctl_x %d\n",h,w,ctl->h,ctl->w,ctl->y,ctl->x);
-  // for(int i=0;i<=ctl->h;i++){
-  //   for(int j=0;j<=ctl->w;j++){
-  //     fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
-  //   }
-  // }
-
-  // if (draw->sync) {
-  //   outl(SYNC_ADDR, 1);
-  // }
+  if (draw->sync) {
+    outl(SYNC_ADDR, 1);
+  }
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
