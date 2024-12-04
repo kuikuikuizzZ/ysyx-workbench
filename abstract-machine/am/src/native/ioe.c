@@ -66,7 +66,7 @@ void __am_ioe_init() {
   for (int i = 0; i < LENGTH(lut); i++)
     if (!lut[i]) lut[i] = fail;
   __am_timer_init();
-  __am_gpu_init();
+  // __am_gpu_init();
   __am_input_init();
   __am_uart_init();
   __am_audio_init();
