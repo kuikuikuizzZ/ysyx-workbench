@@ -29,8 +29,23 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //   memcpy(fb+ctl->x+(ctl->y+i)*w,p+ctl->w*i,ctl->w*sizeof(uint32_t));
   // }
 
-  for(int i=0;i<ctl->h;i++){
-    for(int j=0;j<ctl->w;j++){
+
+  // int x = draw->x, y = draw->y, w = draw->w, h = draw->h;
+  // int W = display_w, H = display_h;
+  // uint32_t *pixels = draw->pixels;
+  // int len = (x + w >= W) ? W - x : w;
+  // for (int j = 0; j < h; j ++, pixels += w) {
+  //   if (y + j < H) {
+  //     struct pixel *px = &fb[x + (j + y) * W];
+  //     for (int i = 0; i < len; i ++, px ++) {
+  //       uint32_t p = pixels[i];
+  //       *px = (struct pixel) { .r = R(p), .g = G(p), .b = B(p) };
+  //     }
+  //   }
+  // }
+
+  for(int i=0;i<=ctl->h;i++){
+    for(int j=0;j<=ctl->w;j++){
       fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
     }
   }

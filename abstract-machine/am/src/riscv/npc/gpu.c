@@ -33,7 +33,7 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
-  uint32_t* p = ctl->pixels;
+  // uint32_t* p = ctl->pixels;
   // for(int i=0;i<ctl->h;i++){
   //   memcpy(fb+ctl->x+(ctl->y+i)*w,p+ctl->w*i,ctl->w*sizeof(uint32_t));
   // }
