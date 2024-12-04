@@ -44,7 +44,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //   }
   // }
 
-  for(int i=0;i<h;i++){
+  for(int i=0;i<ctl->h-ctl->y;i++){
     for(int j=0;j<ctl->w;j++){
       fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
     }
