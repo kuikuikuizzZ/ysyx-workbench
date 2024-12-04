@@ -9,8 +9,8 @@ void __am_gpu_init() {
   w = inw(VGACTL_ADDR+2);  // TODO: get the correct width
   h = inw(VGACTL_ADDR);  // TODO: get the correct height
   fb = (uint32_t *)(uintptr_t)FB_ADDR;
-  for (int i = 0; i < w * h; i ++) fb[i] = i;
-  outl(SYNC_ADDR, 1);
+  // for (int i = 0; i < w * h; i ++) fb[i] = 0;
+  // outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
@@ -44,8 +44,8 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //   }
   // }
 
-  for(int i=0;i<=ctl->h;i++){
-    for(int j=0;j<=ctl->w;j++){
+  for(int i=0;i<ctl->h;i++){
+    for(int j=0;j<ctl->w;j++){
       fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
     }
   }
