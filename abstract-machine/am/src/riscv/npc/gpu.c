@@ -4,21 +4,15 @@
 #include <riscv.h>
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
-static inline uint8_t R(uint32_t p) { return p >> 16; }
-static inline uint8_t G(uint32_t p) { return p >> 8; }
-static inline uint8_t B(uint32_t p) { return p; }
-
-struct pixel {
-  uint8_t b, g, r;
-} __attribute__ ((packed));
-
 static int display_w = 0,display_h=0;
 static uint32_t *fb = NULL;
 void __am_gpu_init() {
+
   display_w = inw(VGACTL_ADDR+2);  // TODO: get the correct width
   display_h = inw(VGACTL_ADDR);  // TODO: get the correct height
+  printf("w %d,h %d\n",display_w,display_h);
   fb = (uint32_t *)(uintptr_t)FB_ADDR;
-  for (int i = 0; i < w * h; i ++) fb[i] = 0;
+  for (int i = 0; i < display_w * display_h; i ++) fb[i] = 0;
   outl(SYNC_ADDR, 1);
 }
 
@@ -33,10 +27,6 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
-  // uint32_t* p = ctl->pixels;
-  // for(int i=0;i<ctl->h;i++){
-  //   memcpy(fb+ctl->x+(ctl->y+i)*w,p+ctl->w*i,ctl->w*sizeof(uint32_t));
-  // }
 
   int x = draw->x, y = draw->y, w = draw->w, h = draw->h;
   int W = display_w, H = display_h;
@@ -44,21 +34,15 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
   int len = (x + w >= W) ? W - x : w;
   for (int j = 0; j < h; j ++, pixels += w) {
     if (y + j < H) {
-      struct pixel *px = &fb[x + (j + y) * W];
+      uint32_t *px = &fb[x + (j + y) * W];
       for (int i = 0; i < len; i ++, px ++) {
         uint32_t p = pixels[i];
-        *px = (struct pixel) { .r = R(p), .g = G(p), .b = B(p) };
+        *px = p;
       }
     }
   }
 
-  for(int i=0;i<ctl->h;i++){
-    for(int j=0;j<ctl->w;j++){
-      fb[(ctl->y+i)*w+ctl->x+j] = p[i*ctl->w+j];
-    }
-  }
-
-  if (ctl->sync) {
+  if (draw->sync) {
     outl(SYNC_ADDR, 1);
   }
 }

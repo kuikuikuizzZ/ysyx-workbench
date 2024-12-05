@@ -1,7 +1,7 @@
 #ifndef __RINGBUFFER_H__
 #define __RINGBUFFER_H__
 
-#define LOG_BUFSIZE 1024
+#define LOG_BUFSIZE 4096
 #define ITRACE_SIZE 64
 typedef struct 
 {

@@ -27,7 +27,7 @@ void init_map();
 void init_timer();
 void init_serial();
 void init_vga();
-// void init_i8042();
+void init_i8042();
 // void init_audio();
 // void init_disk();
 // void init_sdcard();
@@ -45,7 +45,7 @@ void device_update() {
   last = now;
 
   // IFDEF(CONFIG_HAS_VGA, vga_update_screen());
-  // vga_update_screen();
+  vga_update_screen();
 #ifndef CONFIG_TARGET_AM
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
@@ -82,7 +82,7 @@ void init_device() {
 
   init_serial();
   init_timer();
-  // init_vga();
+  init_vga();
   // IFDEF(CONFIG_HAS_TIMER, init_timer());
   // IFDEF(CONFIG_HAS_VGA, init_vga());
   // IFDEF(CONFIG_HAS_KEYBOARD, init_i8042());
@@ -90,5 +90,6 @@ void init_device() {
   // IFDEF(CONFIG_HAS_DISK, init_disk());
   // IFDEF(CONFIG_HAS_SDCARD, init_sdcard());
   init_alarm();
+  init_i8042();
   // IFNDEF(CONFIG_TARGET_AM, init_alarm());
 }
