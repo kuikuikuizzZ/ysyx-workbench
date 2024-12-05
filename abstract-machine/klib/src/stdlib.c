@@ -1,6 +1,7 @@
 #include <am.h>
 #include <klib.h>
 #include <klib-macros.h>
+#include <stdlib.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 static char *hbrk = NULL;
@@ -64,7 +65,10 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
   if (!hbrk) hbrk = (void *)ROUNDUP(heap.start, 8);
-#if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
+// #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
+    // panic("Not implemented!\n");
+// #endif
+  // return malloc(size);  
   size  = (size_t)ROUNDUP(size, 8);
   char *old = hbrk;
   hbrk += size;
@@ -73,8 +77,7 @@ void *malloc(size_t size) {
     *p = 0;
   }
   return old;
-#endif
-  return NULL;
+
 }
 
 void free(void *ptr) {
