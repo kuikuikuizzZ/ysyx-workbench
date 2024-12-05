@@ -73,16 +73,26 @@ void *memmove(void *dst, const void *src, size_t n) {
   return s1;
 }
 
-void *memcpy(void *out, const void *in, size_t n) {
-  char *s1 = out;
-  const char *s2 = in;
-  int i=0;
-  while (i<n && (*s1++=*s2++))
+void *memcpy(void *dst, const void *src, size_t n) {
+  if (dst == NULL || src == NULL || n <= 0)
+  return NULL;
+
+  char * pdst = (char *)dst;
+  char * psrc = (char *)src;
+
+  if (pdst > psrc && pdst < psrc + n)
   {
-    i++;
+      pdst = pdst + n - 1;
+      psrc = psrc + n - 1;
+      while (n--)
+          *pdst-- = *psrc--;
   }
-  out = s1;
-  return out;
+  else
+  {
+      while (n--)
+          *pdst++ = *psrc++;
+  }
+  return dst;
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
