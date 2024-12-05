@@ -27,7 +27,7 @@ void init_map();
 void init_timer();
 void init_serial();
 void init_vga();
-// void init_i8042();
+void init_i8042();
 // void init_audio();
 // void init_disk();
 // void init_sdcard();
@@ -90,5 +90,6 @@ void init_device() {
   // IFDEF(CONFIG_HAS_DISK, init_disk());
   // IFDEF(CONFIG_HAS_SDCARD, init_sdcard());
   init_alarm();
+  init_i8042();
   // IFNDEF(CONFIG_TARGET_AM, init_alarm());
 }
