@@ -21,6 +21,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    * Then return the address of the interrupt/exception vector.
    */
   csr(MEPC) = epc;
+  // csr(MCAUSE) = NO;
   return csr(MTVEC);
 }
 
