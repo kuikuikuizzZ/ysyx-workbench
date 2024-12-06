@@ -62,6 +62,7 @@ __am_asm_trap:
 
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
+  addi t2, t1, 4             // make pc point to next inst
   csrw mstatus, t1
   csrw mepc, t2
 
