@@ -31,7 +31,6 @@ typedef struct {
     char name[16];
 } CSR_INFO;
 
-// static CSR_INFO csr_info[1]= {{.idx=0x180,.name="STAP"}};
 
 static inline int check_reg_idx(int idx) {
   IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
@@ -50,11 +49,4 @@ static inline const char* reg_name(int idx) {
   extern const char* regs[];
   return regs[check_reg_idx(idx)];
 }
-
-// void isa_csr_display() {
-//     for(int i=0;i<1;i++){
-//         printf("%4s:%.8x\n",csr_info[i].name,csr(csr_info[i].idx));
-//     }
-//     printf("%4s:%.8x\n","pc",cpu.pc);
-// }
 #endif

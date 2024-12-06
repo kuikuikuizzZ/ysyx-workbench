@@ -24,6 +24,7 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+static CSR_INFO csr_info[1]= {{.idx=0x180,.name="STAP"}};
 
 void isa_reg_display() {
     for (int i=0;i<MUXDEF(CONFIG_RVE, 16, 32) ;i++){
@@ -46,4 +47,11 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       } 
   }
   return val;
+}
+
+void isa_csr_display() {
+    for(int i=0;i<1;i++){
+        printf("%4s:%.8x\n",csr_info[i].name,csr(csr_info[i].idx));
+    }
+    printf("%4s:%.8x\n","pc",cpu.pc);
 }
