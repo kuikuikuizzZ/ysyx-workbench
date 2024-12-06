@@ -67,10 +67,11 @@ void *memset(void *s, int c, size_t n) {
 }
 
 void *memmove(void *dst, const void *src, size_t n) {
-  char *s1 = dst;
-  const char *s2 = src;
-  strncpy(s1,s2,n);
-  return s1;
+  char *temp = malloc(sizeof(char)*n); 
+  strncpy(temp,src,n);
+  strncpy(dst,temp,n);
+  free(temp);
+  return dst;
 }
 
 void *memcpy(void *dst, const void *src, size_t n) {
