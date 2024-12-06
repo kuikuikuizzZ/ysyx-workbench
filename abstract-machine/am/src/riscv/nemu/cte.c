@@ -11,6 +11,7 @@ Context* __am_irq_handle(Context *c) {
       case -1: ev.event = EVENT_YIELD;break;
       default: ev.event = EVENT_ERROR; break;
     }
+    printf("in __am_irq_handle");
     c = user_handler(ev, c);
     assert(c != NULL);
   }
@@ -35,13 +36,13 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 }
 
 void yield() {
+  asm volatile("addi sp,sp, -4;sw ra,4(sp)");
 #ifdef __riscv_e
   asm volatile("li a5, -1; ecall");
 #else
-  asm volatile("addi sp,sp, -4;sw ra,4(sp)");
   asm volatile("li a7, -1; ecall");
-  asm volatile("lw ra,4(sp);addi sp,sp, 4");
 #endif
+  asm volatile("lw ra,4(sp);addi sp,sp, 4");
 }
 
 bool ienabled() {
