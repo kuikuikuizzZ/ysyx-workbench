@@ -66,13 +66,17 @@ void *memset(void *s, int c, size_t n) {
     return s;
 }
 
+/* memmove() function src, dst may overlap, 
+   use a temporary array to get rid of it. */ 
 void *memmove(void *dst, const void *src, size_t n) {
-  char *s1 = dst;
-  const char *s2 = src;
-  strncpy(s1,s2,n);
-  return s1;
+  char *temp = malloc(sizeof(char)*n); 
+  strncpy(temp,src,n);
+  strncpy(dst,temp,n);
+  free(temp);
+  return dst;
 }
 
+/* memcpy() function src, dst must not overlap*/ 
 void *memcpy(void *dst, const void *src, size_t n) {
   if (dst == NULL || src == NULL || n <= 0)
   return NULL;
