@@ -27,7 +27,7 @@ enum {
   TYPE_I, TYPE_R,TYPE_J, TYPE_U, TYPE_S, TYPE_B, TYPE_CSR,
   TYPE_N, // none
 };
-#define show_csr() (printf("csr %d\n",*csr_no))
+#define show_csr() (printf("csr %x\n",*csr_no))
 #define src1R() do { *src1 = R(rs1);  }   while (0)
 #define src2R() do { *src2 = R(rs2);  }   while (0)
 #define srcCSR()do { *src_csr = CSR(*csr_no);}  while (0)
