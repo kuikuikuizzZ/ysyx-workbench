@@ -17,6 +17,8 @@
 #include "local-include/reg.h"
 #include <string.h>
 
+
+#define  USED_CSR_NUM 5
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -24,7 +26,13 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-static CSR_INFO csr_info[1]= {{.idx=0x180,.name="STAP"}};
+static CSR_INFO csr_info[USED_CSR_NUM]= {
+  {.idx=0x180,.name="STAP"},
+  {.idx=0x300,.name="MSTATUS"},
+  {.idx=0x305,.name="MTVEC"},
+  {.idx=0x341,.name="MEPC"},
+  {.idx=0x342,.name="MCAUSE"},
+};
 
 void isa_reg_display() {
     for (int i=0;i<MUXDEF(CONFIG_RVE, 16, 32) ;i++){
@@ -50,7 +58,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 }
 
 void isa_csr_display() {
-    for(int i=0;i<1;i++){
+    for(int i=0;i<USED_CSR_NUM;i++){
         printf("%4s:%.8x\n",csr_info[i].name,csr(csr_info[i].idx));
     }
     printf("%4s:%.8x\n","pc",cpu.pc);
