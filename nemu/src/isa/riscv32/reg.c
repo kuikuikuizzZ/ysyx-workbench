@@ -17,6 +17,14 @@
 #include "local-include/reg.h"
 #include <string.h>
 
+enum csrs {
+  STAP    = 0x180, 
+  MSTATUS = 0x300,
+  MTVEC   = 0x305,
+  MEPC    = 0x341,
+  MCAUSE  = 0x342,
+};
+
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -37,7 +45,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   if(strstr(s,"$pc")){
     return cpu.pc;
   }
-  for (int i= 0;i<32;i++){
+  for (int i= 0;i<MUXDEF(CONFIG_RVE, 16, 32);i++){
       if (strstr(s,regs[i])){
         val = gpr(i);
         *success = true;
