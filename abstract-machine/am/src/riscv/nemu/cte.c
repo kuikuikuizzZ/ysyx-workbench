@@ -35,13 +35,13 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 }
 
 void yield() {
-  asm volatile("addi sp,sp, -4;sw ra,0(sp)");
+  asm volatile("addi sp,sp, -4;sw ra,4(sp)");
 #ifdef __riscv_e
-  // asm volatile("li a5, -1; ecall");
+  asm volatile("li a5, -1; ecall");
 #else
   asm volatile("li a7, -1; ecall");
 #endif
-  // asm volatile("lw ra,0(sp);addi sp,sp, 4;");
+  // asm volatile("lw ra,4(sp);addi sp,sp, 4;");
 }
 
 bool ienabled() {
