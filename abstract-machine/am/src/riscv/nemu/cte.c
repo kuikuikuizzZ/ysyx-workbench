@@ -41,7 +41,7 @@ void yield() {
 #else
   asm volatile("li a7, -1; ecall");
 #endif
-  // asm volatile("lw ra,4(sp);addi sp,sp, 4;");
+  asm volatile("lw ra,4(sp);addi sp,sp, 4");
 }
 
 bool ienabled() {
