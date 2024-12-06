@@ -18,13 +18,21 @@
 
 #include <common.h>
 
+typedef enum  {
+  STAP    = 0x180, 
+  MSTATUS = 0x300,
+  MTVEC   = 0x305,
+  MEPC    = 0x341,
+  MCAUSE  = 0x342,
+} csrs;
+
 static inline int check_reg_idx(int idx) {
   IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
   return idx;
 }
 
 static inline int check_csr_idx(int idx) {
-  assert(idx >= 0 && idx < 4096);
+  IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < 4096));
   return idx;
 }
 
