@@ -11,7 +11,7 @@ Context* __am_irq_handle(Context *c) {
       case -1: ev.event = EVENT_YIELD;break;
       default: ev.event = EVENT_ERROR; break;
     }
-    printf("context: mcause %.8x, mepc %.8x\n",c->mcause,c->mepc);
+    printf("context: mcause %d, mepc %d\n",c->mcause,c->mepc);
     c = user_handler(ev, c);
     assert(c != NULL);
   }
