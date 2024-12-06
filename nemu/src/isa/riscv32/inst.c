@@ -18,6 +18,8 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 
+void isa_csr_display();
+
 #define R(i) gpr(i)
 #define CSR(i) csr(i)
 #define Mr vaddr_read
@@ -145,6 +147,7 @@ static int decode_exec(Decode *s) {
   INSTPAT_END();
   // printf("pc: %x a0: %x a4: %x a5: %x s4:%x \n",s->pc,R(10),R(14),R(15),R(20));
   R(0) = 0; // reset $zero to 0
+  isa_csr_display();
   return 0;
 }
 
