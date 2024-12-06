@@ -11,7 +11,7 @@ Context* __am_irq_handle(Context *c) {
       case -1: ev.event = EVENT_YIELD;break;
       default: ev.event = EVENT_ERROR; break;
     }
-    printf("context: mcause %x, mepc %x",c->mcause,c->mepc);
+    printf("context: mcause %x, mepc %x\n",c->mcause,c->mepc);
     c = user_handler(ev, c);
     assert(c != NULL);
   }
@@ -42,7 +42,6 @@ void yield() {
 #else
   asm volatile("li a7, -1; ecall");
 #endif
-  asm volatile("jalr ra, -1; ecall");
   asm volatile("lw ra,4(sp);addi sp,sp, 4");
 }
 
