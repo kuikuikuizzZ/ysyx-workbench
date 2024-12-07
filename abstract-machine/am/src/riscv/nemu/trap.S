@@ -61,7 +61,7 @@ __am_asm_trap:
   call __am_irq_handle
 
   # sp pointer to the context return from __am_irq_handle
-  mv sp, a0
+#   mv sp, a0
 
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
