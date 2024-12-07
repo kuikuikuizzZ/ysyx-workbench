@@ -36,6 +36,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   c-> mepc = (uint32_t)entry;           // mepc is set to entry 
   c->gpr[10] =(uint32_t)&arg;           // a0 = &arg
   c->gpr[1] = (uint32_t)kstack.end;     // sp = kstack top should kstack.end?
+  printf("kstack.start %d,kstack.end %d\n",(uint32_t)kstack.start,(uint32_t)kstack.end);
   return c;
 }
 
