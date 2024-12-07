@@ -31,12 +31,13 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  Context *c = malloc(sizeof(Context));
-  c->mstatus = 0x1800;   
-  c-> mepc = (uint32_t)entry;           // mepc is set to entry 
-  c->gpr[10] =(uint32_t)&arg;           // a0 = &arg
-  c->gpr[1] = (uint32_t)kstack.start;     // sp = kstack top  
-  return c;
+  // Context *c = malloc(sizeof(Context));
+  // c->mstatus = 0x1800;   
+  // c-> mepc = (uint32_t)entry;           // mepc is set to entry 
+  // c->gpr[10] =(uint32_t)&arg;           // a0 = &arg
+  // c->gpr[1] = (uint32_t)kstack.end;     // sp = kstack top should kstack.end?
+  // return c;
+  return NULL;
 }
 
 void yield() {
