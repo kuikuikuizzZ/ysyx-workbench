@@ -40,7 +40,7 @@ void reverse(char s[]){
   }
 }
 
-void itoa(int n , char s[]){
+void klib_itoa(int n , char s[]){
   if (n ==INT32_MIN ){
     char *res = "-2147483648";
     memcpy(s,res,12);
