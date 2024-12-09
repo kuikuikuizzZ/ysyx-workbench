@@ -18,7 +18,7 @@
 #include "../local-include/reg.h"
 
 const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
-
+// extern CSR_INFO csr_info[USED_CSR_NUM];
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
     return false;
@@ -28,7 +28,15 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       printf("x%d,ref %x, dut %x\n",i,ref_r->gpr[i],cpu.gpr[check_reg_idx(i)]);
       return false;
     }
-  }  
+  } 
+  for (int i=0;i<USED_CSR_NUM;i++){
+    CSR_INFO used_csr = csr_info[i];
+    if(ref_r->csr[used_csr.idx]!=cpu.csr[used_csr.idx]){
+      printf("x%d,ref %x, dut %x\n",i,ref_r->csr[used_csr.idx],cpu.csr[used_csr.idx]);
+      return false;
+    }
+  }
+
   return true;
 }
 

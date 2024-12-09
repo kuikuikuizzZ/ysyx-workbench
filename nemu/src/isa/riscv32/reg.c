@@ -18,7 +18,6 @@
 #include <string.h>
 
 
-#define  USED_CSR_NUM 5
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -26,7 +25,8 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-static CSR_INFO csr_info[USED_CSR_NUM]= {
+
+const CSR_INFO csr_info[USED_CSR_NUM]= {
   {.idx=0x180,.name="STAP"},
   {.idx=0x300,.name="MSTATUS"},
   {.idx=0x305,.name="MTVEC"},
