@@ -19,7 +19,7 @@ int printf(const char *fmt, ...) {
         case 'd':
           int out_int = va_arg(argp,int ); 
           char s[12];
-          itoa(out_int,s);
+          klib_itoa(out_int,s);
           putstr(s);
           rc+= strlen(s);
           break;
@@ -59,7 +59,7 @@ int sprintf(char *out, const char *fmt, ...) {
         case 'd':
           int out_int = va_arg(argp,int ); 
           char s[12];
-          itoa(out_int,s);
+          klib_itoa(out_int,s);
           len = strlen(s);
           strncpy(&out[rc],s,len);
           rc+= len;
