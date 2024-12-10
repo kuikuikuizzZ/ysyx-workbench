@@ -54,8 +54,8 @@ void itoa_dec(int n , char s[]){
   if (sign<0){
     s[i++]='-';
   }
-  reverse(s,i);
   s[i] = '\0';
+  reverse(s,i);
 }
 
 void itoa_hex(int n, char s[]){
@@ -68,8 +68,8 @@ void itoa_hex(int n, char s[]){
   do{
     s[i++] = (n%16>=10)?n%16+'a':n%16+'0';
   }while ((n/=16)>0);
-  reverse(s,i);
   s[i] = '\0';
+  reverse(s,i);
 }
 
 void klib_itoa(int n , char s[], int type){
