@@ -19,7 +19,6 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  printf("heap_start %x\n",_heap_start);
   int ret = main(mainargs);
   halt(ret);
 }
