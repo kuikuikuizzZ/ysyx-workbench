@@ -18,6 +18,8 @@
 
 #include <common.h>
 
+#define USED_CSR_NUM 5
+
 typedef enum  {
   STAP    = 0x180, 
   MSTATUS = 0x300,
@@ -31,6 +33,7 @@ typedef struct {
     char name[16];
 } CSR_INFO;
 
+extern const CSR_INFO csr_info[USED_CSR_NUM];
 
 static inline int check_reg_idx(int idx) {
   IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
