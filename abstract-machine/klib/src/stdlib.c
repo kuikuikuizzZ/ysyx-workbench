@@ -48,7 +48,6 @@ void itoa_dec(int n , char s[]){
   }
   int i=0,sign=0;
   n = ((sign=n)<0)?-n:n;
- 
   do{
     s[i++] = n%10+'0';
   }while ((n/=10)>0);
