@@ -40,6 +40,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   c-> mepc = (uint32_t)entry;             // mepc is set to entry 
   c->gpr[10] =(uint32_t)arg;              // a0 = &arg
   c->gpr[2] = (uint32_t)kstack.start;     // sp = kstack.start for after __am_irq_handle will addi sp, sp CONTEXT_SIZE?
+  // printf("end-start %d, start-end %d",kstack.end-kstack.start,kstack.start-kstack.end);
+  printf("start %x, end %x,context %x\n",kstack.start,kstack.end,c);
+  printf("kcontext.mepc %x\n",c->mepc);
   return c;
 }
 
