@@ -84,7 +84,7 @@ int sprintf(char *out, const char *fmt, ...) {
           break;
         case 'x':
           out_int = va_arg(argp,int ); 
-          strncpy(&out[rc],"0x",2);
+          strncpy(&out[rc],HEX_PREFIX,2);
           rc+=2;
           klib_itoa(out_int,s,ITOA_HEX);
           len = strlen(s);

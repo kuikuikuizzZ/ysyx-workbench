@@ -28,15 +28,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       printf("x%d: ref %x, dut %x\n",i,ref_r->gpr[i],cpu.gpr[check_reg_idx(i)]);
       return false;
     }
-  } 
-  // for (int i=0;i<USED_CSR_NUM;i++){
-  //   CSR_INFO used_csr = csr_info[i];
-  //   if(ref_r->csr[used_csr.idx]!=cpu.csr[used_csr.idx]){
-  //     printf("%s,ref %x, dut %x\n",used_csr.name,ref_r->csr[used_csr.idx],cpu.csr[used_csr.idx]);
-  //     return false;
-  //   }
-  // }
-
+  }
   return true;
 }
 
