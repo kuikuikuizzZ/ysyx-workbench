@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
+#define HEX_PREFIX "0x"
 
 int printf(const char *fmt, ...) {
   int i = 0;
@@ -32,6 +33,8 @@ int printf(const char *fmt, ...) {
         case 'x':
           out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_HEX);
+          putstr(HEX_PREFIX);
+          rc+=2;
           putstr(s);
           rc+= strlen(s);
           break;
@@ -81,6 +84,8 @@ int sprintf(char *out, const char *fmt, ...) {
           break;
         case 'x':
           out_int = va_arg(argp,int ); 
+          strncpy(&out[rc],"0x",2);
+          rc+=2;
           klib_itoa(out_int,s,ITOA_HEX);
           len = strlen(s);
           strncpy(&out[rc],s,len);

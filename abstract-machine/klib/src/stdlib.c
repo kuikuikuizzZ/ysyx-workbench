@@ -64,8 +64,6 @@ void itoa_hex(unsigned n, char s[]){
     s[i++] = (n%16>=10)?n%16+'a':n%16+'0';
   }while ((n/=16)>0);
   // HEX_PREFIX
-  s[i++] = 'x';
-  s[i++] = '0';
   s[i] = '\0';
   reverse(s);
 }
