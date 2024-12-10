@@ -61,10 +61,11 @@ int sprintf(char *out, const char *fmt, ...) {
       if (fmt[i]=='%'){
         i++;
         char s[12];
-        int out_int = va_arg(argp,int ); 
+        int out_int = 0;
         switch (fmt[i])
         {
         case 'd':
+          out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_DEC);
           len = strlen(s);
           strncpy(&out[rc],s,len);
@@ -77,6 +78,7 @@ int sprintf(char *out, const char *fmt, ...) {
           rc+= len;
           break;
         case 'x':
+          out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_HEX);
           len = strlen(s);
           strncpy(&out[rc],s,len);
