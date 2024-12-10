@@ -30,8 +30,7 @@ int atoi(const char* nptr) {
   return x;
 }
 
-void reverse(char s[]){
-  int n = strlen(s);
+void reverse(char s[],int n ){
   int i,j,c;
   for (i=0,j=n-1;i<j;i++,j--){
     c = s[i];
@@ -55,8 +54,8 @@ void itoa_dec(int n , char s[]){
   if (sign<0){
     s[i++]='-';
   }
+  reverse(s,i);
   s[i] = '\0';
-  reverse(s);
 }
 
 void itoa_hex(int n, char s[]){
@@ -69,8 +68,8 @@ void itoa_hex(int n, char s[]){
   do{
     s[i++] = (n%16>=10)?n%16+'a':n%16+'0';
   }while ((n/=16)>0);
+  reverse(s,i);
   s[i] = '\0';
-  reverse(s);
 }
 
 void klib_itoa(int n , char s[], int type){
