@@ -61,7 +61,7 @@ void itoa_dec(int n , char s[]){
 void itoa_hex(unsigned n, char s[]){
   int i=0; 
   do{
-    s[i++] = (n%16>=10)?n%16+'a':n%16+'0';
+    s[i++] = (n%16>=10)?n%16+'a'-10:n%16+'0';
   }while ((n/=16)>0);
   // HEX_PREFIX
   s[i] = '\0';
