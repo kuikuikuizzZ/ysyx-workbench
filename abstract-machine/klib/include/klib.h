@@ -11,6 +11,8 @@ extern "C" {
 
 // #define __NATIVE_USE_KLIB__
 
+ enum { ITOA_DEC,ITOA_HEX};
+
 // string.h
 void  *memset    (void *s, int c, size_t n);
 void  *memcpy    (void *dst, const void *src, size_t n);
@@ -30,7 +32,7 @@ void  *malloc    (size_t size);
 void   free      (void *ptr);
 int    abs       (int x);
 int    atoi      (const char *nptr);
-void   klib_itoa      (int n,  char* s);
+void   klib_itoa      (int n,  char* s,int t);
 // stdio.h
 int    printf    (const char *format, ...);
 int    sprintf   (char *str, const char *format, ...);
