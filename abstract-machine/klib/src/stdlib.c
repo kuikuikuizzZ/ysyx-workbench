@@ -40,7 +40,7 @@ void reverse(char s[]){
   }
 }
 
-void klib_itoa(int n , char s[]){
+void itoa_dec(int n , char s[]){
   if (n ==INT32_MIN ){
     char *res = "-2147483648";
     memcpy(s,res,12);
@@ -48,7 +48,6 @@ void klib_itoa(int n , char s[]){
   }
   int i=0,sign=0;
   n = ((sign=n)<0)?-n:n;
- 
   do{
     s[i++] = n%10+'0';
   }while ((n/=10)>0);
@@ -57,6 +56,25 @@ void klib_itoa(int n , char s[]){
   }
   s[i] = '\0';
   reverse(s);
+}
+
+void itoa_hex(unsigned n, char s[]){
+  int i=0; 
+  do{
+    s[i++] = (n%16>=10)?n%16+'a'-10:n%16+'0';
+  }while ((n/=16)>0);
+  // HEX_PREFIX
+  s[i] = '\0';
+  reverse(s);
+}
+
+void klib_itoa(int n , char s[], int type){
+  switch (type){
+  case ITOA_DEC: itoa_dec(n,s); break;
+  case ITOA_HEX: itoa_hex((unsigned)n,s); break;
+  default:break;
+  }
+  return;
 }
 
 void *malloc(size_t size) {

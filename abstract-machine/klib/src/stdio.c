@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
+#define HEX_PREFIX "0x"
 
 int printf(const char *fmt, ...) {
   int i = 0;
@@ -12,14 +13,15 @@ int printf(const char *fmt, ...) {
   va_start(argp,fmt);
 
   for (i=0;fmt[i] != '\0';i++){
+      char s[12];
+      int out_int = 0; 
       if (fmt[i]=='%'){
         i++;
         switch (fmt[i])
         {
         case 'd':
-          int out_int = va_arg(argp,int ); 
-          char s[12];
-          klib_itoa(out_int,s);
+          out_int = va_arg(argp,int ); 
+          klib_itoa(out_int,s,ITOA_DEC);
           putstr(s);
           rc+= strlen(s);
           break;
@@ -27,6 +29,14 @@ int printf(const char *fmt, ...) {
           char* out_string = va_arg(argp,char*);
           putstr(out_string);
           rc+= strlen(out_string);
+          break;
+        case 'x':
+          out_int = va_arg(argp,int ); 
+          klib_itoa(out_int,s,ITOA_HEX);
+          putstr(HEX_PREFIX);
+          rc+=2;
+          putstr(s);
+          rc+= strlen(s);
           break;
         default:
           break;
@@ -52,14 +62,16 @@ int sprintf(char *out, const char *fmt, ...) {
   va_start(argp,fmt);
 
   for (i=0;fmt[i] != '\0';i++){
+    
       if (fmt[i]=='%'){
         i++;
+        char s[12];
+        int out_int = 0;
         switch (fmt[i])
         {
         case 'd':
-          int out_int = va_arg(argp,int ); 
-          char s[12];
-          klib_itoa(out_int,s);
+          out_int = va_arg(argp,int ); 
+          klib_itoa(out_int,s,ITOA_DEC);
           len = strlen(s);
           strncpy(&out[rc],s,len);
           rc+= len;
@@ -68,6 +80,15 @@ int sprintf(char *out, const char *fmt, ...) {
           char* out_string = va_arg(argp,char*);
           len = strlen(out_string);
           strncpy(&out[rc],out_string,len);
+          rc+= len;
+          break;
+        case 'x':
+          out_int = va_arg(argp,int ); 
+          strncpy(&out[rc],HEX_PREFIX,2);
+          rc+=2;
+          klib_itoa(out_int,s,ITOA_HEX);
+          len = strlen(s);
+          strncpy(&out[rc],s,len);
           rc+= len;
           break;
         default:
