@@ -90,6 +90,7 @@ void *malloc(size_t size) {
   for (uint64_t *p = (uint64_t *)old; p != (uint64_t *)hbrk; p ++) {
     *p = 0;
   }
+  printf("in malloc\n");
   return old;
   // #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
     // panic("Not implemented!\n");
