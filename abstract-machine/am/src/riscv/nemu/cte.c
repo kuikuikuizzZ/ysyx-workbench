@@ -35,6 +35,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
+  printf("start %x, end %x",kstack.start,kstack.end);
   Context *c = kstack.end;              // ? pointer kstart 
   c->mstatus = 0x1800;   
   c-> mepc = (uint32_t)entry;             // mepc is set to entry 
