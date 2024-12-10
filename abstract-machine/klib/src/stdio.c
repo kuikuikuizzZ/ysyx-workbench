@@ -13,12 +13,13 @@ int printf(const char *fmt, ...) {
 
   for (i=0;fmt[i] != '\0';i++){
       char s[12];
-      int out_int = va_arg(argp,int ); 
+      int out_int = 0; 
       if (fmt[i]=='%'){
         i++;
         switch (fmt[i])
         {
         case 'd':
+          out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_DEC);
           putstr(s);
           rc+= strlen(s);
@@ -29,6 +30,7 @@ int printf(const char *fmt, ...) {
           rc+= strlen(out_string);
           break;
         case 'x':
+          out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_HEX);
           putstr(s);
           rc+= strlen(s);
