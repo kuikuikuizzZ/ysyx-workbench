@@ -47,7 +47,7 @@ __am_asm_trap:
   csrr t0, mcause
   csrr t1, mstatus
   csrr t2, mepc
-//  addi t2, t2, XLEN
+  addi t2, t2, XLEN
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
