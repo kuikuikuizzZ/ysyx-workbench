@@ -4,15 +4,13 @@ module ysyx_24100012_partial_load #(
         input clk,
         input rst,
         input MemREn,
-        input [3:0] func7_6_func3,
+        input [2:0] load_sel,
         input [DATA_WIDTH-1:0] out_addr,
         output [DATA_WIDTH-1:0] data
     );
     
     wire [DATA_WIDTH-1:0] length;  
-    wire [2:0] load_sel;
     wire [DATA_WIDTH-1:0] mem_data;
-    assign load_sel = func7_6_func3[2:0];         
     ysyx_24100012_MuxKeyWithDefault #(5,3,32) mul_length (
         length,
         load_sel,

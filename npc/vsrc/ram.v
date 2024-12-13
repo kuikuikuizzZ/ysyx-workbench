@@ -10,7 +10,6 @@ module ysyx_24100012_ram #(
     input MemWEn,
     input MemREn,
     input [DATA_WIDTH-1:0] length,  //? should be 32bits? dpi-c need to match
-    // input sign,
     input [ADDR_WIDTH-1:0] inaddr,
     input [DATA_WIDTH-1:0] din,
     input [ADDR_WIDTH-1:0] outaddr,
@@ -27,4 +26,5 @@ module ysyx_24100012_ram #(
             dout=32'0;
         end
     end
+    // assign  dout=32'0;
 endmodule

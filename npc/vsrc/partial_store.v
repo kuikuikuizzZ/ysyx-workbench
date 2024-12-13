@@ -4,7 +4,7 @@ module ysyx_24100012_partial_store #(
         input clk,
         input rst,
         input MemWEn,
-        input [3:0] func7_6_func3,
+        input [2:0] func3,
         input [DATA_WIDTH-1:0] addr,
         input [DATA_WIDTH-1:0] data
     );
@@ -12,7 +12,7 @@ module ysyx_24100012_partial_store #(
     wire [DATA_WIDTH-1:0] length;  
     wire [1:0] store_sel;
     wire [DATA_WIDTH-1:0] dout;
-    assign store_sel = func7_6_func3[1:0];         
+    assign store_sel = func3[1:0];         
     ysyx_24100012_MuxKeyWithDefault #(3,2,32) mul_store (
         length,
         store_sel,

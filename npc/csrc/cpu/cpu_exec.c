@@ -49,14 +49,12 @@ void sync_cpu(){
 }
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, Wen: %d, inst: %.8x, imm %u,rd: %u writedata: %x a0 = %x,ra = %x,a8 = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, imm %u, writedata: %x a0 = %x,ra = %x,a8 = %x\n",
         top->io_halt,
         top_pc,
         top_dnpc,
-        top->ysyx_24100012_top__DOT__WEn,
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
-        top->ysyx_24100012_top__DOT__rd,
         top->ysyx_24100012_top__DOT__writeData,
         gpr(10),
         gpr(1),
