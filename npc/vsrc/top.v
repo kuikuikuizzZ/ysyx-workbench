@@ -36,6 +36,7 @@ module ysyx_24100012_top (
 
   // ysyx_24100012_rom  #(ADDR_WIDTH,DATA_WIDTH) mem (pc,inst);
   ysyx_24100012_inst_decode #(DATA_WIDTH)idu (
+    clk,
     inst,
     imm,
     func7_6_func3,
@@ -74,6 +75,7 @@ module ysyx_24100012_top (
     }); 
   
   ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) branch_comp (
+    clk,
     func7_6_func3,
     inst_type,
     readData1,
@@ -121,7 +123,7 @@ endmodule
 
 
 
-module ysyx_24100012_inst_fetch #(ADDR_WIDTH,DATA_WIDTH,ORIGIN_ADDR,WORD_SIZE=4) (
+module ysyx_24100012_inst_fetch #(ADDR_WIDTH=32,DATA_WIDTH=32,ORIGIN_ADDR=32'h80000000,WORD_SIZE=4) (
   input clk,
   input rst,
   input PCSel,

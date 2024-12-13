@@ -1,6 +1,6 @@
 module ysyx_24100012_partial_store #(
-    ADDR_WIDTH,
-    DATA_WIDTH)(
+    ADDR_WIDTH=32,
+    DATA_WIDTH=32)(
         input clk,
         input rst,
         input MemWEn,

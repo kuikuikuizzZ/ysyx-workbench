@@ -1,4 +1,5 @@
-module ysyx_24100012_inst_decode #(DATA_WIDTH) (
+module ysyx_24100012_inst_decode #(DATA_WIDTH=32) (
+    input clk,
     input [DATA_WIDTH-1:0] instruction,
     output reg [DATA_WIDTH-1:0]  imm ,
     output reg [3:0]        func7_6_func3,
@@ -16,7 +17,7 @@ module ysyx_24100012_inst_decode #(DATA_WIDTH) (
 );
     parameter [2:0] R_Type=3'b000,I_Type=3'b001,B_Type=3'b010, S_Type=3'b100;
     parameter [2:0] J_Type=3'b011,U_Type=3'b101, Is_Type = 3'b110, L_Type=3'b111;
-    parameter [1:0] WBALU=2'b00, WBPc=2'b01,WBLoad=2'b10,WBNone=2'b11;;
+    parameter [1:0] WBALU=2'b00, WBPc=2'b01,WBLoad=2'b10,WBNone=2'b11;
     
     wire [6:0] opcode; 
     wire [2:0] func3;

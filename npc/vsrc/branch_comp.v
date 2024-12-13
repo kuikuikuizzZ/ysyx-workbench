@@ -1,5 +1,5 @@
-
-module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
+module ysyx_24100012_branch_comp #(ADDR_WIDTH=32,DATA_WIDTH=32) (
+    input clk,
     input [3:0] func7_6_func3,
     input [2:0] instType,
     input [DATA_WIDTH-1:0] rs1,

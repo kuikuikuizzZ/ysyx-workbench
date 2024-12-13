@@ -1,7 +1,7 @@
 module ysyx_24100012_regfiles #(
-    ADDR_WIDTH,
-    DATA_WIDTH,
-    N_REG,
+    ADDR_WIDTH=32,
+    DATA_WIDTH=32,
+    N_REG=32,
     INPUT_INDEX_LEN=5,
     INDEX_LEN=5)(
     input clk,
