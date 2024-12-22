@@ -7,11 +7,24 @@
 
 // const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
 const int gpr_size = 16;
-
+const int csr_size = 5;
+typedef enum  {
+  // STAP    = 0x180, 
+  // MSTATUS = 0x300,
+  // MTVEC   = 0x305,
+  // MEPC    = 0x341,
+  // MCAUSE  = 0x342,
+  STAP    = 0, 
+  MSTATUS = 1,
+  MTVEC   = 2,
+  MEPC    = 3,
+  MCAUSE  = 4,
+} csrs;
 
 typedef struct {
     word_t gpr[gpr_size];
     vaddr_t pc; 
+    word_t csr[csr_size];
 } CPU_state;
 
 // this is not consistent with uint8_t

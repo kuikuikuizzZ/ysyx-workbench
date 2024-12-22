@@ -83,13 +83,14 @@ void init_device() {
   init_serial();
   init_timer();
   init_vga();
+  init_alarm();
+  init_i8042();
+
   // IFDEF(CONFIG_HAS_TIMER, init_timer());
   // IFDEF(CONFIG_HAS_VGA, init_vga());
   // IFDEF(CONFIG_HAS_KEYBOARD, init_i8042());
   // IFDEF(CONFIG_HAS_AUDIO, init_audio());
   // IFDEF(CONFIG_HAS_DISK, init_disk());
   // IFDEF(CONFIG_HAS_SDCARD, init_sdcard());
-  init_alarm();
-  init_i8042();
   // IFNDEF(CONFIG_TARGET_AM, init_alarm());
 }

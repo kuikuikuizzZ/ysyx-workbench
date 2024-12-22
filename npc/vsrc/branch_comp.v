@@ -4,7 +4,7 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH=32,DATA_WIDTH=32) (
     input [1:0] PCType,
     input [DATA_WIDTH-1:0] rs1,
     input [DATA_WIDTH-1:0] rs2,    
-    output PCSel
+    output [1:0] PCSel
 );
     wire [DATA_WIDTH-1:0] signedRes, unSignRes;
     wire branchPCSel;
@@ -20,12 +20,6 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH=32,DATA_WIDTH=32) (
         3'b110, rs1<rs2,
         3'b111, rs1>=rs2
     });
-    ysyx_24100012_MuxKeyWithDefault #(
-        2,2) mul_pc (
-        PCSel,
-        PCType,
-        1'b0,{
-        2'b10, branchPCSel,        // B_Type
-        2'b01, 1'b1                // J_Type
-    });
+    
+    assign PCSel = {1'b0,branchPCSel};
 endmodule

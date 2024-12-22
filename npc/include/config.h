@@ -6,6 +6,8 @@
 // #define CONFIG_DIFFTEST
 #define CONFIG_RVE          // use riscv32e
 // #define CONFIG_WATCH_TOP
+// #define WATCH_INST (0x30571073)
+
 
 #define CONFIG_DEVICE
 
