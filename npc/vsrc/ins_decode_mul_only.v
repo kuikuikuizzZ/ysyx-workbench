@@ -18,13 +18,13 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
     output reg                      MemWEn,
     output reg                      MemREn,
     output reg [1:0]                WBSel,
-    output reg [1:0]                csrTypeOut
+    output reg [1:0]                csrType
 );
     parameter [1:0] WBALU=2'b00, WBPc=2'b01,WBLoad=2'b10,WBNone=2'b11;
-    parameter [1:0] PCTypeJ=2'b01, PCTypeB=2'b10,PCTypeCSR=2'b11;
+    parameter [1:0] PCNext=2'b00,PCTypeJ=2'b01, PCTypeB=2'b10,PCTypeCSR=2'b11;
     parameter [1:0]  CSRNormal=2'b00, ECALL=2'b01, MRET=2'b10, NoCSR=2'b11;
     wire csrWB;
-    wire [1:0] csrType;
+    wire [1:0] csrTypeNoOpcode,csrPC;
     wire [6:0] opcode; 
     wire [7:0] sels,csr_sels; 
     wire [3:0] ALUSel_I;
@@ -50,30 +50,40 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
         opcode,{
             7'b0100011,1'b1
         }); 
-
     
-    ysyx_24100012_MuxKeyWithDefault #(4,7,2) mul_PCType (
-        PCType,
-        opcode,
-        2'b0,{
-            7'b1101111,PCTypeJ,
-            7'b1100111,PCTypeJ,
-            7'b1100011,PCTypeB,
-            7'b1110011,PCTypeCSR
-        }); 
     ysyx_24100012_MuxKeyWithDefault #(2,32,2) mul_CSRType (
-        csrType,
+        csrTypeNoOpcode,
         instruction,
         CSRNormal,{
             32'h00000073, ECALL,
             32'h30200073, MRET
         }); 
     ysyx_24100012_MuxKeyWithDefault #(1,7,2) mul_isPriv (
-        csrTypeOut,
+        csrType,
         opcode,
         NoCSR,{
-            7'b1110011,csrType
+            7'b1110011,csrTypeNoOpcode
         }); 
+    
+    ysyx_24100012_MuxKeyWithDefault #(2,2,2) mul_csrPC(
+        csrPC,
+        csrTypeNoOpcode,
+        PCNext,{
+            ECALL,PCTypeCSR,
+            MRET, PCTypeCSR
+        });
+    
+    ysyx_24100012_MuxKeyWithDefault #(4,7,2) mul_PCType (
+        PCType,
+        opcode,
+        PCNext,{
+            7'b1101111,PCTypeJ,
+            7'b1100111,PCTypeJ,
+            7'b1100011,PCTypeB,
+            7'b1110011,csrPC
+        }); 
+
+
     ysyx_24100012_MuxKeyWithDefault #(2,3,4) mul_ALUSel_I (
         ALUSel_I,
         func3,
@@ -81,12 +91,13 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
             3'b101,{instruction[30], func3},
             3'b001,{instruction[30], func3}
         }); 
-    ysyx_24100012_MuxKeyWithDefault #(2,7,4) mul_ALUSel (
+    ysyx_24100012_MuxKeyWithDefault #(3,7,4) mul_ALUSel (
         ALUSel,
         opcode,
         4'h0,{
             7'b0110011,     {instruction[30], func3},
-            7'b0010011,     ALUSel_I
+            7'b0010011,     ALUSel_I,
+            7'b1110011,     {1'b0,func3}
         }); 
     ysyx_24100012_MuxKeyWithDefault #(2,3,32) mul_immI (
         imm_I_temp,
@@ -112,10 +123,11 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
         });
 
     // csrASel 1 chose csr,else chose asel_out, csrBsel 1 chose csr else chose bsel_out
-    ysyx_24100012_MuxKeyWithDefault #(5,3,8) mul_csrSel (
+    ysyx_24100012_MuxKeyWithDefault #(6,3,8) mul_csrSel (
         csr_sels,
         func3,
         8'b00000111,{
+            3'b001,8'b11010011,             
             3'b010,8'b11010011,             
             3'b011,8'b11010011,
             3'b101,8'b11100111,
@@ -124,7 +136,7 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
         });
     ysyx_24100012_MuxKeyWithDefault #(2,2,8) mul_sel (
         {CSRWEn, WEn,csrAsel,csrBSel,ASel,BSel,WBSel},
-        csrTypeOut,
+        csrType,
         8'b00000111,{
             NoCSR,sels,
             CSRNormal,csr_sels             

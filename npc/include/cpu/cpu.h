@@ -12,8 +12,8 @@
 #define top_dnpc (top->ysyx_24100012_top__DOT__ifu__DOT__PCIn)
 #define top_pc (top->ysyx_24100012_top__DOT__pc)
 #define top_halt (top->io_halt)
-#define top_ecall (top->ecall)
 #define top_inst (top->ysyx_24100012_top__DOT__inst)
+
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)
 
 extern Vysyx_24100012_top* top ;

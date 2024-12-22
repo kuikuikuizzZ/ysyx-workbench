@@ -45,16 +45,24 @@ void sync_cpu(){
 }
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, imm %u, writedata: %x a0 = %x,ra = %x,a8 = %x\n",
+    // if (!(top->ysyx_24100012_top__DOT__inst==WATCH_INST)) return;
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x,func3 %d, imm %u, writedata: %x , writeCSR: %x,CSR: %d,alu_a: %x,alu_b: %x, a0 = %x,ra = %x,a%d = %x\n",
         top->io_halt,
         top_pc,
         top_dnpc,
         top->ysyx_24100012_top__DOT__inst,
+        top->ysyx_24100012_top__DOT__ALUSel,
         top->ysyx_24100012_top__DOT__imm,
         top->ysyx_24100012_top__DOT__writeData,
+        top->ysyx_24100012_top__DOT__AluOut,
+        top->ysyx_24100012_top__DOT__csrType,
+        top->ysyx_24100012_top__DOT__alu_a,
+        top->ysyx_24100012_top__DOT__alu_b,
+
         gpr(10),
         gpr(1),
-        gpr(8));
+        14,
+        gpr(14));
 }
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.

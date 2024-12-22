@@ -22,9 +22,10 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=4)(
             4'b0110, in_a | in_b,                       //or
             4'b0111, in_a & in_b                        //and
         });
-    ysyx_24100012_MuxKey #(5,4,DATA_WIDTH) alu_priv (
+    ysyx_24100012_MuxKey #(6,4,DATA_WIDTH) alu_priv (
         priv_out,
         alu_sel,{
+            4'b0001, in_a,                              //x[rs1]
             4'b0010, in_a|in_b,                         //t|x[rs1]
             4'b0011, in_a & ~in_b,                      //t&~x[rs1]
             4'b0101, in_a & ~in_b,                       //t&~imm
@@ -35,7 +36,7 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=4)(
         out,
         csrType,
         32'b0,{
-            2'b00, priv_out,                         //t|x[rs1]
+            2'b00, priv_out,                            
             2'b11, nopriv_out
         });
     // always@(*)

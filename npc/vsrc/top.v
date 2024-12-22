@@ -18,7 +18,7 @@ module ysyx_24100012_top (
   wire [4:0] rs1,rs2,rd;
   wire [DATA_WIDTH-1:0] imm,alu_a,alu_b,aSelOut,bSelOut;
   wire [DATA_WIDTH-1:0] readData1,readData2,writeData;
-  wire [DATA_WIDTH-1:0]   csrWriteData,csrReadData;
+  wire [DATA_WIDTH-1:0]  csrReadData;
   wire [CSR_INPUT_INDEXLEN-1:0] csr_index;
       
   ysyx_24100012_inst_fetch #(
