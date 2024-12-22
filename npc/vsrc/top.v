@@ -106,14 +106,14 @@ module ysyx_24100012_top (
     alu_a,
     csrASel,{ 
       1'b0, aSelOut,
-      1'b1, csr_read_data
+      1'b1, csrReadData
     }); 
 
   ysyx_24100012_MuxKey #(2,1,DATA_WIDTH) mul_csrB (
     alu_b,
     csrBSel,{ 
       1'b0, bSelOut,
-      1'b1, csr_read_data
+      1'b1, csrReadData
     }); 
   
   ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) branch_comp (
@@ -166,7 +166,7 @@ module ysyx_24100012_top (
       2'b00, AluOut,
       2'b01, PCNext,
       2'b10, DMemLoad,
-      2'b11, csrReadData,
+      2'b11, csrReadData
     }); 
 
   assign io_halt = inst== 32'h00100073;
