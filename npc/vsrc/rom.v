@@ -1,4 +1,4 @@
-module ysyx_24100012_rom #(ADDR_WIDTH,DATA_WIDTH)(
+module ysyx_24100012_rom #(ADDR_WIDTH=32,DATA_WIDTH=32)(
     input [ADDR_WIDTH-1:0] addr,
     output reg [DATA_WIDTH-1:0] val
 );

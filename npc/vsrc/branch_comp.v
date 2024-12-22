@@ -1,16 +1,14 @@
-
-module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
-    input [3:0] func7_6_func3,
-    input [2:0] instType,
+module ysyx_24100012_branch_comp #(ADDR_WIDTH=32,DATA_WIDTH=32) (
+    input clk,
+    input [2:0] func3,
+    input [1:0] PCType,
     input [DATA_WIDTH-1:0] rs1,
     input [DATA_WIDTH-1:0] rs2,    
-    output PCSel
+    output [1:0] PCSel
 );
-    wire [2:0] func3;
     wire [DATA_WIDTH-1:0] signedRes, unSignRes;
     wire branchPCSel;
     assign unSignRes = rs1-rs2;
-    assign func3 = func7_6_func3[2:0];
     ysyx_24100012_MuxKeyWithDefault #( 6,3 ) branch_comp (
         branchPCSel,
         func3,
@@ -22,13 +20,6 @@ module ysyx_24100012_branch_comp #(ADDR_WIDTH,DATA_WIDTH) (
         3'b110, rs1<rs2,
         3'b111, rs1>=rs2
     });
-    ysyx_24100012_MuxKeyWithDefault #(
-        2,3) mul_pc (
-        PCSel,
-        instType,
-        1'b0,{
-        3'b010, branchPCSel,        // B_Type
-        3'b011, 1'b1                // J_Type
-    });
-
+    
+    assign PCSel = {1'b0,branchPCSel};
 endmodule

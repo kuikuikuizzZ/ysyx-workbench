@@ -4,11 +4,8 @@
 #include <ringbuffer.h>
 #include "verilated_vpi.h"  // Required to get definitions
 
-#define gpr(i) (top->ysyx_24100012_top__DOT__regfiles__DOT__reg_output_list[i])
-#define top_dnpc (top->ysyx_24100012_top__DOT__ifu__DOT__PCIn)
-#define top_pc (top->ysyx_24100012_top__DOT__pc)
-#define top_halt (top->io_halt)
-#define top_inst (top->ysyx_24100012_top__DOT__inst)
+Vysyx_24100012_top* top = NULL;
+
 
 
 const char *regs[] = {
@@ -18,9 +15,8 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-
+extern Vysyx_24100012_top* top;
 CPU_state cpu = {};
-Vysyx_24100012_top* top = NULL;
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 
@@ -49,14 +45,12 @@ void sync_cpu(){
 }
 
 void watch_top(){
-    printf(" io_halt %d ,pc %x,dnpc %x, Wen: %d, inst: %.8x, imm %u,rd: %u writedata: %x a0 = %x,ra = %x,a8 = %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, imm %u, writedata: %x a0 = %x,ra = %x,a8 = %x\n",
         top->io_halt,
         top_pc,
         top_dnpc,
-        top->ysyx_24100012_top__DOT__WEn,
         top->ysyx_24100012_top__DOT__inst,
         top->ysyx_24100012_top__DOT__imm,
-        top->ysyx_24100012_top__DOT__rd,
         top->ysyx_24100012_top__DOT__writeData,
         gpr(10),
         gpr(1),
