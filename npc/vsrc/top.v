@@ -18,7 +18,7 @@ module ysyx_24100012_top (
   wire [4:0] rs1,rs2,rd;
   wire [DATA_WIDTH-1:0] imm,alu_a,alu_b,aSelOut,bSelOut;
   wire [DATA_WIDTH-1:0] readData1,readData2,writeData;
-  wire [DATA_WIDTH-1:0]   csr_write_data,csr_read_data;
+  wire [DATA_WIDTH-1:0]   csrWriteData,csrReadData;
   wire [CSR_INPUT_INDEXLEN-1:0] csr_index;
       
   ysyx_24100012_inst_fetch #(
@@ -84,7 +84,7 @@ module ysyx_24100012_top (
       csr_index,
       AluOut,
       pc,
-      csr_read_data,
+      csrReadData,
       csrPC
   );
 
@@ -166,7 +166,7 @@ module ysyx_24100012_top (
       2'b00, AluOut,
       2'b01, PCNext,
       2'b10, DMemLoad,
-      2'b11, 32'b0
+      2'b11, csrReadData,
     }); 
 
   assign io_halt = inst== 32'h00100073;

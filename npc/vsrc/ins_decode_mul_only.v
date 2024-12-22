@@ -104,7 +104,7 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
             7'b0010011, 8'b01000100,                 // I type
             7'b1100011, 8'b00001100,                 // B type
             7'b0000011, 8'b01000110,                 // L type
-            7'b0100011, 8'b00000111,                 // S type
+            7'b0100011, 8'b00000100,                 // S type
             7'b1101111, 8'b01001101,                 // jal 
             7'b1100111, 8'b01000001,                 // jalr
             7'b0010111, 8'b01001100,                 // auipc
@@ -116,11 +116,11 @@ module ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH=32,CSR_INDEXLEN=12) (
         csr_sels,
         func3,
         8'b00000111,{
-            3'b010,8'b11010000,             
-            3'b011,8'b11010000,
-            3'b101,8'b11100100,
-            3'b110,8'b11100100,
-            3'b111,8'b11100100
+            3'b010,8'b11010011,             
+            3'b011,8'b11010011,
+            3'b101,8'b11100111,
+            3'b110,8'b11100111,
+            3'b111,8'b11100111
         });
     ysyx_24100012_MuxKeyWithDefault #(2,2,8) mul_sel (
         {CSRWEn, WEn,csrAsel,csrBSel,ASel,BSel,WBSel},
