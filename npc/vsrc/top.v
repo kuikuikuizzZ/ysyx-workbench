@@ -39,7 +39,7 @@ module ysyx_24100012_top (
     MEM_SIZE) IMem (clk,1'b0,1'b1,32'h4,32'h0,32'h0,pc,inst);
 
   // ysyx_24100012_rom  #(ADDR_WIDTH,DATA_WIDTH) mem (pc,inst);
-  ysyx_24100012_inst_decode_mul_only #(DATA_WIDTH,CSR_INPUT_INDEXLEN)idu (
+  ysyx_24100012_inst_decode #(DATA_WIDTH,CSR_INPUT_INDEXLEN)idu (
     clk,
     inst,
     imm,
