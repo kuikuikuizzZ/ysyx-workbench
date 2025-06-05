@@ -43,7 +43,6 @@ extern RingBuffer *log_buff;
 void itrace_once(Decode*s) {
   #ifdef CONFIG_ITRACE
   // 32 match inst name in capstone define
-  printf("In itrace_once\n"); 
   char inst_name[32];
   char *p = s->logbuf;
   p +=  (nemu_state.state != NEMU_ABORT) ? 
