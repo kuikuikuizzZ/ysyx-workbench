@@ -5,8 +5,10 @@ object Elaborate extends App {
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
       "disallowLocalVariables",
       "disallowPackedArrays",
-      "locationInfoStyle=wrapInAtSquareBracket"
-    ).reduce(_ + "," + _)
+      "locationInfoStyle=wrapInAtSquareBracket",
+    ).reduce(_ + "," + _),
   )
-  circt.stage.ChiselStage.emitSystemVerilogFile(new gcd.GCD(), args, firtoolOptions)
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new gcd.GCD(),     
+    firtoolOptions)
 }
