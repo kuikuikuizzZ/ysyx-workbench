@@ -60,6 +60,7 @@ int sprintf(char *out, const char *fmt, ...) {
   int len =0;
   va_list argp;
   va_start(argp,fmt);
+
   for (i=0;fmt[i] != '\0';i++){
     
       if (fmt[i]=='%'){
