@@ -42,9 +42,9 @@ extern RingBuffer *log_buff;
 
 void itrace_once(Decode*s) {
   // 32 match inst name in capstone define
+  #ifdef CONFIG_ITRACE
   char inst_name[32];
   char *p = s->logbuf;
-  #ifdef CONFIG_ITRACE
   p +=  (nemu_state.state != NEMU_ABORT) ? 
       snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc):
       snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
