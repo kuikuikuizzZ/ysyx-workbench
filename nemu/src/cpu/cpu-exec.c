@@ -41,10 +41,10 @@ extern bool wps_diff();
 extern RingBuffer *log_buff;
 
 void itrace_once(Decode*s) {
-  #ifdef CONFIG_ITRACE
   // 32 match inst name in capstone define
   char inst_name[32];
   char *p = s->logbuf;
+  #ifdef CONFIG_ITRACE
   p +=  (nemu_state.state != NEMU_ABORT) ? 
       snprintf(p, LOG_BUFSIZE,"    " FMT_WORD ":", s->pc):
       snprintf(p, LOG_BUFSIZE," -->" FMT_WORD ":", s->pc);
