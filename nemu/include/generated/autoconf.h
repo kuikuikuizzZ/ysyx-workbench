@@ -22,7 +22,6 @@
 #define CONFIG_PMEM_MALLOC 1
 #define CONFIG_CC "gcc"
 #define CONFIG_DIFFTEST_REF_PATH "none"
-#define CONFIG_CC_DEBUG 1
 #define CONFIG_TRACE_START 0
 #define CONFIG_CC_GCC 1
 #define CONFIG_TRACE 1
