@@ -38,7 +38,7 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
 
   while(nwrite < len) {
     outl(AUDIO_SBUF_ADDR+pos+nwrite, (uint32_t)(ctl->buf.start + sizeof(ctl->buf.start)*nwrite));
-    nwrite += 1; // each write is 4 bytes (uint32_t)
+    nwrite += 4; // each write is 4 bytes (uint32_t)
   }
   outl(AUDIO_COUNT_ADDR, inl(AUDIO_COUNT_ADDR)+len);
   pos+= nwrite;
