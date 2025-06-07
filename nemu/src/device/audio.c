@@ -77,6 +77,6 @@ void init_audio() {
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
   init_audio_ctrl(audio_base);
-  audio_base[reg_init] = sbuf != NULL ? 1 : 0; 
+  audio_base[reg_init]=0;
   audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
 }
