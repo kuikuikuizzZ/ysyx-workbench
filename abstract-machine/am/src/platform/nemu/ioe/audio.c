@@ -13,7 +13,7 @@ void __am_audio_init() {
 }
 
 void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
-  cfg->present = inl(AUDIO_INIT_ADDR)? true: false;
+  cfg->present = true;
 }
 
 void __am_audio_ctrl(AM_AUDIO_CTRL_T *ctrl) {
