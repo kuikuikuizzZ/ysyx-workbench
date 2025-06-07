@@ -47,6 +47,8 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
     memset(stream + nread, 0, len - nread);
   }
   memset(sbuf, 0, audio_base[reg_sbuf_size]);
+  audio_base[reg_count]=0;
+  last = 0;
 }
 
 void init_audio_ctrl(u_int32_t* audio_base) {
