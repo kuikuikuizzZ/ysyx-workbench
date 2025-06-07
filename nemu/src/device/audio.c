@@ -65,6 +65,7 @@ void init_audio_ctrl(u_int32_t* audio_base) {
   }
 }
 void init_audio() {
+  printf("Initializing audio device...\n");
   uint32_t space_size = sizeof(uint32_t) * nr_reg;
   audio_base = (uint32_t *)new_space(space_size);
 #ifdef CONFIG_HAS_PORT_IO
