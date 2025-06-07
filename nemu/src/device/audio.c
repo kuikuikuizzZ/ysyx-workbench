@@ -46,6 +46,7 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
       memset(stream + nread, 0, len - nread);
     }
     audio_base[reg_count] -= nread;
+    SDL_Delay(10);
   }
   if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
   memcpy(stream,sbuf, nread);
