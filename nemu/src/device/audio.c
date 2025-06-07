@@ -47,7 +47,6 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 
-
 static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
   if (tail - front < len) nread = tail - front;

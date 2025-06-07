@@ -8,30 +8,29 @@
 #define AUDIO_INIT_ADDR      (AUDIO_ADDR + 0x10)
 #define AUDIO_COUNT_ADDR     (AUDIO_ADDR + 0x14)
 
-static volatile int pos = 0;
 
 void __am_audio_init() {
-
+  outl(AUDIO_INIT_ADDR, 0);
 }
 
-void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
+void __am_audio_config(AM_AUDIO_CONFIG_T* cfg) {
   cfg->present = true;
+  cfg->bufsize = inl(AUDIO_SBUF_SIZE_ADDR);
 }
 
-void __am_audio_ctrl(AM_AUDIO_CTRL_T *ctrl) {
-  outl(AUDIO_FREQ_ADDR,ctrl->freq);
+void __am_audio_ctrl(AM_AUDIO_CTRL_T* ctrl) {
+  outl(AUDIO_FREQ_ADDR, ctrl->freq);
   outl(AUDIO_CHANNELS_ADDR, ctrl->channels);
   outl(AUDIO_SAMPLES_ADDR, ctrl->samples);
-  outl(AUDIO_COUNT_ADDR, 0);
+  outl(AUDIO_INIT_ADDR, 1);
 }
 
-void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
+void __am_audio_status(AM_AUDIO_STATUS_T* stat) {
   stat->count = inl(AUDIO_COUNT_ADDR);
 }
 
-void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
-  uint32_t* ptr = ctl->buf.start;
-  uint32_t* end = ctl->buf.end;
+void __am_audio_play(AM_AUDIO_PLAY_T* ctl) {
+  uintptr_t ptr = (uintptr_t)ctl->buf.start, end = (uintptr_t)ctl->buf.end;
   int block_size = inl(AUDIO_SBUF_SIZE_ADDR);
   for (;ptr < end;) {
     int count = inl(AUDIO_COUNT_ADDR);
