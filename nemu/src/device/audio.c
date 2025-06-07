@@ -39,7 +39,6 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
   if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
   void* res = memcpy(stream,sbuf, nread);
   if (res == NULL) {
-    fprintf(stderr, "Error: memcpy failed in audio_play\n");
     return;
   }
 
