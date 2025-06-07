@@ -26,6 +26,9 @@ enum {
   reg_count,
   nr_reg
 };
+static uint8_t* sbuf = NULL;
+static uint32_t* audio_base = NULL;
+
 #define AUDIO_FREQ_ADDR      0x00
 #define AUDIO_CHANNELS_ADDR  0x04
 #define AUDIO_SAMPLES_ADDR   0x08
@@ -33,21 +36,39 @@ enum {
 #define AUDIO_INIT_ADDR      0x10
 #define AUDIO_COUNT_ADDR     0x14
 
-static uint8_t *sbuf = NULL;
-static uint32_t *audio_base = NULL;
+SDL_AudioSpec s = {};
 static int front = 0, tail = 0;
+
+void work(uint32_t x);
+
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset) {
+  case AUDIO_FREQ_ADDR: assert(is_write);
+    s.freq = *(audio_base + AUDIO_FREQ_ADDR / 4);
+    break;
+  case AUDIO_CHANNELS_ADDR: assert(is_write);
+    s.channels = *(audio_base + (AUDIO_CHANNELS_ADDR) / 4);
+    break;
+  case AUDIO_SAMPLES_ADDR: assert(is_write);
+    s.samples = *(audio_base + (AUDIO_SAMPLES_ADDR) / 4);
+    break;
+  case AUDIO_SBUF_SIZE_ADDR: assert(!is_write);
+    assert(*(audio_base + (AUDIO_SBUF_SIZE_ADDR) / 4) == CONFIG_SB_SIZE);
+    break;
   case AUDIO_COUNT_ADDR:
     if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR / 4);
     else *(audio_base + (AUDIO_COUNT_ADDR) / 4) = tail;
     assert(tail <= CONFIG_SB_SIZE);
     break;
-  default: printf("%d\n", offset);
+  case AUDIO_INIT_ADDR:
+    assert(is_write); work(*(audio_base + (AUDIO_INIT_ADDR) / 4)); break;
+  default: printf("%d\n", offset);assert(0);
   }
 }
 
-static void audio_play(void *userdata, uint8_t *stream, int len) {
+volatile uint32_t get_the_status() { return *(audio_base + (AUDIO_INIT_ADDR) / 4); }
+
+static void mycallback(void* userdata, uint8_t* stream, int len) {
   int nread = len;
   if (tail - front < len) nread = tail - front;
   memcpy(stream, sbuf + front, nread);
@@ -57,34 +78,35 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
   return;
 }
 
-void init_audio_ctrl(u_int32_t* audio_base) {
-  assert(audio_base != NULL);
-
-  SDL_AudioSpec s = {};
-  s.freq = audio_base[reg_freq];
-  s.format = AUDIO_S16SYS;
-  s.channels = audio_base[reg_channels];
-  s.samples = audio_base[reg_samples];
-  s.callback = audio_play;
-  s.userdata = NULL;
-  int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
-  if (ret == 0) {
-    SDL_OpenAudio(&s, NULL);
-    SDL_PauseAudio(0);
+void work(uint32_t x) {
+  if (!x) return;
+  *(audio_base + (AUDIO_INIT_ADDR) / 4) = 0;
+  if (x) {
+    int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    if (!ret) {
+      SDL_OpenAudio(&s, NULL);
+      SDL_PauseAudio(0);
+    }
   }
+  return;
 }
+
 void init_audio() {
-  printf("Initializing audio device...\n");
   uint32_t space_size = sizeof(uint32_t) * nr_reg;
-  audio_base = (uint32_t *)new_space(space_size);
+  audio_base = (uint32_t*)new_space(space_size);
 #ifdef CONFIG_HAS_PORT_IO
-  add_pio_map ("audio", CONFIG_AUDIO_CTL_PORT, audio_base, space_size, audio_io_handler);
+  add_pio_map("audio", CONFIG_AUDIO_CTL_PORT, audio_base, space_size, audio_io_handler);
 #else
   add_mmio_map("audio", CONFIG_AUDIO_CTL_MMIO, audio_base, space_size, audio_io_handler);
 #endif
 
-  sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
+  sbuf = (uint8_t*)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
-  init_audio_ctrl(audio_base);
-  audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
+
+  s.format = AUDIO_S16SYS;
+  s.userdata = NULL;
+  s.callback = mycallback;
+  s.size = *(audio_base + (AUDIO_SBUF_SIZE_ADDR / 4)) = CONFIG_SB_SIZE;
+
+  SDL_InitSubSystem(SDL_INIT_AUDIO);
 }
