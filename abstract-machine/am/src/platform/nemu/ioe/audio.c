@@ -1,5 +1,7 @@
 #include <am.h>
 #include <nemu.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)
 #define AUDIO_CHANNELS_ADDR  (AUDIO_ADDR + 0x04)
@@ -9,7 +11,8 @@
 #define AUDIO_COUNT_ADDR     (AUDIO_ADDR + 0x14)
 
 void __am_audio_init() {
-
+  int fds[2];
+  int ret = pipe2(fds, O_NONBLOCK);
 }
 
 void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
