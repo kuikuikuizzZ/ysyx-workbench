@@ -43,7 +43,6 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
     else *(audio_base + (AUDIO_COUNT_ADDR) / 4) = tail;
     assert(tail <= CONFIG_SB_SIZE);
     break;
-
   default: printf("%d\n", offset);assert(0);
   }
 }
