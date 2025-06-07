@@ -29,7 +29,7 @@ enum {
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
-
+static volatile int last = 0;
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
 
 }
@@ -38,8 +38,10 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
   while(audio_base[reg_count]>0){
     if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
-    memcpy(stream,sbuf, nread);
+    memcpy(stream,sbuf+last, nread);
     audio_base[reg_count] -= nread;
+    last += nread;
+    last %= audio_base[reg_sbuf_size];      
   }
   if (len > nread) {
     memset(stream + nread, 0, len - nread);
@@ -76,6 +78,5 @@ void init_audio() {
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
   init_audio_ctrl(audio_base);
-  audio_base[reg_init]=0;
   audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
 }

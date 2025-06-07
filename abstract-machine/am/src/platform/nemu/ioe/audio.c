@@ -8,6 +8,8 @@
 #define AUDIO_INIT_ADDR      (AUDIO_ADDR + 0x10)
 #define AUDIO_COUNT_ADDR     (AUDIO_ADDR + 0x14)
 
+static volatile int pos = 0;
+
 void __am_audio_init() {
 
 }
@@ -32,9 +34,10 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   int nwrite = 0;
   
   while(nwrite < len) {
-
-    // outl(AUDIO_SBUF_ADDR+nwrite, (uint32_t)(ctl->buf.start + nwrite));
+    outl(AUDIO_SBUF_ADDR+pos, (uint32_t)(ctl->buf.start + nwrite));
     nwrite += 1; // each write is 4 bytes (uint32_t)
     outl(AUDIO_COUNT_ADDR, nwrite);
   }
+  pos =pos+len;
+  pos %= inl(AUDIO_SBUF_SIZE_ADDR); // wrap around if necessary
 }
