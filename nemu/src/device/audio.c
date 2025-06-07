@@ -26,13 +26,28 @@ enum {
   reg_count,
   nr_reg
 };
+#define AUDIO_FREQ_ADDR      0x00
+#define AUDIO_CHANNELS_ADDR  0x04
+#define AUDIO_SAMPLES_ADDR   0x08
+#define AUDIO_SBUF_SIZE_ADDR 0x0c
+#define AUDIO_INIT_ADDR      0x10
+#define AUDIO_COUNT_ADDR     0x14
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 static int front = 0, tail = 0;
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+  switch (offset) {
+  case AUDIO_COUNT_ADDR:
+    if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR / 4);
+    else *(audio_base + (AUDIO_COUNT_ADDR) / 4) = tail;
+    assert(tail <= CONFIG_SB_SIZE);
+    break;
 
+  default: printf("%d\n", offset);assert(0);
+  }
 }
+
 
 static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
