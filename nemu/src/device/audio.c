@@ -36,12 +36,8 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
 static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
   if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
-  int b =0;
-  while(b<nread){
-    memcpy(stream,sbuf+b, 32);
-    audio_base[reg_count] -= 32;
-    b+=32;
-  }  
+  memcpy(stream,sbuf, nread);
+
   if (len > nread) {
     memset(stream + nread, 0, len - nread);
   }
