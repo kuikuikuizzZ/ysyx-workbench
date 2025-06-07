@@ -42,12 +42,11 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
     audio_base[reg_count] -= nread;
     last += nread;
   }
-  // last %= audio_base[reg_sbuf_size];      
   if (len > nread) {
     memset(stream + nread, 0, len - nread);
   }
   memset(sbuf, 0, audio_base[reg_sbuf_size]);
-  // audio_base[reg_count]=0;
+  audio_base[reg_count]=0;
   last = 0;
 }
 

@@ -1,6 +1,6 @@
 #include <am.h>
 #include <nemu.h>
-
+#include <klib.h>
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)
 #define AUDIO_CHANNELS_ADDR  (AUDIO_ADDR + 0x04)
 #define AUDIO_SAMPLES_ADDR   (AUDIO_ADDR + 0x08)
@@ -32,7 +32,7 @@ void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
 void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   int len = ctl->buf.end - ctl->buf.start;
   int nwrite = 0;
-  
+  printf("Audio play: %d bytes\n", ctl->buf.end);
   while(nwrite < len) {
     outl(AUDIO_SBUF_ADDR+nwrite, (uint32_t)(ctl->buf.start + nwrite));
     nwrite += 1; // each write is 4 bytes (uint32_t)
