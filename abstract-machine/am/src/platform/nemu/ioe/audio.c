@@ -38,6 +38,6 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
     nwrite += 1; // each write is 4 bytes (uint32_t)
     outl(AUDIO_COUNT_ADDR, nwrite);
   }
-  pos =pos+len;
-  pos %= inl(AUDIO_SBUF_SIZE_ADDR); // wrap around if necessary
+  // pos =pos+len;
+  // pos %= inl(AUDIO_SBUF_SIZE_ADDR); // wrap around if necessary
 }
