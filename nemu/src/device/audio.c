@@ -36,10 +36,7 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
 
 static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
-  while(audio_base[reg_count] <= 0) {
-    // wait for audio data
-    SDL_Delay(10);
-  }
+  
   if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
   memcpy(stream,sbuf+last, nread);
   if (len > nread) {
@@ -48,6 +45,7 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
   memset(sbuf, 0, audio_base[reg_sbuf_size]);
   audio_base[reg_count]=-nread;
   last += nread;
+
 }
 
 void init_audio_ctrl(u_int32_t* audio_base) {
