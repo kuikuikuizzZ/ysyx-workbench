@@ -31,8 +31,8 @@ void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
 }
 
 void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
-  uintptr_t ptr =  (uintptr_t)ctl->buf.start;
-  uintptr_t end =  (uintptr_t)ctl->buf.end;
+  uintptr_t ptr = (uintptr_t)ctl->buf.start;
+  uintptr_t end = (uintptr_t)ctl->buf.end;
   int block_size = inl(AUDIO_SBUF_SIZE_ADDR);
   for (;ptr < end;) {
     int count = inl(AUDIO_COUNT_ADDR);

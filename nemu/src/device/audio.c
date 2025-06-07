@@ -36,8 +36,13 @@ enum {
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 static int front = 0, tail = 0;
+static SDL_AudioSpec s = {};
+
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset) {
+   case AUDIO_FREQ_ADDR: assert(is_write);
+    s.freq = *(audio_base + AUDIO_FREQ_ADDR / 4);
+    break;
   case AUDIO_SBUF_SIZE_ADDR: assert(!is_write);
     assert(*(audio_base + (AUDIO_SBUF_SIZE_ADDR) / 4) == CONFIG_SB_SIZE);
     break;
@@ -63,7 +68,6 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
 void init_audio_ctrl(u_int32_t* audio_base) {
   assert(audio_base != NULL);
 
-  SDL_AudioSpec s = {};
   s.freq = audio_base[reg_freq];
   s.format = AUDIO_S16SYS;
   s.channels = audio_base[reg_channels];
