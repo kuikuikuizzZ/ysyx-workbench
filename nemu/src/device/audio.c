@@ -30,6 +30,39 @@ enum {
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 
+int queue_front = 0;           // 队头索引（指向待读取位置）
+int queue_rear = 0;            // 队尾索引（指向待写入位置）
+/* 判断队列是否为空 */
+int queue_is_empty() {
+    return (queue_front == queue_rear);
+}
+
+/* 判断队列是否已满 */
+int queue_is_full() {
+    return ((queue_rear + 1) % CONFIG_SB_SIZE == queue_front);
+}
+
+/* 入队操作 */
+int queue_enqueue(int value) {
+    if (queue_is_full()) return 0;  // 队列满时返回0
+    sbuf[queue_rear] = value;
+    queue_rear = (queue_rear + 1) % CONFIG_SB_SIZE;  // 循环移动尾指针
+    return 1;  // 入队成功
+}
+
+/* 批量出队操作（支持多元素读取）*/
+int queue_dequeue_batch(int *output, int num) {
+    if (queue_is_empty() || num <= 0) return 0;  // 空队列或无效数量
+    
+    int count = 0;
+    while (count < num && !queue_is_empty()) {
+        output[count] = sbuf[queue_front];
+        queue_front = (queue_front + 1) % CONFIG_SB_SIZE;  // 循环移动头指针
+        count++;
+    }
+    return count;  // 返回实际出队的元素数量
+}
+
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
 
 }
