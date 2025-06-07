@@ -35,12 +35,7 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   if (len <= 0) {
     return; // nothing to play
   }
-  if (pos + len > inl(AUDIO_SBUF_SIZE_ADDR)) {
-    while (inl(AUDIO_COUNT_ADDR) > 0) {
-      // wait until the audio buffer is empty
-    }
-    pos = 0; // reset position if it exceeds buffer size
-  }
+
   while(nwrite < len) {
     outl(AUDIO_SBUF_ADDR+pos+nwrite, (uint32_t)(ctl->buf.start + nwrite));
     nwrite += 1; // each write is 4 bytes (uint32_t)
