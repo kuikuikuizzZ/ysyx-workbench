@@ -29,21 +29,19 @@ enum {
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
-static uint32_t last = 0;
+static int front = 0, tail = 0;
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
 
 }
 
 static void audio_play(void *userdata, uint8_t *stream, int len) {
   int nread = len;
-  if (audio_base[reg_count] < len) nread = audio_base[reg_count] ;
-  memcpy(stream,sbuf+last, nread);
-  if (len > nread) {
-    memset(stream + nread, 0, len - nread);
-  }
-  // memset(sbuf, 0, audio_base[reg_sbuf_size]);
-  audio_base[reg_count]=-nread;
-  last += nread;
+  if (tail - front < len) nread = tail - front;
+  memcpy(stream, sbuf + front, nread);
+  front += nread;
+  if (len > nread) memset(stream + nread, 0, len - nread);
+  if (front == tail) front = tail = 0;
+  return;
 }
 
 void init_audio_ctrl(u_int32_t* audio_base) {

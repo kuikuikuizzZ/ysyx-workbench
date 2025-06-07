@@ -30,17 +30,15 @@ void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
 }
 
 void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
-  uint32_t len = ctl->buf.end - ctl->buf.start;
-  uint32_t nwrite = 0;
-  if (len <= 0) {
-    return; // nothing to play
+  uint32_t* ptr = ctl->buf.start;
+  uint32_t* end = ctl->buf.end;
+  int block_size = inl(AUDIO_SBUF_SIZE_ADDR);
+  for (;ptr < end;) {
+    int count = inl(AUDIO_COUNT_ADDR);
+    if (count == block_size) continue;
+    for (;ptr < end && count < block_size;++ptr, ++count) {
+      outb(AUDIO_SBUF_ADDR + count, *((unsigned char*)ptr));
+    }
+    outl(AUDIO_COUNT_ADDR, count);
   }
-
-  while(nwrite < len) {
-    outl(AUDIO_SBUF_ADDR+sizeof(char)*(pos+nwrite), (uint32_t)(ctl->buf.start + sizeof(char)*nwrite));
-    nwrite += 1; // each write is 4 bytes (uint32_t)
-  }
-  outl(AUDIO_COUNT_ADDR, inl(AUDIO_COUNT_ADDR)+len);
-  pos+= nwrite;
-
 }
