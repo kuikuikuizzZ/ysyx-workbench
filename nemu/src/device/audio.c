@@ -39,8 +39,8 @@ static int front = 0, tail = 0;
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset) {
   case AUDIO_COUNT_ADDR:
-    if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR );
-    else *(audio_base + (AUDIO_COUNT_ADDR) ) = tail;
+    if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR / 4);
+    else *(audio_base + (AUDIO_COUNT_ADDR) / 4) = tail;
     assert(tail <= CONFIG_SB_SIZE);
     break;
   default: printf("%d\n", offset);
