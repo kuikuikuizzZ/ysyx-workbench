@@ -38,7 +38,7 @@ static uint32_t *audio_base = NULL;
 static int front = 0, tail = 0;
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset) {
-  case AUDIO_COUNT_ADDR:
+  case AUDIO_COUNT_ADDR/4:
     if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR );
     else *(audio_base + (AUDIO_COUNT_ADDR) ) = tail;
     assert(tail <= CONFIG_SB_SIZE);
