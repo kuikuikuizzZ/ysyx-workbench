@@ -26,12 +26,6 @@ enum {
   reg_count,
   nr_reg
 };
-#define AUDIO_FREQ_ADDR      0x00
-#define AUDIO_CHANNELS_ADDR  0x04
-#define AUDIO_SAMPLES_ADDR   0x08
-#define AUDIO_SBUF_SIZE_ADDR 0x0c
-#define AUDIO_INIT_ADDR      0x10
-#define AUDIO_COUNT_ADDR     0x14
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
@@ -40,27 +34,28 @@ static SDL_AudioSpec s = {};
 void work(uint32_t x);
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
-  switch (offset) {
-  case AUDIO_FREQ_ADDR: assert(is_write);
-    s.freq = *(audio_base + AUDIO_FREQ_ADDR / 4);
+  int index = offset / 4;
+  switch (index) {
+  case reg_freq: assert(is_write);
+    s.freq = audio_base[reg_freq];
     break;
-  case AUDIO_CHANNELS_ADDR: assert(is_write);
-    s.channels = *(audio_base + (AUDIO_CHANNELS_ADDR) / 4);
+  case reg_channels: assert(is_write);
+    s.channels = audio_base[reg_channels];
     break;
-  case AUDIO_SAMPLES_ADDR: assert(is_write);
-    s.samples = *(audio_base + (AUDIO_SAMPLES_ADDR) / 4);
+  case reg_samples: assert(is_write);
+    s.samples = audio_base[reg_samples];
     break;
-  case AUDIO_SBUF_SIZE_ADDR: assert(!is_write);
-    assert(*(audio_base + (AUDIO_SBUF_SIZE_ADDR) / 4) == CONFIG_SB_SIZE);
+  case reg_sbuf_size: assert(!is_write);
+    audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
     break;
-  case AUDIO_COUNT_ADDR:
-    if (is_write) tail = *(audio_base + AUDIO_COUNT_ADDR / 4);
-    else *(audio_base + (AUDIO_COUNT_ADDR) / 4) = tail;
+  case reg_count:
+    if (is_write) tail = audio_base[reg_count];
+    else audio_base[reg_count] = tail;
     assert(tail <= CONFIG_SB_SIZE);
     break;
-  case AUDIO_INIT_ADDR:
-    assert(is_write); work(*(audio_base + (AUDIO_INIT_ADDR) / 4)); break;
-  default: printf("%d\n", offset);
+  case reg_init:
+    assert(is_write); work(audio_base[reg_init]); break;
+  default: printf("%d\n", index);
   }
 }
 
@@ -77,7 +72,6 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
 
 void work(uint32_t x) {
   if (!x) return;
-  *(audio_base + (AUDIO_INIT_ADDR) / 4) = 0;
   if (x) {
     int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (!ret) {
