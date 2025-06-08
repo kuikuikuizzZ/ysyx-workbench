@@ -34,7 +34,7 @@ IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 build:
-	verilator  $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
+	verilator  --debug $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
