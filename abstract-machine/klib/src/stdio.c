@@ -30,6 +30,11 @@ int printf(const char *fmt, ...) {
           putstr(out_string);
           rc+= strlen(out_string);
           break;
+        case 'c':
+          char out_char = va_arg(argp,int);
+          putch(out_char);
+          rc+= 1;
+          break;
         case 'x':
           out_int = va_arg(argp,int ); 
           klib_itoa(out_int,s,ITOA_HEX);
