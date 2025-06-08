@@ -38,7 +38,7 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
     if(count == inl(AUDIO_SBUF_SIZE_ADDR)) continue;
     for(;ptr<end;ptr++,count++){
       outb(AUDIO_SBUF_ADDR+count,*(char*)ptr);
-      outl(AUDIO_COUNT_ADDR,count);
     } 
+    outl(AUDIO_COUNT_ADDR,count);
   }
 }
