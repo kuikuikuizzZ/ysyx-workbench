@@ -70,9 +70,9 @@ static void audio_play(void *userdata, uint8_t *stream, int len) {
 }
 
 
-void work(uint32_t x) {
-  if (!x) return;
-  if (x) {
+void work(uint32_t inited) {
+  if (!inited) return;
+  if (inited) {
     int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (!ret) {
       SDL_OpenAudio(&s, NULL);
@@ -82,7 +82,6 @@ void work(uint32_t x) {
   return;
 }
 void init_audio() {
-  printf("Initializing audio device...\n");
   uint32_t space_size = sizeof(uint32_t) * nr_reg;
   audio_base = (uint32_t *)new_space(space_size);
 #ifdef CONFIG_HAS_PORT_IO
@@ -98,5 +97,4 @@ void init_audio() {
   s.userdata = NULL;
   s.callback = audio_play;
   SDL_InitSubSystem(SDL_INIT_AUDIO);
-
 }
