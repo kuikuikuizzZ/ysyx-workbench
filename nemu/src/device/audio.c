@@ -34,7 +34,7 @@ static SDL_AudioSpec s = {};
 void work(uint32_t x);
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
-  int index = offset / 4;
+  int index = offset / sizeof(uint32_t);
   switch (index) {
   case reg_freq: assert(is_write);
     s.freq = audio_base[reg_freq];
