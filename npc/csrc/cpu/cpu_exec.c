@@ -85,36 +85,38 @@ int check_halt(){
 }
 
 void itrace_once(){
-  // 32 match inst name in capstone define
-  char inst_name[32];
-  char *p = itrace_buff;
-  p +=  (npc_state.state != NPC_ABORT) ? 
-      snprintf(p, ITRACE_SIZE,"    " FMT_WORD ":", top_pc()):
-      snprintf(p, ITRACE_SIZE," -->" FMT_WORD ":", top_pc());
-  int ilen = sizeof(word_t);
-  int i;
-  uintptr_t inst_ptr = top_inst();
-  uint8_t *inst = ( uint8_t *)inst_ptr;
-  for (i = ilen - 1; i >= 0; i --) {
-    p += snprintf(p, 4, " %02x", inst[i]);
-  }
-  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
-  int space_len = ilen_max - ilen;
-  if (space_len < 0) space_len = 0;
-  space_len = space_len * 3 + 1;
-  memset(p, ' ', space_len);
-  p += space_len;
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
-  disassemble(p, itrace_buff + LOG_BUFSIZE - p, top_pc(), (uint8_t *)&inst_ptr, ilen,inst_name);
-  int len = strlen(itrace_buff);
-  memset(itrace_buff+len,' ',ITRACE_SIZE-len);
-  itrace_buff[ITRACE_SIZE-1] = '\n';
-  if(RingBuffer_available(rb)<ITRACE_SIZE){
+    // 32 match inst name in capstone define
+    char inst_name[32];
+    char *p = itrace_buff;
+    p +=  (npc_state.state != NPC_ABORT) ? 
+        snprintf(p, ITRACE_SIZE,"    " FMT_WORD ":", top_pc()):
+        snprintf(p, ITRACE_SIZE," -->" FMT_WORD ":", top_pc());
+    int ilen = sizeof(word_t);
+    int i;
+    uint32_t inst = top_inst();
+    
+    uint8_t *inst_ptr = (uint8_t *)(&inst);
+    for (i = ilen - 1; i >= 0; i --) {
+        p += snprintf(p, 4, " %02x", *(inst_ptr+i));
+    }
+
+    int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+    int space_len = ilen_max - ilen;
+    if (space_len < 0) space_len = 0;
+    space_len = space_len * 3 + 1;
+    memset(p, ' ', space_len);
+    p += space_len;
+    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
+    disassemble(p, itrace_buff + LOG_BUFSIZE - p, top_pc(), inst_ptr, ilen,inst_name);
+    int len = strlen(itrace_buff);
+    memset(itrace_buff+len,' ',ITRACE_SIZE-len);
+    itrace_buff[ITRACE_SIZE-1] = '\n';
+    if(RingBuffer_available(rb)<ITRACE_SIZE){
     RingBuffer_commit_read(rb,ITRACE_SIZE);
-  }
-  Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
-  RingBuffer_put(rb,itrace_buff,ITRACE_SIZE);
-  memset(itrace_buff,0,ITRACE_SIZE);
+    }
+    Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
+    RingBuffer_put(rb,itrace_buff,ITRACE_SIZE);
+    memset(itrace_buff,0,ITRACE_SIZE);
 }
 
 
