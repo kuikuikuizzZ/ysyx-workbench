@@ -13,7 +13,7 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=4)(
         alu_sel,{
             4'b0000, in_a+in_b,                         //add
             4'b1000, in_a-in_b,                         //sub
-            4'b0001, in_a<<in_b,                        //slt
+            4'b0001, in_a<<in_b,                        //sll
             4'b0010, ($signed(in_a)<$signed(in_b))? 32'h1 :32'h0,   //slt
             4'b0011, (in_a<in_b)? 32'h1 :32'h0,         //sltu
             4'b0100, in_a^in_b,                         //xor
@@ -39,8 +39,6 @@ module ysyx_24100012_alu #(DATA_WIDTH=32,N_SEL=4)(
             2'b00, priv_out,                            
             2'b11, nopriv_out
         });
-    // always@(*)
-        // $display("alu a: %x, b: %x, code %b", in_a,in_b,alu_sel);
 
 endmodule
 

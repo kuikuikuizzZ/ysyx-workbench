@@ -6,7 +6,7 @@ include $(NPC_HOME)/tools/difftest.mk
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF) 
-# override ARGS += -b
+override ARGS += -b
 
 # Compiler and linker settings，should support configurable 
 CFLAGS += -g
@@ -37,9 +37,6 @@ NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 build:
 	verilator $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
-
-gdb:
-	verilator $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace --exe
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
