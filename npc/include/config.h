@@ -3,7 +3,7 @@
 
 // #define CONFIG_ITRACE
 // #define CONFIG_SDB
-#define CONFIG_DIFFTEST
+// #define CONFIG_DIFFTEST
 // #define CONFIG_WATCH_TOP
 // #define WATCH_INST (0x30571073)
 #define CONFIG_RVE          // use riscv32e

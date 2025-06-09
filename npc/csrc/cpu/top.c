@@ -15,7 +15,8 @@ void watch_top(){
     // if (!(top->ysyx_24100012_top__DOT__inst==WATCH_INST)) return;
     _top = top();
     if (!top) return;
-    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x,func3 %d, imm %u, writedata: %x , writeCSR: %x,CSR: %d,alu_a: %x,alu_b: %x, a0 = %x,ra = %x,a%d = %x\n",
+    if(top_pc()!=0x800001d8) return; // only watch when pc is 0x80000000
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x,func3 %d, imm %u, writedata: %x , writeCSR: %x,CSR: %d,alu_a: %x,alu_b: %x,aluout %x, a0 = %x,ra = %x,a%d = %x\n",
         _rootp->io_halt,
         top_pc(),
         top_dnpc(),
@@ -27,6 +28,7 @@ void watch_top(){
         _top->rootp->ysyx_24100012_top__DOT__csrType,
         _top->rootp->ysyx_24100012_top__DOT__alu_a,
         _top->rootp->ysyx_24100012_top__DOT__alu_b,
+        _top->rootp->ysyx_24100012_top__DOT__AluOut,
         top_gpr(10),
         top_gpr(1),
         14,
