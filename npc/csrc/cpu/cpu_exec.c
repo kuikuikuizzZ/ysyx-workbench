@@ -120,7 +120,8 @@ void itrace_once(){
 }
 
 
-void exec_once(){
+void exec_once(Decode *s){
+    s->pc = top_pc();
     step();
     #ifdef CONFIG_WATCH_TOP
     watch_top();
@@ -132,9 +133,9 @@ void exec_once(){
     return;
 }
 
-void trace_and_difftest(){
+void trace_and_difftest(Decode* s, vaddr_t dnpc){
     #ifdef CONFIG_DIFFTEST
-    difftest_step(cpu.pc,top_dnpc());
+    difftest_step(s->pc,dnpc);
     #endif
     #ifdef CONFIG_ITRACE
     itrace_once();
@@ -148,9 +149,10 @@ void trace_and_difftest(){
 }
 
 void execute(u_int64_t n){
+    Decode s;
     for(;n>0;n--){
-        exec_once();
-        trace_and_difftest();
+        exec_once(&s);
+        trace_and_difftest(&s,cpu.pc);
         if (npc_state.state != NPC_RUNNING) break;
         device_update(); 
     }
