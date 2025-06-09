@@ -20,7 +20,7 @@ int is_exit_status_bad();
 long load_prog() {
     if (!img_file){
         printf("Use default img\n");
-        return 0;
+        return sizeof(img);
     }
     printf("use image: %s \n",img_file);
     FILE *fp = fopen(img_file, "rb");

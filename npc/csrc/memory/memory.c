@@ -10,13 +10,13 @@ extern "C" {
 #endif
 
 
-    static uint8_t *pmem = NULL;
+    static uint8_t *npc_pmem = NULL;
 
     void init_memory() {
-        pmem = (uint8_t*)malloc(MSIZE);
+        npc_pmem = (uint8_t*)malloc(MSIZE);
     }
 
-    uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
+    uint8_t* guest_to_host(uint32_t paddr) { return npc_pmem + paddr - MBASE; }
 
     void pmem_read(int raddr, int len, int *rword) {
         // printf("pmem read: raddr = %x, data %x len %d\n", raddr,*rword,len);

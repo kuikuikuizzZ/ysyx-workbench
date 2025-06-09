@@ -5,16 +5,18 @@ include $(NPC_HOME)/tools/difftest.mk
 
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
-override ARGS += $(ARGS_DIFF)
+override ARGS += $(ARGS_DIFF) 
+override ARGS += -b
 
-
+# Compiler and linker settings，should support configurable 
+CFLAGS += -g
 WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 TOP_NAME = ysyx_24100012_top 
 NAME=V$(TOP_NAME)
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
-VCFLAGS :=  $(CFLAGS) $(INCLUDES)
+VCFLAGS :=  -CFLAGS $(CFLAGS) $(INCLUDES)
 LIBS += -lreadline
 LDFLAGS +=   $(addprefix -LDFLAGS , $(LIBS))
 
@@ -34,7 +36,7 @@ IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 build:
-	verilator  $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
+	verilator $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

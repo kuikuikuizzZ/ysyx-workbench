@@ -19,11 +19,11 @@ module ysyx_24100012_ram #(
         if (MemWEn) begin
             pmem_write(inaddr,length,din);
         end else 
-            dout=32'0;
+            dout=32'b0;
         if (MemREn) begin
             pmem_read(outaddr,length,dout);
         end else begin 
-            dout=32'0;
+            dout=32'b0;
         end
     end
     // assign  dout=32'0;
