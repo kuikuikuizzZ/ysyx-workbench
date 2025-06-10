@@ -45,5 +45,4 @@ static void init_isa(){
     memcpy(guest_to_host(MBASE), img, sizeof(img));
 }
 
-
 #endif

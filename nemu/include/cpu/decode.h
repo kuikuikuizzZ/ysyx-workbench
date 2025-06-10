@@ -25,6 +25,7 @@ typedef struct Decode {
   vaddr_t dnpc; // dynamic next pc
   ISADecodeInfo isa;
   IFDEF(CONFIG_ITRACE, char logbuf[ITRACE_SIZE]);
+  IFDEF(CONFIG_ETRACE, char is_exception);
 } Decode;
 
 // --- pattern matching mechanism ---
