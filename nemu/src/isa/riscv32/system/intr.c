@@ -16,7 +16,6 @@
 #include <isa.h>
 #include <cpu/decode.h>
 #include "../local-include/reg.h"
-#include <common.h>
 #include <generated/autoconf.h>
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
@@ -31,8 +30,8 @@ word_t isa_query_intr() {
   return INTR_EMPTY;
 }
 
-#ifndef CONFIG_ETRACE
-void display_exception_info(Decode *s){
+#ifdef CONFIG_ETRACE
+void display_exception_info(){
   // Display the exception information
   printf("MEPC: 0x%x\n", csr(MEPC));
   printf("MCAUSE: 0x%x\n", csr(MCAUSE));
