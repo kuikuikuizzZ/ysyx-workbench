@@ -16,14 +16,14 @@
 #include <isa.h>
 #include <cpu/decode.h>
 #include "../local-include/reg.h"
-
-word_t isa_raise_intr(word_t NO, vaddr_t epc, char* is_exception) {
+#include <common.h>
+#include <generated/autoconf.h>
+word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */
   csr(MEPC) = epc;
   csr(MCAUSE) = 0xb;      // Exception Code for Environment call from U-mode
-  *is_exception = 1;
   return csr(MTVEC);
 }
 
@@ -31,11 +31,12 @@ word_t isa_query_intr() {
   return INTR_EMPTY;
 }
 
+#ifndef CONFIG_ETRACE
 void display_exception_info(Decode *s){
   // Display the exception information
   printf("MEPC: 0x%x\n", csr(MEPC));
   printf("MCAUSE: 0x%x\n", csr(MCAUSE));
   printf("MTVEC: 0x%x\n", csr(MTVEC));
-  s->is_exception = 0; // Set the exception flag
   // Add more information as needed
 }
+#endif
