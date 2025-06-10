@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <macro.h>
 #include <debug.h>
-#include <config.h>
+#include <generated/autoconf.h>
 
 typedef uint32_t word_t;
 typedef word_t vaddr_t;

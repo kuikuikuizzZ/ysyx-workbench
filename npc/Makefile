@@ -3,6 +3,8 @@ FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 include $(NPC_HOME)/tools/difftest.mk
 
+# Include rules for menuconfig
+include $(NPC_HOME)/scripts/config.mk
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF) 

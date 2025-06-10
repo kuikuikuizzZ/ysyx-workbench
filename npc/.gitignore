@@ -12,3 +12,5 @@
 build/
 obj_dir/
 tools/
+include/config
+include/generated

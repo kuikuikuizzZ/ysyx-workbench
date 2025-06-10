@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <assert.h>
-#include <config.h>
+#include <generated/autoconf.h>
 
 // use DPI-C should add this macro
 #ifdef __cplusplus
