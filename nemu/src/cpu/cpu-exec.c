@@ -102,11 +102,15 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
       nemu_state.state = NEMU_STOP;
   }
 #endif
+#ifdef CONFIG_ETRACE
+  if (_this->is_exception==1) display_exception_info();
+#endif
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
+  IFDEF(CONFIG_ETRACE, s->is_exception = 0);
   isa_exec_once(s);
   cpu.pc = s->dnpc;
 }
