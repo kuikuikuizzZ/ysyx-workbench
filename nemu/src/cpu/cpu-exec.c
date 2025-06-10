@@ -103,7 +103,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   }
 #endif
 #ifdef CONFIG_ETRACE
-  if (_this->is_exception) display_exception_info();
+  if (_this->is_exception==1) display_exception_info();
 #endif
 }
 
