@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <cpu/decode.h>
 #include "../local-include/reg.h"
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc, char* is_exception) {
@@ -30,10 +31,11 @@ word_t isa_query_intr() {
   return INTR_EMPTY;
 }
 
-void display_exception_info(){
+void display_exception_info(Decode *s){
   // Display the exception information
   printf("MEPC: 0x%x\n", csr(MEPC));
   printf("MCAUSE: 0x%x\n", csr(MCAUSE));
   printf("MTVEC: 0x%x\n", csr(MTVEC));
+  s->is_exception = 0; // Set the exception flag
   // Add more information as needed
 }
