@@ -45,28 +45,24 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  if (ITRACE_COND){
+  IFDEF(CONFIG_ITRACE, {
     char itrace_log[LOG_BUFSIZE];
     RingBuffer_get(log_buff,itrace_log,RingBuffer_length(log_buff));
     log_write("%s\n", itrace_log);
-  }
+  });
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }
 
 void init_mem() {
-#if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
-#endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  #ifdef CONFIG_MTRACE
-    log_write("R\t0x%x\t%d\n",addr,len);
-  #endif
+  IFDEF(CONFIG_MTRACE,log_write("R\t0x%x\t%d\n",addr,len));
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);

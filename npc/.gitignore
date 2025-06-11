@@ -8,6 +8,7 @@
 !*.cc
 !*.cpp
 !.gitignore
+!Kconfig
 !README.md
 build/
 obj_dir/
