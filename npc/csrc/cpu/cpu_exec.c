@@ -151,7 +151,7 @@ void execute(u_int64_t n){
         exec_once(&s);
         trace_and_difftest(&s,cpu.pc);
         if (npc_state.state != NPC_RUNNING) break;
-        device_update(); 
+        IFDEF(CONFIG_DEVICE,device_update()); 
     }
 }
 

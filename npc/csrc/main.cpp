@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
     
     init_memory();
     
-    init_device();
-    
+    IFDEF(CONFIG_DEVICE, init_device());
+
     init_isa();
     
     init_log(log_file);

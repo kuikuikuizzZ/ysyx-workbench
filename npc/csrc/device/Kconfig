@@ -148,5 +148,4 @@ config SDCARD_IMG_PATH
   string "The path of sdcard image"
   default ""
 endif # HAS_SDCARD
-
 endif # DEVICE
