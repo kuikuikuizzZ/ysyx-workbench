@@ -9,7 +9,13 @@
 static int is_batch_mode = false;
 #define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
 void ref_reg_display();
+void init_wp_pool();
+void init_regex();
 
+int new_wp(word_t addr, char* args,int type);
+int delete_wp(int wp);
+WP* get_head();
+word_t expr(char *e, bool *success);
 static char* rl_gets() {
   static char *line_read = NULL;
 
@@ -63,6 +69,30 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args) {
+  bool success;
+  word_t res = expr(args,&success);
+  int no = new_wp(res,args,WP_RAW);
+  printf("Watchpoint %d, What: %s\n",no,args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  int no;
+  int n = sscanf(args,"%d",&no);
+  Assert(n>0,"Command invalid: %s\n",args);
+  delete_wp(no);
+  return 0;
+}
+
+static int cmd_b(char *args) {
+  bool success;
+  word_t res = expr(args,&success);
+  int no = new_wp(res,args,WP_BREAK);
+  printf("Breakpoint %d, What: %s\n",no,args);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -75,6 +105,9 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   {"si","Exec n instruction then pause,default n = 1",cmd_si},
   {"info","Display register(info r)  states",cmd_info},
+  {"w","create a watchpoint (w EXPR)",cmd_w},
+  {"d","delete watchpoint (d NO)",cmd_d},
+  {"b","break point (b address)",cmd_b},
   /* TODO: Add more commands */
 };
 
@@ -139,6 +172,8 @@ void sdb_mainloop(){
   return;
 }
 
-// void init_sdb(){
-//     return;
-// }
+void init_sdb(){
+  init_regex();
+  init_wp_pool();
+  return;
+}

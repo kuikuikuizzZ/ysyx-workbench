@@ -70,9 +70,9 @@ int main(int argc, char** argv) {
     parse_args(argc, argv);
     
     init_memory();
-    
-    init_device();
-    
+    init_sdb();
+    IFDEF(CONFIG_DEVICE, init_device());
+
     init_isa();
     
     init_log(log_file);

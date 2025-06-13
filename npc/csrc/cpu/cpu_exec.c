@@ -3,16 +3,9 @@
 #include <cpu/difftest.h>
 #include <npc.h>
 #include <ringbuffer.h>
-// #include "verilated_vpi.h"  // Required to get definitions
 
 
 
-const char *regs[] = {
-  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
-};
 
 CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
@@ -20,21 +13,10 @@ RingBuffer *rb = NULL;
 
 void init_disasm();
 void device_update();
+bool wps_diff();
+
 void step() { top()->clk = 0; top()->eval(); top()->clk = 1; top()->eval(); }
 void reset(int n) { top()->rst = 1; while (n --) { step(); } top()->rst = 0; }
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc != cpu.pc ){
-    printf("checkreg pc, ref %x, top %x \n",ref_r->pc,cpu.pc);
-    return false;
-  }
-  for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[i]) {
-        printf("checkreg x%d, ref %x, top %x \n",i,ref_r->gpr[i],cpu.gpr[i]);
-        return false;
-     }
-  }  
-  return true;
-}
 void sync_cpu(){
     for (int i=0;i<gpr_size;i++)
         cpu.gpr[i] = top_gpr(i);
@@ -60,20 +42,23 @@ void init_itrace(){
     rb = RingBuffer_create(LOG_BUFSIZE);
 }
 
-void isa_reg_display(){
-    printf("npc register: \n");
-    for (int i=0;i<gpr_size;i++){
-        printf("%4s:%.8x",regs[i],top_gpr(i));
-        (i%3==0)?printf("\n"):printf(" ");
-    }
-    printf("%4s:%.8x\n","pc",top_pc());
+bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
+  if (ref_r->pc != cpu.pc ){
+    printf("checkreg pc, ref %x, top %x \n",ref_r->pc,cpu.pc);
+    return false;
+  }
+  for (int i=0;i<gpr_size;i++){
+     if(ref_r->gpr[i]!=cpu.gpr[i]) {
+        printf("checkreg x%d, ref %x, top %x \n",i,ref_r->gpr[i],cpu.gpr[i]);
+        return false;
+     }
+  }  
+  return true;
 }
 
 void assert_fail_msg() {
   isa_reg_display();
 }
-
-
 
 
 int check_halt(){
@@ -142,6 +127,12 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
         log_write("%s", temp_buf); 
     }
     #endif
+    #ifdef CONFIG_WATCHPOINT
+    if (npc_state.state != NPC_END && wps_diff()){
+
+        npc_state.state = NPC_STOP;
+    }
+    #endif
     return;
 }
 
@@ -151,7 +142,7 @@ void execute(u_int64_t n){
         exec_once(&s);
         trace_and_difftest(&s,cpu.pc);
         if (npc_state.state != NPC_RUNNING) break;
-        device_update(); 
+        IFDEF(CONFIG_DEVICE,device_update()); 
     }
 }
 

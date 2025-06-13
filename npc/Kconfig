@@ -1,0 +1,118 @@
+mainmenu "NPC Configuration Menu"
+
+config ISA
+  string "Instruction Set Architecture
+  string
+  default riscv32e 
+
+menu "Testing and Debugging"
+
+config TRACE
+  bool "Enable tracer"
+  default y
+
+config TRACE_START
+  depends on TRACE
+  int "When tracing is enabled (unit: number of instructions)"
+  default 0
+
+config TRACE_END
+  depends on TRACE
+  int "When tracing is disabled (unit: number of instructions)"
+  default 10000
+
+config ITRACE
+  depends on TRACE 
+  bool "Enable instruction tracer"
+  default y
+
+config ITRACE_COND
+  depends on ITRACE
+  string "Only trace instructions when the condition is true"
+  default "true"
+
+# config MTRACE
+#   depends on TRACE 
+#   bool "Enable memory tracer"
+#   default n
+
+# config MTRACE_COND
+#   depends on ITRACE
+#   string "Only trace memory when the condition is true"
+#   default "true"
+
+# config FTRACE
+#   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+#   bool "Enable function tracer"
+#   default n
+
+# config FTRACE_COND
+#   depends on ITRACE
+#   string "Only trace function when the condition is true"
+#   default "true"
+
+# config DTRACE
+#   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+#   bool "Enable device tracer"
+#   default n
+
+# config DTRACE_COND
+#   depends on ITRACE
+#   string "Only trace device when the condition is true"
+#   default "true"
+
+config WATCH_TOP
+  depends on TRACE
+  bool "Only trace watch top when the condition is true"
+  default y
+
+config WATCHPOINT
+  depends on TRACE
+  bool "Enable watchpoint when the condition is true"
+  default n
+
+config DIFFTEST
+  depends on TRACE
+  bool "Enable differential testing"
+  default n
+  help
+    Enable differential testing with a reference design.
+    Note that this will significantly reduce the performance of NEMU.
+
+# choice
+#   prompt "Reference design"
+#   default DIFFTEST_REF_SPIKE if ISA_riscv
+#   default DIFFTEST_REF_KVM if ISA_x86
+#   default DIFFTEST_REF_QEMU
+#   depends on DIFFTEST
+# config DIFFTEST_REF_QEMU
+#   bool "QEMU, communicate with socket"
+# if ISA_riscv
+# config DIFFTEST_REF_SPIKE
+#   bool "Spike"
+# endif
+# if ISA_x86
+# config DIFFTEST_REF_KVM
+#   bool "KVM"
+# endif
+# endchoice
+
+# config DIFFTEST_REF_PATH
+#   string
+#   default "tools/qemu-diff" if DIFFTEST_REF_QEMU
+#   default "tools/kvm-diff" if DIFFTEST_REF_KVM
+#   default "tools/spike-diff" if DIFFTEST_REF_SPIKE
+#   default "none"
+
+# config DIFFTEST_REF_NAME
+#   string
+#   default "qemu" if DIFFTEST_REF_QEMU
+#   default "kvm" if DIFFTEST_REF_KVM
+#   default "spike" if DIFFTEST_REF_SPIKE
+#   default "none"
+# endmenu
+
+endmenu
+
+source "csrc/device/Kconfig"
+source "csrc/memory/Kconfig"

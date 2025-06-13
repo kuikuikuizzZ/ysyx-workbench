@@ -41,6 +41,7 @@ extern "C" {
             default: assert(0);
         }
     }
+    
 
 #ifdef __cplusplus
 }
