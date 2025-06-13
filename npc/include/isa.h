@@ -21,6 +21,17 @@ typedef enum  {
   MCAUSE  = 4,
 } csrs;
 
+static const char *regs[] = {
+  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
+
+static const char *csr_names[] = {
+  "stap", "mstatus", "mtvec", "mepc", "mcause"
+};
+
 typedef struct {
     word_t gpr[gpr_size];
     vaddr_t pc; 
@@ -39,6 +50,11 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
+
+void isa_reg_display();
+
+word_t isa_reg_str2val(const char *s, bool *success);
+
 
 static void init_isa(){
 /* Load built-in image. */

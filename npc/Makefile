@@ -8,7 +8,8 @@ include $(NPC_HOME)/scripts/config.mk
 
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF) 
-override ARGS += -b
+# override ARGS += -b
+
 
 # Compiler and linker settings，should support configurable 
 CFLAGS += -g
@@ -21,6 +22,8 @@ INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS :=  -CFLAGS $(CFLAGS) $(INCLUDES)
 LIBS += -lreadline
 LDFLAGS +=   $(addprefix -LDFLAGS , $(LIBS))
+
+
 
 
 VERILATOR_FLAGS := --cc --exe --build -j 8 --vpi $(VERILATOR_FLAGS)
