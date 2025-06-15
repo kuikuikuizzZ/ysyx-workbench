@@ -15,7 +15,7 @@ void watch_top(){
     // if (!(top->ysyx_24100012_top__DOT__inst==WATCH_INST)) return;
     _top = top();
     if (!top) return;
-    if(top_pc()!=0x800001d8) return; // only watch when pc is 0x80000000
+    if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
     printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x,func3 %d, imm %u, writedata: %x , writeCSR: %x,CSR: %d,alu_a: %x,alu_b: %x,aluout %x, a0 = %x,ra = %x,a%d = %x\n",
         _rootp->io_halt,
         top_pc(),

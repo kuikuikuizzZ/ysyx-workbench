@@ -17,7 +17,7 @@ module ysyx_24100012_csrfiles #(
 );
 
     parameter [INDEX_LEN-1:0] STAP=3'h0,MSTATUS=3'h1,MTVEC=3'h2,MEPC=3'h3,MCAUSE=3'h4;
-    parameter [1:0] ECALL=2'b01, MRET=2'b10;
+    parameter [1:0] ECALL=2'b01, MRET=2'b10, CSRRW=2'b00;
 
     wire [DATA_WIDTH-1:0] reg_input_list[N_REG-1:0];
     wire [DATA_WIDTH-1:0] reg_output_list[N_REG-1:0];
@@ -65,35 +65,40 @@ module ysyx_24100012_csrfiles #(
         }
     );
     // ecall procedure
-    ysyx_24100012_MuxKeyWithDefault  #(1,2,ADDR_WIDTH) mul_mepc(
+    ysyx_24100012_MuxKeyWithDefault  #(2,2,ADDR_WIDTH) mul_mepc(
         reg_input_list[MEPC],
         csrType,
         32'h0,{
-            ECALL, pc
+            ECALL, pc,
+            CSRRW, writeIdx==MEPC?RegWriteData:reg_output_list[MEPC]
         }
     );
 
-    ysyx_24100012_MuxKeyWithDefault  #(1,2,ADDR_WIDTH) mul_mcause(
+    ysyx_24100012_MuxKeyWithDefault  #(2,2,ADDR_WIDTH) mul_mcause(
         reg_input_list[MCAUSE],
         csrType,
         32'h0,{
-            ECALL, 32'hb
+            ECALL, 32'hb,
+            CSRRW, writeIdx==MCAUSE?RegWriteData:reg_output_list[MCAUSE]
         }
     );
 
-    ysyx_24100012_MuxKeyWithDefault  #(1,2,1) mul_mepcWEn(
+    ysyx_24100012_MuxKeyWithDefault  #(2,2,1) mul_mepcWEn(
         WEn_list[MEPC],
         csrType,
         1'h0,{
-            ECALL, 1'b1
+            ECALL, 1'b1,
+            CSRRW, writeIdx==MEPC? 1'b1: 1'b0
         }
     );
 
-    ysyx_24100012_MuxKeyWithDefault  #(1,2,1) mul_mcauseWEn(
+    ysyx_24100012_MuxKeyWithDefault  #(2,2,1) mul_mcauseWEn(
         WEn_list[MCAUSE],
         csrType,
         1'h0,{
-            ECALL, 1'b1
+            ECALL, 1'b1,
+            CSRRW, writeIdx==MCAUSE? 1'b1: 1'b0
+
         }
     );
     // end of ecall procedure
@@ -101,5 +106,8 @@ module ysyx_24100012_csrfiles #(
     assign WEn_list[writeIdx] = RegWEn;
     assign reg_input_list[writeIdx] = RegWriteData;
     assign RegReadData = reg_output_list[readIdx];
+    // always@(*)
+    //     if (pc==32'h800013a0||pc==32'h800013a4||pc==32'h8000139c)
+    //         $display("csr csrType: %x, write: %x, WEn_list[writeIdx]: %b, writeIdx: %x", csrType, reg_output_list[MEPC], WEn_list[writeIdx], writeIdx);
 
 endmodule
