@@ -83,7 +83,9 @@ class Mymem(val addrWidth: Int) extends Module  {
    }) 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    val data = Wire(UInt(32.W))
-   data := io.dw.data + io.dw.addr + io.dw.len + io.dw.en.asUInt(32.W) +
+   val en = Wire(Bool())
+   io.dw.en := en
+   data := io.dw.data + io.dw.addr + io.dw.len +  
            io.dataInstr(0).addr + io.dataInstr(1).addr +
            io.dataInstr(0).data + io.dataInstr(1).data
    io.dataInstr(0).data := 0.U
