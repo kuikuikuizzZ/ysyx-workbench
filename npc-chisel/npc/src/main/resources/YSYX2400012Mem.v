@@ -2,8 +2,8 @@ import "DPI-C" function void pmem_read(input int outaddr,input int length, outpu
 import "DPI-C" function void pmem_write(input int inaddr,input int length, input int din);
 
 module YSYX2400012Mem #(
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32,
+    ADDR_WIDTH = 32,
+    DATA_WIDTH = 32,
     ORIGIN_ADDR=32'h80000000,
     MEM_SIZE=32'h08000000
 ) (
