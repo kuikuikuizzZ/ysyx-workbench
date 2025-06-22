@@ -36,7 +36,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val br_target        = Wire(UInt(32.W))
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
-   val exception_target = Wire(UInt(32.W))
+   // val exception_target = Wire(UInt(32.W))
    val xcpt             = Wire(Bool())
  
    // PC Register
