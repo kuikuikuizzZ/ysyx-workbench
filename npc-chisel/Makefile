@@ -1,6 +1,6 @@
 BUILD_DIR = ./build
 
-PRJ = npc
+PRJ = src
 
 test:
 	mill -i $(PRJ).test
