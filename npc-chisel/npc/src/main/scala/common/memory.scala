@@ -73,7 +73,7 @@ class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/YSYX2400012Mem.v")
+   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
