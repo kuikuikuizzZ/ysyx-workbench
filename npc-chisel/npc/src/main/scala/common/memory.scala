@@ -3,6 +3,8 @@ package npc.common
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental._  // 引入 BlackBox 相关库
+
 import npc.common.CSR._
 import Constants._
 trait MemoryOpConstants 
