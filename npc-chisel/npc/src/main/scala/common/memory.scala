@@ -114,12 +114,12 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
 
    val req_typi = io.core_ports(DPORT).req.bits.typ
    // val resp_datai = async_data.io.dataInstr(DPORT).data
-   io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
-      (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
-      (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
-      (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
-      (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
-   ))
+   // io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
+   //    (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+   //    (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+   //    (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+   //    (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+   // ))
    async_data.io.dw.en := false.B
    when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
    {
