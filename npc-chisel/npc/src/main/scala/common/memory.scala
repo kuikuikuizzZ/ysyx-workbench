@@ -29,7 +29,7 @@ class Wport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
    // val maskWidth = dataWidth/8
    val addr = Input(UInt(addrWidth.W))
    val data = Input(UInt(dataWidth.W))
-   val len = Input(UInt(dataWidth/8.W))
+   val len = Input(UInt(4.W))
    val en = Input(Bool())
 }
 
