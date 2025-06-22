@@ -1,6 +1,6 @@
 BUILD_DIR = ./build
 
-PRJ = src
+PRJ = npc
 
 test:
 	mill -i $(PRJ).test
@@ -8,10 +8,10 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
+	mill -i src/$(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
 
 help:
-	mill -i $(PRJ).runMain Elaborate --help
+	mill -i src/$(PRJ).runMain Elaborate --help
 
 reformat:
 	mill -i __.reformat
