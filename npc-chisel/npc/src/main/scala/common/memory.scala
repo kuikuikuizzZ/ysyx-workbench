@@ -81,11 +81,10 @@ class YSYX2400012Mem(val addrWidth: Int) extends Module  {
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
    }) 
-   io := DontCare
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    
    io.dataInstr(0).data := 0.U
-   io.dataInstr(1).data := 0.U
+   // io.dataInstr(1).data := 0.U
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
