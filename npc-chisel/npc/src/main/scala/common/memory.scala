@@ -76,14 +76,15 @@ class MemResp(val data_width: Int) extends Bundle
 //    addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
 // }
 
-class Mymem(val addrWidth: Int) extends BlackBox  {
+class Mymem(val addrWidth: Int)(implicit val conf: YSYX24100012Config) extends Module  {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
    }) 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    
-
+   io.dataInstr(0).data := 0.U
+   io.dataInstr(1).data := 0.U
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
