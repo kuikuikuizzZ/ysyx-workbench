@@ -1,6 +1,6 @@
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--mlir-print-ir-after-all",
+    "--mlir-print-ir-after-all 2",
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
