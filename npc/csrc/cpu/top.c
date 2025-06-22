@@ -28,7 +28,7 @@ void watch_top(){
         _top->rootp->ysyx_24100012_top__DOT__csrType,
         _top->rootp->ysyx_24100012_top__DOT__alu_a,
         _top->rootp->ysyx_24100012_top__DOT__alu_b,
-        _top->rootp->ysyx_24100012_top__DOT__AluOut,
+        _top->rootp->ysyx_24100012_top__DOT__al,
         top_gpr(10),
         top_gpr(1),
         14,

@@ -9,6 +9,6 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new gcd.GCD(),     
+    new npc.Top(),     
     firtoolOptions)
 }
