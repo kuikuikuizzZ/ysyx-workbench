@@ -8,7 +8,7 @@ module YSYX2400012Mem #(
     MEM_SIZE=32'h08000000
 ) (
     // // 全局时钟（根据Chisel的MemIo需补充）
-    // input clk,
+    input clk,
     
     // 指令读端口（Vec(2, Rport)）
     input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
