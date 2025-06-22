@@ -78,18 +78,18 @@ class MemResp(val data_width: Int) extends Bundle
 
 class Mymem(val addrWidth: Int) extends Module  {
    val io = IO(new Bundle{
-      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      // val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
    }) 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   val data = Wire(UInt(32.W))
-   val en = Wire(Bool())
-   en := io.dw.en
-   data := io.dw.data + io.dw.addr + io.dw.len +  
-           io.dataInstr(0).addr + io.dataInstr(1).addr +
-           io.dataInstr(0).data + io.dataInstr(1).data
-   io.dataInstr(0).data := 0.U
-   io.dataInstr(1).data := 0.U
+   // val data = Wire(UInt(32.W))
+   // val en = Wire(Bool())
+   // en := io.dw.en
+   // data := io.dw.data + io.dw.addr + io.dw.len +  
+   //         io.dataInstr(0).addr + io.dataInstr(1).addr +
+   //         io.dataInstr(0).data + io.dataInstr(1).data
+   // io.dataInstr(0).data := 0.U
+   // io.dataInstr(1).data := 0.U
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
@@ -106,14 +106,14 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    {
       io.core_ports(i).resp.valid := io.core_ports(i).req.valid
       io.core_ports(i).req.ready := true.B // for now, no back pressure 
-      async_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
+      // async_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
    }
 
    /////////// DPORT 
    val req_addri = io.core_ports(DPORT).req.bits.addr
 
    val req_typi = io.core_ports(DPORT).req.bits.typ
-   val resp_datai = async_data.io.dataInstr(DPORT).data
+   // val resp_datai = async_data.io.dataInstr(DPORT).data
    io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
       (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
@@ -134,9 +134,9 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    /////////////////
 
    ///////////// IPORT
-   if (num_core_ports == 2){
-      io.core_ports(IPORT).resp.bits.data := async_data.io.dataInstr(IPORT).data
-   }
+   // if (num_core_ports == 2){
+   //    io.core_ports(IPORT).resp.bits.data := async_data.io.dataInstr(IPORT).data
+   // }
    ////////////
  
 }
