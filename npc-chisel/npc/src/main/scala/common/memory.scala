@@ -82,7 +82,8 @@ class Mymem(val addrWidth: Int) extends Module  {
       val dw = new  Wport(addrWidth,32)
    }) 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   
+   val data = Wire(32.W)
+   data := io.dw.data + io.dw.addr + io.dw.len 
    io.dataInstr(0).data := 0.U
    io.dataInstr(1).data := 0.U
 }
