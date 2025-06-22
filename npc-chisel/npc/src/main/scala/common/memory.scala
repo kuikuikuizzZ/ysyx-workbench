@@ -67,7 +67,7 @@ class MemResp(val data_width: Int) extends Bundle
 class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
    val io = IO(new MemIo(32)) 
 
-   addPath("./YSYX2400012Mem.v")
+   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/YSYX2400012Mem.v")
 
 }
 
