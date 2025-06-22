@@ -67,7 +67,7 @@ class MemResp(val data_width: Int) extends Bundle
 class YSYX2400012Mem extends BlackBox with HasBlackBoxResource {
     val io = IO(new MemIo(32)) 
 
-    addResource("/YSYX2400012Mem.v")
+    addResource("YSYX2400012Mem.v")
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
