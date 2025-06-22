@@ -65,15 +65,14 @@ class MemResp(val data_width: Int) extends Bundle
    val data = Output(UInt(data_width.W))
 }
 
-// class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
-class YSYX2400012Mem extends Module{
+class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(32,32))
       val dw = new  Wport(32,32)
    }) 
-   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   // addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/YSYX2400012Mem.v")
 
+   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
+   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/YSYX2400012Mem.v")
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
