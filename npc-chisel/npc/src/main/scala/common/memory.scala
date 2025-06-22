@@ -26,10 +26,10 @@ trait MemoryOpConstants
 }
 
 class Wport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
-   val maskWidth = dataWidth/8
+   // val maskWidth = dataWidth/8
    val addr = Input(UInt(addrWidth.W))
    val data = Input(UInt(dataWidth.W))
-   val len = Input(UInt(maskWidth.W))
+   val len = Input(UInt(dataWidth/8.W))
    val en = Input(Bool())
 }
 
@@ -76,7 +76,7 @@ class MemResp(val data_width: Int) extends Bundle
 //    addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
 // }
 
-class Mymem(val addrWidth: Int)(implicit val conf: YSYX24100012Config) extends Module  {
+class Mymem(val addrWidth: Int) extends Module  {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
