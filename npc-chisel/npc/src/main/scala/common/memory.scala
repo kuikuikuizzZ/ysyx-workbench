@@ -3,7 +3,6 @@ package npc.common
 
 import chisel3._
 import chisel3.util._
-import chisel3.experimental._  // 引入 BlackBox 相关库
 
 import npc.common.CSR._
 import Constants._
@@ -67,7 +66,10 @@ class MemResp(val data_width: Int) extends Bundle
 }
 
 class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
-   val io = IO(new MemIo(32)) 
+   val io = IO(new Bundle{
+      val dataInstr = Vec(2, new Rport(32,32))
+      val dw = new  Wport(32,32)
+   }) 
 
    addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/YSYX2400012Mem.v")
 
