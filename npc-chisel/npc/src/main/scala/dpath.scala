@@ -36,7 +36,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val br_target        = Wire(UInt(32.W))
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
-   val exception_target = Wire(UInt(32.W))
+   // val exception_target = Wire(UInt(32.W))
    val xcpt             = Wire(Bool())
  
    // PC Register
@@ -50,7 +50,9 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    when (!io.ctl.stall) 
    {
-      pc_reg := Mux(xcpt, exception_target, pc_next)
+      // pc_reg := Mux(xcpt, exception_target, pc_next)
+      pc_reg :=  pc_next
+
    }
 
    pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
