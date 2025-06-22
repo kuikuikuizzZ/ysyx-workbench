@@ -168,6 +168,17 @@ module ysyx_24100012_top (
       2'b10, DMemLoad,
       2'b11, csrReadData
     }); 
+  // wire [DATA_WIDTH-1:0] a,b;
+  // YSYX2400012Mem  #(ADDR_WIDTH,DATA_WIDTH) test (
+  //   clk,
+  //   32'h80000000,
+  //   32'h80000000,
+  //   1'b0,
+  //   32'h80000000,
+  //   32'h80000000,
+  //   32'h80000000,
+  //   a,b
+  // );
 
   assign io_halt = inst== 32'h00100073;
 endmodule

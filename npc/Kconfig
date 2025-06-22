@@ -68,7 +68,7 @@ config WATCH_TOP
 
 config WATCHPOINT
   depends on TRACE
-  bool "Enable watchpoint when the condition is true"
+  bool "Eynable watchpoint when the condition is true"
   default n
 
 config DIFFTEST
