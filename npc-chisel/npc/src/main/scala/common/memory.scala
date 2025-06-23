@@ -79,7 +79,7 @@ class MemResp(val data_width: Int) extends Bundle
 class Mymem(val addrWidth: Int) extends Module  {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
-      val dw = new  Wport(addrWidth,32)
+      // val dw = new  Wport(addrWidth,32)
    }) 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    // val data = Wire(UInt(32.W))
@@ -115,23 +115,23 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
 
    val req_typi = io.core_ports(DPORT).req.bits.typ
    val resp_datai = async_data.io.dataInstr(DPORT).data
-   io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Seq(
+   io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
       (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
       (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
       (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
    ))
-   async_data.io.dw.en := false.B
-   when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
-   {
-      async_data.io.dw.en := true.B
-      // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
-      // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
-      async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
-      async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
-      async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
-                              Mux(req_typi === MT_H,2.U,4.U))
-   }
+   // async_data.io.dw.en := false.B
+   // when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
+   // {
+   //    async_data.io.dw.en := true.B
+   //    // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
+   //    // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
+   //    async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
+   //    async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+   //    async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
+   //                            Mux(req_typi === MT_H,2.U,4.U))
+   // }
    /////////////////
 
    ///////////// IPORT
