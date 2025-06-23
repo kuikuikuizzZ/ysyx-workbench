@@ -5,7 +5,7 @@ TOP_NAME = Top
 NAME = V$(TOP_NAME)
 
 # SV源文件
-SVSOURCES = $(wildcard $(NPC_HOME)/svsrc/**/*.sv $(NPC_HOME)/svsrc/*.sv)
+SVSOURCES = $(wildcard $(NPC_HOME)/svsrc/*.v $(NPC_HOME)/svsrc/*.sv)
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 
