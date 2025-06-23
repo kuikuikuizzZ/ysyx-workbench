@@ -88,8 +88,8 @@ class Mymem(val addrWidth: Int) extends Module  {
    // data := io.dw.data + io.dw.addr + io.dw.len +  
    //         io.dataInstr(0).addr + io.dataInstr(1).addr +
    //         io.dataInstr(0).data + io.dataInstr(1).data
-   io.dataInstr(0).data := 0.U
-   io.dataInstr(1).data := 0.U
+   io.dataInstr.data := 0.U
+   // io.dataInstr(1).data := 0.U
 }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
