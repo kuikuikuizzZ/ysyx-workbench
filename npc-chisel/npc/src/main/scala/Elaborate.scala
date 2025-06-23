@@ -13,7 +13,6 @@ object Elaborate extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new Top(),
-    args,
     Array("--split-verilog"),    
     firtoolOptions)
 }
