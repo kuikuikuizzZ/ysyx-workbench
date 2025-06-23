@@ -62,7 +62,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
    // val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
-   inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
+   inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
 
    // Decode
    val rs1_addr = inst(RS1_MSB, RS1_LSB)
