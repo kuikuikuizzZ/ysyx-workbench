@@ -101,7 +101,6 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
    val async_data = Module(new Mymem(32))
-   val async_data0 = Module(new Mymem(32))
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    for (i <- 0 until num_core_ports)
@@ -136,9 +135,9 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    /////////////////
 
    ///////////// IPORT
-   if (num_core_ports == 2){
+   // if (num_core_ports == 2){
       io.core_ports(IPORT).resp.bits.data := async_data.io.dataInstr(IPORT).data
-   }
+   // }
    ////////////
  
 }
