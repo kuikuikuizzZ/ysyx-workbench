@@ -122,7 +122,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
       (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
    ))
    async_data.io.dw.en := false.B
-   async_data.io.dw = DontCare
+   async_data.io.dw := DontCare
    when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
    {
       async_data.io.dw.en := true.B
