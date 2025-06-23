@@ -29,6 +29,7 @@ idea:
 
 clean:
 	-rm -rf $(BUILD_DIR)
+	-rm -rf $(NPC_HOME)/svsrc
 
 .PHONY: test verilog help reformat checkformat clean
 
