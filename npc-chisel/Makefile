@@ -10,7 +10,7 @@ verilog:
 	mkdir -p $(BUILD_DIR)
 	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc
-	cp  $(wildcard $(BUILD_DIR)/*.sv $(NPC_HOME)/svsrc/)
+	cp  $(wildcard $(BUILD_DIR)/*.sv) $(NPC_HOME)/svsrc/
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
