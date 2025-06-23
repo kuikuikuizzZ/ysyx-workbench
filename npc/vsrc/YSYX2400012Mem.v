@@ -11,7 +11,7 @@ module YSYX2400012Mem #(
     input clk,
     
     // 指令读端口（Vec(2, Rport)）
-    input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
+    input  [ADDR_WIDTH-1:0] dataInstr__addr,  // 端口0地址
     input  [ADDR_WIDTH-1:0] dataInstr_1_addr,  // 端口1地址
 
 
