@@ -26,10 +26,9 @@ trait MemoryOpConstants
 }
 
 class Wport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
-   val maskWidth = dataWidth/8
    val addr = Input(UInt(addrWidth.W))
    val data = Input(UInt(dataWidth.W))
-   val len = Input(UInt(maskWidth.W))
+   val len = Input(UInt(dataWidth.W))
    val en = Input(Bool())
 }
 
