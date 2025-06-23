@@ -20,8 +20,8 @@ module YSYX2400012Mem #(
     input  [ADDR_WIDTH-1:0] dw_addr,         // 写地址
     input  [DATA_WIDTH-1:0] dw_data,         // 写数据
     input  [DATA_WIDTH-1:0] dw_len,        // 字节掩码 (原Length整合至mask)
-    output reg [DATA_WIDTH-1:0] dataInstr_0_data,   // 端口0数据
-    output reg [DATA_WIDTH-1:0] dataInstr_1_data   // 端口1数据
+    output  reg [DATA_WIDTH-1:0] dataInstr_0_data,   // 端口0数据
+    output  reg [DATA_WIDTH-1:0] dataInstr_1_data   // 端口1数据
 );
 
     // 1. 重构读写逻辑分离
@@ -33,17 +33,13 @@ module YSYX2400012Mem #(
         end
     end
 
-    // 读逻辑：双端口独立读取
-    reg [DATA_WIDTH-1:0] read_buf [0:1]; // 双缓冲避免组合环路
-
-    always @(*) begin
+    always @(posedge clk) begin
         // 端口0读取
-        pmem_read(dataInstr_0_addr, 4, read_buf[0]); // 固定32位=4字节
-        assign dataInstr_0_data = read_buf[0];
-        
+        pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
+        // assign dataInstr_0_data = read_buf[0];
         // 端口1读取
-        pmem_read(dataInstr_1_addr, 4, read_buf[1]); 
-        assign dataInstr_1_data = read_buf[1];
+        pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+        // assign dataInstr_1_data = read_buf[1];
     end
 
 endmodule

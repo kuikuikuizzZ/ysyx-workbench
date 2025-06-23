@@ -5,12 +5,14 @@ PRJ = npc
 test:
 	mill -i $(PRJ).test
 
-verilog:
+build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc
-	cp  $(wildcard $(BUILD_DIR)/*.sv) $(NPC_HOME)/svsrc/
+	mill -i $(PRJ).runMain Elaborate --split-verilog --target-dir $(BUILD_DIR) 
+
+verilog: build
+	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v) $(NPC_HOME)/svsrc/
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
@@ -29,8 +31,9 @@ idea:
 
 clean:
 	-rm -rf $(BUILD_DIR)
+	-rm -rf $(NPC_HOME)/svsrc
 
-.PHONY: test verilog help reformat checkformat clean
+.PHONY: test verilog help reformat checkformat clean build
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
