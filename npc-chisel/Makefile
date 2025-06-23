@@ -8,8 +8,8 @@ test:
 build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --split-verilog --target-dir $(BUILD_DIR) 
 	mkdir -p $(NPC_HOME)/svsrc
+	mill -i $(PRJ).runMain Elaborate --split-verilog --target-dir $(BUILD_DIR) 
 
 verilog: build
 	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v) $(NPC_HOME)/svsrc/

@@ -136,8 +136,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
 
    ///////////// IPORT
    if (num_core_ports == 2){
-      val resp_data = async_data.io.dataInstr(IPORT).data
-      io.core_ports(IPORT).resp.bits.data := resp_data
+      io.core_ports(IPORT).resp.bits.data := async_data.io.dataInstr(IPORT).data
    }
    ////////////
  
