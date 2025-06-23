@@ -1,3 +1,6 @@
+import chisel3._
+import npc.Top
+
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(
@@ -9,5 +12,5 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new npc.Top(),args,firtoolOptions)
+    new Top(),args,firtoolOptions)
 }

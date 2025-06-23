@@ -36,6 +36,8 @@ VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
 SRCS=$(wildcard csrc/**/**/*.c csrc/**/*.c csrc/*.c )
 SOURCES = $(filter-out $(SRCS-BLACKLIST-y),$(SRCS))
 VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
+SVSOURCES=$(wildcard vsrc/**/*.sv vsrc/*.sv)
+
 BINARY   = $(BUILD_DIR)/$(NAME)
 IMG ?=
 NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
