@@ -12,6 +12,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new Top(),    
+    new Top(),
+    args=Array("--split-verilog"),    
     firtoolOptions)
 }
