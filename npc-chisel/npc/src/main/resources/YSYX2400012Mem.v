@@ -34,7 +34,7 @@ module YSYX2400012Mem #(
     end
 
     // 读逻辑：双端口独立读取
-    reg [DATA_WIDTH-1:0] read_buf [0:1]; // 双缓冲避免组合环路
+    wire [DATA_WIDTH-1:0] read_buf [0:1]; // 双缓冲避免组合环路
 
     always @(*) begin
         // 端口0读取
