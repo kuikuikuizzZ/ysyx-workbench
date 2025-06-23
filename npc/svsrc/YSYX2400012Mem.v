@@ -19,7 +19,7 @@ module YSYX2400012Mem #(
     input                  dw_en,           // 写使能 (原MemWEn)
     input  [ADDR_WIDTH-1:0] dw_addr,         // 写地址
     input  [DATA_WIDTH-1:0] dw_data,         // 写数据
-    input  [3:0] dw_len,        // 字节掩码 (原Length整合至mask)
+    input  [DATA_WIDTH-1:0] dw_len,        // 字节掩码 (原Length整合至mask)
     output reg [DATA_WIDTH-1:0] dataInstr_0_data,   // 端口0数据
     output reg [DATA_WIDTH-1:0] dataInstr_1_data   // 端口1数据
 );

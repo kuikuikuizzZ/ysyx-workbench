@@ -104,7 +104,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    for (i <- 0 until num_core_ports)
    {
-      io.core_ports(i).resp.valid := io.core_ports(i).req.valid
+      // io.core_ports(i).resp.valid := io.core_ports(i).req.valid
       io.core_ports(i).req.ready := true.B // for now, no back pressure 
       async_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
    }
