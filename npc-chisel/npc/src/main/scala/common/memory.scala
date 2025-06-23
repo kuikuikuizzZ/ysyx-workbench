@@ -65,32 +65,32 @@ class MemResp(val data_width: Int) extends Bundle
    val data = Output(UInt(data_width.W))
 }
 
-// class YSYX2400012Mem extends BlackBox with HasBlackBoxPath {
-//    val io = IO(new Bundle{
-//       val dataInstr = Vec(2, new Rport(32,32))
-//       val dw = new  Wport(32,32)
-//       val clk = Input(Clock())
-//    }) 
-
-//    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-//    addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
-// }
-
-class Mymem(val addrWidth: Int) extends Module  {
+class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
+      val clk = Input(Clock())
    }) 
+
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   // val data = Wire(UInt(32.W))
-   // val en = Wire(Bool())
-   // en := io.dw.en
-   // data := io.dw.data + io.dw.addr + io.dw.len +  
-   //         io.dataInstr(0).addr + io.dataInstr(1).addr +
-   //         io.dataInstr(0).data + io.dataInstr(1).data
-   io.dataInstr(0).data := 0.U
-   io.dataInstr(1).data := 0.U
+   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
 }
+
+// class Mymem(val addrWidth: Int) extends Module  {
+//    val io = IO(new Bundle{
+//       val dataInstr = Vec(2, new Rport(addrWidth,32))
+//       val dw = new  Wport(addrWidth,32)
+//    }) 
+//    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
+//    // val data = Wire(UInt(32.W))
+//    // val en = Wire(Bool())
+//    // en := io.dw.en
+//    // data := io.dw.data + io.dw.addr + io.dw.len +  
+//    //         io.dataInstr(0).addr + io.dataInstr(1).addr +
+//    //         io.dataInstr(0).data + io.dataInstr(1).data
+//    io.dataInstr(0).data := 0.U
+//    io.dataInstr(1).data := 0.U
+// }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
 {
@@ -100,7 +100,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    })
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
-   val async_data = Module(new Mymem(32))
+   val async_data = Module(new YSYX2400012Mem(32))
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    for (i <- 0 until num_core_ports)
