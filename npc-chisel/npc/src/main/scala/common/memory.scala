@@ -67,7 +67,7 @@ class MemResp(val data_width: Int) extends Bundle
 
 class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
-      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      val dataInstrss = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
       val clk = Input(Clock())
    }) 
