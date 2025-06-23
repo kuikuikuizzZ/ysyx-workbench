@@ -121,17 +121,18 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
       (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
       (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
    ))
-   // async_data.io.dw.en := false.B
-   // when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
-   // {
-   //    async_data.io.dw.en := true.B
-   //    // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
-   //    // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
-   //    async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
-   //    async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
-   //    async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
-   //                            Mux(req_typi === MT_H,2.U,4.U))
-   // }
+   async_data.io.dw.en := false.B
+   async_data.io.dw = DontCare
+   when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
+   {
+      async_data.io.dw.en := true.B
+      // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
+      // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
+      async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
+      async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+      async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
+                              Mux(req_typi === MT_H,2.U,4.U))
+   }
    /////////////////
 
    ///////////// IPORT
