@@ -204,7 +204,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   //   }
   // }
 
-  val decoded_addr = read_mapping map { case (k, v) => k.asUInt -> (io.decode.csr === k) }
+  val decoded_addr = read_mapping map { case (k, v) => k -> (io.decode.csr === k.asUInt) }
 
   val priv_sufficient = reg_mstatus.prv >= io.decode.csr(9,8)
   val read_only = io.decode.csr(11,10).andR
