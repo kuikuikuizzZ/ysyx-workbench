@@ -9,8 +9,6 @@ import npc._
 class Top extends Module 
 {
     val io = IO(new Bundle{
-        val clk = Input(Clock())
-        val rst = Input(Bool())
         val halt = Output(Bool())
     })
    implicit val conf = YSYX24100012Config()
