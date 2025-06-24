@@ -33,10 +33,10 @@ class MStatus extends Bundle {
 object PRV
 {
   val SZ = 2
-  val U = 0
-  val S = 1
-  val H = 2
-  val M = 3
+  val U = 0.U(SZ.W)
+  val S = 1.U(SZ.W)
+  val H = 2.U(SZ.W)
+  val M = 3.U(SZ.W)
 }
 
 object CSR
