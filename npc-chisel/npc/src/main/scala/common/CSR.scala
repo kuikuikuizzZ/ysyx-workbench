@@ -42,7 +42,7 @@ object PRV
 object CSR
 {
   // commands
-  val SZ = 3
+  val SZ = 3.W
   def X = BitPat.dontCare(SZ)
   def N = 0.U(SZ.W)
   def R = 2.U(SZ.W)
@@ -430,7 +430,7 @@ object CSRs {
 }
 
 
-class CSRFileIO(implicit val conf: SodorConfiguration) extends Bundle {
+class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
   val hartid = Input(UInt(conf.xprlen.W))
   val rw = new Bundle {
     val cmd = Input(UInt(CSR.SZ))
