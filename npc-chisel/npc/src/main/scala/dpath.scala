@@ -172,7 +172,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
    
    io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt()
+   io.dmem.req.bits.data := rs2_data.asUInt
  
 }
 
