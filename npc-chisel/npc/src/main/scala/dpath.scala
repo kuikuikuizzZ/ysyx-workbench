@@ -157,7 +157,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_PC4) -> pc_plus4,
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
-   io.ebreak := csr.io.csr_stall
                                   
    // datapath to data memory outputs
    io.dmem.req.bits.addr  := alu_out
@@ -172,6 +171,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dmem.req.bits.addr  := alu_out
    io.dmem.req.bits.data := rs2_data.asUInt
  
+   io.ebreak := csr.io.csr_stall
 }
 
  
