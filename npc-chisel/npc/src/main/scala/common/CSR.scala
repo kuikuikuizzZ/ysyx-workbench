@@ -433,7 +433,7 @@ object CSRs {
 class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
   val hartid = Input(UInt(conf.xprlen.W))
   val rw = new Bundle {
-    val cmd = Input(UInt(CSR.SZ))
+    val cmd = Input(UInt(CSR.SZ.W))
     val rdata = Output(UInt(conf.xprlen.W))
     val wdata = Input(UInt(conf.xprlen.W))
   }
