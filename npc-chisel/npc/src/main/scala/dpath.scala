@@ -22,8 +22,6 @@ class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val dmem = new MemPortIo(conf.xprlen)
    val ctl  = Flipped(new CtlToDatIo())
    val dat  = new DatToCtlIo()
-   // ?
-   override def cloneType = { new DatToCtlIo().asInstanceOf[this.type] }
 }
 
 
