@@ -340,5 +340,5 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   //   when (decoded_addr(lo)) { ctr := Cat(ctr(ctr.getWidth-1, 32), wdata) }
   // }
   def readModifyWriteCSR(cmd: UInt, rdata: UInt, wdata: UInt) =
-    (Mux(cmd===CSR.S| cmd=== CSR.C), rdata, 0.U) | wdata) & ~Mux(cmd === CSR.C, wdata, 0.U)
+    (Mux(cmd===CSR.S| cmd=== CSR.C, rdata, 0.U) | wdata) & ~Mux(cmd === CSR.C, wdata, 0.U)
 }
