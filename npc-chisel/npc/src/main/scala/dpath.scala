@@ -6,6 +6,7 @@ import chisel3.util._
 
 import npc.common._
 import npc.Constants._
+import npc.Utils._
 
 class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
@@ -150,7 +151,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.csr_eret := csr.io.eret
 
    // Add your own uarch counters here!
-   csr.io.counters.foreach(_.inc := false.B)
+   // csr.io.counters.foreach(_.inc := false.B)
 
    // WB Mux
    wb_data := MuxCase(alu_out, Seq(

@@ -153,5 +153,5 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // Other exceptions are detected later in the pipeline by passing the
    // instruction to the CSR File and letting it redirect the PC as it sees
    // fit.
-   io.ctl.illegal := (!cs_val_inst && io.imem.resp.valid) 
+   io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
 }
