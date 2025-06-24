@@ -13,7 +13,7 @@ class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val br_eq  = Output(Bool())
    val br_lt  = Output(Bool())
    val br_ltu = Output(Bool())
-   val ma_ls = Output(Bool())
+   val csr_eret = Output(Bool())
 }
 
 class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
@@ -22,6 +22,7 @@ class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val dmem = new MemPortIo(conf.xprlen)
    val ctl  = Flipped(new CtlToDatIo())
    val dat  = new DatToCtlIo()
+   val ebreak = Output(Bool())
 }
 
 
@@ -36,21 +37,21 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val br_target        = Wire(UInt(32.W))
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
-   // val exception_target = Wire(UInt(32.W))
-   val xcpt             = Wire(Bool())
+   val exception_target = Wire(UInt(32.W))
 
    // PC Register
    pc_next := MuxCase(pc_plus4, Seq(
+                  (io.ctl.pc_sel === PC_4)   -> pc_plus4,
                   (io.ctl.pc_sel === PC_BR)  -> br_target,
                   (io.ctl.pc_sel === PC_J )  -> jmp_target,
-                  (io.ctl.pc_sel === PC_JR)  -> jump_reg_target
+                  (io.ctl.pc_sel === PC_JR)  -> jump_reg_target,
+                  (io.ctl.pc_sel === PC_EXC) -> exception_target
                   ))
 
    val pc_reg = RegInit(START_ADDR) 
 
    when (!io.ctl.stall) 
    {
-      // pc_reg := Mux(xcpt, exception_target, pc_next)
       pc_reg :=  pc_next
 
    }
@@ -60,7 +61,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
-   // val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
    val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
 
    // Decode
@@ -73,7 +73,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    // Register File
    val regfile = Mem(32, UInt(conf.xprlen.W))
 
-   when (io.ctl.rf_wen && !xcpt)
+   when (io.ctl.rf_wen && (wb_addr =/= 0.U))
    {
       regfile(wb_addr) := wb_data
    }
@@ -135,18 +135,20 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
 
    // Control Status Registers
-   // val csr = Module(new CSRFile())
-   // csr.io := DontCare
-   // csr.io.rw.addr := inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
-   // csr.io.rw.cmd   := io.ctl.csr_cmd 
-   // csr.io.rw.wdata := alu_out
+   val csr = Module(new CSRFile())
+   csr.io := DontCare
+   csr.io.decode.csr := inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
+   csr.io.rw.cmd   := io.ctl.csr_cmd
+   csr.io.rw.wdata := alu_out
 
-   // csr.io.retire    := !io.ctl.stall
-   // csr.io.illegal   := io.ctl.illegal 
-   // csr.io.pc        := pc_reg
-   // exception_target := csr.io.evec
+   csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
+   csr.io.exception := io.ctl.exception
+   csr.io.pc        := pc_reg
+   exception_target := csr.io.evec
 
-   // // Add your own uarch counters here!
+   io.dat.csr_eret := csr.io.eret
+
+   // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
 
    // WB Mux
@@ -154,7 +156,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_ALU) -> alu_out,
                   (io.ctl.wb_sel === WB_MEM) -> io.dmem.resp.bits.data, 
                   (io.ctl.wb_sel === WB_PC4) -> pc_plus4,
-                  // (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
+                  (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
                                   
    // datapath to data memory outputs
@@ -167,34 +169,8 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.br_lt  := (rs1_data.asSInt < rs2_data.asSInt) 
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
    
-   val ma_typ           = Wire(Bool())
-   val ma_load          = Wire(Bool())
-   val ma_str           = Wire(Bool())
-   val ma_instr         = Wire(Bool())
-   io.dat.ma_ls  := ma_load || ma_str
-   // memory access lw/sw should be xx00, lh/sh should be xxx0
-   ma_typ        := MuxCase( false.B, Seq(
-                     (io.ctl.mem_typ(1,0) === 2.U) -> alu_out(0), 
-                     (io.ctl.mem_typ(1,0) === 3.U) -> alu_out(1,0).orR 
-                     ))
-   ma_load      := io.ctl.mem_en && !io.ctl.mem_fcn && ma_typ
-   ma_str       := io.ctl.mem_en && io.ctl.mem_fcn && ma_typ
-   ma_instr     := pc_next(1,0).orR
-
-   // csr.io.xcpt    := ma_load || ma_str || ma_instr || io.ctl.illegal
-   // csr.io.cause   := MuxCase(0.U, Array(
-   //                   ma_instr -> Causes.misaligned_fetch.U,
-   //                   io.ctl.illegal -> Causes.illegal_instruction.U,
-   //                   ma_load -> Causes.misaligned_load.U,
-   //                   ma_str  -> Causes.misaligned_store.U ))
-   // csr.io.tval    := MuxCase(0.U, Array(
-   //                   ma_instr -> pc_next,
-   //                   io.ctl.illegal -> inst,
-   //                   ma_load -> alu_out,
-   //                   ma_str  -> alu_out ))
-   // xcpt := ma_instr  || ma_load || ma_str || io.ctl.illegal || csr.io.eret   
-
-   xcpt := ma_instr  || ma_load || ma_str || io.ctl.illegal   
+   io.dmem.req.bits.addr  := alu_out
+   io.dmem.req.bits.data := rs2_data.asUInt
  
 }
 

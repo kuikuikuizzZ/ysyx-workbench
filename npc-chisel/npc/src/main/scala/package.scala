@@ -8,7 +8,7 @@ object Constants extends
    ScalarOpConstants with
    npc.common.MemoryOpConstants with
    NPCProcConstants with
-   PrivilegedConstants with
+   npc.common.PrivilegedConstants with
    RISCVConstants 
 {
 }

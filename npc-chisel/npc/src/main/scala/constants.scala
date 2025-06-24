@@ -42,16 +42,7 @@ trait NPCProcConstants
    // can be compared against the riscv-isa-run Spike ISA simulator's commit logger.
    val PRINT_COMMIT_LOG = false
 }
-trait PrivilegedConstants
-{
-   val MTVEC = 0x100
-   val START_ADDR = "h80000000".U 
 
-   val SZ_PRV = 2
-   val PRV_U = 0
-   val PRV_S = 1
-   val PRV_M = 3
-}
 
 
 trait ScalarOpConstants
