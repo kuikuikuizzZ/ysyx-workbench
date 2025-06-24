@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import Constants._
+import util._
 
 class MStatus extends Bundle {
     // not truly part of mstatus, but convenient
@@ -220,8 +221,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
   private def decodeAny(m: collection.mutable.LinkedHashMap[Int,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k.asUInt }.reduce(_||_)
   io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
-    (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr)) ||
-    !reg_debug
+    (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr))
   io.decode.write_illegal := io.decode.csr(11,10).andR
   io.decode.system_illegal := reg_mstatus.prv < io.decode.csr(9,8)
 
