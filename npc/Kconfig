@@ -5,6 +5,15 @@ config ISA
   string
   default riscv32e 
 
+choice
+  prompt "NPC Backend"
+  default npc
+config NPC_VERILOG
+  bool "npc"
+config NPC_CHISEL
+  bool "npc-chisel"
+endchoice
+
 menu "Testing and Debugging"
 
 config TRACE

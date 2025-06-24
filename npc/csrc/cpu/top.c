@@ -1,4 +1,6 @@
+
 #include <cpu/cpu.h>
+#ifdef CONFIG_NPC_VERILOG
 #include <cpu/top.h>
 
 Top* _top = NULL;
@@ -77,3 +79,4 @@ void delete_top() {
         delete _top ;
     }
 }
+#endif

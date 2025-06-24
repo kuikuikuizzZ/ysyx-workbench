@@ -1,63 +1,52 @@
-# Include all filelist.mk to merge file lists
+# 通用配置和变量定义
+WORK_DIR  = $(shell pwd)
+BUILD_DIR_BASE = $(WORK_DIR)/build
+
+
+# 包含配置文件
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 include $(NPC_HOME)/tools/difftest.mk
-
-# Include rules for menuconfig
 include $(NPC_HOME)/scripts/config.mk
 
+# 参数设置
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
-override ARGS += $(ARGS_DIFF) 
-# override ARGS += -b
+override ARGS += $(ARGS_DIFF)
 
-
-# Compiler and linker settings，should support configurable 
+# 编译器和链接器设置
 CFLAGS += -g
-WORK_DIR  = $(shell pwd)
-BUILD_DIR = $(WORK_DIR)/build
-TOP_NAME = ysyx_24100012_top 
-NAME=V$(TOP_NAME)
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
-VCFLAGS :=  -CFLAGS $(CFLAGS) $(INCLUDES)
+VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES)
 LIBS += -lreadline
-LDFLAGS +=   $(addprefix -LDFLAGS , $(LIBS))
+LDFLAGS += $(addprefix -LDFLAGS , $(LIBS))
 
 
 
+# 源文件定义
+SRCS = $(wildcard $(NPC_HOME)/csrc/**/**/*.c $(NPC_HOME)/csrc/**/*.c $(NPC_HOME)/csrc/*.c)
+SOURCES = $(filter-out $(SRCS-BLACKLIST-y), $(SRCS))
 
-VERILATOR_FLAGS := --cc --exe --build -j 8 --vpi $(VERILATOR_FLAGS)
-VERILATOR_FLAGS +=  $(VCFLAGS) 
-VERILATOR_FLAGS +=  $(LDFLAGS)
-VERILATOR_FLAGS += --top-module $(TOP_NAME)
-VERILATOR_FLAGS += --Mdir $(BUILD_DIR)
+# 根据CHISEL标志选择编译路径
+ifdef CHISEL
+    include $(NPC_HOME)/scripts/npc-chisel.mk
+else
+    include $(NPC_HOME)/scripts/npc.mk
+endif
 
-
-SRCS=$(wildcard csrc/**/**/*.c csrc/**/*.c csrc/*.c )
-SOURCES = $(filter-out $(SRCS-BLACKLIST-y),$(SRCS))
-VSOURCES=$(wildcard vsrc/**/*.v vsrc/*.v)
-SVSOURCES=$(wildcard vsrc/**/*.sv vsrc/*.sv)
-
-BINARY   = $(BUILD_DIR)/$(NAME)
-IMG ?=
-NPC_EXEC := $(BINARY) $(ARGS) $(IMG)
-
-build:
-	verilator $(VERILATOR_FLAGS) csrc/main.cpp $(SOURCES) $(VSOURCES) --trace 
-
-sim:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by your self."
-
-include ../Makefile
-
-
-
+# 通用规则
 run: build
 	@echo $(ARGS) $(IMG)
 	$(NPC_EXEC)
 
 clean:
-	rm -r $(BUILD_DIR)
+	rm -rf $(BUILD_DIR_BASE)
 
-.PHONY: run build clean
+sim:
+	$(call git_commit, "sim RTL")
+	@echo "Write this Makefile by your self."
+
+.PHONY: run build clean sim
+
+# 包含上级Makefile（保持原有依赖）
+include ../Makefile
