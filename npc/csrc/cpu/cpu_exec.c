@@ -16,17 +16,17 @@ void device_update();
 bool wps_diff();
 
 void step() {
-    IFDEF(CONFIG_NPC_CHISEL,top()->io_clock = 0);
+    IFDEF(CONFIG_NPC_CHISEL,top()->clock = 0);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 0);
     top()->eval(); 
-    IFDEF(CONFIG_NPC_CHISEL,top()->io_clock = 1);
+    IFDEF(CONFIG_NPC_CHISEL,top()->clock = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 1); 
     top()->eval(); }
 void reset(int n) { 
-    IFDEF(CONFIG_NPC_CHISEL,top()->io_reset = 1);
+    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 1);
     while (n --) { step(); } 
-    IFDEF(CONFIG_NPC_CHISEL,top()->io_reset = 0);
+    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 0);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);}
 void sync_cpu(){
     for (int i=0;i<gpr_size;i++)
@@ -44,7 +44,7 @@ void init_cpu(int argc ,char** argv){
     contextp->commandArgs(argc, argv);
 
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    reset(1);
+    reset(2);
     sync_cpu();
 }
 

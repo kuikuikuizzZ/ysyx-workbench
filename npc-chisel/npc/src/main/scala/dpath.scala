@@ -147,7 +147,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    exception_target := csr.io.evec
 
    io.dat.csr_eret := csr.io.eret
-   io.ebreak := csr.io.csr_stall
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
 
@@ -158,6 +157,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_PC4) -> pc_plus4,
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
+   io.ebreak := csr.io.csr_stall
                                   
    // datapath to data memory outputs
    io.dmem.req.bits.addr  := alu_out
