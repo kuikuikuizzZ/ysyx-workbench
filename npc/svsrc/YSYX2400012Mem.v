@@ -36,7 +36,7 @@ module YSYX2400012Mem #(
     // 读逻辑：双端口独立读取
     // wire [DATA_WIDTH-1:0] read_buf [0:1]; // 双缓冲避免组合环路
 
-    always @(*) begin
+    always @(posedge clk) begin
         // 端口0读取
         pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
         // assign dataInstr_0_data = read_buf[0];

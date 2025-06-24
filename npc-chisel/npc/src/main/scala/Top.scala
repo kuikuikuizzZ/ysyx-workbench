@@ -11,8 +11,8 @@ class Top extends Module
     val io = IO(new Bundle{
         val clk = Input(Clock())
         val rst = Input(Bool())
-        // val io_halt = Output(Bool())
-        // val ecall = Output(Bool())
+        val halt = Output(Bool())
+        val ecall = Output(Bool())
     })
    implicit val conf = YSYX24100012Config()
 
