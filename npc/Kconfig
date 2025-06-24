@@ -7,12 +7,11 @@ config ISA
 
 choice
   prompt "NPC Backend"
-  default npc
+  default NPC_VERILOG
 config NPC_VERILOG
   bool "npc"
 config NPC_CHISEL
   bool "npc-chisel"
-
 endchoice
 
 menu "Testing and Debugging"
