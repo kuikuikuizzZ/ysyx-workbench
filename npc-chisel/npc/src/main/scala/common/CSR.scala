@@ -204,7 +204,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   //   }
   // }
 
-  val decoded_addr = read_mapping map { case (k, v) => k -> (io.decode.csr === k) }
+  val decoded_addr = read_mapping map { case (k.asUInt, v) => k -> (io.decode.csr === k) }
 
   val priv_sufficient = reg_mstatus.prv >= io.decode.csr(9,8)
   val read_only = io.decode.csr(11,10).andR
@@ -218,7 +218,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val insn_ret = system_insn && opcode(2) && priv_sufficient
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
-  private def decodeAny(m: collection.mutable.LinkedHashMap[Int,_:Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
+  private def decodeAny(m: collection.mutable.LinkedHashMap[Int:Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
   io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
     (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr)) ||
     !reg_debug
