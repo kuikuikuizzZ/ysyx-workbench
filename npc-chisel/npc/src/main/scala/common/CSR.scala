@@ -149,7 +149,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val impid = 0x8000 // indicates an anonymous source, which can be used
                      // during development before a Source ID is allocated.
 
-  val read_mapping = collection.mutable.LinkedHashMap[UInt,Bits](
+  val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
     // CSRs.mcycle -> reg_time,
     // CSRs.minstret -> reg_instret,
     CSRs.mimpid -> 0.U,
@@ -218,7 +218,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val insn_ret = system_insn && opcode(2) && priv_sufficient
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
-  private def decodeAny(m: collection.mutable.LinkedHashMap[UInt,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
+  private def decodeAny(m: collection.mutable.LinkedHashMap[Int,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
   io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
     (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr)) ||
     !reg_debug
