@@ -459,7 +459,7 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
 
 }
 
-class CSRFile(implicit val conf: SodorConfiguration) extends Module
+class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 {
   val io = IO(new CSRFileIO)
   io := DontCare
