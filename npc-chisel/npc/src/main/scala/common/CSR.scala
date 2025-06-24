@@ -42,7 +42,7 @@ object PRV
 object CSR
 {
   // commands
-  val SZ = 3.W
+  val SZ = 3
   def X = BitPat.dontCare(SZ)
   def N = 0.U(SZ.W)
   def R = 2.U(SZ.W)
