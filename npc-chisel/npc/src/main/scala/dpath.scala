@@ -5,8 +5,8 @@ import chisel3._
 import chisel3.util._
 
 import npc.common._
+import npc.common.Utils._
 import npc.Constants._
-import npc.Utils._
 
 class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
@@ -172,7 +172,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
    
    io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt
+   io.dmem.req.bits.data := rs2_data.asUInt()
  
 }
 
