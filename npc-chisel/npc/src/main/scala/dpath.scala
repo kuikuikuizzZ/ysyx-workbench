@@ -58,7 +58,8 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
 
-   
+   io.ebreak := csr.io.csr_stall
+
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
    val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
@@ -171,7 +172,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dmem.req.bits.addr  := alu_out
    io.dmem.req.bits.data := rs2_data.asUInt
  
-   io.ebreak := csr.io.csr_stall
 }
 
  
