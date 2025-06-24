@@ -185,7 +185,7 @@ object CSRs {
   val hpmcounter29 = 0xc1d
   val hpmcounter30 = 0xc1e
   val hpmcounter31 = 0xc1f
-  val mstatus = 0x300
+  val mstatus = 0x300.U
   val misa = 0x301
   val medeleg = 0x302
   val mideleg = 0x303
