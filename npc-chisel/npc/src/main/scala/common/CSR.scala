@@ -119,7 +119,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
   // val reg_mip = RegInit(0.U.asTypeOf(new MIP()))
   // val reg_mie = RegInit(0.U.asTypeOf(new MIP()))
-  // val reg_wfi = RegInit(false.B)
+  val reg_wfi = RegInit(false.B)
 
   // val reg_time = WideCounter(64)
   // val reg_instret = WideCounter(64, io.retire)
@@ -247,11 +247,11 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   io.evec := 0x80000004L.U
 
   //DRET
-  when(insn_ret && io.decode.csr(10)){
-    new_prv := reg_dcsr.prv
-    reg_debug := false
-    io.evec := reg_dpc
-  }
+  // when(insn_ret && io.decode.csr(10)){
+  //   new_prv := reg_dcsr.prv
+  //   reg_debug := false
+  //   io.evec := reg_dpc
+  // }
 
   //MRET
   when (insn_ret && !io.decode.csr(10)) {
@@ -275,7 +275,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
     reg_mepc := io.pc
   }
 
-  io.time := reg_time
+  // io.time := reg_time
   io.csr_stall := reg_wfi
 
 
@@ -315,7 +315,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
     // writeCounter(CSRs.mcycle, reg_time, wdata)
     // writeCounter(CSRs.minstret, reg_instret, wdata)
 
-    when (decoded_addr(CSRs.dpc))      { reg_dpc := wdata }
+    // when (decoded_addr(CSRs.dpc))      { reg_dpc := wdata }
     // when (decoded_addr(CSRs.dscratch)) { reg_dscratch := wdata }
 
     when (decoded_addr(CSRs.mepc))     { reg_mepc := (wdata(conf.xprlen-1,0) >> 2.U) << 2.U }
