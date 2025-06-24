@@ -3,6 +3,8 @@ package npc.common
 import chisel3._
 import chisel3.util._
 
+import Constants._
+
 class MStatus extends Bundle {
     // not truly part of mstatus, but convenient
   val debug = Bool()
