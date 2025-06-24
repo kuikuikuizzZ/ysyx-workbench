@@ -149,7 +149,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val impid = 0x8000 // indicates an anonymous source, which can be used
                      // during development before a Source ID is allocated.
 
-  val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
+  val read_mapping = collection.mutable.LinkedHashMap[UInt,Bits](
     // CSRs.mcycle -> reg_time,
     // CSRs.minstret -> reg_instret,
     CSRs.mimpid -> 0.U,
