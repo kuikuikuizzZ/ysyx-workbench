@@ -58,7 +58,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
 
-   io.ebreak := csr.io.csr_stall
 
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
@@ -148,6 +147,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    exception_target := csr.io.evec
 
    io.dat.csr_eret := csr.io.eret
+   io.ebreak := csr.io.csr_stall
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
 
