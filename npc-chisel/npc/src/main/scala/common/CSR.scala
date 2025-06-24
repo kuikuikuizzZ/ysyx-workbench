@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import Constants._
-import util._
+import Util._
 
 class MStatus extends Bundle {
     // not truly part of mstatus, but convenient
