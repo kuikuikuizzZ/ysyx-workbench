@@ -12,7 +12,6 @@ class Top extends Module
         val clk = Input(Clock())
         val rst = Input(Bool())
         val halt = Output(Bool())
-        val ecall = Output(Bool())
     })
    implicit val conf = YSYX24100012Config()
 
@@ -22,5 +21,5 @@ class Top extends Module
     val memory = Module(new AsyncScratchPadMemory(num_core_ports = 2))
     core.io.dmem <> memory.io.core_ports(0)
     core.io.imem <> memory.io.core_ports(1)
-
+    io.halt := core.io.halt
 }

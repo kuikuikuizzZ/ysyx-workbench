@@ -276,7 +276,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   }
 
   // io.time := reg_time
-  io.csr_stall := reg_wfi
+  io.csr_stall := reg_wfi || insn_break
 
 
   io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
