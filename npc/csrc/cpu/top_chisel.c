@@ -49,7 +49,7 @@ uint32_t top_inst() {
 }
 uint32_t top_dnpc() {
     if (!_top) return 0;
-    return 0;
+    return _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0;
 }
 
 void delete_top() {
