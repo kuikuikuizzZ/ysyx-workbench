@@ -38,12 +38,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
    val exception_target = Wire(UInt(32.W))
-   val pc_reg = RegInit(START_ADDR) 
 
-   io.imem.req.bits.addr := pc_reg
-   io.imem.req.valid := true.B 
-   val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
-   
    // PC Register
    pc_next := MuxCase(pc_plus4, Seq(
                   (io.ctl.pc_sel === PC_4)   -> pc_plus4,
@@ -53,13 +48,20 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.pc_sel === PC_EXC) -> exception_target
                   ))
 
+   val pc_reg = RegInit(START_ADDR) 
+   val pc_sent = RegInit(START_ADDR)
 
    when (!io.ctl.stall) 
    {
+      pc_sent := pc_reg
       pc_reg :=  pc_next
 
    }
 
+   io.imem.req.bits.addr := pc_sent
+   io.imem.req.valid := true.B 
+   val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
+   
    pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
 
 
