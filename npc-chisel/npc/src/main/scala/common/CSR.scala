@@ -292,8 +292,9 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
     when (decoded_addr(CSRs.mstatus)) {
       val new_mstatus = wdata.asTypeOf(new MStatus())
-      reg_mstatus.mie := new_mstatus.mie
-      reg_mstatus.mpie := new_mstatus.mpie
+      // reg_mstatus.mie := new_mstatus.mie
+      // reg_mstatus.mpie := new_mstatus.mpie
+      reg_mstatus := new_mstatus
     }
     // when (decoded_addr(CSRs.mip)) {
     //   val new_mip = wdata.asTypeOf(new MIP())
