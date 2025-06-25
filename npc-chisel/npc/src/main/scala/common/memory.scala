@@ -140,8 +140,9 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    {
       async_data.io.dw.en := true.B
       // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
-      async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
-      async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+      // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
+      async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
+      async_data.io.dw.addr := req_addri
       async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
                               Mux(req_typi === MT_H,2.U,4.U))
    }
