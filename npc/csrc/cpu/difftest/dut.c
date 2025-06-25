@@ -31,7 +31,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
-extern char* regs[];
+// extern char* regs[];
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NPC
 void difftest_skip_ref() {
@@ -113,14 +113,14 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
   }
 }
 
-void difftest_step(vaddr_t pc, vaddr_t npc) {
+void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   CPU_state ref_r;
 
   if (skip_dut_nr_inst > 0) {
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    if (ref_r.pc == npc) {
+    if (ref_r.pc == pc_next) {
       skip_dut_nr_inst = 0;
-      checkregs(&ref_r, npc);
+      checkregs(&ref_r, pc_next);
       return;
     }
     skip_dut_nr_inst --;

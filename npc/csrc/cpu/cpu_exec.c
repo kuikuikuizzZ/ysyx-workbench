@@ -80,16 +80,16 @@ int check_halt(){
     return top_gpr(10);
 }
 
-void itrace_once(){
+void itrace_once(Decode * s) {
     // 32 match inst name in capstone define
     char inst_name[32];
     char *p = itrace_buff;
     p +=  (npc_state.state != NPC_ABORT) ? 
-        snprintf(p, ITRACE_SIZE,"    " FMT_WORD ":", top_pc()):
-        snprintf(p, ITRACE_SIZE," -->" FMT_WORD ":", top_pc());
+        snprintf(p, ITRACE_SIZE,"    " FMT_WORD ":", s->pc):
+        snprintf(p, ITRACE_SIZE," -->" FMT_WORD ":", s->pc);
     int ilen = sizeof(word_t);
     int i;
-    uint32_t inst = top_inst();
+    uint32_t inst = s->inst;
     
     uint8_t *inst_ptr = (uint8_t *)(&inst);
     for (i = ilen - 1; i >= 0; i --) {
@@ -103,7 +103,7 @@ void itrace_once(){
     memset(p, ' ', space_len);
     p += space_len;
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
-    disassemble(p, itrace_buff + LOG_BUFSIZE - p, top_pc(), inst_ptr, ilen,inst_name);
+    disassemble(p, itrace_buff + LOG_BUFSIZE - p, s->pc, inst_ptr, ilen,inst_name);
     int len = strlen(itrace_buff);
     memset(itrace_buff+len,' ',ITRACE_SIZE-len);
     itrace_buff[ITRACE_SIZE-1] = '\n';
@@ -123,6 +123,7 @@ void exec_once(Decode *s){
     watch_top();
     #endif
     sync_cpu();
+    s->inst = top_inst();
     if (top_halt()){
         NPCTRAP(top_pc(),top_gpr(10));
     }
@@ -134,7 +135,7 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
     difftest_step(s->pc,dnpc);
     #endif
     #ifdef CONFIG_ITRACE
-    itrace_once();
+    itrace_once(s);
     if ((npc_state.state!=NPC_RUNNING)) {
         char temp_buf [LOG_BUFSIZE];
         RingBuffer_get(rb,temp_buf,LOG_BUFSIZE);

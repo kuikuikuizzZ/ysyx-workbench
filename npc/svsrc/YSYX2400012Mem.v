@@ -31,6 +31,7 @@ module YSYX2400012Mem #(
     always @(*) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
+            $display("YSYX2400012Mem: Writing to address %h with data %h and length %h", dw_addr, dw_data, dw_len);
         end
     end
 
