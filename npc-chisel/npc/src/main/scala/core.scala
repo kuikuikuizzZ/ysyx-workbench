@@ -29,8 +29,11 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   io.dmem.req.valid := c.io.dmem.req.valid
   io.dmem.req.bits.typ := c.io.dmem.req.bits.typ
   io.dmem.req.bits.fcn := c.io.dmem.req.bits.fcn
+  // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   when(d.io.ebreak) {
     io.halt := true.B
+  } .otherwise {
+    io.halt := false.B
   }
 }
 
