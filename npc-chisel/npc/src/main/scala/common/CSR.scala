@@ -90,7 +90,8 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
     // val system_illegal = Output(Bool())
   }
 
-  val status = Output(new MStatus())
+  // val status = Output(new MStatus())
+  val status = Output(UInt(conf.xprlen.W)) // using UInt for simplicity, can be changed to MStatus if needed
   val evec = Output(UInt(conf.xprlen.W))
   val exception = Input(Bool())
   val pc = Input(UInt(conf.xprlen.W))
@@ -301,7 +302,8 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
     //   }
 
     when (decoded_addr(CSRs.mstatus)) {
-      val new_mstatus = wdata.asTypeOf(new MStatus())
+      // val new_mstatus = wdata.asTypeOf(new MStatus())
+      val new_mstatus = wdata.asUInt // using UInt for simplicity, can be changed to MStatus if needed
       // reg_mstatus.mie := new_mstatus.mie
       // reg_mstatus.mpie := new_mstatus.mpie
       reg_mstatus := new_mstatus
