@@ -14,8 +14,8 @@ module YSYX2400012Mem #(
     // 指令读端口（Vec(2, Rport)）
     input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
     input  [ADDR_WIDTH-1:0] dataInstr_1_addr,  // 端口1地址
-    input  [ADDR_WIDTH-1:0] dataInstr_0_en,  // 端口0地址
-    input  [ADDR_WIDTH-1:0] dataInstr_1_en,  // 端口1地址
+    input  dataInstr_0_en,  // 端口0使能
+    input  dataInstr_1_en,  // 端口1使能
 
 
     // 数据写端口（dw: Wport）
@@ -32,32 +32,23 @@ module YSYX2400012Mem #(
     // 写逻辑：使用dw_en触发pmem_write
     always @(*) begin
         if (reset) begin
-            dataInstr_1_data = 32'b0; // 重置端口1数据
-        end
-        if (dw_en) begin
-            pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
-        end
-    end
-
-    always @(*) begin
-        if (reset) begin
-            dataInstr_1_data = 32'b0; // 重置端口1数据
-        end else begin
-            // 端口1读取
-            pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
-            // assign dataInstr_1_data = read_buf[1];
-        end
-
-    end
-
-    always @(*) begin
-        if (reset) begin
             dataInstr_0_data = 32'b0; // 重置端口0数据
+            dataInstr_1_data = 32'b0; // 重置端口1数据
         end else begin
+            // 端口0写入
+            if (dw_en) begin
+                pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
+            end
             // 端口0读取
-            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
+            if (dataInstr_0_en) begin
+                pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
+            end
+            // 端口1读取
+            if (dataInstr_1_en) begin
+                pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+            end
+            
         end
-
     end
 
 endmodule
