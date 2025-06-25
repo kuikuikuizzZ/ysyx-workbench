@@ -31,13 +31,6 @@ module YSYX2400012Mem #(
     always @(*) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
-        end else begin
-            dataInstr_0_data = 32'b0; // 如果没有写操作，端口0数据清零
-        end
-        if (reset) begin
-            dataInstr_1_data = 32'b0; // 重置端口1数据
-        end else begin
-            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
         end
     end
 
@@ -48,6 +41,16 @@ module YSYX2400012Mem #(
             // 端口1读取
             pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
             // assign dataInstr_1_data = read_buf[1];
+        end
+
+    end
+
+    always @(*) begin
+        if (reset) begin
+            dataInstr_0_data = 32'b0; // 重置端口0数据
+        end else begin
+            // 端口0读取
+            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
         end
 
     end
