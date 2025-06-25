@@ -49,16 +49,14 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   ))
 
    val pc_reg = RegInit(START_ADDR) 
-   val pc_sent = RegInit(START_ADDR)
 
    when (!io.ctl.stall) 
    {
-      pc_sent := pc_reg
       pc_reg :=  pc_next
 
    }
 
-   io.imem.req.bits.addr := pc_sent
+   io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
    val inst = RegEnable(io.imem.resp.bits.data, io.imem.resp.valid)
    
