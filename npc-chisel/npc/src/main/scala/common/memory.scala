@@ -68,6 +68,8 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
+      val clock = Input(Clock())
+      val reset = Input(Bool())
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
