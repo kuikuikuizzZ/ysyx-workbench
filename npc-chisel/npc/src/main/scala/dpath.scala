@@ -160,9 +160,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
                                   
-   // datapath to data memory outputs
-   io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt 
+
 
    // datapath to controlpath outputs
    io.dat.inst   := inst
@@ -170,8 +168,9 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.br_lt  := (rs1_data.asSInt < rs2_data.asSInt) 
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
    
+   // datapath to data memory outputs
    io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt
+   io.dmem.req.bits.data := rs2_data.asUInt 
  
 }
 
