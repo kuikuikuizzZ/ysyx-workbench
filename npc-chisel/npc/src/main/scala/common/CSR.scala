@@ -272,7 +272,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   //ECALL
   when(insn_call){
     // reg_mcause := reg_mstatus.prv + Causes.user_ecall
-    reg_mcause := Causes.user_ecall
+    reg_mcause := Causes.machine_ecall
     io.evec := reg_mtvec
 
   }
