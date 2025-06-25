@@ -156,9 +156,10 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    val sync_data = Module(new YSYX2400012Mem(32))
    sync_data.io.clock := clock
    sync_data.io.reset := reset
+   
    for (i <- 0 until num_core_ports)
    {
-      io.core_ports(i).resp.valid := RegNext(io.core_ports(i).req.valid)
+      io.core_ports(i).resp.valid := RegNext(false.B,io.core_ports(i).req.valid)
       io.core_ports(i).req.ready := true.B // for now, no back pressure
       sync_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
    }
