@@ -31,7 +31,9 @@ module YSYX2400012Mem #(
     always @(*) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
-        end 
+        end else begin
+            dataInstr_0_data = 32'b0; // 如果没有写操作，端口0数据清零
+        end
         if (reset) begin
             dataInstr_1_data = 32'b0; // 重置端口1数据
         end else begin

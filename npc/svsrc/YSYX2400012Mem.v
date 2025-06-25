@@ -34,8 +34,7 @@ module YSYX2400012Mem #(
         end 
         if (reset) begin
             dataInstr_1_data = 32'b0; // 重置端口1数据
-        end
-        else begin
+        end else begin
             pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
         end
     end
