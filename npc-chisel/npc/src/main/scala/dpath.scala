@@ -42,7 +42,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
-   val inst = io.imem.resp.bits.data
+   val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
    
    // PC Register
    pc_next := MuxCase(pc_plus4, Seq(

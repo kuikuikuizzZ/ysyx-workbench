@@ -33,7 +33,7 @@ module YSYX2400012Mem #(
         end
     end
 
-    always @(posedge clk) begin
+    always @(*) begin
         // 端口0读取
         pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
         // assign dataInstr_0_data = read_buf[0];
