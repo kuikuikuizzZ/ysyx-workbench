@@ -3,14 +3,12 @@ package npc
 
 import chisel3._
 
-import npc.common.{YSYX24100012Config, AsyncScratchPadMemory}
+import npc.common.{YSYX24100012Config, AsyncScratchPadMemory, SyncScratchPadMemory}
 import npc._
 
 class Top extends Module 
 {
     val io = IO(new Bundle{
-        val clk = Input(Clock())
-        val rst = Input(Bool())
         val halt = Output(Bool())
     })
    implicit val conf = YSYX24100012Config()

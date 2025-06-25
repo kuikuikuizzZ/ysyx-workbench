@@ -38,7 +38,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
    val exception_target = Wire(UInt(32.W))
-
+   val inst           = Wire(UInt(32.W))
    // PC Register
    pc_next := MuxCase(pc_plus4, Seq(
                   (io.ctl.pc_sel === PC_4)   -> pc_plus4,
@@ -56,12 +56,13 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    }
 
-   pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
-
-   
    io.imem.req.bits.addr := pc_reg
    io.imem.req.valid := true.B 
-   val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE) 
+   inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
+   
+   pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
+
+
 
    // Decode
    val rs1_addr = inst(RS1_MSB, RS1_LSB)
@@ -147,7 +148,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    exception_target := csr.io.evec
 
    io.dat.csr_eret := csr.io.eret
-
+   io.ebreak := csr.io.csr_stall
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
 
@@ -159,9 +160,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
                                   
-   // datapath to data memory outputs
-   io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt 
+
 
    // datapath to controlpath outputs
    io.dat.inst   := inst
@@ -169,8 +168,9 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.dat.br_lt  := (rs1_data.asSInt < rs2_data.asSInt) 
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
    
+   // datapath to data memory outputs
    io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := rs2_data.asUInt
+   io.dmem.req.bits.data := rs2_data.asUInt 
  
 }
 

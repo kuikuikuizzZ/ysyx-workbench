@@ -1,7 +1,5 @@
-import "DPI-C" function void pmem_read(input int outaddr,input int length, output int dout);
-import "DPI-C" function void pmem_write(input int inaddr,input int length, input int din);
 
-module YSYX2400012Mem #(
+module YSYX2400012SyncMem #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     ORIGIN_ADDR=32'h80000000,
@@ -28,13 +26,13 @@ module YSYX2400012Mem #(
     // 1. 重构读写逻辑分离
     //-----------------------------
     // 写逻辑：使用dw_en触发pmem_write
-    always @(*) begin
+    always @(posedge clock) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
     end
 
-    always @(*) begin
+    always @(posedge clock) begin
         if (reset) begin
             dataInstr_1_data = 32'b0; // 重置端口1数据
         end else begin
@@ -45,14 +43,17 @@ module YSYX2400012Mem #(
 
     end
 
-    always @(*) begin
+    always @(posedge clock) begin
         if (reset) begin
             dataInstr_0_data = 32'b0; // 重置端口0数据
         end else begin
             // 端口0读取
-            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
+            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
+            // assign dataInstr_0_data = read_buf[0];
         end
 
     end
+
+
 
 endmodule
