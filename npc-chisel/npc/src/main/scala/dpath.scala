@@ -38,6 +38,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val jmp_target       = Wire(UInt(32.W))
    val jump_reg_target  = Wire(UInt(32.W))
    val exception_target = Wire(UInt(32.W))
+   val pc_reg = RegInit(START_ADDR) 
 
    // PC Register
    pc_next := MuxCase(pc_plus4, Seq(
@@ -48,7 +49,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.pc_sel === PC_EXC) -> exception_target
                   ))
 
-   val pc_reg = RegInit(START_ADDR) 
 
    when (!io.ctl.stall) 
    {

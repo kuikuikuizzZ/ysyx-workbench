@@ -44,7 +44,7 @@ void init_cpu(int argc ,char** argv){
     contextp->commandArgs(argc, argv);
 
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    reset(2);
+    reset(1);
     sync_cpu();
 }
 
