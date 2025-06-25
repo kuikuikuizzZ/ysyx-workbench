@@ -27,7 +27,7 @@ module YSYX2400012Mem #(
     // 1. 重构读写逻辑分离
     //-----------------------------
     // 写逻辑：使用dw_en触发pmem_write
-    always @(posedge clk) begin
+    always @(*) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
