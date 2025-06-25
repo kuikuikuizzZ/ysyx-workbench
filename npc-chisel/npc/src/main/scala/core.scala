@@ -32,6 +32,8 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   when(d.io.ebreak) {
     io.halt := true.B
+  } .otherwise {
+    io.halt := false.B
   } 
 }
 
