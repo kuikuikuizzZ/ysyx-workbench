@@ -16,7 +16,7 @@ class Top extends Module
     val core = Module(new Core())
     core.io := DontCare
 
-    val memory = Module(new SyncScratchPadMemory(num_core_ports = 2))
+    val memory = Module(new AsyncScratchPadMemory(num_core_ports = 2))
     core.io.dmem <> memory.io.core_ports(0)
     core.io.imem <> memory.io.core_ports(1)
     io.halt := core.io.halt
