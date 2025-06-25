@@ -13,13 +13,7 @@ Top* top() {
     return _top;
 }
 
-void watch_top(){
-    // if (!(top->ysyx_24100012_top__DOT__inst==WATCH_INST)) return;
-    _top = top();
-    if (!_top) return;
-    if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-    printf("watch top");
-}
+
 
 uint32_t top_gpr(int i) {
     if (!_top) return 0;
@@ -46,7 +40,7 @@ uint32_t top_pc() {
 
 uint32_t top_halt(){
     if (!_top) return 0;
-    return 0;
+    return _rootp->io_halt;
 }
 
 uint32_t top_inst() {
@@ -55,12 +49,28 @@ uint32_t top_inst() {
 }
 uint32_t top_dnpc() {
     if (!_top) return 0;
-    return 0;
+    return _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0;
 }
 
 void delete_top() {
     if (_top) {
         delete _top ;
     }
+}
+
+void watch_top(){
+    // if (!(top->ysyx_24100012_top__DOT__inst==WATCH_INST)) return;
+    _top = top();
+    if (!_top) return;
+    // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+        _rootp->io_halt,
+        top_pc(),
+        top_dnpc(),
+        top_inst(),
+        top_gpr(10),
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1,
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_2
+    );
 }
 #endif
