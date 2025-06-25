@@ -9,7 +9,8 @@ module YSYX2400012Mem #(
 ) (
     // // // 全局时钟（根据Chisel的MemIo需补充）
     // input clk,
-    
+    input clock,
+    input reset
     // 指令读端口（Vec(2, Rport)）
     input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
     input  [ADDR_WIDTH-1:0] dataInstr_1_addr,  // 端口1地址
@@ -34,6 +35,13 @@ module YSYX2400012Mem #(
     end
 
     always @(*) begin
+        if (reset) begin
+            dataInstr_0_data = 32'b0; // 重置端口0数据
+            dataInstr_1_data = 32'b0; // 重置端口1数据
+        end else begin
+            dataInstr_0_data = 32'b0; // 默认值，防止综合警告
+            dataInstr_1_data = 32'b0; // 默认值，防止综合警告
+        end
         // 端口0读取
         pmem_read(dataInstr_0_addr, 4, dataInstr_0_data); // 固定32位=4字节
         // assign dataInstr_0_data = read_buf[0];

@@ -10,7 +10,7 @@ module YSYX2400012Mem #(
     // // // 全局时钟（根据Chisel的MemIo需补充）
     // input clk,
     input clock,
-    input reset
+    input reset,
     // 指令读端口（Vec(2, Rport)）
     input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
     input  [ADDR_WIDTH-1:0] dataInstr_1_addr,  // 端口1地址
