@@ -35,11 +35,18 @@ module YSYX2400012Mem #(
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
+    end
+    always @(*) begin
         // 端口0读取
-        pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
-        
+        if (dataInstr_0_en) begin
+            pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
+        end
+    end
+    always @(*) begin
         // 端口1读取
-        pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+        if (dataInstr_1_en) begin
+            pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+        end
     end
 
 endmodule
