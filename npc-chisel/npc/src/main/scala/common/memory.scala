@@ -149,7 +149,6 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    val io = IO(new Bundle
    {
       val core_ports = Vec(num_core_ports, Flipped(new MemPortIo(data_width = conf.xprlen)) )
-      val debug_port = Flipped(new MemPortIo(data_width = 32))
    })
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
