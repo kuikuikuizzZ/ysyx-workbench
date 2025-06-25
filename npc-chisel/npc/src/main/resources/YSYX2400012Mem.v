@@ -30,22 +30,38 @@ module YSYX2400012Mem #(
     // 1. 重构读写逻辑分离
     //-----------------------------
     // 写逻辑：使用dw_en触发pmem_write
+    
     always @(*) begin
         // 端口0写入
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
-        end
+        end 
+        dataInstr_0_data = 32'b0; // 重置端口0数据
+            dataInstr_1_data = 32'b0; // 重置端口1数据
     end
+
     always @(*) begin
         // 端口0读取
         if (dataInstr_0_en) begin
+            dataInstr_0_data = 32'b0; // 重置端口0数据
+            dataInstr_1_data = 32'b0;
+
             pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
+        end else begin
+            dataInstr_0_data = 32'b0; // 重置端口0数据
+            dataInstr_1_data = 32'b0;
         end
     end
+    
     always @(*) begin
         // 端口1读取
         if (dataInstr_1_en) begin
+                        dataInstr_1_data = 32'b0; // 重置端口1数据
+
             pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+        end else begin
+            dataInstr_1_data = 32'b0; // 重置端口1数据
+            dataInstr_0_data = 32'b0; // 重置端口0数据
         end
     end
 
