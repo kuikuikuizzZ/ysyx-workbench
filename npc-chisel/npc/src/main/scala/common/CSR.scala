@@ -85,12 +85,13 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
 
   val decode = new Bundle {
     val csr = Input(UInt(CSR.ADDRSZ.W))
-    val read_illegal = Output(Bool())
-    val write_illegal = Output(Bool())
-    val system_illegal = Output(Bool())
+    // val read_illegal = Output(Bool())
+    // val write_illegal = Output(Bool())
+    // val system_illegal = Output(Bool())
   }
 
-  val status = Output(new MStatus())
+  // val status = Output(new MStatus())
+  val status = Output(UInt(conf.xprlen.W)) // using UInt for simplicity, can be changed to MStatus if needed
   val evec = Output(UInt(conf.xprlen.W))
   val exception = Input(Bool())
   val pc = Input(UInt(conf.xprlen.W))
@@ -105,10 +106,13 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val io = IO(new CSRFileIO)
   io := DontCare
 
-  val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
-  reset_mstatus.mpp := PRV.M
-  reset_mstatus.prv := PRV.M
-  val reg_mstatus = RegInit(reset_mstatus)
+  // val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
+  // reset_mstatus.mpp := PRV.M
+  // reset_mstatus.prv := PRV.M
+  // val reg_mstatus = RegInit(reset_mstatus)
+  // to simplify the design, we use a single register for mstatus
+  val reg_mstatus = Reg(UInt(conf.xprlen.W))
+  
   val reg_mepc = Reg(UInt(conf.xprlen.W))
   val reg_mcause = Reg(UInt(conf.xprlen.W))
   val reg_mtval = Reg(UInt(conf.xprlen.W))
@@ -129,8 +133,8 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   //(io.counters zip reg_hpmevent) foreach { case (c, e) => c.eventSel := e }
   // val reg_hpmcounter = io.counters.map(c => WideCounter(CSR.hpmWidth, c.inc, reset = false))
 
-  val new_prv = WireInit(reg_mstatus.prv)
-  reg_mstatus.prv := new_prv
+  // val new_prv = WireInit(reg_mstatus.prv)
+  // reg_mstatus.prv := new_prv
 
   // val reg_debug = RegInit(false.B)
   // val reg_dpc = Reg(UInt(conf.xprlen.W))
@@ -159,7 +163,9 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
     // CSRs.misa -> misa.U,
     // CSRs.mimpid -> impid.U,
     CSRs.mstatus -> read_mstatus,
-    CSRs.mtvec -> MTVEC.U,
+    // CSRs.mtvec -> MTVEC.U,
+    CSRs.mtvec -> reg_mtvec,      // kui: MTVEC is defined in constants.scala
+
     // CSRs.mip -> reg_mip.asUInt(),
     // CSRs.mie -> reg_mie.asUInt(),
     // CSRs.mscratch -> reg_mscratch,
@@ -207,7 +213,9 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
   val decoded_addr = read_mapping map { case (k, v) => k -> (io.decode.csr === k) }
 
-  val priv_sufficient = reg_mstatus.prv >= io.decode.csr(9,8)
+  // val priv_sufficient = reg_mstatus.prv >= io.decode.csr(9,8)
+  val priv_sufficient = true.B // TODO: remove this line, it is only for testing
+
   val read_only = io.decode.csr(11,10).andR
   val cpu_wen = cpu_ren && io.rw.cmd =/= CSR.R && priv_sufficient
   val wen = cpu_wen && !read_only
@@ -219,11 +227,11 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   val insn_ret = system_insn && opcode(2) && priv_sufficient
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
-  private def decodeAny(m: collection.mutable.LinkedHashMap[Int,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
-  io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
-    (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr))
-  io.decode.write_illegal := io.decode.csr(11,10).andR
-  io.decode.system_illegal := reg_mstatus.prv < io.decode.csr(9,8)
+  // private def decodeAny(m: collection.mutable.LinkedHashMap[Int,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
+  // io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
+  //   (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr))
+  // io.decode.write_illegal := io.decode.csr(11,10).andR
+  // io.decode.system_illegal := reg_mstatus.prv < io.decode.csr(9,8)
 
   io.status := reg_mstatus
 
@@ -255,15 +263,18 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
   //MRET
   when (insn_ret && !io.decode.csr(10)) {
-    reg_mstatus.mie := reg_mstatus.mpie
-    reg_mstatus.mpie := true
-    new_prv := reg_mstatus.mpp
+    // reg_mstatus.mie := reg_mstatus.mpie
+    // reg_mstatus.mpie := true
+    // new_prv := reg_mstatus.mpp
     io.evec := reg_mepc
   }
 
   //ECALL
   when(insn_call){
-    reg_mcause := reg_mstatus.prv + Causes.user_ecall
+    // reg_mcause := reg_mstatus.prv + Causes.user_ecall
+    reg_mcause := Causes.machine_ecall
+    io.evec := reg_mtvec
+
   }
 
   //EBREAK
@@ -291,9 +302,11 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
     //   }
 
     when (decoded_addr(CSRs.mstatus)) {
-      val new_mstatus = wdata.asTypeOf(new MStatus())
-      reg_mstatus.mie := new_mstatus.mie
-      reg_mstatus.mpie := new_mstatus.mpie
+      // val new_mstatus = wdata.asTypeOf(new MStatus())
+      val new_mstatus = wdata.asUInt // using UInt for simplicity, can be changed to MStatus if needed
+      // reg_mstatus.mie := new_mstatus.mie
+      // reg_mstatus.mpie := new_mstatus.mpie
+      reg_mstatus := new_mstatus
     }
     // when (decoded_addr(CSRs.mip)) {
     //   val new_mip = wdata.asTypeOf(new MIP())
@@ -317,7 +330,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
 
     // when (decoded_addr(CSRs.dpc))      { reg_dpc := wdata }
     // when (decoded_addr(CSRs.dscratch)) { reg_dscratch := wdata }
-
+    when (decoded_addr(CSRs.mtvec))    { reg_mtvec := wdata }
     when (decoded_addr(CSRs.mepc))     { reg_mepc := (wdata(conf.xprlen-1,0) >> 2.U) << 2.U }
     when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata & ((BigInt(1) << (conf.xprlen-1)) + 31).U /* only implement 5 LSBs and MSB */ }
     when (decoded_addr(CSRs.mtval))    { reg_mtval := wdata(conf.xprlen-1,0) }
