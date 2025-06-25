@@ -35,6 +35,7 @@ class Wport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
 class Rport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
    val addr = Input(UInt(addrWidth.W))
    val data = Output(UInt(dataWidth.W))
+   val en = Input(Bool())
 }
 
 
@@ -125,9 +126,9 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
 
    /////////// DPORT 
    val req_addri = io.core_ports(DPORT).req.bits.addr
-
    val req_typi = io.core_ports(DPORT).req.bits.typ
    val resp_datai = async_data.io.dataInstr(DPORT).data
+   async_data.io.dataInstr(DPORT).en := io.core_ports(DPORT).req.valid
    io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Seq(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
       (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
@@ -142,7 +143,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
       // 这里是配合下面 mask 设计的，目的让数据靠左对齐，0000 0001 -> 0001 0000
       // async_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
       async_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
-      async_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+      async_data.io.dw.addr := req_addri
       async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
                               Mux(req_typi === MT_H,2.U,4.U))
    }
@@ -150,6 +151,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
 
    ///////////// IPORT
    if (num_core_ports == 2){
+      async_data.io.dataInstr(IPORT).en := io.core_ports(IPORT).req.valid
       io.core_ports(IPORT).resp.bits.data := async_data.io.dataInstr(IPORT).data
    }
    ////////////
