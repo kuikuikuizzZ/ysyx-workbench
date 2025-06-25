@@ -76,6 +76,18 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
 }
 
+class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle{
+      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      val dw = new  Wport(addrWidth,32)
+      val clock = Input(Clock())
+      val reset = Input(Bool())
+   }) 
+
+   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
+   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012SyncMem.v")
+}
+
 // class Mymem(val addrWidth: Int) extends Module  {
 //    val io = IO(new Bundle{
 //       val dataInstr = Vec(2, new Rport(addrWidth,32))
@@ -152,7 +164,7 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    })
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
-   val sync_data = Module(new YSYX2400012Mem(32))
+   val sync_data = Module(new YSYX2400012SyncMem(32))
    sync_data.io.clock := clock
    sync_data.io.reset := reset
    
