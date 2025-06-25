@@ -177,8 +177,9 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
       (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
       (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
    ))
-
+   sync_data.io.dw := DontCare
    sync_data.io.dw.en := io.core_ports(DPORT).req.bits.fcn === M_XWR
+
    when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
    {
       sync_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
