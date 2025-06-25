@@ -51,8 +51,6 @@ module YSYX2400012Mem #(
     always @(*) begin
         // 端口1读取
         if (dataInstr_1_en) begin
-                        dataInstr_1_data = 32'b0; // 重置端口1数据
-
             pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
         end else begin
             dataInstr_1_data = 32'b0; // 重置端口1数据
