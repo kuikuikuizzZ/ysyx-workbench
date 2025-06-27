@@ -24,7 +24,7 @@ class CtlToDatIo extends Bundle()
 
 class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
-   val imem = new MemPortIo(conf.xprlen)
+   // val imem = new MemPortIo(conf.xprlen)
    val dmem = new MemPortIo(conf.xprlen)
    val dat  = Flipped(new DatToCtlIo())
    val ctl  = new CtlToDatIo()
@@ -120,7 +120,8 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
                      Mux(cs_br_type === BR_JR ,  PC_JR,
                                                  PC_4))))))))))
    
-   val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
+   // val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
+   val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
 
    // Set the data-path control signals
    io.ctl.stall    := stall
@@ -154,5 +155,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // Other exceptions are detected later in the pipeline by passing the
    // instruction to the CSR File and letting it redirect the PC as it sees
    // fit.
-   io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
+   // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
+   io.ctl.exception := (!cs_val_inst ) 
+
 }
