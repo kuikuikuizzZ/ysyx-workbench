@@ -28,6 +28,7 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val dmem = new MemPortIo(conf.xprlen)
    val dat  = Flipped(new DatToCtlIo())
    val ctl  = new CtlToDatIo()
+   val inst = Input(UInt(conf.xlen.W))
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
