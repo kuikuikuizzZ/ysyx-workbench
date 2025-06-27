@@ -120,7 +120,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
                                                  PC_4))))))))))
    
    val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
- 
+
    // Set the data-path control signals
    io.ctl.stall    := stall
    io.ctl.pc_sel   := ctrl_pc_sel
@@ -139,9 +139,9 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
    
    // Memory Requests
-   io.imem.req.valid    := true.B
-   io.imem.req.bits.fcn := M_XRD
-   io.imem.req.bits.typ := MT_WU
+   // io.imem.req.valid    := true.B
+   // io.imem.req.bits.fcn := M_XRD
+   // io.imem.req.bits.typ := MT_WU
 
    io.dmem.req.valid    := cs_mem_en
    io.dmem.req.bits.fcn := cs_mem_fcn

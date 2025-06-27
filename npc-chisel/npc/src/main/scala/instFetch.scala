@@ -42,8 +42,11 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
     pc_reg := pc_next
   }
 
+   // Memory Requests
   io.imem.req.bits.addr := pc_reg
   io.imem.req.valid := true.B
+  io.imem.req.bits.fcn := M_XRD
+  io.imem.req.bits.typ := MT_WU
 
   // Instruction Read
   io.inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
