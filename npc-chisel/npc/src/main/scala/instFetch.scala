@@ -10,7 +10,7 @@ class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val targets = Flipped(new PCTargets())
   val pc_sel = Input(UInt(PC_4.getWidth.W))
   val inst = Output(UInt(conf.xprlen.W))
-  val pc_io = Output(new PCIo())
+  val pc_io = new PCIo()
 }
 
 
