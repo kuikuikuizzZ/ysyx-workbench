@@ -124,8 +124,8 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
 
    // Set the data-path control signals
+   io.pc_sel   := ctrl_pc_sel
    io.ctl.stall    := stall
-   io.ctl.pc_sel   := ctrl_pc_sel
    io.ctl.op1_sel  := cs_op1_sel
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun
