@@ -15,7 +15,6 @@ class CtlToDatIo extends Bundle()
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
    val wb_sel    = Output(UInt(WB_X.getWidth.W))
-   val rf_wen    = Output(Bool())
    val csr_cmd   = Output(UInt(CSR.SZ.W))
    val exception = Output(Bool())
 }
@@ -29,6 +28,8 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl  = new CtlToDatIo()
    val inst = Input(UInt(conf.xlen.W))
    val pc_sel = Output(UInt(PC_4.getWidth.W))
+   val rf_wen    = Output(Bool())
+
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
@@ -131,7 +132,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    io.ctl.alu_fun  := cs_alu_fun
    io.ctl.wb_sel   := cs_wb_sel
 
-   io.ctl.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
+   io.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
    val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
@@ -140,10 +141,6 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
 
    io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
    
-   // Memory Requests
-   // io.imem.req.valid    := true.B
-   // io.imem.req.bits.fcn := M_XRD
-   // io.imem.req.bits.typ := MT_WU
 
    io.dmem.req.valid    := cs_mem_en
    io.dmem.req.bits.fcn := cs_mem_fcn
