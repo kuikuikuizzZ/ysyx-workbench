@@ -9,7 +9,7 @@ import npc.Constants._
 
 class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
-   val inst   = Output(UInt(32.W))
+   // val inst   = Output(UInt(32.W))
    val br_eq  = Output(Bool())
    val br_lt  = Output(Bool())
    val br_ltu = Output(Bool())
@@ -139,7 +139,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
 
    // datapath to controlpath outputs
-   io.dat.inst   := io.inst
    io.dat.br_eq  := (rs1_data === rs2_data)
    io.dat.br_lt  := (rs1_data.asSInt < rs2_data.asSInt) 
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)

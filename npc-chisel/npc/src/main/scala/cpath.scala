@@ -36,7 +36,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
   io := DontCare
 
    val csignals =
-      ListLookup(io.dat.inst,                                                                                       
+      ListLookup(io.inst,                                                                                       
                              List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
                Array(       /* val  |  BR  |  op1   |   op2     |  ALU    |  wb  | rf   | mem  | mem  | mask |  csr  */
                             /* inst | type |   sel  |    sel    |   fcn   |  sel | wen  |  en  |  wr  | type |  cmd  */
@@ -132,7 +132,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    io.ctl.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
-   val rs1_addr = io.dat.inst(RS1_MSB, RS1_LSB)
+   val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
    val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
    val csr_cmd = Mux(csr_ren, CSR.R, cs_csr_cmd)
 
