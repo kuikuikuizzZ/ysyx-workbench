@@ -18,11 +18,15 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   io := DontCare
   val c  = Module(new YSYX24100012Cpath())
   val d  = Module(new YSYX24100012Dpath())
+  val inst_fetch = Module(new YSYX24100012InstFetch())
   c.io.ctl  <> d.io.ctl
   c.io.dat  <> d.io.dat
+  d.io.inst := inst_fetch.io.inst
+  d.io.pc_io <> inst_fetch.io.pc_io
+  inst_fetch.io.targets <> d.io.targets
   
   io.imem <> c.io.imem
-  io.imem <> d.io.imem
+  io.imem <> inst_fetch.io.imem
   
   io.dmem <> c.io.dmem
   io.dmem <> d.io.dmem

@@ -18,11 +18,13 @@ class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle()
 
 class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
-   val imem = new MemPortIo(conf.xprlen)
    val dmem = new MemPortIo(conf.xprlen)
+   val inst = Input(UInt(conf.xlen.W))
    val ctl  = Flipped(new CtlToDatIo())
    val dat  = new DatToCtlIo()
    val ebreak = Output(Bool())
+   val targets = Flipped(new InstFetchTargets())
+   val pc_io = Flipped(new PCIo())
 }
 
 
@@ -31,43 +33,10 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    val io = IO(new DpathIo())
    io := DontCare
 
-   // Instruction Fetch
-   val pc_next          = Wire(UInt(32.W))
-   val pc_plus4         = Wire(UInt(32.W))
-   val br_target        = Wire(UInt(32.W))
-   val jmp_target       = Wire(UInt(32.W))
-   val jump_reg_target  = Wire(UInt(32.W))
-   val exception_target = Wire(UInt(32.W))
-   val inst           = Wire(UInt(32.W))
-   // PC Register
-   pc_next := MuxCase(pc_plus4, Seq(
-                  (io.ctl.pc_sel === PC_4)   -> pc_plus4,
-                  (io.ctl.pc_sel === PC_BR)  -> br_target,
-                  (io.ctl.pc_sel === PC_J )  -> jmp_target,
-                  (io.ctl.pc_sel === PC_JR)  -> jump_reg_target,
-                  (io.ctl.pc_sel === PC_EXC) -> exception_target
-                  ))
-
-   val pc_reg = RegInit(START_ADDR) 
-
-   when (!io.ctl.stall) 
-   {
-      pc_reg :=  pc_next
-
-   }
-
-   io.imem.req.bits.addr := pc_reg
-   io.imem.req.valid := true.B 
-   inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
-   
-   pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))               
-
-
-
    // Decode
-   val rs1_addr = inst(RS1_MSB, RS1_LSB)
-   val rs2_addr = inst(RS2_MSB, RS2_LSB)
-   val wb_addr  = inst(RD_MSB,  RD_LSB)
+   val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
+   val rs2_addr = io.inst(RS2_MSB, RS2_LSB)
+   val wb_addr  = io.inst(RD_MSB,  RD_LSB)
    
    val wb_data = Wire(UInt(conf.xprlen.W))
  
@@ -84,12 +53,12 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    
    
    // immediates
-   val imm_i = inst(31, 20) 
-   val imm_s = Cat(inst(31, 25), inst(11,7))
-   val imm_b = Cat(inst(31), inst(7), inst(30,25), inst(11,8))
-   val imm_u = inst(31, 12)
-   val imm_j = Cat(inst(31), inst(19,12), inst(20), inst(30,21))
-   val imm_z = Cat(Fill(27,0.U), inst(19,15))
+   val imm_i = io.inst(31, 20) 
+   val imm_s = Cat(io.inst(31, 25), io.inst(11,7))
+   val imm_b = Cat(io.inst(31), io.inst(7), io.inst(30,25), io.inst(11,8))
+   val imm_u = io.inst(31, 12)
+   val imm_j = Cat(io.inst(31), io.inst(19,12), io.inst(20), io.inst(30,21))
+   val imm_z = Cat(Fill(27,0.U), io.inst(19,15))
 
    // sign-extend immediates
    val imm_i_sext = Cat(Fill(20,imm_i(11)), imm_i)
@@ -106,7 +75,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
    val alu_op2 = MuxCase(0.U, Seq(
                (io.ctl.op2_sel === OP2_RS2) -> rs2_data,
-               (io.ctl.op2_sel === OP2_PC)  -> pc_reg,
+               (io.ctl.op2_sel === OP2_PC)  -> io.pc_io.pc,
                (io.ctl.op2_sel === OP2_IMI) -> imm_i_sext,
                (io.ctl.op2_sel === OP2_IMS) -> imm_s_sext
                )).asUInt
@@ -131,21 +100,21 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   ))
 
    // Branch/Jump Target Calculation
-   br_target       := pc_reg + imm_b_sext
-   jmp_target      := pc_reg + imm_j_sext
-   jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
+   io.targets.br_target       := io.pc_io.pc + imm_b_sext
+   io.targets.jmp_target      := io.pc_io.pc + imm_j_sext
+   io.targets.jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
 
    // Control Status Registers
    val csr = Module(new CSRFile())
    csr.io := DontCare
-   csr.io.decode.csr := inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
+   csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
    csr.io.rw.cmd   := io.ctl.csr_cmd
    csr.io.rw.wdata := alu_out
 
    csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
    csr.io.exception := io.ctl.exception
-   csr.io.pc        := pc_reg
-   exception_target := csr.io.evec
+   csr.io.pc        := io.pc_io.pc
+   io.targets.exception_target := csr.io.evec
 
    io.dat.csr_eret := csr.io.eret
    io.ebreak := csr.io.csr_stall
@@ -156,14 +125,14 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    wb_data := MuxCase(alu_out, Seq(
                   (io.ctl.wb_sel === WB_ALU) -> alu_out,
                   (io.ctl.wb_sel === WB_MEM) -> io.dmem.resp.bits.data, 
-                  (io.ctl.wb_sel === WB_PC4) -> pc_plus4,
+                  (io.ctl.wb_sel === WB_PC4) -> io.pc_io.pc_plus4,
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
                                   
 
 
    // datapath to controlpath outputs
-   io.dat.inst   := inst
+   io.dat.inst   := io.inst
    io.dat.br_eq  := (rs1_data === rs2_data)
    io.dat.br_lt  := (rs1_data.asSInt < rs2_data.asSInt) 
    io.dat.br_ltu := (rs1_data.asUInt < rs2_data.asUInt)
