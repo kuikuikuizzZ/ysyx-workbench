@@ -7,18 +7,13 @@ import npc.Constants._
 
 class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val imem = new MemPortIo(conf.xprlen)
-  val targets = Input(new InstFetchTargets())
+  val targets = Flipped(new PCTargets())
   val pc_sel = Input(UInt(PC_4.getWidth.W))
   val inst = Output(UInt(conf.xprlen.W))
   val pc_io = Output(new PCIo())
 }
 
-class InstFetchTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
-  val br_target = Output(UInt(conf.xprlen.W))
-  val jmp_target = Output(UInt(conf.xprlen.W))
-  val jump_reg_target = Output(UInt(conf.xprlen.W))
-  val exception_target = Output(UInt(conf.xprlen.W))
-}
+
 
 class PCIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val pc_plus4 = Output(UInt(conf.xprlen.W))

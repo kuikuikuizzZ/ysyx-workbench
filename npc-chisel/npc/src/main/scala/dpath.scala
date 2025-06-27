@@ -23,10 +23,17 @@ class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl  = Flipped(new CtlToDatIo())
    val dat  = new DatToCtlIo()
    val ebreak = Output(Bool())
-   val targets = Flipped(new InstFetchTargets())
+   val targets = new PCTargets()
    val pc_io = Flipped(new PCIo())
 }
 
+
+class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
+  val br_target = Output(UInt(conf.xprlen.W))
+  val jmp_target = Output(UInt(conf.xprlen.W))
+  val jump_reg_target = Output(UInt(conf.xprlen.W))
+  val exception_target = Output(UInt(conf.xprlen.W))
+}
 
 class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 {
