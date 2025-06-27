@@ -38,7 +38,7 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
 
   val pc_reg = RegInit(START_ADDR)
 
-  when(!io.imem.req.valid) {
+  when(io.imem.resp.valid) {
     pc_reg := pc_next
   }
 

@@ -19,6 +19,7 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   val c  = Module(new YSYX24100012Cpath())
   val d  = Module(new YSYX24100012Dpath())
   val inst_fetch = Module(new YSYX24100012InstFetch())
+  
   c.io.ctl  <> d.io.ctl
   c.io.dat  <> d.io.dat
   c.io.inst := inst_fetch.io.inst
