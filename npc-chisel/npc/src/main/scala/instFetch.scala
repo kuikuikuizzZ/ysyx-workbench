@@ -26,7 +26,7 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
-  val pc_plus4 = Wire(UInt(conf.xprlen.W))
+  
   // PC Register
   pc_next := MuxCase(io.pc_sel, Seq(
                   (io.pc_sel === PC_4)   -> io.pc_io.pc_plus4,
