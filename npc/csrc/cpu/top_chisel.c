@@ -21,7 +21,7 @@ uint32_t top_gpr(int i) {
         printf("gpr index %d out of range\n", i);
         return 0;
     }
-    return _rootp->Top__DOT__core__DOT__d__DOT__regfile_ext__DOT__Memory[i];
+    return _rootp->Top__DOT__core__DOT__reg_file__DOT__regfile_ext__DOT__Memory[i];
 }
 
 uint32_t top_csr(int i) {
@@ -35,7 +35,7 @@ uint32_t top_csr(int i) {
 
 uint32_t top_pc() {
     if (!_top) return 0;
-    return _rootp->Top__DOT__core__DOT__d__DOT__pc_reg;
+    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__pc_reg;
 }
 
 uint32_t top_halt(){
@@ -69,8 +69,8 @@ void watch_top(){
         top_dnpc(),
         top_inst(),
         top_gpr(10),
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1,
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_2
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0,
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1
     );
 }
 #endif

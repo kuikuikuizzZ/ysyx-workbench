@@ -11,12 +11,10 @@ class CtlToDatIo extends Bundle()
 {
    val stall     = Output(Bool())
    val dmiss     = Output(Bool())
-   val pc_sel    = Output(UInt(PC_4.getWidth.W))
    val op1_sel   = Output(UInt(OP1_X.getWidth.W))
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
    val wb_sel    = Output(UInt(WB_X.getWidth.W))
-   val rf_wen    = Output(Bool())
    val csr_cmd   = Output(UInt(CSR.SZ.W))
    val exception = Output(Bool())
 }
@@ -24,10 +22,14 @@ class CtlToDatIo extends Bundle()
 
 class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
-   val imem = new MemPortIo(conf.xprlen)
+   // val imem = new MemPortIo(conf.xprlen)
    val dmem = new MemPortIo(conf.xprlen)
    val dat  = Flipped(new DatToCtlIo())
    val ctl  = new CtlToDatIo()
+   val inst = Input(UInt(conf.xlen.W))
+   val pc_sel = Output(UInt(PC_4.getWidth.W))
+   val rf_wen    = Output(Bool())
+
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
@@ -36,7 +38,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
   io := DontCare
 
    val csignals =
-      ListLookup(io.dat.inst,                                                                                       
+      ListLookup(io.inst,                                                                                       
                              List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
                Array(       /* val  |  BR  |  op1   |   op2     |  ALU    |  wb  | rf   | mem  | mem  | mask |  csr  */
                             /* inst | type |   sel  |    sel    |   fcn   |  sel | wen  |  en  |  wr  | type |  cmd  */
@@ -119,29 +121,26 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
                      Mux(cs_br_type === BR_JR ,  PC_JR,
                                                  PC_4))))))))))
    
-   val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
- 
+   // val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
+   val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
+
    // Set the data-path control signals
+   io.pc_sel   := ctrl_pc_sel
    io.ctl.stall    := stall
-   io.ctl.pc_sel   := ctrl_pc_sel
    io.ctl.op1_sel  := cs_op1_sel
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun
    io.ctl.wb_sel   := cs_wb_sel
 
-   io.ctl.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
+   io.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
-   val rs1_addr = io.dat.inst(RS1_MSB, RS1_LSB)
+   val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
    val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
    val csr_cmd = Mux(csr_ren, CSR.R, cs_csr_cmd)
 
    io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
    
-   // Memory Requests
-   io.imem.req.valid    := true.B
-   io.imem.req.bits.fcn := M_XRD
-   io.imem.req.bits.typ := MT_WU
 
    io.dmem.req.valid    := cs_mem_en
    io.dmem.req.bits.fcn := cs_mem_fcn
@@ -153,5 +152,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // Other exceptions are detected later in the pipeline by passing the
    // instruction to the CSR File and letting it redirect the PC as it sees
    // fit.
-   io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
+   // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
+   io.ctl.exception := (!cs_val_inst ) 
+
 }
