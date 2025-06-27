@@ -35,7 +35,8 @@ uint32_t top_csr(int i) {
 
 uint32_t top_pc() {
     if (!_top) return 0;
-    return _rootp->Top__DOT__core__DOT__d__DOT__pc_reg;
+    // return _rootp->Top__DOT__core__DOT__d__DOT__pc_reg;
+    return 0;
 }
 
 uint32_t top_halt(){
@@ -63,14 +64,14 @@ void watch_top(){
     _top = top();
     if (!_top) return;
     // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 \n",
         _rootp->io_halt,
         top_pc(),
         top_dnpc(),
         top_inst(),
         top_gpr(10),
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1,
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_2
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1
+        // _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_2
     );
 }
 #endif
