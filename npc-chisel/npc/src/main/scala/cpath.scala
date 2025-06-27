@@ -11,7 +11,6 @@ class CtlToDatIo extends Bundle()
 {
    val stall     = Output(Bool())
    val dmiss     = Output(Bool())
-   val pc_sel    = Output(UInt(PC_4.getWidth.W))
    val op1_sel   = Output(UInt(OP1_X.getWidth.W))
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
@@ -29,6 +28,7 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val dat  = Flipped(new DatToCtlIo())
    val ctl  = new CtlToDatIo()
    val inst = Input(UInt(conf.xlen.W))
+   val pc_sel = Output(UInt(PC_4.getWidth.W))
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module

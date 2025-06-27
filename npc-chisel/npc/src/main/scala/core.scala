@@ -25,7 +25,7 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   d.io.pc_io <> inst_fetch.io.pc_io
   d.io.inst := inst_fetch.io.inst
   inst_fetch.io.targets <> d.io.targets
-  inst_fetch.io.pc_sel :=  c.io.ctl.pc_sel
+  inst_fetch.io.pc_sel :=  c.io.pc_sel
   
   // io.imem <> c.io.imem
   io.imem <> inst_fetch.io.imem
