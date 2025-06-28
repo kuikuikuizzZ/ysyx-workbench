@@ -21,7 +21,7 @@ uint32_t top_gpr(int i) {
         printf("gpr index %d out of range\n", i);
         return 0;
     }
-    return _rootp->Top__DOT__core__DOT__d__DOT__regfile_ext__DOT__Memory[i];
+    return _rootp->Top__DOT__core__DOT__reg_file__DOT__regfile_ext__DOT__Memory[i];
 }
 
 uint32_t top_csr(int i) {
