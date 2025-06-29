@@ -2,6 +2,7 @@ package npc
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.experimental.decode._
 
 import npc.common.Instructions._
 import npc.common._

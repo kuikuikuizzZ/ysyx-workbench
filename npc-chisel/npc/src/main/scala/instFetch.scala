@@ -26,7 +26,7 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
-  
+  val reg_inst = Reg(UInt(conf.xprlen.W))
   // PC Register
   pc_next := MuxCase(io.pc_sel, Seq(
                   (io.pc_sel === PC_4)   -> io.pc_io.pc_plus4,
@@ -49,7 +49,9 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   io.imem.req.bits.typ := MT_WU
 
   // Instruction Read
-  io.inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
+  reg_inst := io.imem.resp.bits.data
+  io.inst := Mux(io.imem.resp.valid, reg_inst, BUBBLE)
+  
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))  
   io.pc_io.pc := pc_reg             
 }
