@@ -74,7 +74,7 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxResour
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   addResource("/YSYX2400012Mem.v")
+   setResource("/YSYX2400012Mem.v")
 }
 
 class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxResource {
@@ -86,7 +86,7 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxRe
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   addResource("/YSYX2400012SyncMem.v")
+   setResource("/YSYX2400012SyncMem.v")
 }
 
 // class Mymem(val addrWidth: Int) extends Module  {
