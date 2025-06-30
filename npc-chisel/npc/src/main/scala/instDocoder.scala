@@ -2,6 +2,7 @@ package npc
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.experimental.decode._
 
 import npc.common.Instructions._
 import npc.common._
@@ -37,10 +38,10 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
   val io = IO(new CpathIo())
   io := DontCare
 
-   val csignals =
-      ListLookup(io.inst,                                                                                       
-                             List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
-               Array(       /* val  |  BR  |  op1   |   op2     |  ALU    |  wb  | rf   | mem  | mem  | mask |  csr  */
+   val table = new DecodeTable(
+               // io.inst,                                                                                       
+                           //   List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
+               Seq(       /* val  |  BR  |  op1   |   op2     |  ALU    |  wb  | rf   | mem  | mem  | mask |  csr  */
                             /* inst | type |   sel  |    sel    |   fcn   |  sel | wen  |  en  |  wr  | type |  cmd  */
                   LW      -> List(Y, BR_N  , OP1_RS1, OP2_IMI , ALU_ADD ,  WB_MEM, REN_1, MEN_1, M_XRD, MT_W,  CSR.N),
                   LB      -> List(Y, BR_N  , OP1_RS1, OP2_IMI , ALU_ADD ,  WB_MEM, REN_1, MEN_1, M_XRD, MT_B,  CSR.N),
@@ -103,10 +104,30 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
                   ))
 
    // Put these control signals into variables
-   val (cs_val_inst: Bool) :: (cs_br_type:UInt)         :: cs_op1_sel     :: cs_op2_sel :: cs0 = csignals
-   val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
-   val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
+   // val (cs_val_inst: Bool) :: (cs_br_type:UInt)         :: cs_op1_sel     :: cs_op2_sel :: cs0 = csignals
+   // val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
+   // val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
+   val cs_val_inst  = DocoderField(Bool())
+   val cs_br_type   = DocoderField(Bool())
+   val cs_op1_sel   = DocoderField(Bool())
+   val cs_op2_sel   = DocoderField(Bool())
+   val cs_alu_fun   = DocoderField(Bool())
+   val cs_wb_sel    = DocoderField(Bool())
+   val cs_rf_wen    = DocoderField(Bool())
+   val cs_mem_en    = DocoderField(Bool())
+   val cs_mem_fcn   = DocoderField(Bool())
+   val cs_msk_sel   = DocoderField(Bool())
+   val cs_csr_cmd   = DocoderField(Bool())  
+
+
+   val decoder = new Decoder(
+      table,
+      io.inst,
+      cs_val_inst, cs_br_type, cs_op1_sel, cs_op2_sel, 
+      cs_alu_fun, cs_wb_sel, cs_rf_wen, 
+      cs_mem_en, cs_mem_fcn, cs_msk_sel, cs_csr_cmd
+   )
    // Branch Logic   
    val ctrl_pc_sel = Mux(io.dat.csr_eret  ||
                          io.ctl.exception      ,  PC_EXC,
