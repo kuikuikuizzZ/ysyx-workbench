@@ -74,7 +74,9 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012Mem.v")
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012Mem.v"
+   addPath(path)
+   println(s"YSYX2400012Mem path: ${path}")
 }
 
 class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
@@ -86,7 +88,9 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPa
    }) 
 
    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-   addPath("/home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/resources/YSYX2400012SyncMem.v")
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012SyncMem.v"
+   addPath(path)
+   println(s"YSYX2400012SyncMem path: ${path}")
 }
 
 // class Mymem(val addrWidth: Int) extends Module  {
