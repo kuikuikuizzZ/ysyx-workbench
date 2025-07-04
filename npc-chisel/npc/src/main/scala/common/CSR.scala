@@ -79,7 +79,8 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
     val wdata = Input(UInt(conf.xprlen.W))
   }
 
-  val csr_stall = Output(Bool())
+  // val csr_stall = Output(Bool())
+  val insn_break = Output(Bool())
   val eret = Output(Bool())
   // val singleStep = Output(Bool())
 
@@ -287,8 +288,8 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   }
 
   // io.time := reg_time
-  io.csr_stall := reg_wfi || insn_break
-
+  // io.csr_stall := reg_wfi || insn_break
+  io.insn_break := insn_break
 
   io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
 

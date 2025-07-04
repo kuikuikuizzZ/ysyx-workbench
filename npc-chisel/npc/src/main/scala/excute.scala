@@ -107,7 +107,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.targets.exception_target := csr.io.evec
 
    io.dat.csr_eret := csr.io.eret
-   io.ebreak := csr.io.csr_stall
+   io.ebreak := csr.io.insn_break
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
 
