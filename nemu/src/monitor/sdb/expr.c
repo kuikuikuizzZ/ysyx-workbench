@@ -105,6 +105,8 @@ bool is_num_type(int typ){
 int str2num(char* str,int typ){
   word_t res;
   int n;
+  bool success;
+
   switch (typ)
   {
   case TK_DEC:
@@ -116,7 +118,6 @@ int str2num(char* str,int typ){
     Assert(n>=1,"%s is not a hex num",str);
     break;
   case TK_REG:
-    bool success;
     res = isa_reg_str2val(str,&success);
     Assert(success,"%s is not a register name",str);
     break;
@@ -319,7 +320,6 @@ int main_op_pos(int p,int q){
 }
 
 int eval(int p,int q){
-  word_t val;
   if (p>q){
     Assert(p<=q,"exprssion eval %d>%d ",p,q);
   } else if(p==q){
@@ -368,6 +368,7 @@ int eval(int p,int q){
           (!val1&&tokens[op_pos].type==TK_AND) )
           return val1;
     int val2 = eval(op_pos+1,q);
+    word_t val = 0;
     switch (tokens[op_pos].type) {
           case TK_ADD: val = val1 + val2; break;
           case TK_SUB: val = val1-val2; break;
@@ -384,10 +385,11 @@ int eval(int p,int q){
           case TK_GREATER:    val = val1 > val2; break;
           case TK_OR:         val = val1 || val2; break;
           case TK_AND:        val = val1 && val2; break;
-          default: assert(0); 
+          default: assert(0) ; 
     }
+    return val;
   }
-  return val;
+  return -1; // unreachable
 }
 
 word_t expr(char *e, bool *success) {

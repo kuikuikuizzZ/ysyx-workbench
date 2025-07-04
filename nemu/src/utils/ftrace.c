@@ -1,11 +1,12 @@
 #include <ftrace.h>
-#include <elf.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <isa.h>
 
+#ifdef CONFIG_FTRACE
+#include <elf.h>
 #define NUM_STRTB 4
 #define ST_FUNC 18      //elf symtable type for func
 #define SEG_STR_SYM 3
@@ -224,3 +225,4 @@ void ftrace_message(uint32_t pc, uint32_t dnpc,char* inst){
     return;
 }
 
+#endif
