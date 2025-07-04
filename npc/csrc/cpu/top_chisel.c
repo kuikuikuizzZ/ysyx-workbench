@@ -16,7 +16,7 @@ Top* top() {
 
 
 uint32_t top_gpr(int i) {
-    if (!_top) return 0;
+    if (!_rootp) return 0;
     if (i < 0 || i >= gpr_size) {
         printf("gpr index %d out of range\n", i);
         return 0;
@@ -34,22 +34,22 @@ uint32_t top_csr(int i) {
 }
 
 uint32_t top_pc() {
-    if (!_top) return 0;
+    if (!_rootp) return 0;
     return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__pc_reg;
 }
 
 uint32_t top_halt(){
-    if (!_top) return 0;
+    if (!_rootp) return 0;
     return _rootp->io_halt;
 }
 
 uint32_t top_inst() {
-    if (!_top) return 0;
+    if (!_rootp) return 0;
     return _rootp->Top__DOT___memory_io_core_ports_1_resp_bits_data;
 }
 uint32_t top_dnpc() {
-    if (!_top) return 0;
-    return _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0;
+    if (!_rootp) return 0;
+    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__casez_tmp;
 }
 
 void delete_top() {
