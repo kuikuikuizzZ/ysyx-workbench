@@ -25,6 +25,16 @@ extern "C" {
             *rword = host_read(guest_to_host(raddr),len);
             return;
         }
+        // IFNDEF(CONFIG_DEVICE, *rword = mmio_read(raddr, len)); // if not device, return
+
+        // bool ren = false;
+        // IFDEF(CONFIG_HAS_VGA, ren = ren||(raddr>=CONFIG_VGA_CTL_MMIO && raddr< (CONFIG_VGA_CTL_MMIO+8)) || 
+        // (raddr>=CONFIG_FB_ADDR && raddr< (CONFIG_FB_ADDR+ screen_size)));
+        // // IFNDEF(CONFIG_HAS_I8042, ren = ren || (raddr==CONFIG_I8042_DATA_MMIO));
+        // IFDEF(CONFIG_HAS_TIMER, ren = ren || (raddr==CONFIG_RTC_MMIO || raddr==(CONFIG_RTC_MMIO+4)));
+        // IFDEF(CONFIG_HAS_SERIAL, ren = ren||(raddr==CONFIG_SERIAL_MMIO || raddr==(CONFIG_SERIAL_MMIO+4)));
+
+        // if (ren) *rword = mmio_read(raddr, len);
         IFDEF(CONFIG_DEVICE, {
             if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
             (raddr>=CONFIG_VGA_CTL_MMIO && raddr<(CONFIG_VGA_CTL_MMIO+8)) || 
@@ -32,7 +42,6 @@ extern "C" {
             raddr==CONFIG_I8042_DATA_MMIO)
             *rword = mmio_read(raddr, len);
         });
-        
         return;
     }
 
@@ -41,6 +50,14 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
+        // IFNDEF(CONFIG_DEVICE, mmio_write(waddr, len, wdata)); // if not device, return
+        // bool wen = false;
+        // IFDEF(CONFIG_HAS_VGA,wen = wen || (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 
+        // (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)));
+        // // IFDEF(CONFIG_HAS_I8042,wen = wen || (waddr==CONFIG_I8042_DATA_MMIO));
+        // IFDEF(CONFIG_HAS_TIMER,wen = wen || (waddr==CONFIG_RTC_MMIO || waddr==(CONFIG_RTC_MMIO+4)));
+        // IFDEF(CONFIG_HAS_SERIAL,wen = wen || (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4)));
+        // if (wen) ;
         IFDEF(CONFIG_DEVICE, {
         if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
             (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 

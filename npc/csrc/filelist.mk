@@ -13,20 +13,16 @@
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
 
-DIRS-y += csrc/device/io
-SRCS-$(CONFIG_DEVICE) += csrc/device/device.c csrc/device/alarm.c csrc/device/intr.c
-SRCS-$(CONFIG_HAS_SERIAL) += csrc/device/serial.c
-SRCS-$(CONFIG_HAS_TIMER) += csrc/device/timer.c
-SRCS-$(CONFIG_HAS_KEYBOARD) += csrc/device/keyboard.c
-SRCS-$(CONFIG_HAS_VGA) += csrc/device/vga.c
-SRCS-$(CONFIG_HAS_AUDIO) += csrc/device/audio.c
-SRCS-$(CONFIG_HAS_DISK) += csrc/device/disk.c
-SRCS-$(CONFIG_HAS_SDCARD) += csrc/device/sdcard.c
+SRCS-y += csrc/main.cpp
+DIRS-y += csrc/cpu csrc/monitor csrc/utils
+DIRS-y += csrc/memory
+# DIRS-BLACKLIST-$(CONFIG_TARGET_AM) += csrc/monitor/sdb
 
-SRCS-BLACKLIST-$(CONFIG_TARGET_AM) += csrc/device/alarm.c
+SHARE = $(if $(CONFIG_TARGET_SHARE),1,0)
+LIBS += $(if $(CONFIG_TARGET_NATIVE_ELF),-lreadline -ldl -pie,)
 
-ifdef CONFIG_DEVICE
-ifndef CONFIG_TARGET_AM
-LIBS += $(shell sdl2-config --libs)
-endif
-endif
+# ifdef mainargs
+# ASFLAGS += -DBIN_PATH=\"$(mainargs)\"
+# endif
+# SRCS-$(CONFIG_TARGET_AM) += src/am-bin.S
+# .PHONY: src/am-bin.S

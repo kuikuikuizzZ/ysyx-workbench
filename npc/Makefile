@@ -3,11 +3,13 @@ WORK_DIR  = $(shell pwd)
 BUILD_DIR_BASE = $(WORK_DIR)/build
 
 # 包含配置文件(包括 menuconfig生成的配置)
-FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
-include $(FILELIST_MK)
+
 include $(NPC_HOME)/tools/difftest.mk
 include $(NPC_HOME)/scripts/config.mk
 include $(NPC_HOME)/.config
+
+FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
+include $(FILELIST_MK)
 
 # 参数设置
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
@@ -23,10 +25,14 @@ LIBS += -lreadline
 LDFLAGS += $(addprefix -LDFLAGS , $(LIBS))
 
 
-
 # 源文件定义
-SRCS = $(wildcard $(NPC_HOME)/csrc/**/**/*.c $(NPC_HOME)/csrc/**/*.c $(NPC_HOME)/csrc/*.c)
-SOURCES = $(filter-out $(SRCS-BLACKLIST-y), $(SRCS))
+DIRS-BLACKLIST-y += $(DIRS-BLACKLIST)
+SRCS-BLACKLIST-y += $(SRCS-BLACKLIST) $(shell find -L $(DIRS-BLACKLIST-y) -name "*.c")
+SRCS-y += $(shell find -L $(DIRS-y) -name "*.c")
+SRCS = $(filter-out $(SRCS-BLACKLIST-y), $(SRCS-y))
+SOURCES += $(addprefix ${NPC_HOME}/, $(SRCS))
+
+$(info "SOURCES: $(SOURCES)")
 
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL

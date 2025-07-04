@@ -17,4 +17,4 @@ VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 
 build:
 	mkdir -p $(BUILD_DIR)
-	verilator $(VERILATOR_FLAGS) $(NPC_HOME)/csrc/main.cpp $(SOURCES) $(SVSOURCES) --trace
+	verilator $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) --trace
