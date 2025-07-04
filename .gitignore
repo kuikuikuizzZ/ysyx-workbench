@@ -11,6 +11,6 @@
 !.gitignore
 !init.sh
 /nvboard
-/am-kernels
 /fceux-am
 /digital_circuit_experiments
+/am-kernels

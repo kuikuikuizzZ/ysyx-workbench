@@ -176,7 +176,8 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    
    for (i <- 0 until num_core_ports)
    {
-      io.core_ports(i).resp.valid := RegNext(io.core_ports(i).req.valid,false.B)
+      // io.core_ports(i).resp.valid := RegNext(io.core_ports(i).req.valid,false.B)
+      io.core_ports(i).resp.valid := io.core_ports(i).req.valid
       io.core_ports(i).req.ready := true.B // for now, no back pressure
       sync_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
    }

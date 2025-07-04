@@ -14,7 +14,7 @@ override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
 # 编译器和链接器设置
-CFLAGS += -g
+# CFLAGS+= -g 
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES)
