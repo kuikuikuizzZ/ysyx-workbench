@@ -7,21 +7,20 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
-{
-   // val inst   = Output(UInt(32.W))
-   val br_eq  = Output(Bool())
-   val br_lt  = Output(Bool())
-   val br_ltu = Output(Bool())
-   val csr_eret = Output(Bool())
-}
+// class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
+// {
+//    // val inst   = Output(UInt(32.W))
+//    val br_eq  = Output(Bool())
+//    val br_lt  = Output(Bool())
+//    val br_ltu = Output(Bool())
+//    // val csr_eret = Output(Bool())
+// }
 
 class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
    val dmem = new MemPortIo(conf.xprlen)
    val inst = Input(UInt(conf.xlen.W))
    val ctl  = Flipped(new CtlToDatIo())
-   val dat  = new DatToCtlIo()
    val ebreak = Output(Bool())
    val targets = new PCTargets()
    val pc_io = Flipped(new PCIo())
@@ -106,7 +105,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    csr.io.pc        := io.pc_io.pc
    io.targets.exception_target := csr.io.evec
 
-   io.dat.csr_eret := csr.io.eret
+   // io.dat.csr_eret := csr.io.eret
    io.ebreak := csr.io.insn_break
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
@@ -122,10 +121,25 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 
 
    // datapath to controlpath outputs
-   io.dat.br_eq  := (io.reg_in.rs1_data === io.reg_in.rs2_data)
-   io.dat.br_lt  := (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
-   io.dat.br_ltu := (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
+   val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
+   val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
+   val br_ltu = (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
    
+
+   // Branch Logic   
+   io.pc_io.pc_sel := Mux( csr.io.eret  ||
+                         io.ctl.exception      ,  PC_EXC,
+                     Mux(io.ctl.br_type === BR_N  ,  PC_4,
+                     Mux(io.ctl.br_type === BR_NE ,  Mux(!br_eq,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_EQ ,  Mux( br_eq,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_GE ,  Mux(!br_lt,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_GEU,  Mux(!br_ltu, PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_LT ,  Mux( br_lt,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_LTU,  Mux( br_ltu, PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_J  ,  PC_J,
+                     Mux(io.ctl.br_type === BR_JR ,  PC_JR,
+                                                 PC_4))))))))))
+
    // datapath to data memory outputs
    io.dmem.req.bits.addr  := alu_out
    io.dmem.req.bits.data := io.reg_in.rs2_data.asUInt 

@@ -22,7 +22,6 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   val reg_file = Module(new RegFile())
 
   c.io.ctl  <> d.io.ctl
-  c.io.dat  <> d.io.dat
   c.io.inst := inst_fetch.io.inst
 
   reg_file.io.inst := inst_fetch.io.inst
@@ -33,7 +32,6 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   d.io.pc_io <> inst_fetch.io.pc_io
   d.io.inst := inst_fetch.io.inst
   inst_fetch.io.targets <> d.io.targets
-  inst_fetch.io.pc_sel :=  c.io.pc_sel
   inst_fetch.io.stall := c.io.stall
   io.imem <> inst_fetch.io.imem
   

@@ -16,6 +16,7 @@ class CtlToDatIo extends Bundle()
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
    val wb_sel    = Output(UInt(WB_X.getWidth.W))
    val csr_cmd   = Output(UInt(CSR.SZ.W))
+   val br_type   = Output(UInt(BR_N.getWidth.W))
    val exception = Output(Bool())
 }
 
@@ -24,10 +25,9 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
    // val imem = new MemPortIo(conf.xprlen)
    val dmem = new MemPortIo(conf.xprlen)
-   val dat  = Flipped(new DatToCtlIo())
+   // val dat  = Flipped(new DatToCtlIo())
    val ctl  = new CtlToDatIo()
    val inst = Input(UInt(conf.xlen.W))
-   val pc_sel = Output(UInt(PC_4.getWidth.W))
    val rf_wen    = Output(Bool())
    val stall     = Output(Bool())
 
@@ -109,30 +109,29 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
    // Branch Logic   
-   val ctrl_pc_sel = Mux(io.dat.csr_eret  ||
-                         io.ctl.exception      ,  PC_EXC,
-                     Mux(cs_br_type === BR_N  ,  PC_4,
-                     Mux(cs_br_type === BR_NE ,  Mux(!io.dat.br_eq,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_EQ ,  Mux( io.dat.br_eq,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_GE ,  Mux(!io.dat.br_lt,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_GEU,  Mux(!io.dat.br_ltu, PC_BR, PC_4),
-                     Mux(cs_br_type === BR_LT ,  Mux( io.dat.br_lt,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_LTU,  Mux( io.dat.br_ltu, PC_BR, PC_4),
-                     Mux(cs_br_type === BR_J  ,  PC_J,
-                     Mux(cs_br_type === BR_JR ,  PC_JR,
-                                                 PC_4))))))))))
+   // val ctrl_pc_sel = Mux(io.dat.csr_eret  ||
+   //                       io.ctl.exception      ,  PC_EXC,
+   //                   Mux(cs_br_type === BR_N  ,  PC_4,
+   //                   Mux(cs_br_type === BR_NE ,  Mux(!io.dat.br_eq,  PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_EQ ,  Mux( io.dat.br_eq,  PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_GE ,  Mux(!io.dat.br_lt,  PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_GEU,  Mux(!io.dat.br_ltu, PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_LT ,  Mux( io.dat.br_lt,  PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_LTU,  Mux( io.dat.br_ltu, PC_BR, PC_4),
+   //                   Mux(cs_br_type === BR_J  ,  PC_J,
+   //                   Mux(cs_br_type === BR_JR ,  PC_JR,
+   //                                               PC_4))))))))))
    
    // val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
    val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
 
    // Set the data-path control signals
    io.stall    := stall
-   io.pc_sel   := ctrl_pc_sel
    io.ctl.op1_sel  := cs_op1_sel
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun
    io.ctl.wb_sel   := cs_wb_sel
-
+   io.ctl.br_type  := cs_br_type
    io.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands

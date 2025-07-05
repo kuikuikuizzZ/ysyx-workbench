@@ -8,7 +8,6 @@ import npc.Constants._
 class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val imem = new MemPortIo(conf.xprlen)
   val targets = Flipped(new PCTargets())
-  val pc_sel = Input(UInt(PC_4.getWidth.W))
   val inst = Output(UInt(conf.xprlen.W))
   val stall = Input(Bool())
   val pc_io = new PCIo()
@@ -17,8 +16,10 @@ class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
 
 
 class PCIo(implicit val conf: YSYX24100012Config) extends Bundle() {
+  val pc_sel = Input(UInt(PC_4.getWidth.W))
   val pc_plus4 = Output(UInt(conf.xprlen.W))
   val pc =  Output(UInt(conf.xprlen.W))
+
 }
 
 class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
@@ -28,17 +29,17 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
   // PC Register
-  pc_next := MuxCase(io.pc_sel, Seq(
-                  (io.pc_sel === PC_4)   -> io.pc_io.pc_plus4,
-                  (io.pc_sel === PC_BR)  -> io.targets.br_target,
-                  (io.pc_sel === PC_J )  -> io.targets.jmp_target,
-                  (io.pc_sel === PC_JR)  -> io.targets.jump_reg_target,
-                  (io.pc_sel === PC_EXC) -> io.targets.exception_target
-                  ))
+  pc_next := MuxCase(io.pc_io.pc_sel, Seq(
+                    (io.pc_io.pc_sel === PC_4)   -> io.pc_io.pc_plus4,
+                    (io.pc_io.pc_sel === PC_BR)  -> io.targets.br_target,
+                    (io.pc_io.pc_sel === PC_J )  -> io.targets.jmp_target,
+                    (io.pc_io.pc_sel === PC_JR)  -> io.targets.jump_reg_target,
+                    (io.pc_io.pc_sel === PC_EXC) -> io.targets.exception_target
+                    ))
 
   val pc_reg = RegInit(START_ADDR)
 
-  when(io.imem.resp.valid || io.stall) {
+  when(io.imem.resp.valid || !io.stall) {
     pc_reg := pc_next
   }
 
