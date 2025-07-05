@@ -73,7 +73,6 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
       val reset = Input(Bool())
    }) 
 
-   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012Mem.v"
    addPath(path)
    println(s"YSYX2400012Mem path: ${path}")
@@ -87,27 +86,10 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPa
       val reset = Input(Bool())
    }) 
 
-   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012SyncMem.v"
    addPath(path)
    println(s"YSYX2400012SyncMem path: ${path}")
 }
-
-// class Mymem(val addrWidth: Int) extends Module  {
-//    val io = IO(new Bundle{
-//       val dataInstr = Vec(2, new Rport(addrWidth,32))
-//       val dw = new  Wport(addrWidth,32)
-//    }) 
-//    // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
-//    // val data = Wire(UInt(32.W))
-//    // val en = Wire(Bool())
-//    // en := io.dw.en
-//    // data := io.dw.data + io.dw.addr + io.dw.len +  
-//    //         io.dataInstr(0).addr + io.dataInstr(1).addr +
-//    //         io.dataInstr(0).data + io.dataInstr(1).data
-//    io.dataInstr(0).data := 0.U
-//    io.dataInstr(1).data := 0.U
-// }
 
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
 {
@@ -120,7 +102,6 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    val async_data = Module(new YSYX2400012Mem(32))
    async_data.io.clock := clock
    async_data.io.reset := reset
-   // val async_data =  SyncReadMem(1024, Vec(4, UInt(32.W)))
    for (i <- 0 until num_core_ports)
    {
       io.core_ports(i).resp.valid := io.core_ports(i).req.valid
@@ -184,10 +165,10 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    /////////// DPORT
    //val resp_datai = Wire(UInt(conf.xprlen.W))
    val req_addri = io.core_ports(DPORT).req.bits.addr
-
    val req_typi = Reg(UInt(3.W))
    req_typi := io.core_ports(DPORT).req.bits.typ
    val resp_datai = sync_data.io.dataInstr(DPORT).data
+   sync_data.io.dataInstr(DPORT).en := io.core_ports(DPORT).req.valid
 
    io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
@@ -209,6 +190,7 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
 
    ///////////// IPORT
    if (num_core_ports == 2)
+      sync_data.io.dataInstr(IPORT).en := io.core_ports(IPORT).req.valid
       io.core_ports(IPORT).resp.bits.data := sync_data.io.dataInstr(IPORT).data
    ////////////
 

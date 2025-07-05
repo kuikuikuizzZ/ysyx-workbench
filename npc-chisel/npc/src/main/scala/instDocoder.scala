@@ -10,7 +10,6 @@ import npc.Constants._
 
 class CtlToDatIo extends Bundle()
 {
-   val stall     = Output(Bool())
    val dmiss     = Output(Bool())
    val op1_sel   = Output(UInt(OP1_X.getWidth.W))
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
@@ -30,6 +29,7 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val inst = Input(UInt(conf.xlen.W))
    val pc_sel = Output(UInt(PC_4.getWidth.W))
    val rf_wen    = Output(Bool())
+   val stall     = Output(Bool())
 
 }
 
@@ -126,8 +126,8 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
 
    // Set the data-path control signals
+   io.stall    := stall
    io.pc_sel   := ctrl_pc_sel
-   io.ctl.stall    := stall
    io.ctl.op1_sel  := cs_op1_sel
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun

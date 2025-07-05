@@ -10,6 +10,7 @@ class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val targets = Flipped(new PCTargets())
   val pc_sel = Input(UInt(PC_4.getWidth.W))
   val inst = Output(UInt(conf.xprlen.W))
+  val stall = Input(Bool())
   val pc_io = new PCIo()
 }
 
@@ -37,7 +38,7 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
 
   val pc_reg = RegInit(START_ADDR)
 
-  when(io.imem.resp.valid) {
+  when(io.imem.resp.valid || io.stall) {
     pc_reg := pc_next
   }
 
@@ -50,6 +51,6 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   // Instruction Read
   io.inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
   
-  io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W))  
+  io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
   io.pc_io.pc := pc_reg             
 }

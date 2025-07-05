@@ -101,7 +101,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    csr.io.rw.cmd   := io.ctl.csr_cmd
    csr.io.rw.wdata := alu_out
 
-   csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
+   // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
    csr.io.exception := io.ctl.exception
    csr.io.pc        := io.pc_io.pc
    io.targets.exception_target := csr.io.evec

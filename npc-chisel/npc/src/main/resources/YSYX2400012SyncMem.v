@@ -12,7 +12,8 @@ module YSYX2400012SyncMem #(
     // 指令读端口（Vec(2, Rport)）
     input  [ADDR_WIDTH-1:0] dataInstr_0_addr,  // 端口0地址
     input  [ADDR_WIDTH-1:0] dataInstr_1_addr,  // 端口1地址
-
+    input  dataInstr_0_en,  // 端口0使能
+    input  dataInstr_1_en,  // 端口1使能
 
     // 数据写端口（dw: Wport）
     input                  dw_en,           // 写使能 (原MemWEn)
