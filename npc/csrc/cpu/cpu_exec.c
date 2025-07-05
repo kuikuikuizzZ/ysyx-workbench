@@ -10,7 +10,7 @@
 CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
-
+VerilatedContext* contextp = NULL;
 void init_disasm();
 void device_update();
 bool wps_diff();
@@ -19,9 +19,15 @@ void step() {
     IFDEF(CONFIG_NPC_CHISEL,top()->clock = 0);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 0);
     top()->eval(); 
+    contextp->timeInc(1);
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
     IFDEF(CONFIG_NPC_CHISEL,top()->clock = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 1); 
-    top()->eval(); }
+    top()->eval(); 
+    contextp->timeInc(1);
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+}
+
 void reset(int n) { 
     IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 1);
@@ -37,7 +43,7 @@ void sync_cpu(){
 
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.
-    VerilatedContext* contextp = new VerilatedContext;
+    contextp = new VerilatedContext;
 
     // Pass arguments so Verilated code can see them, e.g. $value$plusargs
     // This needs to be called before you create any model
@@ -164,6 +170,7 @@ void execute(u_int64_t n){
 void free_cpu(){
     // Final model cleanup
     top()->final();
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->close());
     // Destroy model
     delete_top();
 }

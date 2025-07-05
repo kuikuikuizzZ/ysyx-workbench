@@ -5,6 +5,7 @@
 
 Top* _top = NULL;
 Top_rootp* _rootp =NULL;
+
 Top* top() {
     if (!_top) {
         _top =  new Top{};
@@ -12,6 +13,7 @@ Top* top() {
     }
     return _top;
 }
+
 
 
 

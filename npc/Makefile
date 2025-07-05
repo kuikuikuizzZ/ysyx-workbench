@@ -34,6 +34,15 @@ SOURCES += $(addprefix ${NPC_HOME}/, $(SRCS))
 
 $(info "SOURCES: $(SOURCES)")
 
+
+# Verilator基础配置
+VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi
+VERILATOR_BASE_FLAGS += $(VCFLAGS)
+VERILATOR_BASE_FLAGS += $(LDFLAGS)
+ifdef CONFIG_WAVETRACE_FST
+	VERILATOR_BASE_FLAGS += --trace-fst
+endif
+
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL
     include $(NPC_HOME)/scripts/npc-chisel.mk

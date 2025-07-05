@@ -36,10 +36,11 @@ extern "C" {
 
         // if (ren) *rword = mmio_read(raddr, len);
         IFDEF(CONFIG_DEVICE, {
-            if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
-            (raddr>=CONFIG_VGA_CTL_MMIO && raddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-            (raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size) ||
-            raddr==CONFIG_I8042_DATA_MMIO)
+            // if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
+            // (raddr>=CONFIG_VGA_CTL_MMIO && raddr<(CONFIG_VGA_CTL_MMIO+8)) || 
+            // (raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size) ||
+            // raddr==CONFIG_I8042_DATA_MMIO)
+            if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) )
             *rword = mmio_read(raddr, len);
         });
         return;
@@ -59,10 +60,12 @@ extern "C" {
         // IFDEF(CONFIG_HAS_SERIAL,wen = wen || (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4)));
         // if (wen) ;
         IFDEF(CONFIG_DEVICE, {
-        if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
-            (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-            (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)) ||
-            waddr == CONFIG_I8042_DATA_MMIO)
+        // if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
+        //     (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 
+        //     (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)) ||
+        //     waddr == CONFIG_I8042_DATA_MMIO)
+        if (waddr==CONFIG_RTC_MMIO || waddr==(CONFIG_RTC_MMIO+4) || 
+            (waddr==CONFIG_SERIAL_MMIO) ||  (waddr==CONFIG_SERIAL_MMIO+4))
             mmio_write(waddr, len, wdata);
         });
         return;

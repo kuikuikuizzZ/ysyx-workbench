@@ -2,7 +2,6 @@ mainmenu "NPC Configuration Menu"
 
 config ISA
   string "Instruction Set Architecture
-  string
   default riscv32e 
 
 choice
@@ -29,6 +28,21 @@ config TRACE_END
   depends on TRACE
   int "When tracing is disabled (unit: number of instructions)"
   default 10000
+
+config WAVETRACE
+  depends on TRACE
+  bool "Enable wave trace"
+  default y
+
+choice
+  prompt "gtkwave format"
+  default WAVETRACE_FST
+  depends on WAVETRACE
+config WAVETRACE_FST
+  bool "fst"
+config WAVETRACE_VCD
+  bool "vcd"
+endchoice
 
 config ITRACE
   depends on TRACE 
@@ -87,6 +101,7 @@ config DIFFTEST
   help
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
+
 
 # choice
 #   prompt "Reference design"
