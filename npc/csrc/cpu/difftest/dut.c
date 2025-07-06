@@ -16,6 +16,7 @@
 #include <dlfcn.h>
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <cpu/top.h>
 #include <utils.h>
 #include <npc.h>
 #include <memory.h>
@@ -115,8 +116,8 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   CPU_state ref_r;
-
-  if (skip_dut_nr_inst > 0) {
+  if (top_inst() != 0x00004033) return; // this is a nop instruction, just skip it
+  if (skip_dut_nr_inst > 0) { 
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == pc_next) {
       skip_dut_nr_inst = 0;

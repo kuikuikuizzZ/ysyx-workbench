@@ -4,7 +4,15 @@
 ifeq ($(SHARE),1)
 SO = -so
 CFLAGS  += -fPIC -fvisibility=hidden -g
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S), Darwin)
+LDFLAGS += -fPIC -ledit -shared
+endif
+ifeq ($(UNAME_S), Linux)
 LDFLAGS += -shared -fPIC
+endif
+
 endif
 
 WORK_DIR  = $(shell pwd)

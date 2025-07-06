@@ -4,10 +4,11 @@ BUILD_DIR_BASE = $(WORK_DIR)/build
 
 # 包含配置文件(包括 menuconfig生成的配置)
 
-include $(NPC_HOME)/tools/difftest.mk
-include $(NPC_HOME)/scripts/config.mk
 include $(NPC_HOME)/.config
+include $(NPC_HOME)/scripts/config.mk
+include $(NPC_HOME)/tools/difftest.mk
 
+GUEST_ISA ?= riscv32
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
@@ -33,7 +34,7 @@ SRCS = $(filter-out $(SRCS-BLACKLIST-y), $(SRCS-y))
 SOURCES += $(addprefix ${NPC_HOME}/, $(SRCS))
 
 $(info "SOURCES: $(SOURCES)")
-
+$(info "ARGS: $(ARGS)")
 
 # Verilator基础配置
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi
