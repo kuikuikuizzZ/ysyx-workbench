@@ -118,8 +118,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                   (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
                   ))
                                   
-
-
    // datapath to controlpath outputs
    val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
    val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 

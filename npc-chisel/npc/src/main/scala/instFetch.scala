@@ -25,7 +25,12 @@ class PCIo(implicit val conf: YSYX24100012Config) extends Bundle() {
 class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   val io = IO(new InstFetchIo())
   io := DontCare
-
+  val s_idle :: s_wait_ready :: Nil = Enum(2)
+  val state = RegInit(s_idle)
+  state := MuxLookup(state, s_idle)(List(
+    s_idle       -> s_wait_ready,
+    s_wait_ready -> s_idle,
+  ))
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
   // PC Register
@@ -38,14 +43,18 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
                     ))
 
   val pc_reg = RegInit(START_ADDR)
-
-  when(io.imem.resp.valid || !io.stall) {
-    pc_reg := pc_next
+  when(io.imem.resp.valid && !io.stall) {
+      pc_reg := pc_next
   }
-
-   // Memory Requests
+  when (state === s_wait_ready){
+    io.imem.req.valid := false.B
+  } .otherwise {
+    io.imem.req.valid := true.B
+  }
+  
+  // Memory Requests
+  
   io.imem.req.bits.addr := pc_reg
-  io.imem.req.valid := true.B
   io.imem.req.bits.fcn := M_XRD
   io.imem.req.bits.typ := MT_WU
 

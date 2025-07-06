@@ -65,7 +65,7 @@ class MemResp(val data_width: Int) extends Bundle
    val data = Output(UInt(data_width.W))
 }
 
-class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+class YSYX2400012AsyncPadMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
@@ -73,14 +73,40 @@ class YSYX2400012Mem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
       val reset = Input(Bool())
    }) 
 
-   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012Mem.v"
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncPadMem.v"
    addPath(path)
-   println(s"YSYX2400012Mem path: ${path}")
+   println(s"YSYX2400012AsyncPadMem path: ${path}")
+}
+
+class YSYX2400012SyncPadMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle{
+      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      val dw = new  Wport(addrWidth,32)
+      val clock = Input(Clock())
+      val reset = Input(Bool())
+   }) 
+
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012SyncPadMem.v"
+   addPath(path)
+   println(s"YSYX2400012SyncPadMem path: ${path}")
+}
+
+class YSYX2400012SyncMemHalf(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle{
+      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      val dw = new  Wport(addrWidth,32)
+      val clock = Input(Clock())
+      val reset = Input(Bool())
+   }) 
+
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012SyncMemHalf.v"
+   addPath(path)
+   println(s"YSYX2400012SyncMemHalf path: ${path}")
 }
 
 class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
-      val dataInstr = Vec(2, new Rport(addrWidth,32))
+      val dr = new Rport(addrWidth,32)
       val dw = new  Wport(addrWidth,32)
       val clock = Input(Clock())
       val reset = Input(Bool())
@@ -91,6 +117,19 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPa
    println(s"YSYX2400012SyncMem path: ${path}")
 }
 
+class YSYX2400012AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle{
+      val dr = new Rport(addrWidth,32)
+      val dw = new  Wport(addrWidth,32)
+      val clock = Input(Clock())
+      val reset = Input(Bool())
+   }) 
+
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncMem.v"
+   addPath(path)
+   println(s"YSYX2400012AsyncMem path: ${path}")
+}
+
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new Bundle
@@ -99,7 +138,7 @@ class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 2
    })
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
-   val async_data = Module(new YSYX2400012Mem(32))
+   val async_data = Module(new YSYX2400012AsyncPadMem(32))
    async_data.io.clock := clock
    async_data.io.reset := reset
    for (i <- 0 until num_core_ports)
@@ -151,13 +190,15 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    })
    val num_bytes_per_line = 8
    val num_lines = num_bytes / num_bytes_per_line
-   val sync_data = Module(new YSYX2400012SyncMem(32))
+   val sync_data = Module(new YSYX2400012SyncMemHalf(32))
    sync_data.io.clock := clock
    sync_data.io.reset := reset
    
+   io.core_ports(IPORT).resp.valid := RegNext(io.core_ports(IPORT).req.valid,false.B)
+   io.core_ports(DPORT).resp.valid := io.core_ports(DPORT).req.valid
+
    for (i <- 0 until num_core_ports)
    {
-      io.core_ports(i).resp.valid := RegNext(io.core_ports(i).req.valid,false.B)
       io.core_ports(i).req.ready := true.B // for now, no back pressure
       sync_data.io.dataInstr(i).addr := io.core_ports(i).req.bits.addr
    }
@@ -170,7 +211,7 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
    val resp_datai = sync_data.io.dataInstr(DPORT).data
    sync_data.io.dataInstr(DPORT).en := io.core_ports(DPORT).req.valid
 
-   io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Array(
+   io.core_ports(DPORT).resp.bits.data := MuxCase(resp_datai,Seq(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
       (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
       (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
@@ -181,10 +222,14 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
 
    when (io.core_ports(DPORT).req.valid && (io.core_ports(DPORT).req.bits.fcn === M_XWR))
    {
-      sync_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
-      sync_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+      // sync_data.io.dw.data := io.core_ports(DPORT).req.bits.data << (req_addri(1,0) << 3)
+      // sync_data.io.dw.addr := Cat(req_addri(31,2),0.asUInt(2.W))
+      // sync_data.io.dw.len := Mux(req_typi === MT_B,1.U,
+      //                         Mux(req_typi === MT_H,2.U,4.U))
+      sync_data.io.dw.data := io.core_ports(DPORT).req.bits.data 
+      sync_data.io.dw.addr := req_addri
       sync_data.io.dw.len := Mux(req_typi === MT_B,1.U,
-                              Mux(req_typi === MT_H,2.U,4.U))
+                              Mux(req_typi === MT_H,2.U,4.U))                 
    }
    /////////////////
 
@@ -194,4 +239,90 @@ class SyncScratchPadMemory(num_core_ports: Int, num_bytes: Int = (1 << 21))(impl
       io.core_ports(IPORT).resp.bits.data := sync_data.io.dataInstr(IPORT).data
    ////////////
 
+}
+
+class SyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+{
+   val io = IO(new Bundle
+   {
+      val port = Flipped(new MemPortIo(data_width = conf.xprlen))
+   })
+
+   val sync_data = Module(new YSYX2400012SyncMem(32))
+   sync_data.io.clock := clock
+   sync_data.io.reset := reset
+   
+   io.port.resp.valid := RegNext(io.port.req.valid,false.B)
+   io.port.req.ready := true.B // for now, no back pressure
+   sync_data.io.dr.addr := io.port.req.bits.addr
+   
+   /////////// Read Port
+   val req_addri = io.port.req.bits.addr
+   val req_typi = Reg(UInt(3.W))
+   req_typi := io.port.req.bits.typ
+   val resp_datai = sync_data.io.dr.data
+   sync_data.io.dr.en := io.port.req.valid
+
+   io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+      (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+      (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+      (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+      (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+   ))
+
+   /////////// Write Port
+   sync_data.io.dw := DontCare
+   sync_data.io.dw.en := io.port.req.bits.fcn === M_XWR
+
+   when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR))
+   {
+      sync_data.io.dw.data := io.port.req.bits.data 
+      sync_data.io.dw.addr := req_addri
+      sync_data.io.dw.len := Mux(req_typi === MT_B,1.U,
+                              Mux(req_typi === MT_H,2.U,4.U))  
+   }
+   /////////////////
+}
+
+class AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+{
+   val io = IO(new Bundle
+   {
+      val port = Flipped(new MemPortIo(data_width = conf.xprlen))
+   })
+
+   val async_data = Module(new YSYX2400012AsyncMem(32))
+   async_data.io.clock := clock
+   async_data.io.reset := reset
+   
+   io.port.resp.valid := io.port.req.valid
+   io.port.req.ready := true.B // for now, no back pressure
+   async_data.io.dr.addr := io.port.req.bits.addr
+   
+   /////////// Read Port
+   val req_addri = io.port.req.bits.addr
+   val req_typi = Reg(UInt(3.W))
+   req_typi := io.port.req.bits.typ
+   val resp_datai = async_data.io.dr.data
+   async_data.io.dr.en := io.port.req.valid
+
+   io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+      (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+      (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+      (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+      (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+   ))
+
+   /////////// Write Port
+   async_data.io.dw := DontCare
+   async_data.io.dw.en := io.port.req.bits.fcn === M_XWR
+
+   when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR))
+   {
+      async_data.io.dw.data := io.port.req.bits.data 
+      async_data.io.dw.addr := req_addri
+      async_data.io.dw.len := Mux(req_typi === MT_B,1.U,
+                              Mux(req_typi === MT_H,2.U,4.U))  
+   }
+   /////////////////
 }

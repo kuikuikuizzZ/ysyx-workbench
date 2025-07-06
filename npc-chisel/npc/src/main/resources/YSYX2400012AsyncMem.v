@@ -1,5 +1,5 @@
 
-module YSYX2400012SyncMem #(
+module YSYX2400012AsyncMem #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     ORIGIN_ADDR=32'h80000000,
@@ -9,7 +9,6 @@ module YSYX2400012SyncMem #(
     // input clk,
     input clock,
     input reset,
-
     // 写端口（dw: Wport）
     input                  dw_en,           // 写使能 (原MemWEn)
     input  [ADDR_WIDTH-1:0] dw_addr,        // 写地址
@@ -20,19 +19,19 @@ module YSYX2400012SyncMem #(
     input  [ADDR_WIDTH-1:0] dr_addr,        // 端口0地址
     input  dr_en,                          // 端口使能
     output  reg [DATA_WIDTH-1:0] dr_data   // 端口数据
-
 );
 
     // 1. 重构读写逻辑分离
     //-----------------------------
     // 写逻辑：使用dw_en触发pmem_write
-    always @(posedge clock) begin
+    
+    always @(*) begin
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
     end
 
-    always @(posedge clock) begin
+    always @(*) begin
         if (reset) begin
             dr_data = 32'b0; // 重置端口1数据
         end else begin
