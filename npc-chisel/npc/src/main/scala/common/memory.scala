@@ -297,14 +297,15 @@ class AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Con
    
    io.port.resp.valid := io.port.req.valid
    io.port.req.ready := true.B // for now, no back pressure
-   async_data.io.dr.addr := io.port.req.bits.addr
    
    /////////// Read Port
+
    val req_addri = io.port.req.bits.addr
-   val req_typi = Reg(UInt(3.W))
+   val req_typi = Wire(UInt(3.W))
    req_typi := io.port.req.bits.typ
-   val resp_datai = async_data.io.dr.data
+   async_data.io.dr.addr := io.port.req.bits.addr
    async_data.io.dr.en := io.port.req.valid
+   val resp_datai = async_data.io.dr.data
 
    io.port.resp.bits.data := MuxCase(resp_datai,Seq(
       (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),

@@ -2,7 +2,6 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.experimental.decode._
 
 import npc.common.Instructions._
 import npc.common._
@@ -10,27 +9,35 @@ import npc.Constants._
 
 class CtlToDatIo extends Bundle()
 {
-   val dmiss     = Output(Bool())
    val op1_sel   = Output(UInt(OP1_X.getWidth.W))
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
-   val wb_sel    = Output(UInt(WB_X.getWidth.W))
    val csr_cmd   = Output(UInt(CSR.SZ.W))
    val br_type   = Output(UInt(BR_N.getWidth.W))
    val exception = Output(Bool())
 }
 
 
+class CtlToLSUIo extends Bundle()
+{  
+   val mem_en     = Output(Bool())
+   val mem_fcn    = Output(UInt(M_X.getWidth.W))
+   val msk_sel    = Output(UInt(MT_X.getWidth.W))
+}
+
+class CtlToWBIo extends Bundle()
+{
+   val rf_wen = Output(Bool())
+   val wb_sel = Output(UInt(WB_X.getWidth.W))
+   val exception = Output(Bool())
+}
+
 class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
-   // val imem = new MemPortIo(conf.xprlen)
-   val dmem = new MemPortIo(conf.xprlen)
-   // val dat  = Flipped(new DatToCtlIo())
-   val ctl  = new CtlToDatIo()
    val inst = Input(UInt(conf.xlen.W))
-   val rf_wen    = Output(Bool())
-   val stall     = Output(Bool())
-
+   val ctl  = new CtlToDatIo()
+   val ctl_lsu = new CtlToLSUIo()
+   val ctl_wb    = new CtlToWBIo()
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
@@ -108,43 +115,25 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
    val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
-   // Branch Logic   
-   // val ctrl_pc_sel = Mux(io.dat.csr_eret  ||
-   //                       io.ctl.exception      ,  PC_EXC,
-   //                   Mux(cs_br_type === BR_N  ,  PC_4,
-   //                   Mux(cs_br_type === BR_NE ,  Mux(!io.dat.br_eq,  PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_EQ ,  Mux( io.dat.br_eq,  PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_GE ,  Mux(!io.dat.br_lt,  PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_GEU,  Mux(!io.dat.br_ltu, PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_LT ,  Mux( io.dat.br_lt,  PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_LTU,  Mux( io.dat.br_ltu, PC_BR, PC_4),
-   //                   Mux(cs_br_type === BR_J  ,  PC_J,
-   //                   Mux(cs_br_type === BR_JR ,  PC_JR,
-   //                                               PC_4))))))))))
-   
-   // val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
-   val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
 
    // Set the data-path control signals
-   io.stall    := stall
    io.ctl.op1_sel  := cs_op1_sel
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun
-   io.ctl.wb_sel   := cs_wb_sel
    io.ctl.br_type  := cs_br_type
-   io.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
-  
+   io.ctl_lsu.mem_en := cs_mem_en
+   io.ctl_lsu.mem_fcn := cs_mem_fcn
+   io.ctl_lsu.msk_sel := cs_msk_sel
+
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
    val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
    val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
    val csr_cmd = Mux(csr_ren, CSR.R, cs_csr_cmd)
 
-   io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
-   
+   // io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
+   io.ctl.csr_cmd := csr_cmd
 
-   io.dmem.req.valid    := cs_mem_en
-   io.dmem.req.bits.fcn := cs_mem_fcn
-   io.dmem.req.bits.typ := cs_msk_sel
+
    
    // Exception Handling ---------------------
    // We only need to check if the instruction is illegal (or unsupported)
@@ -154,5 +143,7 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // fit.
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
-
+   io.ctl_wb.wb_sel   := cs_wb_sel
+   io.ctl_wb.rf_wen  := cs_rf_wen
+   io.ctl_wb.exception := io.ctl.exception
 }

@@ -29,6 +29,7 @@ module YSYX2400012AsyncMem #(
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
+        // $display("PMEM WRITE: addr=%h, len=%h, data=%h", dw_addr, dw_len, dw_data);
     end
 
     always @(*) begin
@@ -38,7 +39,6 @@ module YSYX2400012AsyncMem #(
             // 端口1读取
             pmem_read(dr_addr, 4, dr_data);
         end
-
     end
 
 endmodule

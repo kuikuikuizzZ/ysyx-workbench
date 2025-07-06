@@ -97,7 +97,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 void ref_reg_display(){
   CPU_state ref_r;
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-  printf("reg register: \n");
+  printf("ref register: \n");
     for (int i=0;i<gpr_size;i++){
         printf("%4s:%.8x",regs[i],ref_r.gpr[i]);
         (i%3==0)?printf("\n"):printf(" ");
@@ -116,6 +116,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   CPU_state ref_r;
+  // 2 stage pipeline, so the pc_next is the next instruction to be executed 
   if (top_inst() != 0x00004033) return; // this is a nop instruction, just skip it
   if (skip_dut_nr_inst > 0) { 
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);

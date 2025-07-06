@@ -7,27 +7,29 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-// class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
-// {
-//    // val inst   = Output(UInt(32.W))
-//    val br_eq  = Output(Bool())
-//    val br_lt  = Output(Bool())
-//    val br_ltu = Output(Bool())
-//    // val csr_eret = Output(Bool())
-// }
 
 class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
-   val dmem = new MemPortIo(conf.xprlen)
    val inst = Input(UInt(conf.xlen.W))
    val ctl  = Flipped(new CtlToDatIo())
    val ebreak = Output(Bool())
    val targets = new PCTargets()
    val pc_io = Flipped(new PCIo())
    val reg_in = Flipped(new regToDatIo())
-   val wb_data = Output(UInt(conf.xlen.W))
+   val exe_lsu = new exeToLSUIo()
+   val exe_wbu = new exeToWBUIo()
 }
 
+class exeToLSUIo(implicit val conf: YSYX24100012Config) extends Bundle() {
+  val addr = Output(UInt(conf.xprlen.W))
+  val data = Output(UInt(conf.xprlen.W))
+}
+
+class exeToWBUIo(implicit val conf: YSYX24100012Config) extends Bundle {
+   val alu_out = Output(UInt(conf.xprlen.W))
+   val csr_data = Output(UInt(conf.xprlen.W))
+   val pc_plus4 = Output(UInt(conf.xprlen.W))
+}
 
 class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
   val br_target = Output(UInt(conf.xprlen.W))
@@ -109,14 +111,6 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.ebreak := csr.io.insn_break
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
-
-   // WB Mux
-   io.wb_data := MuxCase(alu_out, Seq(
-                  (io.ctl.wb_sel === WB_ALU) -> alu_out,
-                  (io.ctl.wb_sel === WB_MEM) -> io.dmem.resp.bits.data, 
-                  (io.ctl.wb_sel === WB_PC4) -> io.pc_io.pc_plus4,
-                  (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
-                  ))
                                   
    // datapath to controlpath outputs
    val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
@@ -139,9 +133,11 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                                                  PC_4))))))))))
 
    // datapath to data memory outputs
-   io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := io.reg_in.rs2_data.asUInt 
- 
+   io.exe_lsu.addr  := alu_out
+   io.exe_lsu.data := io.reg_in.rs2_data.asUInt 
+   io.exe_wbu.alu_out := alu_out
+   io.exe_wbu.csr_data := csr.io.rw.rdata
+   io.exe_wbu.pc_plus4 := io.pc_io.pc_plus4
 }
 
  

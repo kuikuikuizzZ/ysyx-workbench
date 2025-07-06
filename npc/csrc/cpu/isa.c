@@ -6,7 +6,7 @@ void isa_reg_display(){
     printf("npc register: \n");
     for (int i=0;i<gpr_size;i++){
         printf("%4s:%.8x",regs[i],top_gpr(i));
-        (i%3==1)?printf("\n"):printf(" ");
+        (i%3==0)?printf("\n"):printf(" ");
     }
     
     printf("\n%4s:%.8x\n","pc",top_pc());

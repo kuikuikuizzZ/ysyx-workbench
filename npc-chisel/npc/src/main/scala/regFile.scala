@@ -5,10 +5,9 @@ import npc.common.{YSYX24100012Config, MemPortIo}
 import npc.Constants._
 
 class regFileIo(implicit val conf: YSYX24100012Config) extends Bundle {
-  val wb_data = Input(UInt(conf.xlen.W))
   val inst = Input(UInt(conf.xlen.W))
-  val rf_wen = Input(Bool())
   val reg_to_dat_io = new regToDatIo()
+  val wb = Flipped(new WBToRegIo())
 }
 
 class regToDatIo(implicit val conf: YSYX24100012Config) extends Bundle {
@@ -26,8 +25,8 @@ class RegFile(implicit val conf: YSYX24100012Config) extends Module {
   // Register File
   val regfile = Mem(32, UInt(conf.xlen.W))
 
-  when (io.rf_wen && (wb_addr =/= 0.U)) {
-    regfile(wb_addr) := io.wb_data
+  when (io.wb.rf_wen && (wb_addr =/= 0.U)) {
+    regfile(wb_addr) := io.wb.data
   }
 
   io.reg_to_dat_io.rs1_data := Mux((rs1_addr =/= 0.U), regfile(rs1_addr), 0.asUInt(conf.xlen.W))

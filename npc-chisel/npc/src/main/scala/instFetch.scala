@@ -25,14 +25,16 @@ class PCIo(implicit val conf: YSYX24100012Config) extends Bundle() {
 class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   val io = IO(new InstFetchIo())
   io := DontCare
-  val s_idle :: s_wait_ready :: Nil = Enum(2)
-  val state = RegInit(s_idle)
-  state := MuxLookup(state, s_idle)(List(
-    s_idle       -> s_wait_ready,
-    s_wait_ready -> s_idle,
+  val s_if :: s_exe :: s_lsu :: Nil = Enum(3)
+  val state = RegInit(s_if)
+  state := MuxLookup(state, s_if)(List(
+    s_if       -> s_exe,
+    s_exe      -> s_lsu,
+    s_lsu      -> s_if,
   ))
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
+
   // PC Register
   pc_next := MuxCase(io.pc_io.pc_sel, Seq(
                     (io.pc_io.pc_sel === PC_4)   -> io.pc_io.pc_plus4,
@@ -42,18 +44,21 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
                     (io.pc_io.pc_sel === PC_EXC) -> io.targets.exception_target
                     ))
 
+  val reg_pc_next = RegNext(pc_next)
+
   val pc_reg = RegInit(START_ADDR)
   when(io.imem.resp.valid && !io.stall) {
-      pc_reg := pc_next
-  }
-  when (state === s_wait_ready){
-    io.imem.req.valid := false.B
-  } .otherwise {
-    io.imem.req.valid := true.B
+      pc_reg := reg_pc_next
   }
   
+  io.imem.req.valid := MuxCase(
+    state,
+    Seq(
+      (state === s_if) -> true.B,
+      (state === s_exe || state === s_lsu) -> false.B,
+  ))
+
   // Memory Requests
-  
   io.imem.req.bits.addr := pc_reg
   io.imem.req.bits.fcn := M_XRD
   io.imem.req.bits.typ := MT_WU
