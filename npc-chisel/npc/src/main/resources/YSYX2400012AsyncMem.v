@@ -35,9 +35,12 @@ module YSYX2400012AsyncMem #(
     always @(*) begin
         if (reset) begin
             dr_data = 32'b0; // 重置端口1数据
-        end else begin
+        end else if (dr_en) begin
             // 端口1读取
             pmem_read(dr_addr, 4, dr_data);
+        end else begin
+            // 端口1读取
+            dr_data = 32'b0; // 重置端口1数据
         end
     end
 

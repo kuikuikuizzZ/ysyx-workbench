@@ -45,5 +45,13 @@ module YSYX2400012AsyncMem #(
         end
     end
 
+    always @(*) begin
+        // 端口0读取
+        if (dataInstr_1_en) begin
+            pmem_read(dataInstr_1_addr, 4, dataInstr_0_data);
+        end else begin
+            dataInstr_1_data = 32'b0; // 重置端口0数据
+        end
+    end
 
 endmodule
