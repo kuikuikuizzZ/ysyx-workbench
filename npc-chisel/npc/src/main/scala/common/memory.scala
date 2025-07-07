@@ -65,17 +65,34 @@ class MemResp(val data_width: Int) extends Bundle
    val data = Output(UInt(data_width.W))
 }
 
-class YSYX2400012AsyncPadMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+// class YSYX2400012AsyncPadMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+//    val io = IO(new Bundle{
+//       val dataInstr = Vec(2, new Rport(addrWidth,32))
+//       val dw = new  Wport(addrWidth,32)
+//       val clock = Input(Clock())
+//       val reset = Input(Bool())
+//    }) 
+//    val async_data =  Mem(512,UInt(conf.xprlen.W))
+
+//    val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncPadMem.v"
+//    addPath(path)
+//    println(s"YSYX2400012AsyncPadMem path: ${path}")
+// }
+
+class YSYX2400012AsyncPadMem(val addrWidth: Int) (implicit val conf: YSYX24100012Config) extends Module  {
    val io = IO(new Bundle{
       val dataInstr = Vec(2, new Rport(addrWidth,32))
       val dw = new  Wport(addrWidth,32)
       val clock = Input(Clock())
       val reset = Input(Bool())
-   }) 
+   })
+   val async_data =  Mem(512,UInt(conf.xprlen.W))
+   io.dataInstr(0).data := async_data(io.dataInstr(0).addr)
+   io.dataInstr(1).data := async_data(io.dataInstr(1).addr)
 
-   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncPadMem.v"
-   addPath(path)
-   println(s"YSYX2400012AsyncPadMem path: ${path}")
+   when (io.dw.en) {
+      async_data(io.dw.addr) := io.dw.data
+   }
 }
 
 class YSYX2400012SyncPadMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
