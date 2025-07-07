@@ -31,15 +31,14 @@ module YSYX2400012SyncMem #(
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
     end
-
     always @(posedge clock) begin
         if (reset) begin
             dr_data = 32'b0; // 重置端口1数据
-        end else begin
-            // 端口1读取
+        end else if (dr_en) begin
             pmem_read(dr_addr, 4, dr_data);
+        end else begin
+            dr_data = 32'b0; // 重置端口1数据
         end
-
     end
 
 endmodule

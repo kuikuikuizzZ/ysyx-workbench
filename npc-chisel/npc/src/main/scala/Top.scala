@@ -5,6 +5,7 @@ import chisel3._
 
 import npc.common.{YSYX24100012Config, AsyncScratchPadMemory, SyncScratchPadMemory,AsyncMemory,SyncMemory}
 import npc._
+import javax.swing.text.AsyncBoxView
 
 class Top extends Module 
 {
@@ -16,9 +17,11 @@ class Top extends Module
     val core = Module(new Core())
     core.io := DontCare
 
-    val imemory = Module(new SyncMemory())
-    val dmemory = Module(new SyncMemory())
-    core.io.dmem <> dmemory.io.port
-    core.io.imem <> imemory.io.port
+    // val imemory = Module(new AsyncMemory())
+    // val dmemory = Module(new AsyncMemory())
+    val memory = Module(new AsyncScratchPadMemory(2))
+
+    core.io.dmem <> memory.io.core_ports(0)
+    core.io.imem <> memory.io.core_ports(1)
     io.halt := core.io.halt
 }

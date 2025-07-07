@@ -1,5 +1,5 @@
 #include <cpu/top.h>
-
+#ifdef CONFIG_WAVETRACE_FST
 Tfp* _tfp = NULL;
 
 Tfp* tfp() {
@@ -11,3 +11,5 @@ Tfp* tfp() {
     }
     return _tfp;
 }
+
+#endif

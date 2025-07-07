@@ -130,6 +130,8 @@ class YSYX2400012AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxP
    println(s"YSYX2400012AsyncMem path: ${path}")
 }
 
+
+
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new Bundle

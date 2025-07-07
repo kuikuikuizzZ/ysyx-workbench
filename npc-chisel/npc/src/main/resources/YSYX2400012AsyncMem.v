@@ -26,19 +26,22 @@ module YSYX2400012AsyncMem #(
     // 写逻辑：使用dw_en触发pmem_write
     
     always @(*) begin
+        if (reset) begin
+            dr_data = 32'b0; // 重置端口1数据
+        end 
         if (dw_en) begin
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end
         // $display("PMEM WRITE: addr=%h, len=%h, data=%h", dw_addr, dw_len, dw_data);
     end
-
     always @(*) begin
-        if (reset) begin
-            dr_data = 32'b0; // 重置端口1数据
+        if (dr_en) begin
+            pmem_read(dr_addr, 4, dr_data);
         end else begin
             // 端口1读取
-            pmem_read(dr_addr, 4, dr_data);
+            dr_data = 32'b0; // 重置端口1数据
         end
     end
+
 
 endmodule

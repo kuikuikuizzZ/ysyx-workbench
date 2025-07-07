@@ -20,12 +20,11 @@ void step() {
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 0);
     top()->eval(); 
     contextp->timeInc(1);
-    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+    IFDEF(CONFIG_WAVETRACE_FST,{contextp->timeInc(1); tfp()->dump(contextp->time())}); // 记录当前时间点波形
     IFDEF(CONFIG_NPC_CHISEL,top()->clock = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 1); 
     top()->eval(); 
-    contextp->timeInc(1);
-    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+    IFDEF(CONFIG_WAVETRACE_FST,{contextp->timeInc(1); tfp()->dump(contextp->time())}); // 记录当前时间点波形
 }
 
 void reset(int n) { 

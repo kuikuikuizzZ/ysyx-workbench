@@ -26,31 +26,28 @@ module YSYX2400012SyncMem #(
 
     always @(posedge clock) begin
         if (reset) begin
+            dataInstr_0_data = 32'b0; // 重置端口0数据
             dataInstr_1_data = 32'b0; // 重置端口1数据
-        end else begin
-            // 端口1读取
-            pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
-            // assign dataInstr_1_data = read_buf[1];
-        end
-
-    end
-
-    always @(*) begin
-        // 端口0写入
-        if (dw_en) begin
+        end 
+        if (dw_en) begin  
+            // 端口0写入
             pmem_write(dw_addr, dw_len, dw_data); // mask替代Length
         end 
-
-    end
-
-    always @(*) begin
+        if (dataInstr_1_en) begin
+            pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+        end else begin
+            // 端口1读取
+            dataInstr_1_data = 32'b0; // 重置端口1数据
+            // assign dataInstr_1_data = read_buf[1];
+        end
+        
         // 端口0读取
         if (dataInstr_0_en) begin
             pmem_read(dataInstr_0_addr, 4, dataInstr_0_data);
         end else begin
             dataInstr_0_data = 32'b0; // 重置端口0数据
         end
-    end
 
+    end
 
 endmodule
