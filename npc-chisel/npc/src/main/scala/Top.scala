@@ -17,7 +17,7 @@ class Top extends Module
     core.io := DontCare
 
     val imemory = Module(new SyncMemory())
-    val dmemory = Module(new AsyncMemory())
+    val dmemory = Module(new SyncMemory())
     core.io.dmem <> dmemory.io.port
     core.io.imem <> imemory.io.port
     io.halt := core.io.halt

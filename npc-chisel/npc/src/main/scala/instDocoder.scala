@@ -151,18 +151,22 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // fit.
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
-   io.ctl_wb.wb_sel   := cs_wb_sel
+   
    io.ctl_wb.exception := io.ctl.exception
-   io.ctl_wb.rf_wen  := cs_rf_wen // don't writeback in IF stage
-
-   // io.ctl_wb.rf_wen  := Mux(state === s_exe && cs_mem_en,false.B,cs_rf_wen) // don't writeback in IF stage
-
-   io.pc_write := Mux(state === s_exe,   true.B,false.B) // write PC in IF stage only
+   // io.ctl_wb.rf_wen  := Mux(state === s_exe && cs_mem_en, false.B, cs_rf_wen) // don't writeback in IF stage
+   val reg_rf_wen = RegNext(cs_rf_wen) // register the rf_wen signal to avoid hazards
+   val reg_wb_sel = RegNext(cs_wb_sel) // register the wb_sel signal to avoid hazards
+   io.ctl_wb.rf_wen := Mux(state === s_exe && cs_mem_en, false.B, 
+                       Mux(state === s_mem, reg_rf_wen, cs_rf_wen)) // don't writeback in IF stage
+   io.ctl_wb.wb_sel  := Mux(state === s_mem,reg_wb_sel,cs_wb_sel)
+   io.pc_write := Mux(state === s_mem,  true.B,
+                     Mux(state === s_exe && !cs_mem_en, true.B,false.B)
+                  ) // write PC in IF stage only
    io.inst_read := Mux(state === s_exe, true.B,false.B)
 
-   state := MuxLookup(state, s_if)(List(
+   state := MuxLookup(state, s_if)(List(      
       s_if     ->  s_exe,
-      s_exe    ->  s_if  //Mux(cs_mem_en, s_mem, s_if),
-      // s_mem    ->  s_if
+      s_exe    ->  Mux(cs_mem_en, s_mem, s_if),
+      s_mem    ->  s_if
    ))
 }
