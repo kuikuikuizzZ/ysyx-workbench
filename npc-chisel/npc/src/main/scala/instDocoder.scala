@@ -38,12 +38,17 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl  = new CtlToDatIo()
    val ctl_lsu = new CtlToLSUIo()
    val ctl_wb    = new CtlToWBIo()
+   val pc_write = Output(Bool())
+   val inst_read = Output(Bool())
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
 {
-  val io = IO(new CpathIo())
-  io := DontCare
+   val io = IO(new CpathIo())
+   io := DontCare
+   val s_if :: s_exe :: s_mem :: Nil = Enum(3)
+   val state = RegInit(s_if)
+  
 
    val csignals =
       ListLookup(io.inst,                                                                                       
@@ -115,6 +120,9 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
    val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
+   
+
+
 
    // Set the data-path control signals
    io.ctl.op1_sel  := cs_op1_sel
@@ -144,6 +152,17 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
    io.ctl_wb.wb_sel   := cs_wb_sel
-   io.ctl_wb.rf_wen  := cs_rf_wen
    io.ctl_wb.exception := io.ctl.exception
+   io.ctl_wb.rf_wen  := cs_rf_wen // don't writeback in IF stage
+
+   // io.ctl_wb.rf_wen  := Mux(state === s_exe && cs_mem_en,false.B,cs_rf_wen) // don't writeback in IF stage
+
+   io.pc_write := Mux(state === s_exe,   true.B,false.B) // write PC in IF stage only
+   io.inst_read := Mux(state === s_exe, true.B,false.B)
+
+   state := MuxLookup(state, s_if)(List(
+      s_if     ->  s_exe,
+      s_exe    ->  s_if  //Mux(cs_mem_en, s_mem, s_if),
+      // s_mem    ->  s_if
+   ))
 }

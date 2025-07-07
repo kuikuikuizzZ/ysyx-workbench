@@ -39,7 +39,6 @@ module YSYX2400012SyncMem #(
             // 端口1读取
             dr_data = 32'b0; // 重置端口1数据
         end
-
     end
 
 endmodule

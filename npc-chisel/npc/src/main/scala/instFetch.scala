@@ -8,9 +8,12 @@ import npc.Constants._
 class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
   val imem = new MemPortIo(conf.xprlen)
   val targets = Flipped(new PCTargets())
-  val inst = Output(UInt(conf.xprlen.W))
-  val stall = Input(Bool())
   val pc_io = new PCIo()
+  val stall = Input(Bool())
+  val pc_write = Input(Bool())
+  val inst_read = Input(Bool())
+  val inst = Output(UInt(conf.xprlen.W))
+
 }
 
 
@@ -25,13 +28,7 @@ class PCIo(implicit val conf: YSYX24100012Config) extends Bundle() {
 class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   val io = IO(new InstFetchIo())
   io := DontCare
-  val s_if :: s_exe :: s_lsu :: Nil = Enum(3)
-  val state = RegInit(s_if)
-  state := MuxLookup(state, s_if)(List(
-    s_if       -> s_exe,
-    s_exe      -> s_lsu,
-    s_lsu      -> s_if,
-  ))
+
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
@@ -44,28 +41,23 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
                     (io.pc_io.pc_sel === PC_EXC) -> io.targets.exception_target
                     ))
 
-  val reg_pc_next = RegNext(pc_next)
-
   val pc_reg = RegInit(START_ADDR)
-  when(io.imem.resp.valid && !io.stall) {
-      pc_reg := reg_pc_next
+  when(io.imem.resp.valid && !io.stall && io.pc_write) {
+      pc_reg := pc_next
   }
-  
-  io.imem.req.valid := MuxCase(
-    state,
-    Seq(
-      (state === s_if) -> true.B,
-      (state === s_exe || state === s_lsu) -> false.B,
-  ))
 
   // Memory Requests
+  io.imem.req.valid := true.B
   io.imem.req.bits.addr := pc_reg
   io.imem.req.bits.fcn := M_XRD
   io.imem.req.bits.typ := MT_WU
 
+
+  val reg_pc_old = RegNext(pc_reg)
   // Instruction Read
-  io.inst := Mux(io.imem.resp.valid, io.imem.resp.bits.data, BUBBLE)
+  io.inst := Mux(!io.imem.resp.valid,BUBBLE,
+              Mux(io.inst_read, io.imem.resp.bits.data,BUBBLE ))
   
-  io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
-  io.pc_io.pc := pc_reg             
+  io.pc_io.pc_plus4 := (reg_pc_old + 4.asUInt(conf.xprlen.W)) 
+  io.pc_io.pc := reg_pc_old             
 }
