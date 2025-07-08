@@ -10,12 +10,12 @@ import npc.Constants._
 
 class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
 {
-   val inst = Input(UInt(conf.xlen.W))
+   val inst = Input(UInt(conf.xprlen.W))
    val ctl  = Flipped(new CtlToDatIo())
    val ebreak = Output(Bool())
    val targets = new PCTargets()
-   val pc_io = Flipped(new PCIo())
-   val reg_in = Flipped(new regToDatIo())
+   val pc_io = Flipped(new PCOut())
+   val reg_in = Flipped(new RegFileOut())
    val exe_lsu = new exeToLSUIo()
    val exe_wbu = new exeToWBUIo()
 }
@@ -32,10 +32,11 @@ class exeToWBUIo(implicit val conf: YSYX24100012Config) extends Bundle {
 }
 
 class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
-  val br_target = Output(UInt(conf.xprlen.W))
-  val jmp_target = Output(UInt(conf.xprlen.W))
-  val jump_reg_target = Output(UInt(conf.xprlen.W))
-  val exception_target = Output(UInt(conf.xprlen.W))
+   val pc_sel           =  Output(UInt(PC_4.getWidth.W))
+   val br_target        =  Output(UInt(conf.xprlen.W))
+   val jmp_target       =  Output(UInt(conf.xprlen.W))
+   val jump_reg_target  =  Output(UInt(conf.xprlen.W))
+   val exception_target =  Output(UInt(conf.xprlen.W))
 }
 
 class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
@@ -70,6 +71,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                (io.ctl.op2_sel === OP2_IMI) -> imm_i_sext,
                (io.ctl.op2_sel === OP2_IMS) -> imm_s_sext
                )).asUInt
+
 
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
@@ -119,7 +121,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    
 
    // Branch Logic   
-   io.pc_io.pc_sel := Mux( csr.io.eret  ||
+   io.targets.pc_sel := Mux( csr.io.eret  ||
                          io.ctl.exception      ,  PC_EXC,
                      Mux(io.ctl.br_type === BR_N  ,  PC_4,
                      Mux(io.ctl.br_type === BR_NE ,  Mux(!br_eq,  PC_BR, PC_4),

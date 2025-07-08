@@ -47,17 +47,17 @@ uint32_t top_halt(){
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT___inst_fetch_io_inst;
+    return _rootp->Top__DOT__imemory__DOT___async_data_dr_data;
 }
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
     return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__casez_tmp;
 }
 
-uint32_t top_state(){
-    if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT__c__DOT__state;
-}
+// uint32_t top_state(){
+//     if (!_rootp) return 0;
+//     return _rootp->Top__DOT__core__DOT__c__DOT__state;
+// }
 
 void delete_top() {
     if (_top) {

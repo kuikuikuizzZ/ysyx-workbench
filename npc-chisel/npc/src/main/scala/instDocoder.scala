@@ -29,7 +29,6 @@ class CtlToWBIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
    val rf_wen = Output(Bool())
    val wb_sel = Output(UInt(WB_X.getWidth.W))
-   val inst =  Output(UInt(conf.xlen.W)) // the instruction that is being executed
    val exception = Output(Bool())
 }
 
@@ -39,18 +38,14 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl  = new CtlToDatIo()
    val ctl_lsu = new CtlToLSUIo()
    val ctl_wb    = new CtlToWBIo()
-   val pc_write = Output(Bool())
-   val inst_read = Output(Bool())
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new CpathIo())
    io := DontCare
-   val s_if :: s_exe :: s_mem :: Nil = Enum(3)
-   val state = RegInit(s_if)
-  
 
+   // Control Signals
    val csignals =
       ListLookup(io.inst,                                                                                       
                              List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
@@ -130,10 +125,15 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    io.ctl.op2_sel  := cs_op2_sel
    io.ctl.alu_fun  := cs_alu_fun
    io.ctl.br_type  := cs_br_type
+
    io.ctl_lsu.mem_en := cs_mem_en
    io.ctl_lsu.mem_fcn := cs_mem_fcn
    io.ctl_lsu.msk_sel := cs_msk_sel
 
+   io.ctl_wb.exception := io.ctl.exception
+   io.ctl_wb.rf_wen := cs_rf_wen
+   io.ctl_wb.wb_sel  := cs_wb_sel
+   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
    val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
    val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
@@ -152,26 +152,5 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // fit.
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
-   
-   io.ctl_wb.exception := io.ctl.exception
-   // io.ctl_wb.rf_wen  := Mux(state === s_exe && cs_mem_en, false.B, cs_rf_wen) // don't writeback in IF stage
-   val reg_rf_wen = RegNext(cs_rf_wen) // register the rf_wen signal to avoid hazards
-   val reg_wb_sel = RegNext(cs_wb_sel) // register the wb_sel signal to avoid hazards
-   val reg_inst = RegNext(io.inst) // register the instruction to pass to the WB stage
-   
-   io.ctl_wb.rf_wen := MuxCase(false.B, Seq(
-                        (state === s_exe && !cs_mem_en) -> cs_rf_wen,
-                        (state === s_mem -> reg_rf_wen))) // don't writeback in IF stage
-   io.ctl_wb.wb_sel  := Mux(state === s_mem,reg_wb_sel,cs_wb_sel)
-   io.ctl_wb.inst :=  Mux(state === s_mem,reg_inst,io.inst) // pass the instruction to the WB stage
-   io.pc_write := Mux(state === s_mem,  true.B,
-                     Mux(state === s_exe && !cs_mem_en, true.B,false.B)
-                  ) // write PC in IF stage only
-   io.inst_read := Mux(state === s_exe, true.B,false.B)
 
-   state := MuxLookup(state, s_if)(List(      
-      s_if     ->  s_exe,
-      s_exe    ->  Mux(cs_mem_en, s_mem, s_if),
-      s_mem    ->  s_if
-   ))
 }

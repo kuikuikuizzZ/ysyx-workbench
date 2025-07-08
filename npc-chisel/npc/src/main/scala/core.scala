@@ -23,11 +23,9 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   val lsu = Module(new YSYX2400012LSU())
   val wbu = Module(new YSYX2400012WBU())
   
-  inst_fetch.io.targets <> d.io.targets
+  inst_fetch.io.in <> d.io.targets
   io.imem <> inst_fetch.io.imem
   inst_fetch.io.stall := lsu.io.stall
-  inst_fetch.io.pc_write := c.io.pc_write
-  inst_fetch.io.inst_read := c.io.inst_read
   
   c.io.ctl  <> d.io.ctl
   c.io.inst := inst_fetch.io.inst
@@ -35,7 +33,7 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   reg_file.io.inst := inst_fetch.io.inst
   reg_file.io.wb <> wbu.io.reg
 
-  d.io.reg_in <> reg_file.io.reg_to_dat_io
+  d.io.reg_in <> reg_file.io.out
   d.io.pc_io <> inst_fetch.io.pc_io
   d.io.inst := inst_fetch.io.inst
 
@@ -49,23 +47,20 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   wbu.io.lsu <> lsu.io.wb
   wbu.io.stall := lsu.io.stall
 
-  // io.dmem.req.valid    := lsu.io.dmem.req.valid
-  // io.dmem.req.bits.typ := lsu.io.dmem.req.bits.typ
-  // io.dmem.req.bits.fcn := lsu.io.dmem.req.bits.fcn
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   io.halt := Mux(d.io.ebreak, true.B, false.B)
 
-  object StageConnect {
-    def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
-      val arch = "single"
+  // object StageConnect {
+  //   def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
+  //     val arch = "single"
       
-      if (arch == "single")         { left.bits := right.bits}
-      else if (arch == "multi")     { right <> left}
-      else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
+  //     if (arch == "single")         { left.bits := right.bits}
+  //     else if (arch == "multi")     { right <> left}
+  //     else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
      
-      right.ready := left.ready
-    }
-  }
+  //     right.ready := left.ready
+  //   }
+  // }
 }
 
 

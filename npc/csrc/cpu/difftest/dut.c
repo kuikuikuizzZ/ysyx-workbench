@@ -119,12 +119,9 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   // 2 stage pipeline, so the pc_next is the next instruction to be executed 
   // if (top_inst() != 0x00004033) return; // this is a nop instruction, just skip it
   
-  if (top_state()) {
-    // if the top is not running, just return
-    // this is used to skip the checking of the first instruction
-    // which is a nop instruction in the built-in image
-    return;
-  }
+  // if (top_state()) {
+  //   return;
+  // }
   if (skip_dut_nr_inst > 0) { 
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == pc_next) {
