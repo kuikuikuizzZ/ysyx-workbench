@@ -20,7 +20,7 @@ class RegFile(implicit val conf: YSYX24100012Config) extends Module {
   io := DontCare
   val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
   val rs2_addr = io.inst(RS2_MSB, RS2_LSB)
-  val wb_addr  = io.inst(RD_MSB,  RD_LSB)
+  val wb_addr  = io.wb.inst(RD_MSB, RD_LSB)
   
   // Register File
   val regfile = Mem(32, UInt(conf.xlen.W))

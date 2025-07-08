@@ -14,6 +14,7 @@ typedef Vysyx_24100012_top___024root Top_rootp;
 #include "VTop___024root.h"
 typedef VTop Top;
 typedef VTop___024root Top_rootp;
+uint32_t top_state();
 #endif
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)
 

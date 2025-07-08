@@ -54,6 +54,18 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   // io.dmem.req.bits.fcn := lsu.io.dmem.req.bits.fcn
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   io.halt := Mux(d.io.ebreak, true.B, false.B)
+
+  object StageConnect {
+    def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
+      val arch = "single"
+      
+      if (arch == "single")         { left.bits := right.bits}
+      else if (arch == "multi")     { right <> left}
+      else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
+     
+      right.ready := left.ready
+    }
+  }
 }
 
 

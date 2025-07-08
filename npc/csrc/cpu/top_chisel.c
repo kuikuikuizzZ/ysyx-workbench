@@ -54,6 +54,11 @@ uint32_t top_dnpc() {
     return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__casez_tmp;
 }
 
+uint32_t top_state(){
+    if (!_rootp) return 0;
+    return _rootp->Top__DOT__core__DOT__c__DOT__state;
+}
+
 void delete_top() {
     if (_top) {
         delete _top ;
@@ -75,4 +80,6 @@ void watch_top(){
         _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1
     );
 }
+
+ 
 #endif

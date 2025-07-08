@@ -25,10 +25,11 @@ class CtlToLSUIo extends Bundle()
    val msk_sel    = Output(UInt(MT_X.getWidth.W))
 }
 
-class CtlToWBIo extends Bundle()
+class CtlToWBIo(implicit val conf: YSYX24100012Config) extends Bundle()
 {
    val rf_wen = Output(Bool())
    val wb_sel = Output(UInt(WB_X.getWidth.W))
+   val inst =  Output(UInt(conf.xlen.W)) // the instruction that is being executed
    val exception = Output(Bool())
 }
 
@@ -156,9 +157,13 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // io.ctl_wb.rf_wen  := Mux(state === s_exe && cs_mem_en, false.B, cs_rf_wen) // don't writeback in IF stage
    val reg_rf_wen = RegNext(cs_rf_wen) // register the rf_wen signal to avoid hazards
    val reg_wb_sel = RegNext(cs_wb_sel) // register the wb_sel signal to avoid hazards
-   io.ctl_wb.rf_wen := Mux(state === s_exe && cs_mem_en, false.B, 
-                       Mux(state === s_mem, reg_rf_wen, cs_rf_wen)) // don't writeback in IF stage
+   val reg_inst = RegNext(io.inst) // register the instruction to pass to the WB stage
+   
+   io.ctl_wb.rf_wen := MuxCase(false.B, Seq(
+                        (state === s_exe && !cs_mem_en) -> cs_rf_wen,
+                        (state === s_mem -> reg_rf_wen))) // don't writeback in IF stage
    io.ctl_wb.wb_sel  := Mux(state === s_mem,reg_wb_sel,cs_wb_sel)
+   io.ctl_wb.inst :=  Mux(state === s_mem,reg_inst,io.inst) // pass the instruction to the WB stage
    io.pc_write := Mux(state === s_mem,  true.B,
                      Mux(state === s_exe && !cs_mem_en, true.B,false.B)
                   ) // write PC in IF stage only
