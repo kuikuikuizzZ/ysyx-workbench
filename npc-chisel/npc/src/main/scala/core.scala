@@ -24,6 +24,7 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   val wbu = Module(new YSYX2400012WBU())
   
   inst_fetch.io.in <> d.io.targets
+  inst_fetch.io.pipeline_kill := c.io.pipeline_kill
   io.imem <> inst_fetch.io.imem
   inst_fetch.io.stall := lsu.io.stall
   

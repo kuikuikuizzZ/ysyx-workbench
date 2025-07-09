@@ -38,6 +38,7 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl  = new CtlToDatIo()
    val ctl_lsu = new CtlToLSUIo()
    val ctl_wb    = new CtlToWBIo()
+   val pipeline_kill = Output(Bool())
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
@@ -152,5 +153,5 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // fit.
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
-
+   io.pipeline_kill :=  (!cs_val_inst ) 
 }

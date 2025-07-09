@@ -327,3 +327,52 @@ class AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Con
    }
    /////////////////
 }
+
+class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+{
+   val io = IO(new Bundle
+   {
+      val port = Flipped(new MemPortIo(data_width = conf.xprlen))
+   }) 
+
+   val axi4lite_mem = Module(new AXI4LiteMaster)
+   axi4lite_mem.io.clock  := clock
+   axi4lite_mem.io.reset := reset
+
+   axi4lite_mem.io.req.addr := io.port.req.bits.addr
+   axi4lite_mem.io.req.wen := io.port.req.bits.fcn === M_XWR
+   axi4lite_mem.io.req.ren := io.port.req.bits.fcn === M_XRD
+
+   /////////// Read Port
+   val resp_datai = axi4lite_mem.io.resp.data
+   when (io.port.req.bits.fcn === M_XRD){
+      io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+         (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+         (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+         (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+         (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+      ))
+   }
+   
+   /////////// Write Port
+   when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR)){
+      axi4lite_mem.io.req.data := io.port.req.bits.data 
+      // TODO: should fix here to support AXI full 
+      // axi4lite_mem.io.req.len := Mux(req_typi === MT_B,1.U,
+      //                         Mux(req_typi === MT_H,2.U,4.U))  
+   }
+   io.port.resp.valid := axi4lite_mem.io.resp.valid
+
+}
+
+class YSYX2400012AXI4LiteMem(implicit val conf: YSYX24100012Config) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle() { 
+      val clock   =   Input(Clock())
+      val reset   =   Input(Bool())
+      val req     =   new FippedIO(DecoupledIO(new MemReq(conf.xlen)))
+      val resp    =   new FippedIO(DecoupledIO(new MemResp()))
+   })
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AXI4LiteMem.v"
+   addPath(path)
+   println(s"YSYX2400012AsyncMem path: ${path}")
+}
