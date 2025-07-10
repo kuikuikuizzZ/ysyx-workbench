@@ -5,6 +5,8 @@ import chisel3._
 import chisel3.util._
 
 import npc.common.CSR._
+// import npc.common._
+
 import Constants._
 trait MemoryOpConstants 
 {
@@ -120,12 +122,24 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPa
 class YSYX2400012AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dr = new Rport(addrWidth,32)
-      val dw = new  Wport(addrWidth,32)
+      val dw = new Wport(addrWidth,32)
       val clock = Input(Clock())
       val reset = Input(Bool())
    }) 
 
    val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncMem.v"
+   addPath(path)
+   println(s"YSYX2400012AsyncMem path: ${path}")
+}
+
+class YSYX2400012AXI4LiteMem(implicit val conf: YSYX24100012Config) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle() { 
+      val clock   =   Input(Clock())
+      val reset   =   Input(Bool())
+      val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+      val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+   })
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AXI4LiteMem.v"
    addPath(path)
    println(s"YSYX2400012AsyncMem path: ${path}")
 }
@@ -334,24 +348,34 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
    {
       val port = Flipped(new MemPortIo(data_width = conf.xprlen))
    }) 
+   io := DontCare
 
    val axi4lite_mem = Module(new AXI4LiteMaster)
+   val axi_slave = Module(new AXI4LiteSlave())
+
+
+   axi4lite_mem.io := DontCare
+   axi_slave.io := DontCare
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
+   axi_slave.clock := clock
+   axi_slave.reset := reset
 
+   axi4lite_mem.io.axi_io <> axi_slave.io.axi_io
    axi4lite_mem.io.req.addr := io.port.req.bits.addr
    axi4lite_mem.io.req.wen := io.port.req.bits.fcn === M_XWR
    axi4lite_mem.io.req.ren := io.port.req.bits.fcn === M_XRD
 
    /////////// Read Port
-   val resp_datai = axi4lite_mem.io.resp.data
+   val resp_datai = axi4lite_mem.io.resp.bits.data
    when (io.port.req.bits.fcn === M_XRD){
-      io.port.resp.bits.data := MuxCase(resp_datai,Seq(
-         (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
-         (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
-         (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
-         (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
-      ))
+      // io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+      //    (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+      //    (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+      //    (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+      //    (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+      // ))
+      io.port.resp.bits.data := resp_datai
    }
    
    /////////// Write Port
@@ -365,14 +389,3 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
 
 }
 
-class YSYX2400012AXI4LiteMem(implicit val conf: YSYX24100012Config) extends BlackBox with HasBlackBoxPath {
-   val io = IO(new Bundle() { 
-      val clock   =   Input(Clock())
-      val reset   =   Input(Bool())
-      val req     =   new FippedIO(DecoupledIO(new MemReq(conf.xlen)))
-      val resp    =   new FippedIO(DecoupledIO(new MemResp()))
-   })
-   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AXI4LiteMem.v"
-   addPath(path)
-   println(s"YSYX2400012AsyncMem path: ${path}")
-}

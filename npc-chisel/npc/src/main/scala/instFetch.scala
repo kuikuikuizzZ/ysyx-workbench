@@ -51,25 +51,25 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   }
 
   // Memory Requests
-  io.imem.req.valid := !io.imem.resp.valid
+  io.imem.req.valid := true.B
   io.imem.req.bits.addr := pc_reg
   io.imem.req.bits.fcn := M_XRD
   io.imem.req.bits.typ := MT_WU
 
 
   // Instruction Read
-  val inst = io.imem.resp.bits.data
-  val reg_inst = Reg(UInt(conf.xlen.W))
-  val reg_pc_old = RegInit(START_ADDR)
+  val inst = Mux(io.imem.resp.valid,io.imem.resp.bits.data,BUBBLE)
+  // val reg_inst = Reg(UInt(conf.xlen.W))
+  // val reg_pc_old = RegInit(START_ADDR)
 
-  when (io.pipeline_kill && !io.imem.resp.valid){
-    reg_inst := BUBBLE
-  } .otherwise {
-    reg_inst := inst
-    reg_pc_old := pc_reg
-  }
-  io.inst := reg_inst
-  io.pc_io.pc_plus4 := (reg_pc_old + 4.asUInt(conf.xprlen.W)) 
-  io.pc_io.pc := reg_pc_old  
+  // when (io.pipeline_kill && !io.imem.resp.valid){
+  //   reg_inst := BUBBLE
+  // } .otherwise {
+  //   reg_inst := inst
+  //   reg_pc_old := pc_reg
+  // }
+  io.inst := inst
+  io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
+  io.pc_io.pc := pc_reg  
            
 }
