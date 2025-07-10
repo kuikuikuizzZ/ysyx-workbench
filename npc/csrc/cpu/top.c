@@ -69,6 +69,10 @@ uint32_t top_inst() {
     if (!_top) return 0;
     return _rootp->ysyx_24100012_top__DOT__inst;
 }
+uint32_t top_inst() {
+    if (!_top) return 0;
+    return _rootp->ysyx_24100012_top__DOT__inst;
+}
 uint32_t top_dnpc() {
     if (!_top) return 0;
     return _rootp->ysyx_24100012_top__DOT__ifu__DOT__PCIn;
