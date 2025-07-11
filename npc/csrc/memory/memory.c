@@ -49,7 +49,7 @@ extern "C" {
     void pmem_write(int waddr,int len, int wdata){
         // printf("pmem write: waddr = %x data %x \n",waddr, wdata);
         if (in_pmem(waddr)){
-            host_write(guest_to_host(waddr), sizeof(word_t), wdata);
+            host_write(guest_to_host(waddr), len, wdata);
         }
         // IFNDEF(CONFIG_DEVICE, mmio_write(waddr, len, wdata)); // if not device, return
         // bool wen = false;

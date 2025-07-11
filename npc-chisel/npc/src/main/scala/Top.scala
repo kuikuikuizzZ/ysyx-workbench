@@ -23,7 +23,7 @@ class Top extends Module
 
 
     val imemory = Module(new AXI4LiteMemeory())
-    val dmemory = Module(new AXI4LiteMemeory())
+    val dmemory = Module(new AsyncMemory())
     core.io.dmem <> dmemory.io.port
     core.io.imem <> imemory.io.port
     io.halt := core.io.halt

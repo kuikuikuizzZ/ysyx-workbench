@@ -20,6 +20,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: YSYX24100012Config) exten
 class AXI4Resp(val data_width: Int) extends Bundle
 {
    val data = Output(UInt(data_width.W))
+   val resp = Output(UInt(2.W))
 }
 
 class AXIWport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
@@ -48,6 +49,7 @@ class AXI4LiteAR (val addrWidth : Int) extends Bundle{
 class AXI4LiteR (val addrWidth : Int) extends Bundle{
     val valid   =   Input(Bool())
     val data    =   Input(UInt(addrWidth.W))
+    val resp    =   Input(UInt(2.W))
     val ready   =   Output(Bool()) 
 } 
 
@@ -87,101 +89,48 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
         val resp    =   new DecoupledIO(new AXI4Resp(conf.xlen))
     })
     io := DontCare
-    io.resp.valid := false.B
     io.resp.bits := DontCare
+
+    //////  AXI4Lite read/write master
+    val rs_idle :: rs_wait_arready :: rs_wait_rvalid :: Nil = Enum(3)
+    val rstate = RegInit(rs_idle)
+    val ws_idle :: ws_wait_ready ::ws_wait_bvalid:: Nil = Enum(3)
+    val wstate = RegInit(ws_idle)
+
+    val accept_read = (rstate === rs_idle) && io.req.ren
+    val accept_write = !accept_read && (wstate === ws_idle) && io.req.wen
+    val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,(wstate === ws_idle)))
 
     //////  AXI4Lite write/read channel
     val maskWidth   = conf.xlen/8
-    val arvalid = RegInit(false.B)
-    val araddr  = Reg(UInt(conf.xprlen.W))
-    val arready = Wire(Bool())
-    val rvalid  = Wire(Bool())
-    // val rdata   = Reg(UInt(conf.xlen.W))
-    val rready  = RegInit(true.B)
-    val awvalid = RegInit(false.B)
-    // val awready = Wire(Bool())
-    val wvalid  = RegInit(false.B)
-    // val bvalid  = Wire(Bool())
-    val bready  = RegInit(true.B)
-    val awaddr  = Reg(UInt(conf.xprlen.W))
-    val wdata  = Reg(UInt(conf.xlen.W))
-    val wstrb   = RegInit(UInt(maskWidth.W),0.U)
+    val arvalid = Mux(accept_read, io.req.ren, RegEnable(io.req.ren, accept_read))
+    val araddr  = Mux(accept_read, io.req.raddr, RegEnable(io.req.raddr, accept_read))
+    val rready  = !is_write
     
-    when (io.req.wen ){ 
-        awvalid         := true.B
-        wvalid          := true.B
-        arvalid         := false.B
-        awaddr          := io.req.waddr
-        wdata           := io.req.data
-        wstrb           := io.req.mask
-        io.resp.valid   := io.axi_io.b.valid
-    }  .elsewhen (io.req.ren)  {
-        wvalid          := false.B
-        awvalid         := false.B
-        araddr          := io.req.raddr
-        arvalid         := true.B
-        wdata           :=    0.U
-        io.resp.valid   := io.axi_io.r.valid
-    } .otherwise{
-        wvalid          := false.B
-        awvalid         := false.B
-        arvalid         := false.B
-        io.resp.valid   := false.B
-    }
+    val awvalid = Mux(accept_write, io.req.wen, RegEnable(io.req.wen, accept_write))
+    val wvalid  = Mux(accept_write, io.req.wen, RegEnable(io.req.wen, accept_write))
+    val bready  = is_write
+    val awaddr  = Mux(accept_write, io.req.waddr, RegEnable(io.req.waddr, accept_write))
+    val wdata  =  Mux(accept_write, io.req.data, RegEnable(io.req.data, accept_write))
+    val wstrb   = Mux(accept_write, io.req.mask, RegEnable(io.req.mask, accept_write))
+    
 
 
-    //////  AXI4Lite read master
-    val rs_idle :: rs_wait_arready :: rs_wait_rrvalid :: Nil = Enum(3)
-    val rstate = RegInit(rs_idle)
-        rstate := MuxLookup(rstate, rs_idle)(List(
-        rs_idle       ->    Mux(io.req.ren, rs_wait_arready, rs_idle),
-        rs_wait_arready ->  Mux(io.axi_io.ar.ready, rs_wait_rrvalid, rs_wait_arready),
-        rs_wait_rrvalid ->  Mux(io.axi_io.r.valid, rs_idle, rs_wait_rrvalid)
-    ))
+
     io.axi_io.ar.valid  := arvalid
     io.axi_io.ar.addr   := araddr
     io.axi_io.r.ready   := rready
-    arready             := io.axi_io.ar.ready
-    rvalid              := io.axi_io.r.valid
 
     switch(rstate){
-        is(rs_idle){
-            // set in above lines
-            // wvalid          := false.B
-            // awvalid         := false.B
-            // araddr          := io.req.raddr
-            // arvalid         := true.B
-            // wdata           :=    0.U
-            // io.resp.valid   := io.axi_io.r.valid
-        }
-        is (rs_wait_arready){
-            
-            rready := true.B
-        }
-        is (rs_wait_rrvalid){
-            arvalid := false.B
-            // rready          := false.B
-            when (io.axi_io.r.valid){
-                io.resp.bits.data    := io.axi_io.r.data
-            }
+        is(rs_idle)         { rstate := Mux(io.req.ren, rs_wait_arready, rs_idle)}
+        is (rs_wait_arready){ rstate := Mux(io.axi_io.ar.ready, rs_wait_rvalid, rs_wait_arready)}
+        is (rs_wait_rvalid){ 
+            rstate := Mux(io.axi_io.r.valid, rs_idle, rs_wait_rvalid)
+            when (io.axi_io.r.valid){ io.resp.bits.data    := io.axi_io.r.data}
         }
     }
 
-
-
-
-    val ws_idle :: ws_wait_ready :: ws_wait_wlast::ws_wait_bvalid:: Nil = Enum(4)
-    val wstate = RegInit(ws_idle)
-        wstate := MuxLookup(wstate, ws_idle)(List(
-        ws_idle         ->      Mux(io.req.wen, ws_wait_ready, ws_idle),
-        // TODO: io.axi_io.aw.ready&&io.axi_io.w.ready too hard
-        ws_wait_ready   ->     Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_wlast, ws_wait_ready),
-        // ws_wait_wlast  ->   Mux(io.axi_io.b.valid, ws_wait_bvalid, ws_wait_wlast)
-        // AXI4lite burst length = 1
-        ws_wait_wlast   ->      ws_wait_bvalid,
-        ws_wait_bvalid  ->      Mux(io.axi_io.b.valid, ws_idle, ws_wait_bvalid)
-    ))
-
+    
     //////  AXI4Lite write master
     io.axi_io.aw.valid     :=  awvalid
     io.axi_io.w.valid      :=  wvalid
@@ -190,35 +139,12 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     io.axi_io.w.strb       :=  wstrb
     io.axi_io.b.ready      :=  bready
     switch(wstate){
-        is(ws_idle){
-            // set in above lines
-            // awvalid         := true.B
-            // wvalid          := true.B
-            // arvalid         := false.B
-            // awaddr          := io.req.waddr
-            // wstrb           := io.req.mask
-            // wdata           := io.req.data
-            // io.resp.valid   := io.axi_io.b.valid
-        }
-        is (ws_wait_ready){
-            awvalid         := true.B
-            wvalid          := true.B
-            wdata           := wdata
-            bready := true.B
-        }
-        is (ws_wait_wlast){
-            awvalid         := true.B
-            wvalid          := true.B
-            wdata           := wdata
-        }
-        is (ws_wait_bvalid){
-            awvalid         := false.B
-            wvalid          := false.B
-            wstrb           := 0.U
-            bready          := false.B
-            io.resp.bits.data    := io.axi_io.b.resp
-        }
+        is(ws_idle)         { wstate := Mux(io.req.wen, ws_wait_ready, ws_idle)}
+        is (ws_wait_ready)  { wstate := Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_bvalid, ws_wait_ready)}
+        is (ws_wait_bvalid) { wstate := Mux(io.axi_io.b.valid, ws_idle, ws_wait_bvalid)}
     }
+    io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,
+                     (rstate === rs_wait_rvalid)&&(io.axi_io.r.resp === 0.U) )
 }
 
 class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
@@ -229,101 +155,48 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     })
     io := DontCare
 
+    val s_idle :: s_inflight :: s_wait_rready_bready :: Nil = Enum(3)
+    val state = RegInit(s_idle)
+    val accept_read = (state === s_idle) && io.axi_io.ar.valid
+    val accept_write = !accept_read && (state === s_idle) && io.axi_io.aw.valid && io.axi_io.w.valid
+    val is_write = Mux((state === s_idle), accept_write, RegEnable (accept_write,state === s_idle))
     val slave_mem = Module(new YSYX2400012AXI4LiteMem())
     slave_mem.io := DontCare
     slave_mem.io.clock := clock
     slave_mem.io.reset := reset
-
-    //////  AXI4Lite read slave
-    val arready     =   true.B
-    val araddr      =   Reg(UInt(conf.xprlen.W))
-    val rvalid      =   RegInit(false.B)
-    val rdata       =   Reg(UInt(conf.xlen.W))   
-    // val rready      =   Wire(Bool())
-    val rs_wait_arvalid :: rs_prepare_data :: rs_wait_rready:: Nil = Enum(3)
-    val rstate = RegInit(rs_wait_arvalid)
-        rstate := MuxLookup(rstate, rs_wait_arvalid)(List(
-        rs_wait_arvalid     ->      Mux(io.axi_io.ar.valid, rs_prepare_data, rs_wait_arvalid),
-        rs_prepare_data     ->      Mux(slave_mem.io.dr.ready, rs_wait_rready, rs_prepare_data),
-        rs_wait_rready      ->      Mux(io.axi_io.r.ready, rs_wait_arvalid, rs_wait_rready)
-    ))
     slave_mem.io.dr := DontCare
-    io.axi_io.ar.ready  := arready
-    // araddr              := io.axi_io.ar.addr
-    io.axi_io.r.valid   := rvalid
-    io.axi_io.r.data    := rdata
-    val req_addri = araddr
-    // slave_mem.io.dr.valid := io.axi_io.ar.valid
-    slave_mem.io.dr.addr := req_addri
-    
-    switch(rstate){
-        is(rs_wait_arvalid){
-            // when arvalid, data should valid 
-            // reduce 1 cycle ?
-            araddr := io.axi_io.ar.addr
-            // store for rlast support
-            rdata := slave_mem.io.dr.data
-        }
-        is (rs_prepare_data){
-            // syncmem 1 cycle latency
-            rvalid := true.B
-            slave_mem.io.dr.en := true.B
-        }
-        is (rs_wait_rready){
-            io.axi_io.r.data := rdata
-            rvalid := false.B
-            // slave_mem.io.dr.en := false.B
-        }
+
+    switch (state) {
+        is (s_idle)     { state := Mux(io.axi_io.ar.valid || (io.axi_io.aw.valid && io.axi_io.w.valid), s_inflight, s_idle) }
+        is (s_inflight) { state := Mux(slave_mem.io.dr.ready || slave_mem.io.dw.ready ,  s_wait_rready_bready, s_inflight) }
+        is (s_wait_rready_bready) { state := Mux(io.axi_io.r.ready || io.axi_io.b.ready , s_idle, s_wait_rready_bready) }
     }
 
-    //////  AXI4Lite write slave
-    val awready     = true.B
-    val wready      = true.B
-    val awaddr      = Reg(UInt(conf.xprlen.W))
-    val wdata       = Reg(UInt(conf.xlen.W))
-    val wstrb       = Reg(UInt(4.W))
-    val bvalid      = RegInit(false.B)
-    val wen         = RegInit(false.B)
-    val bresp       = RegInit(UInt(2.W),0.U)
-    
-    val ws_wait_valid :: ws_wait_wlast:: ws_wait_bready:: Nil = Enum(4)
-    val wstate = RegInit(ws_wait_valid)
-        wstate := MuxLookup(wstate, ws_wait_valid)(List(
-        ws_wait_valid     ->      Mux(io.axi_io.aw.valid&& io.axi_io.w.valid, ws_wait_valid, ws_wait_wlast),
-        // ws_wait_wlast  ->   Mux(io.axi_io.b.valid, ws_wait_bvalid, ws_wait_wlast)
-        // AXI4lite burst length = 1
-        ws_wait_wlast       ->     Mux( slave_mem.io.dw.ready, ws_wait_bready ,ws_wait_wlast),
-        ws_wait_bready      ->      Mux(io.axi_io.b.ready, ws_wait_valid, ws_wait_bready)
-    ))
+    //////  AXI4Lite 
+    io.axi_io.ar.ready      :=   accept_read
+    io.axi_io.w.ready       :=   accept_write
+    io.axi_io.aw.ready      :=   accept_write
+    val araddr              =   Mux(accept_read, io.axi_io.ar.addr, RegEnable(io.axi_io.ar.addr, accept_read))
+    val awaddr              =   Mux(accept_write, io.axi_io.aw.addr, RegEnable(io.axi_io.aw.addr, accept_write))
+    val wdata               =   Mux(accept_write, io.axi_io.w.data, RegEnable(io.axi_io.w.data, accept_write))
+    val wstrb               =   Mux(accept_write, io.axi_io.w.strb, RegEnable(io.axi_io.w.strb, accept_write)) 
 
-    io.axi_io.aw.ready      :=  awready
-    io.axi_io.w.ready       :=  wready
-    awaddr                  :=  io.axi_io.aw.addr holdUnless accept_write
-    wdata                   :=  io.axi_io.w.data  holdUnless accept_write
-    wstrb                   :=  io.axi_io.w.strb  holdUnless accept_write
-    slave_mem.io.dw.en      := wen
-    // io.axi_io.b.ready       :=  bready
-    
-    switch(wstate){
-        is(ws_wait_valid){
-            awaddr  := io.axi_io.aw.addr
-            //wready and awready already true.B
-            wen                     := true.B
-        }
-        is (ws_wait_wvalid){
-            slave_mem.io.dw.addr     := awaddr
-            // when wvalid high, slave_mem.io.dw.data should valid
-            slave_mem.io.dw.data    := wdata
-            slave_mem.io.dw.mask    := wstrb
-        }
-        is (ws_wait_wlast){
-            bvalid := true.B
-            io.axi_io.b.resp := bresp
-        }
-        is (ws_wait_bready){
-            wen  := false.B
-            bvalid := false.B
-            io.axi_io.b.resp := 0.U         // 0x00:OK
-        }
-    }
+    slave_mem.io.dr.en      := Mux(io.axi_io.ar.valid,true.B,false.B)
+    slave_mem.io.dr.addr    := araddr
+    slave_mem.io.dw.en      := Mux(io.axi_io.aw.valid,true.B,false.B)
+    slave_mem.io.dw.addr    := awaddr
+    // when wvalid high, slave_mem.io.dw.data should valid
+    slave_mem.io.dw.data    := wdata
+    slave_mem.io.dw.mask    := wstrb
+
+
+    val resp        =   0.U  // OKAY
+    val resp_hold = Mux((state === s_inflight),resp, RegEnable(resp,(state === s_inflight)))  
+
+    io.axi_io.r.resp    := resp_hold
+    io.axi_io.r.valid   := !is_write && (state === s_inflight && slave_mem.io.dr.ready) || (state === s_wait_rready_bready)
+    io.axi_io.r.data    := Mux((state === s_inflight),slave_mem.io.dr.data, RegEnable(slave_mem.io.dr.data,(state === s_inflight)))  
+
+    io.axi_io.b.valid   := is_write && (((state === s_inflight) && slave_mem.io.dw.ready ) || (state === s_wait_rready_bready))
+    io.axi_io.b.resp    := resp_hold
 }
