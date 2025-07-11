@@ -40,13 +40,27 @@ typedef struct {
 
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
+// static const uint32_t img [] = {
+//         0x00100513,      //addi a0 x0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00000513,      //addi a0 x0 0
+//         0x00100073,      //ebreak
+// };
 static const uint32_t img [] = {
         0x00100513,      //addi a0 x0 1
         0x00150513,      //addi a0 a0 1
         0x00150513,      //addi a0 a0 1
-        0x00150513,      //addi a0 a0 1
-        0x00150513,      //addi a0 a0 1
+        0x00009117,      //auipc	sp,0x9 # 80009000
+        0x00a12223,      //sw a0, 4(sp)
         0x00000513,      //addi a0 x0 0
+        0x00412503,      //lw a0, 4(sp)
+        0xffd50513,      //addi a0 a0 -3
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+
         0x00100073,      //ebreak
 };
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);

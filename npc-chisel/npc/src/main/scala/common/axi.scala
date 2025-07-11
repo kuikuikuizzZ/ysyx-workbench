@@ -8,8 +8,11 @@ import npc.common._
 
 
 class AXI4Req (val dataWidth : Int)(implicit val conf: YSYX24100012Config) extends Bundle{
-    val addr = Input(UInt(conf.xprlen.W))
+    val maskWidth = dataWidth/8
+    val raddr = Input(UInt(conf.xprlen.W))
+    val waddr = Input(UInt(conf.xprlen.W))
     val data = Input(UInt(dataWidth.W))
+    val mask = Input(UInt(maskWidth.W))
     val ren = Input (Bool())
     val wen = Input (Bool())
 }
@@ -20,11 +23,12 @@ class AXI4Resp(val data_width: Int) extends Bundle
 }
 
 class AXIWport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
+    val maskWidth = addrWidth/8
     val addr = Input(UInt(addrWidth.W))
     val data = Input(UInt(dataWidth.W))
     val en       =   Input(Bool())
     val ready    =   Output(Bool())
-    val len = Input(UInt(dataWidth.W))
+    val mask = Input(UInt(maskWidth.W))
 }
 
 class AXIRport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
@@ -33,6 +37,7 @@ class AXIRport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
     val en       =   Input(Bool())
     val ready    =   Output(Bool())
 }
+
 
 class AXI4LiteAR (val addrWidth : Int) extends Bundle{
     val valid   =   Output(Bool())
@@ -55,12 +60,13 @@ class AXI4LiteAW (val addrWidth : Int) extends Bundle{
 class AXI4LiteW (val addrWidth : Int) extends Bundle{
     val valid   =   Output(Bool())
     val data    =   Output(UInt(addrWidth.W))
+    val strb    =   Output(UInt(addrWidth.W))
     val ready   =   Input(Bool()) 
 } 
 
 class AXI4LiteB (val addrWidth : Int) extends Bundle{
     val valid   =   Input(Bool())
-    val resp    =   Input(UInt(addrWidth.W))
+    val resp    =   Input(UInt(2.W))
     val ready   =   Output(Bool()) 
 } 
 
@@ -85,6 +91,7 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     io.resp.bits := DontCare
 
     //////  AXI4Lite write/read channel
+    val maskWidth   = conf.xlen/8
     val arvalid = RegInit(false.B)
     val araddr  = Reg(UInt(conf.xprlen.W))
     val arready = Wire(Bool())
@@ -98,22 +105,28 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     val bready  = RegInit(true.B)
     val awaddr  = Reg(UInt(conf.xprlen.W))
     val wdata  = Reg(UInt(conf.xlen.W))
-
+    val wstrb   = RegInit(UInt(maskWidth.W),0.U)
     
-    when (io.req.wen){ 
+    when (io.req.wen ){ 
         awvalid         := true.B
         wvalid          := true.B
         arvalid         := false.B
-        awaddr          := io.req.addr
+        awaddr          := io.req.waddr
         wdata           := io.req.data
+        wstrb           := io.req.mask
         io.resp.valid   := io.axi_io.b.valid
-    }  .otherwise {
+    }  .elsewhen (io.req.ren)  {
         wvalid          := false.B
         awvalid         := false.B
-        araddr          := io.req.addr
+        araddr          := io.req.raddr
         arvalid         := true.B
         wdata           :=    0.U
         io.resp.valid   := io.axi_io.r.valid
+    } .otherwise{
+        wvalid          := false.B
+        awvalid         := false.B
+        arvalid         := false.B
+        io.resp.valid   := false.B
     }
 
 
@@ -133,9 +146,16 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
 
     switch(rstate){
         is(rs_idle){
-
+            // set in above lines
+            // wvalid          := false.B
+            // awvalid         := false.B
+            // araddr          := io.req.raddr
+            // arvalid         := true.B
+            // wdata           :=    0.U
+            // io.resp.valid   := io.axi_io.r.valid
         }
         is (rs_wait_arready){
+            
             rready := true.B
         }
         is (rs_wait_rrvalid){
@@ -154,6 +174,7 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     val wstate = RegInit(ws_idle)
         wstate := MuxLookup(wstate, ws_idle)(List(
         ws_idle         ->      Mux(io.req.wen, ws_wait_ready, ws_idle),
+        // TODO: io.axi_io.aw.ready&&io.axi_io.w.ready too hard
         ws_wait_ready   ->     Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_wlast, ws_wait_ready),
         // ws_wait_wlast  ->   Mux(io.axi_io.b.valid, ws_wait_bvalid, ws_wait_wlast)
         // AXI4lite burst length = 1
@@ -166,19 +187,34 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     io.axi_io.w.valid      :=  wvalid
     io.axi_io.aw.addr      :=  awaddr
     io.axi_io.w.data       :=  wdata
+    io.axi_io.w.strb       :=  wstrb
     io.axi_io.b.ready      :=  bready
     switch(wstate){
         is(ws_idle){
-                
+            // set in above lines
+            // awvalid         := true.B
+            // wvalid          := true.B
+            // arvalid         := false.B
+            // awaddr          := io.req.waddr
+            // wstrb           := io.req.mask
+            // wdata           := io.req.data
+            // io.resp.valid   := io.axi_io.b.valid
         }
         is (ws_wait_ready){
+            awvalid         := true.B
+            wvalid          := true.B
+            wdata           := wdata
             bready := true.B
         }
         is (ws_wait_wlast){
-            awvalid := false.B
-            wvalid := false.B
+            awvalid         := true.B
+            wvalid          := true.B
+            wdata           := wdata
         }
         is (ws_wait_bvalid){
+            awvalid         := false.B
+            wvalid          := false.B
+            wstrb           := 0.U
             bready          := false.B
             io.resp.bits.data    := io.axi_io.b.resp
         }
@@ -219,19 +255,19 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     val req_addri = araddr
     // slave_mem.io.dr.valid := io.axi_io.ar.valid
     slave_mem.io.dr.addr := req_addri
-    rdata := slave_mem.io.dr.data
-
+    
     switch(rstate){
         is(rs_wait_arvalid){
             // when arvalid, data should valid 
             // reduce 1 cycle ?
             araddr := io.axi_io.ar.addr
             // store for rlast support
+            rdata := slave_mem.io.dr.data
         }
         is (rs_prepare_data){
             // syncmem 1 cycle latency
-            slave_mem.io.dr.en := true.B
             rvalid := true.B
+            slave_mem.io.dr.en := true.B
         }
         is (rs_wait_rready){
             io.axi_io.r.data := rdata
@@ -245,45 +281,49 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     val wready      = true.B
     val awaddr      = Reg(UInt(conf.xprlen.W))
     val wdata       = Reg(UInt(conf.xlen.W))
+    val wstrb       = Reg(UInt(4.W))
     val bvalid      = RegInit(false.B)
-    val bresp       = Reg(UInt(conf.xlen.W))
+    val wen         = RegInit(false.B)
+    val bresp       = RegInit(UInt(2.W),0.U)
     
-    val ws_wait_awvalid :: ws_wait_wvalid :: ws_wait_wlast:: ws_wait_bready:: Nil = Enum(4)
-    val wstate = RegInit(ws_wait_awvalid)
-        wstate := MuxLookup(wstate, ws_wait_awvalid)(List(
-        ws_wait_awvalid     ->      Mux(io.axi_io.aw.valid, ws_wait_wvalid, ws_wait_awvalid),
-        ws_wait_wvalid      ->      Mux(io.axi_io.w.valid , ws_wait_wlast, ws_wait_wlast),
+    val ws_wait_valid :: ws_wait_wlast:: ws_wait_bready:: Nil = Enum(4)
+    val wstate = RegInit(ws_wait_valid)
+        wstate := MuxLookup(wstate, ws_wait_valid)(List(
+        ws_wait_valid     ->      Mux(io.axi_io.aw.valid&& io.axi_io.w.valid, ws_wait_valid, ws_wait_wlast),
         // ws_wait_wlast  ->   Mux(io.axi_io.b.valid, ws_wait_bvalid, ws_wait_wlast)
         // AXI4lite burst length = 1
-        ws_wait_wlast       ->      ws_wait_bready,
-        ws_wait_bready      ->      Mux(io.axi_io.b.ready, ws_wait_awvalid, ws_wait_bready)
+        ws_wait_wlast       ->     Mux( slave_mem.io.dw.ready, ws_wait_bready ,ws_wait_wlast),
+        ws_wait_bready      ->      Mux(io.axi_io.b.ready, ws_wait_valid, ws_wait_bready)
     ))
 
-    // io.axi_io.aw.valid     :=  awvalid
-    // io.axi_io.w.valid      :=  wvalid
     io.axi_io.aw.ready      :=  awready
     io.axi_io.w.ready       :=  wready
-    awaddr                  :=  io.axi_io.aw.addr
-    wdata                   := io.axi_io.w.data        
+    awaddr                  :=  io.axi_io.aw.addr holdUnless accept_write
+    wdata                   :=  io.axi_io.w.data  holdUnless accept_write
+    wstrb                   :=  io.axi_io.w.strb  holdUnless accept_write
+    slave_mem.io.dw.en      := wen
     // io.axi_io.b.ready       :=  bready
     
     switch(wstate){
-        is(ws_wait_awvalid){
+        is(ws_wait_valid){
             awaddr  := io.axi_io.aw.addr
+            //wready and awready already true.B
+            wen                     := true.B
         }
         is (ws_wait_wvalid){
             slave_mem.io.dw.addr     := awaddr
             // when wvalid high, slave_mem.io.dw.data should valid
-            slave_mem.io.dw.data    := io.axi_io.w.data
-            slave_mem.io.dw.en      := io.axi_io.w.valid
-            slave_mem.io.dw.len     := 4.U
+            slave_mem.io.dw.data    := wdata
+            slave_mem.io.dw.mask    := wstrb
         }
         is (ws_wait_wlast){
             bvalid := true.B
             io.axi_io.b.resp := bresp
         }
         is (ws_wait_bready){
+            wen  := false.B
             bvalid := false.B
+            io.axi_io.b.resp := 0.U         // 0x00:OK
         }
     }
 }

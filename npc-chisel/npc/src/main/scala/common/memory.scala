@@ -34,18 +34,21 @@ class Wport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
    val en = Input(Bool())
 }
 
+
 class Rport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
    val addr = Input(UInt(addrWidth.W))
    val data = Output(UInt(dataWidth.W))
    val en = Input(Bool())
 }
 
-
 class MemIo(val addrWidth: Int) extends Bundle
 {
    val dataInstr = Vec(2, new Rport(addrWidth,32))
    val dw = new  Wport(addrWidth,32)
 }
+
+
+
 
 // from the pov of the datapath
 class MemPortIo(val data_width: Int)(implicit val conf: YSYX24100012Config) extends Bundle 
@@ -362,28 +365,31 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
    axi_slave.reset := reset
 
    axi4lite_mem.io.axi_io <> axi_slave.io.axi_io
-   axi4lite_mem.io.req.addr := io.port.req.bits.addr
+   axi4lite_mem.io.req.raddr := io.port.req.bits.addr
    axi4lite_mem.io.req.wen := io.port.req.bits.fcn === M_XWR
    axi4lite_mem.io.req.ren := io.port.req.bits.fcn === M_XRD
 
    /////////// Read Port
    val resp_datai = axi4lite_mem.io.resp.bits.data
+   val req_typi = Wire(UInt(3.W))
+   val req_addri = io.port.req.bits.addr
+   req_typi := io.port.req.bits.typ
    when (io.port.req.bits.fcn === M_XRD){
-      // io.port.resp.bits.data := MuxCase(resp_datai,Seq(
-      //    (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
-      //    (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
-      //    (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
-      //    (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
-      // ))
-      io.port.resp.bits.data := resp_datai
+      io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+         (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+         (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+         (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+         (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+      ))
    }
    
    /////////// Write Port
    when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR)){
       axi4lite_mem.io.req.data := io.port.req.bits.data 
       // TODO: should fix here to support AXI full 
-      // axi4lite_mem.io.req.len := Mux(req_typi === MT_B,1.U,
-      //                         Mux(req_typi === MT_H,2.U,4.U))  
+      axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
+      axi4lite_mem.io.req.mask := Mux(req_typi === MT_B,1.U << req_addri(1,0),
+                              Mux(req_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
    io.port.resp.valid := axi4lite_mem.io.resp.valid
 
