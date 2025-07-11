@@ -366,8 +366,8 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
 
    axi4lite_mem.io.axi_io <> axi_slave.io.axi_io
    axi4lite_mem.io.req.raddr := io.port.req.bits.addr
-   axi4lite_mem.io.req.wen := io.port.req.bits.fcn === M_XWR
-   axi4lite_mem.io.req.ren := io.port.req.bits.fcn === M_XRD
+   axi4lite_mem.io.req.wen := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XWR, false.B)
+   axi4lite_mem.io.req.ren := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XRD, false.B)
 
    /////////// Read Port
    val resp_datai = axi4lite_mem.io.resp.bits.data
@@ -383,9 +383,9 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
    
    /////////// Write Port
    when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR)){
-      axi4lite_mem.io.req.waddr := req_addri
+      // axi4lite_mem.io.req.waddr := req_addri
       axi4lite_mem.io.req.data := io.port.req.bits.data 
-      // axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
+      axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
       axi4lite_mem.io.req.mask := Mux(req_typi === MT_B,1.U << req_addri(1,0),
                               Mux(req_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
