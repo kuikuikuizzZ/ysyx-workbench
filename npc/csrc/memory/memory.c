@@ -59,7 +59,7 @@ extern "C" {
         if (in_pmem(raddr)) {
             // TODO: support mask read, 4 bytes read and npc take care of mask
             *rword = host_read(guest_to_host(raddr),4);
-            printf("pmem read: raddr = %x, data %x mask %d\n", raddr,*rword,mask);
+            // printf("pmem read: raddr = %x, data %.8x mask %.8x\n", raddr,*rword,mask);
             return;
         }
         IFDEF(CONFIG_DEVICE, {
@@ -77,7 +77,9 @@ extern "C" {
     void pmem_mask_write(int waddr,int mask, int wdata){
         if (in_pmem(waddr)){
             // align write
-            host_write(guest_to_host(waddr), 4, wdata&mask);
+            uint32_t rword = host_read(guest_to_host(waddr),4);
+            rword = (rword & ~mask) | (wdata & mask);
+            host_write(guest_to_host(waddr), 4,rword);
         }
         IFDEF(CONFIG_DEVICE, {
         // if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
@@ -89,7 +91,7 @@ extern "C" {
             // align write
             mmio_write(waddr, 4, wdata&mask);
         });
-        printf("pmem write: waddr = %x data %x , mask %x \n",waddr, wdata, mask);
+        // printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
 
         return;
     }

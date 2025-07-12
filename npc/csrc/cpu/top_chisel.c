@@ -47,7 +47,7 @@ uint32_t top_halt(){
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT___inst_fetch_io_inst;
+    return _rootp->Top__DOT__imemory__DOT___axi_slave_io_axi_io_r_data;
 }
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
@@ -76,8 +76,8 @@ void watch_top(){
         top_dnpc(),
         top_inst(),
         top_gpr(10),
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0,
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_1
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp,
+        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0
     );
 }
 

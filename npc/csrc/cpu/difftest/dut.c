@@ -32,7 +32,6 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
-static bool is_valid_inst = false;
 // extern char* regs[];
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NPC
@@ -117,10 +116,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   CPU_state ref_r;
-    
-  // if (top_state()) {
-  //   return;
-  // }
+ 
   if (skip_dut_nr_inst > 0) { 
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == pc_next) {
@@ -140,15 +136,19 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
     is_skip_ref = false;
     return;
   }
-  if (is_valid_inst){
+  // if (is_valid_inst){
+  //   ref_difftest_exec(1);
+  //   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  //   checkregs(&ref_r, pc);
+  // }
+  // // 0x00004033 is nop instruction
+  // if (top_inst() == 0x00004033) is_valid_inst = false; 
+  // else is_valid_inst = true;
+  if ( pc_next != pc) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);
   }
-  // 0x00004033 is nop instruction
-  if (top_inst() == 0x00004033) is_valid_inst = false; 
-  else is_valid_inst = true;
-  
 }
 
 #else
