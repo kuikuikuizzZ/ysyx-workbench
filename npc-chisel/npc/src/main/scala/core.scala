@@ -25,12 +25,14 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
+  inst_fetch.io.lsu_stall := lsu.io.stall
   io.imem <> inst_fetch.io.imem
-  inst_fetch.io.stall := lsu.io.stall
   
   c.io.ctl  <> d.io.ctl
   c.io.inst := inst_fetch.io.inst
-
+  c.io.lsu_stall := lsu.io.stall
+  c.io.ifu_stall := inst_fetch.io.stall 
+  
   reg_file.io.inst := inst_fetch.io.inst
   reg_file.io.wb <> wbu.io.reg
 
@@ -41,6 +43,7 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   lsu.io.exe <> d.io.exe_lsu  
   lsu.io.ctl <> c.io.ctl_lsu
   lsu.io.dmem <> io.dmem
+  lsu.io.pc_io <> inst_fetch.io.pc_io
   
   
   wbu.io.ctl <> c.io.ctl_wb

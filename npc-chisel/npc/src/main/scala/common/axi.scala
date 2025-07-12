@@ -99,7 +99,7 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
 
     val accept_read = (rstate === rs_idle) && io.req.ren
     val accept_write = !accept_read && (wstate === ws_idle) && io.req.wen
-    val is_write = Mux((wstate === ws_idle), accept_write, RegNext (accept_write,(wstate === ws_idle)))
+    val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,(wstate === ws_idle)))
 
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change

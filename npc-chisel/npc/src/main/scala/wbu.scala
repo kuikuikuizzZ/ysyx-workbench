@@ -39,5 +39,5 @@ class YSYX2400012WBU(implicit val conf: YSYX24100012Config) extends Module {
     //               (io.ctl.wb_sel === WB_CSR) -> reg_pc_plus4
     //               ))
     // io.reg.rf_wen   := Mux(io.stall || io.ctl.exception, false.B, io.ctl.rf_wen)
-    io.reg.rf_wen := io.ctl.rf_wen
+    io.reg.rf_wen :=  io.ctl.rf_wen
 }

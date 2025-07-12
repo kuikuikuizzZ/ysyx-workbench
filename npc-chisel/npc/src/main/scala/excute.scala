@@ -43,7 +43,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
-
+   io.pc_io := DontCare
    // immediates
    val imm_i = io.inst(31, 20) 
    val imm_s = Cat(io.inst(31, 25), io.inst(11,7))

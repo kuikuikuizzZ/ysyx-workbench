@@ -39,13 +39,15 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl_lsu = new CtlToLSUIo()
    val ctl_wb    = new CtlToWBIo()
    val pipeline_kill = Output(Bool())
+   val lsu_stall   = Input(Bool())
+   val ifu_stall   = Input(Bool())
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new CpathIo())
    io := DontCare
-
+   val old_inst = RegNext(io.inst)
    // Control Signals
    val csignals =
       ListLookup(io.inst,                                                                                       
@@ -117,22 +119,38 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
    val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
-   
+   // val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
+   // val rs2_addr = io.inst(RS2_MSB, RS2_LSB)
+   // val wb_addr  = io.inst(RD_MSB, RD_LSB)
 
+   // cs_op1_sel     cs_op1_sel
+   // cs_op2_sel     cs_op2_sel
+   // cs_alu_fun     cs_alu_fun
+   // cs_br_type     cs_br_type
+   // cs_mem_en      cs_mem_en
+   // cs_mem_fcn     cs_mem_fcn
+   // cs_msk_sel     cs_msk_sel
+   // cs_rf_wen      cs_rf_wen
+   // cs_wb_sel      cs_wb_sel
 
-
+   // rs1_addr       rs1_addr 
+   // rs2_addr       rs2_addr 
+   // wb_addr        wb_addr  
    // Set the data-path control signals
-   io.ctl.op1_sel  := cs_op1_sel
-   io.ctl.op2_sel  := cs_op2_sel
-   io.ctl.alu_fun  := cs_alu_fun
-   io.ctl.br_type  := cs_br_type
+   io.ctl.op1_sel       :=      cs_op1_sel
+   io.ctl.op2_sel       :=      cs_op2_sel
+   io.ctl.alu_fun       :=      cs_alu_fun
+   io.ctl.br_type       :=      cs_br_type
 
-   io.ctl_lsu.mem_en := cs_mem_en
-   io.ctl_lsu.mem_fcn := cs_mem_fcn
-   io.ctl_lsu.msk_sel := cs_msk_sel
+   io.ctl_lsu.mem_fcn   :=      cs_mem_fcn
+   io.ctl_lsu.msk_sel   :=      cs_msk_sel
+   io.ctl_lsu.mem_en    :=      Mux(io.inst===old_inst,MEN_0,cs_mem_en)
 
    io.ctl_wb.exception := io.ctl.exception
-   io.ctl_wb.rf_wen := cs_rf_wen
+   io.ctl_wb.rf_wen := Mux((!cs_mem_en &&io.ifu_stall) || io.lsu_stall ,
+                         REN_0, cs_rf_wen)
+   // io.ctl_wb.rf_wen := Mux( io.ifu_stall,
+   //                       REN_0, cs_rf_wen)
    io.ctl_wb.wb_sel  := cs_wb_sel
    
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
