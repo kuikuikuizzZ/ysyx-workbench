@@ -26,13 +26,16 @@ class Core(implicit val conf: YSYX24100012Config) extends Module
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
   inst_fetch.io.lsu_stall := lsu.io.stall
+  inst_fetch.io.finish := c.io.finish
   io.imem <> inst_fetch.io.imem
   
   c.io.ctl  <> d.io.ctl
   c.io.inst := inst_fetch.io.inst
   c.io.lsu_stall := lsu.io.stall
-  c.io.ifu_stall := inst_fetch.io.stall 
-  
+  c.io.ifu_valid := inst_fetch.io.valid 
+  c.io.ls_valid := lsu.io.ls_valid
+  c.io.pc_io <> inst_fetch.io.pc_io
+
   reg_file.io.inst := inst_fetch.io.inst
   reg_file.io.wb <> wbu.io.reg
 

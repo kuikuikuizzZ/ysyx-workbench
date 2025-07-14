@@ -6,6 +6,7 @@ import chisel3.util._
 
 import npc.common._
 import npc.Constants._
+import javax.xml.transform.OutputKeys
 
 class LsuToWBIo(implicit val conf: YSYX24100012Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
@@ -19,9 +20,9 @@ class YSYX2400012LSU(implicit val conf: YSYX24100012Config) extends Module {
         val pc_io = Flipped(new PCOut())
         val wb = new LsuToWBIo()
         val stall = Output(Bool())
+        val ls_valid = Output(Bool())
     })
     io := DontCare
-    val reg_men = RegNext(io.ctl.mem_en) 
 
     io.dmem.req.valid    := io.ctl.mem_en
     io.dmem.req.bits.fcn := io.ctl.mem_fcn
@@ -30,5 +31,6 @@ class YSYX2400012LSU(implicit val conf: YSYX24100012Config) extends Module {
     io.dmem.req.bits.data := io.exe.data
     //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
     io.wb.data :=  io.dmem.resp.bits.data
-    io.stall := (reg_men||io.ctl.mem_en) && !io.dmem.resp.valid
+    io.stall := io.ctl.mem_en && !io.dmem.resp.valid
+    io.ls_valid := io.dmem.resp.valid
 }

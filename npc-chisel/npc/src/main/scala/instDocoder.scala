@@ -40,14 +40,17 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val ctl_wb    = new CtlToWBIo()
    val pipeline_kill = Output(Bool())
    val lsu_stall   = Input(Bool())
-   val ifu_stall   = Input(Bool())
+   val ifu_valid   = Input(Bool())
+   val ls_valid   =  Input(Bool())
+   val pc_io      =  Flipped(new PCOut())
+   val finish     = Output(Bool())
 }
 
 class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new CpathIo())
    io := DontCare
-   val old_inst = RegNext(io.inst)
+   
    // Control Signals
    val csignals =
       ListLookup(io.inst,                                                                                       
@@ -142,16 +145,50 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    io.ctl.alu_fun       :=      cs_alu_fun
    io.ctl.br_type       :=      cs_br_type
 
+   val mem_en           =        Mux(io.ifu_valid, cs_mem_en, MEN_0)  
+   io.ctl_lsu.mem_en    :=       mem_en
    io.ctl_lsu.mem_fcn   :=      cs_mem_fcn
    io.ctl_lsu.msk_sel   :=      cs_msk_sel
-   io.ctl_lsu.mem_en    :=      Mux(io.inst===old_inst,MEN_0,cs_mem_en)
-
    io.ctl_wb.exception := io.ctl.exception
-   io.ctl_wb.rf_wen := Mux((!cs_mem_en &&io.ifu_stall) || io.lsu_stall ,
-                         REN_0, cs_rf_wen)
-   // io.ctl_wb.rf_wen := Mux( io.ifu_stall,
+   
+   io.finish := Mux(cs_mem_en, io.ls_valid, io.ifu_valid) 
+   // ifu_stall      mem_en => cs_mem_en
+   // !ifu_stall     mem_en=> cs_mem_en
+   //                reg_mem_en => mem_en(cs_mem_en)
+   // !io.ls_valid  mem_en=> cs_mem_en
+   //                reg_mem_en => old_mem_en(cs_mem_en)
+   // io.ls_valid   mem_en => false
+   //                reg_mem_en => mem_en(false)
+   // val mem_en =  Mux(io.ls_valid,false.B,cs_mem_en)
+   // val reg_mem_en = RegEnable(mem_en, (!io.ifu_stall || io.ls_valid))
+   // addi: !ifu_stall  => rf_wen:cs_rf_wen  <<< ifu_stall:F || 
+   //                      (!io.ls_valid:T&&cs_mem_fcn=/=M_X:F) >>>
+   //                   => reg_rf_wen: cs_rf_wen
+   //lw/sw: !ifu_stall  => rf_wen:F    <<< ifu_stall:F || 
+   //                      (!io.ls_valid:T&&cs_mem_fcn=/=M_X:T) >>>
+   //                   => reg_rf_wen: cs_rf_wen
+   // addi: ifu_stall  => rf_wen:cs_rf_wen  <<< ifu_stall:T? || 
+   //                      (!io.ls_valid:T&&cs_mem_fcn=/=M_X:F) >>>
+   //                   => reg_rf_wen: cs_rf_wen
+   //lw/sw: ifu_stall  => rf_wen:REN_0    <<< ifu_stall:T? || 
+   //                      (!io.ls_valid:T&&cs_mem_fcn=/=M_X:T) >>>
+   //                   => reg_rf_wen: cs_rf_wen
+   // addi: !ls_valid  => rf_wen:F  <<< ifu_stall:F || 
+   //                      (!io.ls_valid:T && cs_mem_fcn=/=M_X:F) >>>
+   //                   => reg_rf_wen: F
+   //lw/sw: !ls_valid  => rf_wen:F    <<< ifu_stall:F || 
+   //                      (!io.ls_valid:T&&cs_mem_fcn===M_X:T) >>>
+   //                   => reg_rf_wen: F
+
+   // val rf_wen =   Mux( (io.ifu_stall) || (!io.ls_valid&&cs_msk_sel=/=MT_X) ,
    //                       REN_0, cs_rf_wen)
-   io.ctl_wb.wb_sel  := cs_wb_sel
+   // val reg_rf_wen = RegEnable( cs_rf_wen,(!io.ifu_stall  ))
+   // io.ctl_wb.rf_wen := Mux(io.ls_valid, reg_rf_wen,rf_wen )
+
+   io.ctl_wb.rf_wen     := Mux(cs_mem_en, 
+                              Mux( io.ls_valid  , cs_rf_wen, REN_0),
+                              Mux( io.ifu_valid , cs_rf_wen, REN_0))  
+   io.ctl_wb.wb_sel     :=       cs_wb_sel
    
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
    val rs1_addr = io.inst(RS1_MSB, RS1_LSB)

@@ -147,6 +147,31 @@ class YSYX2400012AXI4LiteMem(implicit val conf: YSYX24100012Config) extends Blac
    println(s"YSYX2400012AsyncMem path: ${path}")
 }
 
+class YSYX2400012AXI4LiteMemRandomDelay(implicit val conf: YSYX24100012Config) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle() { 
+      val clock   =   Input(Clock())
+      val reset   =   Input(Bool())
+      val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+      val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+   })
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AXI4LiteMemRandomDelay.v"
+   addPath(path)
+   println(s"YSYX2400012AXI4LiteMemRandomDelay path: ${path}")
+}
+
+
+class YSYX2400012AXI4LiteMemRandomDelayData(implicit val conf: YSYX24100012Config) extends BlackBox with HasBlackBoxPath {
+   val io = IO(new Bundle() { 
+      val clock   =   Input(Clock())
+      val reset   =   Input(Bool())
+      val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+      val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+   })
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AXI4LiteMemRandomDelayData.v"
+   addPath(path)
+   println(s"YSYX2400012AXI4LiteMemRandomDelay path: ${path}")
+}
+
 class AsyncScratchPadMemory(val num_core_ports: Int,val num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
 {
    val io = IO(new Bundle
@@ -355,6 +380,53 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
 
    val axi4lite_mem = Module(new AXI4LiteMaster)
    val axi_slave = Module(new AXI4LiteSlave())
+
+   io.port.req.ready := RegInit(true.B)
+   axi4lite_mem.io := DontCare
+   axi_slave.io := DontCare
+   axi4lite_mem.io.clock  := clock
+   axi4lite_mem.io.reset := reset
+   axi_slave.clock := clock
+   axi_slave.reset := reset
+
+   axi4lite_mem.io.axi_io <> axi_slave.io.axi_io
+   axi4lite_mem.io.req.raddr := io.port.req.bits.addr
+   axi4lite_mem.io.req.wen := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XWR, false.B)
+   axi4lite_mem.io.req.ren := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XRD, false.B)
+
+   /////////// Read Port
+   val resp_datai = axi4lite_mem.io.resp.bits.data
+   val req_typi = Wire(UInt(3.W))
+   val req_addri = io.port.req.bits.addr
+   req_typi := io.port.req.bits.typ
+   io.port.resp.bits.data := MuxCase(resp_datai,Seq(
+      (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
+      (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
+      (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
+      (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+   ))
+   
+   /////////// Write Port
+   when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR)){
+      // axi4lite_mem.io.req.waddr := req_addri
+      axi4lite_mem.io.req.data := io.port.req.bits.data<< (req_addri(1,0) << 3)
+      axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
+      axi4lite_mem.io.req.mask := Mux(req_typi === MT_B,1.U << req_addri(1,0),
+                              Mux(req_typi === MT_H,3.U << req_addri(1,0),15.U))
+   }
+   io.port.resp.valid := axi4lite_mem.io.resp.valid
+}
+
+class AXI4LiteMemeoryData(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+{
+   val io = IO(new Bundle
+   {
+      val port = Flipped(new MemPortIo(data_width = conf.xprlen))
+   }) 
+   io := DontCare
+
+   val axi4lite_mem = Module(new AXI4LiteMasterData)
+   val axi_slave = Module(new AXI4LiteSlaveData())
 
    io.port.req.ready := RegInit(true.B)
    axi4lite_mem.io := DontCare

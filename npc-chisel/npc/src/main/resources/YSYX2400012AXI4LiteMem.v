@@ -32,13 +32,10 @@ module YSYX2400012AXI4LiteMem #(
         .mask_narrow(dw_mask),
         .mask_wide(dw_mask_wide)
     );
-    // 1. 重构读写逻辑分离
-    //-----------------------------
-    // 写逻辑：使用dw_en触发pmem_write
     always @(posedge clock) begin
         if (dw_en) begin
             pmem_mask_write(dw_addr, dw_mask_wide, dw_data); // mask替代Length
-        end
+        end       
     end
 
     always @(posedge clock) begin
@@ -46,15 +43,18 @@ module YSYX2400012AXI4LiteMem #(
             // -1 -> 1111
             pmem_mask_read(dr_addr, -1, dr_data);
         end else begin
-            // 端口1读取
-            dr_data = 32'b0; // 重置端口1数据
+            dr_data = 32'b0;
         end
+ 
+        
     end
 
     assign dr_ready = 1'b1;
     assign dw_ready = 1'b1;
 
 endmodule
+
+
 
 
 module mask_expander #(parameter DATA_WIDTH = 32) (

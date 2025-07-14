@@ -7,7 +7,7 @@ import npc.common.{YSYX24100012Config, AsyncScratchPadMemory,
                      SyncScratchPadMemory,AsyncMemory,
                      SyncMemory, AXI4LiteMemeory,
                      AXI4LiteMaster,AXI4LiteSlave,
-                     YSYX2400012AXI4LiteMem}
+                     YSYX2400012AXI4LiteMem,AXI4LiteMemeoryData}
 import npc._
 
 class Top extends Module 
@@ -23,7 +23,7 @@ class Top extends Module
 
 
     val imemory = Module(new AXI4LiteMemeory())
-    val dmemory = Module(new AXI4LiteMemeory())
+    val dmemory = Module(new AXI4LiteMemeoryData())
     core.io.dmem <> dmemory.io.port
     core.io.imem <> imemory.io.port
     io.halt := core.io.halt

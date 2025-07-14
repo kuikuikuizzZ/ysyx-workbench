@@ -12,7 +12,7 @@ build:
 	mill -i $(PRJ).runMain Elaborate --split-verilog --target-dir $(BUILD_DIR) 
 
 verilog: build
-	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v) $(NPC_HOME)/svsrc/
+	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v) $(NPC_HOME)/svsrc/
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
