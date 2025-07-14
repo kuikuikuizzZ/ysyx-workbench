@@ -32,5 +32,6 @@ class YSYX2400012LSU(implicit val conf: YSYX24100012Config) extends Module {
     //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
     io.wb.data :=  io.dmem.resp.bits.data
     io.stall := io.ctl.mem_en && !io.dmem.resp.valid
-    io.ls_valid := io.dmem.resp.valid
+    val valid = RegNext(io.dmem.resp.valid)
+    io.ls_valid := valid
 }

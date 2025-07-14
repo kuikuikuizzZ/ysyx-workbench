@@ -68,11 +68,7 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   // Instruction Read
   val inst_reg = RegEnable(io.imem.resp.bits.data,io.imem.resp.valid)
   val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, inst_reg)
-  // val reg_inst = Reg(UInt(conf.xlen.W))
-  // val reg_pc_old = RegInit(START_ADDR)
 
-  // val if_pc_reg = Mux(!io.lsu_stall, pc_reg, RegEnable(pc_reg, !io.lsu_stall))
-  // val if_inst_reg = RegEnable(inst, !stall) 
   val pc_old = RegNext(pc_reg)
   io.inst := inst
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
@@ -80,6 +76,6 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   io.pc_io.pc_old := pc_old
 
   // val valid = RegInit(false.B)
-  val valid = io.imem.resp.valid
+  val valid = RegNext(io.imem.resp.valid)
   io.valid := valid     
 }
