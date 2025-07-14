@@ -11,6 +11,12 @@ CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 VerilatedContext* contextp = NULL;
+
+#ifdef CONFIG_PC_MAX_REPEAT
+static int pc_repeat_count = 0;
+static paddr_t pc_old = 0;
+#endif
+
 void init_disasm();
 void device_update();
 bool wps_diff();
@@ -137,6 +143,16 @@ void exec_once(Decode *s){
 }
 
 void trace_and_difftest(Decode* s, vaddr_t dnpc){
+
+    #ifdef CONFIG_PC_MAX_REPEAT
+        if (s->pc != pc_old) {pc_old = s->pc; pc_repeat_count = 0;}
+        else pc_repeat_count++;
+        if (pc_repeat_count >= CONFIG_PC_MAX_REPEAT) {
+            npc_state.state = NPC_ABORT;
+            Log("pc repeat %d times!!!", CONFIG_PC_MAX_REPEAT);
+        }
+    #endif
+
     #ifdef CONFIG_DIFFTEST
     difftest_step(s->pc,dnpc);
     #endif

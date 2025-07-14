@@ -102,6 +102,10 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
 
+config PC_MAX_REPEAT
+  depends on TRACE
+  int "same pc repeat max times"
+  default 32
 
 choice
   prompt "Reference design"
