@@ -27,7 +27,6 @@ class InstFetchIn(implicit val conf: YSYX24100012Config) extends Bundle() {
 class PCOut(implicit val conf: YSYX24100012Config) extends Bundle() {
   val pc_plus4 = Output(UInt(conf.xprlen.W))
   val pc =  Output(UInt(conf.xprlen.W))
-  val pc_old =  Output(UInt(conf.xprlen.W))
 }
 
 class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
@@ -69,15 +68,15 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
 
   // Instruction Read
   val inst_reg = RegEnable(imem.io.port.resp.bits.data,imem.io.port.resp.valid)
-  val inst = Mux(imem.io.port.resp.valid, imem.io.port.resp.bits.data, inst_reg)
+  // val inst = inst_reg
 
-  val pc_old = RegNext(pc_reg)
-  io.inst := inst
+  io.inst := inst_reg
+  // val pc_reg_reg = RegNext(pc_reg)
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
   io.pc_io.pc := pc_reg       
-  io.pc_io.pc_old := pc_old
 
   // val valid = RegInit(false.B)
   val valid = RegNext(imem.io.port.resp.valid)
-  io.valid := valid     
+  val valid_reg = RegNext(valid)
+  io.valid := valid_reg     
 }

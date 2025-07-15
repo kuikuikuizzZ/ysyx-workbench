@@ -41,16 +41,19 @@ class Top extends Module
     axi_imem_slave.io.out.dr <> axi_imem.io.dr
     axi_imem_slave.io.out.dw <> axi_imem.io.dw
 
-    // val axi_arbiter = Module(new AXI4LiteArbiter(numMasters=2))
-    // val axi_mem_slave = Module(new AXI4LiteSlave())
+    // val axi_arbiter     = Module(new AXI4LiteArbiter(numMasters=2))
+    // val axi_mem_slave   = Module(new AXI4LiteSlave())
+    // val axi_mem        = Module(new YSYX2400012AXI4LiteMem())
+
     // axi_mem_slave.io := DontCare
+    // axi_mem.io.clock := clock
+    // axi_mem.io.reset := reset
+
     // axi_arbiter.io.slave <> axi_mem_slave.io.axi_io
+    // axi_mem_slave.io.out.dr <> axi_mem.io.dr
+    // axi_mem_slave.io.out.dw <> axi_mem.io.dw
     // core.io.dmem_axi <>  axi_arbiter.io.masters(0)
     // core.io.imem_axi <>  axi_arbiter.io.masters(1)
-
-
-
-
 
     io.halt := core.io.halt
 }

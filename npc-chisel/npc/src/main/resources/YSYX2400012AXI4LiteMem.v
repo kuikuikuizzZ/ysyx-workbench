@@ -24,8 +24,8 @@ module YSYX2400012AXI4LiteMem #(
     input  [ADDR_WIDTH-1:0] dr_addr,        // 端口0地址
 
     output  reg [DATA_WIDTH-1:0]    dr_data,   // 端口数据
-    output                          dr_ready,
-    output                          dw_ready
+    output  reg                     dr_ready,
+    output  reg                     dw_ready
 );
     wire [DATA_WIDTH-1:0] dw_mask_wide;
     mask_expander me (
@@ -35,21 +35,25 @@ module YSYX2400012AXI4LiteMem #(
     always @(posedge clock) begin
         if (dw_en) begin
             pmem_mask_write(dw_addr, dw_mask_wide, dw_data); // mask替代Length
-        end       
+            dw_ready = 1'b1;
+        end else begin
+            dw_ready = 1'b0;
+        end
     end
 
     always @(posedge clock) begin
         if (dr_en) begin
             // -1 -> 1111
             pmem_mask_read(dr_addr, -1, dr_data);
+            dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
+            dr_ready = 1'b0;
         end
  
         
     end
 
-    assign dr_ready = 1'b1;
     assign dw_ready = 1'b1;
 
 endmodule

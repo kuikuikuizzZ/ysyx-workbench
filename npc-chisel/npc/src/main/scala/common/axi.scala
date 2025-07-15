@@ -122,8 +122,8 @@ class AXI4LiteMaster (implicit val conf: YSYX24100012Config) extends Module{
     wstrb       := (io.req.mask)
 
 
-    val rready  = !is_write
-    val bready  = is_write
+    val rready  = (rstate === rs_wait_rvalid) || (rstate === rs_wait_arready && io.axi_io.ar.ready) 
+    val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready && io.axi_io.aw.ready) 
 
     io.axi_io.ar.valid  := Mux(rstate===rs_idle, accept_read,arvalid)
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
@@ -197,9 +197,9 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     val wdata               =   Mux(accept_write, io.axi_io.w.data,     RegEnable(io.axi_io.w.data,     accept_write))
     val wstrb               =   Mux(accept_write, io.axi_io.w.strb,     RegEnable(io.axi_io.w.strb,     accept_write)) 
 
-    io.out.dr.en      := state === s_inflight
+    io.out.dr.en      := !is_write && state === s_inflight
     io.out.dr.addr    := araddr
-    io.out.dw.en      := state === s_inflight
+    io.out.dw.en      := is_write&&(state === s_inflight)
     io.out.dw.addr    := awaddr
     // when wvalid high, io.out.dw.data should valid
     io.out.dw.data    := wdata

@@ -47,7 +47,7 @@ uint32_t top_halt(){
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT___inst_fetch_io_inst;
+    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__inst_reg;
 }
 uint32_t top_dnpc() {
     if (!_rootp) return 0;

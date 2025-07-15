@@ -149,7 +149,8 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
         else pc_repeat_count++;
         if (pc_repeat_count >= CONFIG_PC_MAX_REPEAT) {
             npc_state.state = NPC_ABORT;
-            Log("pc repeat %d times!!!", CONFIG_PC_MAX_REPEAT);
+            npc_state.halt_pc = s->pc;
+            Log("pc %0.8x repeat %d times!!!",s->pc, CONFIG_PC_MAX_REPEAT);
         }
     #endif
 

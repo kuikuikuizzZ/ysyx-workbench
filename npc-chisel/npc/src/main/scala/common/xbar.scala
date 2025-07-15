@@ -82,28 +82,143 @@ class AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
 // }
 
 
+// class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  extends Module {
+//     val io = IO(new Bundle {
+//         val masters = Flipped(Vec(numMasters, new AXI4LiteIo()))
+//         val slave = new AXI4LiteIo
+//     })
+//     object State extends ChiselEnum {
+//     val Idle, ReadAddress, ReadData, WriteAddress, WriteData, WriteResponse = Value
+//     }
+//     val state = RegInit(State.Idle)
+
+//     val currentMaster = RegInit(0.U(log2Ceil(numMasters).W))
+//     val rrCounter = RegInit(0.U(log2Ceil(numMasters).W))
+
+
+//     // 写事务状态跟踪
+//     val writeActive = RegInit(false.B)
+//     val writeMaster = Reg(UInt(log2Ceil(numMasters).W))
+
+//     // 读事务状态跟踪
+//     val readActive = RegInit(false.B)
+//     val readMaster = Reg(UInt(log2Ceil(numMasters).W))
+
+//     // 默认连接 - 所有主设备未选中
+//     for (i <- 0 until numMasters) {
+//         io.masters(i).aw.ready := false.B
+//         io.masters(i).w.ready := false.B
+//         io.masters(i).b.valid := false.B
+//         io.masters(i).b.resp := 0.U
+//         io.masters(i).ar.ready := false.B
+//         io.masters(i).r.valid := false.B
+//         io.masters(i).r.data := 0.U
+//         io.masters(i).r.resp := 0.U
+//     }
+  
+//     // 从设备接口默认值
+//     io.slave.aw.valid := false.B
+//     io.slave.aw.addr := 0.U
+//     io.slave.w.valid := false.B
+//     io.slave.w.data := 0.U
+//     io.slave.w.strb := 0.U
+//     io.slave.b.ready := false.B
+//     io.slave.ar.valid := false.B
+//     io.slave.ar.addr := 0.U
+//     io.slave.r.ready := false.B
+//     val readRequests = VecInit(io.masters.map(_.ar.valid)).asUInt
+//     val writeRequests = VecInit(io.masters.map(_.aw.valid)).asUInt
+
+//     switch(state){
+//         is(State.Idle){
+//             when (readRequests.orR && !writeActive){
+//                 currentMaster := PriorityEncoder(readRequests)
+//                 state := State.ReadAddress
+//             }
+//             when (writeRequests.orR && !readActive){
+//                 currentMaster := PriorityEncoder(writeRequests)
+//                 state := State.WriteAddress
+//             }
+//         }
+
+//         is(State.ReadAddress){
+//             io.slave.ar.valid := io.masters(currentMaster).ar.valid
+//             io.masters(currentMaster).ar.ready := io.slave.ar.ready
+            
+//             io.slave.ar.addr := io.masters(currentMaster).ar.addr
+//             when(io.slave.ar.ready && io.slave.ar.valid){
+//                 readMaster := currentMaster
+//                 readActive := true.B
+//                 state := State.ReadData
+//             }
+//         }
+
+//         is (State.ReadData){
+//             io.slave.r.ready := io.masters(currentMaster).r.ready
+
+//             io.masters(currentMaster).r.valid := io.slave.r.valid
+//             io.masters(currentMaster).r.data := io.slave.r.data
+//             io.masters(currentMaster).r.resp := io.slave.r.resp
+
+//             when(io.masters(currentMaster).r.valid && io.slave.r.ready){
+//                 readActive := false.B
+//                 state := State.Idle
+//                 rrCounter := rrCounter +% 1.U
+//             }
+//         }
+
+//         is (State.WriteAddress){
+//             io.masters(currentMaster).aw.ready := writeAddrReadyReg
+//             io.slave.aw.valid := io.masters(currentMaster).aw.valid
+//             io.slave.aw.addr := RegEnable(io.masters(currentMaster).aw.addr, state === State.Idle)
+      
+//             when(io.slave.aw.valid && io.slave.aw.ready){
+//                 writeActive := true.B
+//                 state := State.WriteData
+//                 writeMaster := currentMaster
+//             }
+//         }
+//         is(State.WriteData){
+//             writeDataValidReg := io.masters(currentMaster).w.valid
+//             io.masters(currentMaster).w.ready := writeDataReadyReg
+            
+//             io.slave.w.valid := writeDataValidReg
+//             io.slave.w.data := RegEnable(io.masters(currentMaster).w.data, state === State.WriteAddress)
+//             io.slave.w.strb := RegEnable(io.masters(currentMaster).w.strb, state === State.WriteAddress)
+      
+//             when(io.slave.w.valid && io.slave.w.ready){
+//                 state := State.WriteResponse
+//             }
+//         }
+//         is(State.WriteResponse){
+//             writeRespValidReg := io.slave.b.valid
+//             io.slave.b.ready := writeRespReadyReg
+            
+//             io.masters(currentMaster).b.valid := writeRespValidReg
+//             io.masters(currentMaster).b.resp := RegEnable(io.slave.b.resp, state === State.WriteData)
+//             when(io.slave.b.valid && io.slave.b.ready){
+//                 writeActive := false.B
+//                 state := State.Idle
+//                 rrCounter := rrCounter +% 1.U
+//             }
+//         }
+//     }
+// }
+
+
 class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  extends Module {
     val io = IO(new Bundle {
         val masters = Flipped(Vec(numMasters, new AXI4LiteIo()))
         val slave = new AXI4LiteIo
     })
     object State extends ChiselEnum {
-    val Idle, ReadAddress, ReadData, WriteAddress, WriteData, WriteResponse = Value
+    val Idle, ReadBusy,WriteBusy = Value
     }
     val state = RegInit(State.Idle)
 
     val currentMaster = RegInit(0.U(log2Ceil(numMasters).W))
     val rrCounter = RegInit(0.U(log2Ceil(numMasters).W))
 
-    def nextMaster(): UInt = {
-        val next = Wire(UInt(log2Ceil(numMasters).W))
-        next := rrCounter
-        rrCounter := rrCounter +% 1.U
-        when(rrCounter === (numMasters - 1).U) {
-            rrCounter := 0.U
-        }
-        next
-    }
 
     // 写事务状态跟踪
     val writeActive = RegInit(false.B)
@@ -113,17 +228,6 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
     val readActive = RegInit(false.B)
     val readMaster = Reg(UInt(log2Ceil(numMasters).W))
 
-    val readAddrValidReg = RegInit(false.B)
-    val readAddrReadyReg = RegInit(false.B)
-    val readDataValidReg = RegInit(false.B)
-    val readDataReadyReg = RegInit(false.B)
-    
-    val writeAddrValidReg = RegInit(false.B)
-    val writeAddrReadyReg = RegInit(false.B)
-    val writeDataValidReg = RegInit(false.B)
-    val writeDataReadyReg = RegInit(false.B)
-    val writeRespValidReg = RegInit(false.B)
-    val writeRespReadyReg = RegInit(false.B)
     // 默认连接 - 所有主设备未选中
     for (i <- 0 until numMasters) {
         io.masters(i).aw.ready := false.B
@@ -151,101 +255,37 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
 
     switch(state){
         is(State.Idle){
-            when (readRequests.orR && !writeActive){
+            when (readRequests.orR ){
                 currentMaster := PriorityEncoder(readRequests)
-                state := State.ReadAddress
+                state := State.ReadBusy
             }
-            when (writeRequests.orR && !readActive){
+            when (writeRequests.orR ){
                 currentMaster := PriorityEncoder(writeRequests)
-                state := State.WriteAddress
+                state := State.WriteBusy
             }
         }
 
-        is(State.ReadAddress){
-            readAddrValidReg := io.masters(currentMaster).ar.valid
-            io.masters(currentMaster).ar.ready := readAddrReadyReg
-            
-            io.slave.ar.valid := readAddrValidReg
-            io.slave.ar.addr := RegEnable(io.masters(currentMaster).ar.addr, state === State.Idle)
-            when(io.slave.ar.valid && io.masters(currentMaster).ar.ready){
-                readMaster := currentMaster
-                readActive := true.B
-                state := State.ReadData
-            }
-        }
-
-        is (State.ReadData){
-            readDataValidReg := io.slave.r.valid
-            io.slave.r.ready := readDataReadyReg
-
-            io.masters(currentMaster).r.valid := readDataValidReg
-            io.masters(currentMaster).r.data := RegEnable(io.slave.r.data, state === State.ReadAddress)
-            io.masters(currentMaster).r.resp := RegEnable(io.slave.r.resp, state === State.ReadAddress)
-
-            when(io.masters(currentMaster).r.valid && io.slave.r.ready){
-                readActive := false.B
+        is(State.ReadBusy){
+            io.slave.ar <> io.masters(currentMaster).ar
+            io.slave.r <> io.masters(currentMaster).r
+            when(io.slave.r.ready&&io.slave.r.valid){
                 state := State.Idle
-                rrCounter := nextMaster()   
+                rrCounter := rrCounter +% 1.U
+                currentMaster := rrCounter
             }
-        }
-
-        is (State.WriteAddress){
-            writeAddrValidReg := io.masters(currentMaster).aw.valid
-            io.masters(currentMaster).aw.ready := writeAddrReadyReg
-      
-            io.slave.aw.valid := writeAddrValidReg
-            io.slave.aw.addr := RegEnable(io.masters(currentMaster).aw.addr, state === State.Idle)
-      
-            when(io.slave.aw.valid && io.slave.aw.ready){
-                writeActive := true.B
-                state := State.WriteData
-                writeMaster := currentMaster
-            }
-        }
-        is(State.WriteData){
-            writeDataValidReg := io.masters(currentMaster).w.valid
-            io.masters(currentMaster).w.ready := writeDataReadyReg
             
-            io.slave.w.valid := writeDataValidReg
-            io.slave.w.data := RegEnable(io.masters(currentMaster).w.data, state === State.WriteAddress)
-            io.slave.w.strb := RegEnable(io.masters(currentMaster).w.strb, state === State.WriteAddress)
-      
-            when(io.slave.w.valid && io.slave.w.ready){
-                writeActive := true.B
-                state := State.WriteResponse
+        }
+
+        is (State.WriteBusy){
+            io.slave.aw <> io.masters(currentMaster).aw
+            io.slave.w <> io.masters(currentMaster).w
+            io.slave.b <> io.masters(currentMaster).b
+            when(io.masters(currentMaster).r.valid && io.slave.r.ready){                state := State.Idle
+                rrCounter := rrCounter +% 1.U
+                currentMaster := rrCounter
             }
         }
-        is(State.WriteResponse){
-            writeRespValidReg := io.slave.b.valid
-            io.slave.b.ready := writeRespReadyReg
-            
-            io.masters(currentMaster).b.valid := writeRespValidReg
-            io.masters(currentMaster).b.resp := RegEnable(io.slave.b.resp, state === State.WriteData)
-            when(io.slave.b.valid && io.slave.b.ready){
-                writeActive := false.B
-                state := State.Idle
-                rrCounter := nextMaster()   
-            }
-        }
-    }
-      // 寄存器更新 - 时钟边沿同步
-    when(state === State.Idle) {
-        readAddrReadyReg := io.slave.ar.ready
-    }
 
-    when(state === State.ReadData) {
-        readDataReadyReg := io.masters(currentMaster).r.ready
-    }
-
-    when(state === State.WriteAddress) {
-        writeAddrReadyReg := io.slave.aw.ready
-    }
-
-    when(state === State.WriteData) {
-        writeDataReadyReg := io.slave.w.ready
-    }
-
-    when(state === State.WriteResponse) {
-        writeRespReadyReg := io.masters(currentMaster).b.ready
+       
     }
 }
