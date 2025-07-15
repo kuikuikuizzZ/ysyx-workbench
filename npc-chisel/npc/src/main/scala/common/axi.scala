@@ -167,6 +167,10 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())
         val axi_io  =   Flipped(new AXI4LiteIo())
+        val out     =   Flipped(new Bundle{
+        val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+        val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+        })
     })
     io := DontCare
 
@@ -175,16 +179,12 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     val accept_read = (state === s_idle) && io.axi_io.ar.valid
     val accept_write = !accept_read && (state === s_idle) && io.axi_io.aw.valid && io.axi_io.w.valid
     val is_write = Mux((state === s_idle), accept_write, RegEnable(accept_write,(state === s_idle)))
-    val slave_mem = Module(new YSYX2400012AXI4LiteMemRandomDelay())
-    slave_mem.io := DontCare
-    slave_mem.io.clock := clock
-    slave_mem.io.reset := reset
-    slave_mem.io.dr := DontCare
+
 
     switch (state) {
         is (s_idle)     { state := Mux(io.axi_io.ar.valid || (io.axi_io.aw.valid && io.axi_io.w.valid), s_inflight, s_idle) }
-        is (s_inflight) { state := Mux((!is_write &&slave_mem.io.dr.ready) || (is_write && slave_mem.io.dw.ready) ,  s_wait_rready_bready, s_inflight) }
-        // is (s_inflight) { state := Mux(slave_mem.io.dr.ready ,  s_wait_rready_bready, s_inflight) }
+        is (s_inflight) { state := Mux((!is_write &&io.out.dr.ready) || (is_write && io.out.dw.ready) ,  s_wait_rready_bready, s_inflight) }
+        // is (s_inflight) { state := Mux(io.out.dr.ready ,  s_wait_rready_bready, s_inflight) }
         is (s_wait_rready_bready) { state := Mux(io.axi_io.r.ready || io.axi_io.b.ready , s_idle, s_wait_rready_bready) }
     }
 
@@ -197,22 +197,22 @@ class AXI4LiteSlave (implicit val conf: YSYX24100012Config) extends Module{
     val wdata               =   Mux(accept_write, io.axi_io.w.data,     RegEnable(io.axi_io.w.data,     accept_write))
     val wstrb               =   Mux(accept_write, io.axi_io.w.strb,     RegEnable(io.axi_io.w.strb,     accept_write)) 
 
-    slave_mem.io.dr.en      := state === s_inflight
-    slave_mem.io.dr.addr    := araddr
-    slave_mem.io.dw.en      := state === s_inflight
-    slave_mem.io.dw.addr    := awaddr
-    // when wvalid high, slave_mem.io.dw.data should valid
-    slave_mem.io.dw.data    := wdata
-    slave_mem.io.dw.mask    := wstrb
+    io.out.dr.en      := state === s_inflight
+    io.out.dr.addr    := araddr
+    io.out.dw.en      := state === s_inflight
+    io.out.dw.addr    := awaddr
+    // when wvalid high, io.out.dw.data should valid
+    io.out.dw.data    := wdata
+    io.out.dw.mask    := wstrb
 
 
     val resp        =   0.U  // OKAY
     val resp_hold = Mux((state === s_inflight),resp, RegNext(resp))  
 
     io.axi_io.r.resp    := resp_hold
-    io.axi_io.r.valid   := !is_write && (state === s_inflight && slave_mem.io.dr.ready) || (state === s_wait_rready_bready)
-    io.axi_io.r.data    := Mux((state === s_inflight),slave_mem.io.dr.data, RegEnable(slave_mem.io.dr.data,(state === s_inflight)))  
+    io.axi_io.r.valid   := !is_write && (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
+    io.axi_io.r.data    := Mux((state === s_inflight),io.out.dr.data, RegEnable(io.out.dr.data,(state === s_inflight)))  
 
-    io.axi_io.b.valid   := is_write && (((state === s_inflight) && slave_mem.io.dw.ready ) || (state === s_wait_rready_bready))
+    io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
     io.axi_io.b.resp    := resp_hold
 }
