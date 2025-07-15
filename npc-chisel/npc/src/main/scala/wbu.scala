@@ -13,7 +13,6 @@ class WBToRegIo(implicit val conf: YSYX24100012Config) extends Bundle {
 
 class YSYX2400012WBU(implicit val conf: YSYX24100012Config) extends Module {
     val io = IO(new Bundle {
-        val stall = Input(Bool())
         val ctl = Flipped(new CtlToWBIo())
         val exe = Flipped(new exeToWBUIo())
         val lsu = Flipped(new LsuToWBIo())

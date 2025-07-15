@@ -58,7 +58,7 @@ module YSYX2400012AXI4LiteMemRandomDelay #(
                 dw_ready = 1'b0;
                 num_write = num_write + 1;
             end
-            $display("write dw_addr %x random_write %d, num: %d, dw_ready %d,dw_en %d done %d",dw_addr,random_write, num_write,dw_ready,dw_en,done_w);
+            // $display("write dw_addr %x random_write %d, num: %d, dw_ready %d,dw_en %d done %d",dw_addr,random_write, num_write,dw_ready,dw_en,done_w);
         end 
 
     end
@@ -75,7 +75,7 @@ module YSYX2400012AXI4LiteMemRandomDelay #(
                 num_read = num_read + 1;
                 dr_data = 32'b0;
             end 
-            $display("read addr %x random %d, num: %d, dr_ready %d,dr_en %d done %d",dr_addr,random_read, num_read,dr_ready,dr_en,done_r);
+            // $display("read addr %x random %d, num: %d, dr_ready %d,dr_en %d done %d",dr_addr,random_read, num_read,dr_ready,dr_en,done_r);
         end
         
     end

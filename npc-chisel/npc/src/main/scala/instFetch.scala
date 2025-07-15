@@ -6,11 +6,10 @@ import npc.common._
 import npc.Constants._
 
 class InstFetchIo(implicit val conf: YSYX24100012Config) extends Bundle() {
-  val imem = new MemPortIo(conf.xprlen)
+  val axi_port = new AXI4LiteIo
   val pipeline_kill = Input(Bool()) 
   val in = new InstFetchIn
   val pc_io = new PCOut()
-  val lsu_stall = Input(Bool()) 
   val valid = Output(Bool())
   val inst = Output(UInt(conf.xprlen.W))
   val finish = Input(Bool())
@@ -58,16 +57,19 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
       pc_reg := pc_reg
   }
   
+  val imem = Module(new AXI4LiteMemeory())
+  imem.io := DontCare
+  imem.io.axi_port <> io.axi_port 
   // Memory Requests
-  io.imem.req.valid := pc_valid
-  io.imem.req.bits.addr := pc_reg
-  io.imem.req.bits.fcn := M_XRD
-  io.imem.req.bits.typ := MT_WU
+  imem.io.port.req.valid := pc_valid
+  imem.io.port.req.bits.addr := pc_reg
+  imem.io.port.req.bits.fcn := M_XRD
+  imem.io.port.req.bits.typ := MT_WU
 
 
   // Instruction Read
-  val inst_reg = RegEnable(io.imem.resp.bits.data,io.imem.resp.valid)
-  val inst = Mux(io.imem.resp.valid, io.imem.resp.bits.data, inst_reg)
+  val inst_reg = RegEnable(imem.io.port.resp.bits.data,imem.io.port.resp.valid)
+  val inst = Mux(imem.io.port.resp.valid, imem.io.port.resp.bits.data, inst_reg)
 
   val pc_old = RegNext(pc_reg)
   io.inst := inst
@@ -76,6 +78,6 @@ class YSYX24100012InstFetch(implicit conf: YSYX24100012Config) extends Module {
   io.pc_io.pc_old := pc_old
 
   // val valid = RegInit(false.B)
-  val valid = RegNext(io.imem.resp.valid)
+  val valid = RegNext(imem.io.port.resp.valid)
   io.valid := valid     
 }
