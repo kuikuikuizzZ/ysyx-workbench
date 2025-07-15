@@ -258,6 +258,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
             when (readRequests.orR ){
                 currentMaster := PriorityEncoder(readRequests)
                 state := State.ReadBusy
+                
             }
             when (writeRequests.orR ){
                 currentMaster := PriorityEncoder(writeRequests)
@@ -269,7 +270,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
             io.slave.ar <> io.masters(currentMaster).ar
             io.slave.r <> io.masters(currentMaster).r
             when(io.slave.r.ready&&io.slave.r.valid){
-                state := State.Idle
+                state := State.Idle    
                 rrCounter := rrCounter +% 1.U
                 currentMaster := rrCounter
             }
@@ -280,7 +281,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
             io.slave.aw <> io.masters(currentMaster).aw
             io.slave.w <> io.masters(currentMaster).w
             io.slave.b <> io.masters(currentMaster).b
-            when(io.masters(currentMaster).r.valid && io.slave.r.ready){                state := State.Idle
+            when(io.masters(currentMaster).b.valid && io.slave.b.ready){                state := State.Idle
                 rrCounter := rrCounter +% 1.U
                 currentMaster := rrCounter
             }
