@@ -4,11 +4,6 @@
 #include <stdint.h>
 #include <assert.h>
 #include <generated/autoconf.h>
-// #ifndef __MROM_FLASH_READ__
-// #define __MROM_FLASH_READ__
-// extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-// extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
-// #endif
 
 // use DPI-C should add this macro#ifdef __cplusplus
 #ifdef __cplusplus
@@ -16,14 +11,15 @@
 extern "C" {
 #endif
 
-    #define MBASE CONFIG_MBASE 
+    // #define MBASE CONFIG_MBASE 
+    #define MBASE CONFIG_MROM_BASE
     #define MSIZE CONFIG_MSIZE 
     #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
     #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
     #define WORD_SIZE 4
 
     void init_memory();
-
+    void init_mrom();
     uint8_t* guest_to_host(uint32_t paddr) ;
 
     static inline bool in_pmem(uint32_t addr) {

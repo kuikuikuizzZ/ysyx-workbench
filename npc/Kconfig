@@ -13,6 +13,10 @@ config NPC_CHISEL
   bool "npc-chisel"
 endchoice
 
+config SOC
+  bool "run with/without soc"
+  default y
+
 menu "Testing and Debugging"
 
 config TRACE

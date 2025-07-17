@@ -148,4 +148,20 @@ config SDCARD_IMG_PATH
   string "The path of sdcard image"
   default ""
 endif # HAS_SDCARD
+
+menuconfig HAS_MROM
+  bool "Enable mrom"
+  default y
+
+if HAS_MROM
+config MROM_BASE
+  depends on HAS_MROM
+  hex "base address of the mrom"
+  default 0x20000000
+config MROM_SIZE
+  depends on HAS_MROM
+  hex "base address of the mrom"
+  default 0x00001000
+endif # HAS_MROM
+
 endif # DEVICE

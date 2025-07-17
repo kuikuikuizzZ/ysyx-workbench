@@ -12,6 +12,7 @@ GUEST_ISA ?= riscv32
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
+$(info FILELIST_MK = $(FILELIST_MK))
 # 参数设置
 override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -20,13 +21,10 @@ override ARGS += $(ARGS_DIFF)
 # CFLAGS+= -g
 CFLAGS+= -O3
 INC_PATH := $(WORK_DIR)/include $(INC_PATH) 
-INC_PATH += $(SOC_HOME)/perip/uart16550/rtl
-INC_PATH += $(SOC_HOME)/perip/spi/rtl
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
-VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES)
+VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES) 
 LIBS += -lreadline
 LDFLAGS += $(addprefix -LDFLAGS , $(LIBS))
-
 
 # 源文件定义
 DIRS-BLACKLIST-y += $(DIRS-BLACKLIST)
@@ -42,6 +40,8 @@ $(info "ARGS: $(ARGS)")
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
 VERILATOR_BASE_FLAGS += $(LDFLAGS)
+VERILATOR_BASE_FLAGS += $(VINCLUDES)
+
 ifdef CONFIG_WAVETRACE_FST
 	VERILATOR_BASE_FLAGS += --trace-fst
 endif
