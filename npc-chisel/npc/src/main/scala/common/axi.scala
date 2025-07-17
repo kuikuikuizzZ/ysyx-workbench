@@ -72,7 +72,7 @@ class AXI4LiteAW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)
 class AXI4LiteW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val valid   =   Output(Bool())
     val data    =   Output(UInt(addrWidth.W))
-    val strb    =   Output(UInt(addrWidth.W))
+    val strb    =   Output(UInt(conf.maskBits.W))
     val ready   =   Input(Bool()) 
     val last    =   Output(Bool())
 } 

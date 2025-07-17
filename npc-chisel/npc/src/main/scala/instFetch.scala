@@ -68,15 +68,15 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   // Instruction Read
   val inst_reg = RegEnable(imem.io.port.resp.bits.data,imem.io.port.resp.valid)
-  // val inst = Mux(imem.io.port.resp.valid,imem.io.port.resp.bits.data,inst_reg)
+  val inst = Mux(imem.io.port.resp.valid,imem.io.port.resp.bits.data,inst_reg)
 
-  io.inst := inst_reg
+  io.inst := inst
   // val pc_reg_reg = RegNext(pc_reg)
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
   io.pc_io.pc := pc_reg       
 
   // val valid = RegInit(false.B)
   val valid = RegNext(imem.io.port.resp.valid)
-  val valid_reg = RegNext(valid)
-  io.valid := valid_reg     
+  // val valid_reg = RegNext(valid)
+  io.valid := valid     
 }

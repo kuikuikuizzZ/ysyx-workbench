@@ -9,4 +9,5 @@ case class ysyx_24100012_Config(
     val sizeBits = 3
     val lenBits = 8
     val burstBits = 2
+    val maskBits = xlen/8
 }

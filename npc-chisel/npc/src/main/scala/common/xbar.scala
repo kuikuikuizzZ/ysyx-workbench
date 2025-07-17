@@ -117,15 +117,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
     }
     // io.slave := DontCare
     // 从设备接口默认值
-    io.slave.aw.valid := false.B
-    io.slave.aw.addr := 0.U
-    io.slave.w.valid := false.B
-    io.slave.w.data := 0.U
-    io.slave.w.strb := 0.U
-    io.slave.b.ready := false.B
-    io.slave.ar.valid := false.B
-    io.slave.ar.addr := 0.U
-    io.slave.r.ready := false.B
+    
     val readRequests = VecInit(io.masters.map(_.ar.valid)).asUInt
     val writeRequests = VecInit(io.masters.map(_.aw.valid)).asUInt
 
