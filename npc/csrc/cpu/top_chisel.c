@@ -1,8 +1,23 @@
 
 #include <cpu/cpu.h>
+
+
+
 #ifdef CONFIG_NPC_CHISEL
 #include <cpu/top.h>
+#ifndef __DEBUG_TOP__
+#define __DEBUG_TOP__
+static uint32_t pc = 0;
+static uint32_t inst = 0;
+static uint32_t halt = 0;
 
+extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
+    pc = in_pc;
+    inst = in_inst;
+    halt = in_halt;
+}
+
+#endif
 Top* _top = NULL;
 Top_rootp* _rootp =NULL;
 
@@ -40,18 +55,15 @@ uint32_t top_pc() {
     return _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst_fetch__DOT__pc_reg;
 }
 
-// uint32_t top_halt(){
-//     if (!_rootp) return 0;
-//     return _rootp->io_halt;
-// }
 uint32_t top_halt(){
     if (!_rootp) return 0;
-    return 0;
+    return halt;
 }
+
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
-    return _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst_fetch__DOT__inst_reg;
+    return inst;
 }
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
@@ -74,7 +86,8 @@ void watch_top(){
     _top = top();
     if (!_top) return;
     // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-    printf(" pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+        top_halt(),
         top_pc(),
         top_dnpc(),
         top_inst(),
