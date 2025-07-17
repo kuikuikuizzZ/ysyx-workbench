@@ -7,12 +7,13 @@ import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo}
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
-  val imem_axi = new AXI4LiteIo()
-  val dmem_axi = new AXI4LiteIo()
+  val interrupt = Input(Bool())
+  val master = new AXI4LiteIo()
+  val slave = Flipped(new AXI4LiteIo())
   val halt = Output(Bool())
 }
 
-class ysyx_24100012_Core(implicit val conf: ysyx_24100012_Config) extends Module
+class ysyx_24100012(implicit val conf: ysyx_24100012_Config) extends Module
 {
   val io = IO(new CoreIo())
   io := DontCare
@@ -27,7 +28,7 @@ class ysyx_24100012_Core(implicit val conf: ysyx_24100012_Config) extends Module
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
   inst_fetch.io.finish := c.io.finish
-  io.imem_axi <> inst_fetch.io.axi_port
+  io.master <> inst_fetch.io.axi_port
   
   c.io := DontCare
   c.io.ctl  <> d.io.ctl
@@ -45,7 +46,7 @@ class ysyx_24100012_Core(implicit val conf: ysyx_24100012_Config) extends Module
 
   lsu.io.exe <> d.io.exe_lsu  
   lsu.io.ctl <> c.io.ctl_lsu
-  lsu.io.dmem_axi <> io.dmem_axi
+  lsu.io.dmem_axi <> io.master
   lsu.io.pc_io <> inst_fetch.io.pc_io
   
   

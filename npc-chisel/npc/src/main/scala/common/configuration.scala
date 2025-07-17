@@ -5,4 +5,8 @@ package common
 case class ysyx_24100012_Config(
  xprlen: Int = 32) {
     val xlen = xprlen
+    val idBits = 4
+    val sizeBits = 3
+    val lenBits = 8
+    val burstBits = 2
 }

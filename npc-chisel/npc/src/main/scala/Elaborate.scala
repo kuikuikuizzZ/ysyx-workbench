@@ -1,5 +1,5 @@
 import chisel3._
-import npc.ysyx_24100012
+import npc.ysyxSoCFull
 
 object Elaborate extends App {
   val firtoolOptions = Array(
@@ -12,7 +12,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new ysyx_24100012(),
+    new ysyxSoCFull(),
     args,
     firtoolOptions)
 }

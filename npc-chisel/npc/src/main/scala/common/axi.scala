@@ -40,36 +40,48 @@ class AXIRport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
 }
 
 
-class AXI4LiteAR (val addrWidth : Int) extends Bundle{
+class AXI4LiteAR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val valid   =   Output(Bool())
-    val addr    =   Output(UInt(addrWidth.W))
+    val addr    =   Output(UInt(conf.xprlen.W))
     val ready   =   Input(Bool()) 
+    val id      =   Output(UInt(conf.idBits.W))
+    val len     =   Output(UInt(conf.lenBits.W))  // number of beats - 1
+    val size    =   Output(UInt(conf.sizeBits.W)) // bytes in beat = 2^size
+    val burst   =   Output(UInt(conf.burstBits.W))
 } 
 
-class AXI4LiteR (val addrWidth : Int) extends Bundle{
+class AXI4LiteR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)extends Bundle{
     val valid   =   Input(Bool())
     val data    =   Input(UInt(addrWidth.W))
     val resp    =   Input(UInt(2.W))
     val ready   =   Output(Bool()) 
+    val id      =   Input(UInt(conf.idBits.W))
+    val last    =   Input(Bool())
 } 
 
-class AXI4LiteAW (val addrWidth : Int) extends Bundle{
+class AXI4LiteAW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val valid   =   Output(Bool())
     val addr    =   Output(UInt(addrWidth.W))
     val ready   =   Input(Bool()) 
+    val id      =   Output(UInt(conf.idBits.W))
+    val len     =   Output(UInt(conf.lenBits.W))  // number of beats - 1
+    val size    =   Output(UInt(conf.sizeBits.W)) // bytes in beat = 2^size
+    val burst   =   Output(UInt(conf.burstBits.W))
 } 
 
-class AXI4LiteW (val addrWidth : Int) extends Bundle{
+class AXI4LiteW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val valid   =   Output(Bool())
     val data    =   Output(UInt(addrWidth.W))
     val strb    =   Output(UInt(addrWidth.W))
     val ready   =   Input(Bool()) 
+    val last    =   Output(Bool())
 } 
 
-class AXI4LiteB (val addrWidth : Int) extends Bundle{
+class AXI4LiteB (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val valid   =   Input(Bool())
     val resp    =   Input(UInt(2.W))
     val ready   =   Output(Bool()) 
+    val id      =   Input(UInt(conf.idBits.W))
 } 
 
 class AXI4LiteIo (implicit val conf: ysyx_24100012_Config) extends Bundle{ 
