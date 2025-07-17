@@ -19,7 +19,9 @@ override ARGS += $(ARGS_DIFF)
 # 编译器和链接器设置
 # CFLAGS+= -g
 CFLAGS+= -O3
-INC_PATH := $(WORK_DIR)/include $(INC_PATH)
+INC_PATH := $(WORK_DIR)/include $(INC_PATH) 
+INC_PATH += $(SOC_HOME)/perip/uart16550/rtl
+INC_PATH += $(SOC_HOME)/perip/spi/rtl
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES)
 LIBS += -lreadline
@@ -37,7 +39,7 @@ $(info "SOURCES: $(SOURCES)")
 $(info "ARGS: $(ARGS)")
 
 # Verilator基础配置
-VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi
+VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
 VERILATOR_BASE_FLAGS += $(LDFLAGS)
 ifdef CONFIG_WAVETRACE_FST

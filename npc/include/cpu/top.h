@@ -10,10 +10,10 @@ typedef Vysyx_24100012_top___024root Top_rootp;
 #endif
 
 #ifdef CONFIG_NPC_CHISEL
-#include "VTop.h"
-#include "VTop___024root.h"
-typedef VTop Top;
-typedef VTop___024root Top_rootp;
+#include "Vysyx_24100012.h"
+#include "Vysyx_24100012___024root.h"
+typedef Vysyx_24100012 Top;
+typedef Vysyx_24100012___024root Top_rootp;
 uint32_t top_state();
 #endif
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)

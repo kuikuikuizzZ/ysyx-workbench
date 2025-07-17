@@ -6,7 +6,7 @@
 #include <getopt.h>
 #include <utils.h>
 #include "monitor/sdb.h"
-
+#include "verilated.h"
 
 char* img_file = NULL;
 char* log_file = NULL;
@@ -63,6 +63,7 @@ static int parse_args(int argc, char **argv) {
         exit(0);
     }
   }
+  Verilated::commandArgs(argc, argv);
   return 0;
 }
 

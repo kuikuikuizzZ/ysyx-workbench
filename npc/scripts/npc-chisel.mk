@@ -1,7 +1,7 @@
 # Chisel专用配置
 BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel
 VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
-TOP_NAME = Top
+TOP_NAME = ysyx_24100012
 NAME = V$(TOP_NAME)
 
 # SV源文件

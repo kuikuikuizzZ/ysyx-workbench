@@ -4,9 +4,15 @@
 #include <stdint.h>
 #include <assert.h>
 #include <generated/autoconf.h>
+// #ifndef __MROM_FLASH_READ__
+// #define __MROM_FLASH_READ__
+// extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+// extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+// #endif
 
-// use DPI-C should add this macro
+// use DPI-C should add this macro#ifdef __cplusplus
 #ifdef __cplusplus
+
 extern "C" {
 #endif
 

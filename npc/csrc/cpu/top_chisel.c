@@ -23,7 +23,7 @@ uint32_t top_gpr(int i) {
         printf("gpr index %d out of range\n", i);
         return 0;
     }
-    return _rootp->Top__DOT__core__DOT__reg_file__DOT__regfile_ext__DOT__Memory[i];
+    return _rootp->ysyx_24100012__DOT__core__DOT__reg_file__DOT__regfile_ext__DOT__Memory[i];
 }
 
 uint32_t top_csr(int i) {
@@ -37,7 +37,7 @@ uint32_t top_csr(int i) {
 
 uint32_t top_pc() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__pc_reg;
+    return _rootp->ysyx_24100012__DOT__core__DOT__inst_fetch__DOT__pc_reg;
 }
 
 uint32_t top_halt(){
@@ -47,16 +47,16 @@ uint32_t top_halt(){
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__inst_reg;
+    return _rootp->ysyx_24100012__DOT__core__DOT__inst_fetch__DOT__inst_reg;
 }
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
-    return _rootp->Top__DOT__core__DOT__inst_fetch__DOT__casez_tmp;
+    return _rootp->ysyx_24100012__DOT__core__DOT__inst_fetch__DOT__casez_tmp;
 }
 
 // uint32_t top_state(){
 //     if (!_rootp) return 0;
-//     return _rootp->Top__DOT__core__DOT__c__DOT__state;
+//     return _rootp->ysyx_24100012__DOT__core__DOT__c__DOT__state;
 // }
 
 void delete_top() {
@@ -76,8 +76,8 @@ void watch_top(){
         top_dnpc(),
         top_inst(),
         top_gpr(10),
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp,
-        _rootp->Top__DOT__core__DOT__d__DOT__casez_tmp_0
+        _rootp->ysyx_24100012__DOT__core__DOT__d__DOT__casez_tmp,
+        _rootp->ysyx_24100012__DOT__core__DOT__d__DOT__casez_tmp_0
     );
 }
 
