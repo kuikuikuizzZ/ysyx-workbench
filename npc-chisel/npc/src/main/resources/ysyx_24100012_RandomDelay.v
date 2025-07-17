@@ -1,4 +1,4 @@
-module lfsr_delay (
+module ysyx_24100012_lfsr_delay (
     input clk,          // 时钟信号
     input rst_n,        // 异步复位 (低有效)
     input trigger,      // 触发信号 (高电平触发)

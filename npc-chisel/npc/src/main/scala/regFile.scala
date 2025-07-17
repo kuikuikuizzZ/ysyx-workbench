@@ -1,21 +1,21 @@
 package npc
 import chisel3._
 import chisel3.util._
-import npc.common.{YSYX24100012Config, MemPortIo}   
+import npc.common.{ysyx_24100012_Config, MemPortIo}   
 import npc.Constants._
 
-class RegFileIo(implicit val conf: YSYX24100012Config) extends Bundle {
+class RegFileIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val inst = Input(UInt(conf.xlen.W))
   val out = new RegFileOut()
   val wb = Flipped(new WBToRegIo())
 }
 
-class RegFileOut(implicit val conf: YSYX24100012Config) extends Bundle {
+class RegFileOut(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val rs1_data = Output(UInt(conf.xlen.W))
   val rs2_data = Output(UInt(conf.xlen.W))
 }
 
-class RegFile(implicit val conf: YSYX24100012Config) extends Module {
+class ysyx_24100012_RegFile(implicit val conf: ysyx_24100012_Config) extends Module {
   val io = IO(new RegFileIo())
   io := DontCare
   val rs1_addr = io.inst(RS1_MSB, RS1_LSB)

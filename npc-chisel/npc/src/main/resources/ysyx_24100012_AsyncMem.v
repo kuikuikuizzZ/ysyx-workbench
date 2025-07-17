@@ -1,5 +1,5 @@
 
-module YSYX2400012AsyncMem #(
+module ysyx_24100012_AsyncMem #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     MASK_WIDTH = 4,
@@ -28,7 +28,7 @@ module YSYX2400012AsyncMem #(
     //-----------------------------
     // 写逻辑：使用dw_en触发pmem_write
     wire [DATA_WIDTH-1:0] dw_mask_wide;
-    mask_expander me (
+    ysyx_24100012_mask_expander me (
         .mask_narrow(dw_mask),
         .mask_wide(dw_mask_wide)
     );

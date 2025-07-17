@@ -6,12 +6,12 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class WBToRegIo(implicit val conf: YSYX24100012Config) extends Bundle {
+class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val rf_wen = Output(Bool())
     val data = Output(UInt(conf.xprlen.W))
 }
 
-class YSYX2400012WBU(implicit val conf: YSYX24100012Config) extends Module {
+class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
         val ctl = Flipped(new CtlToWBIo())
         val exe = Flipped(new exeToWBUIo())

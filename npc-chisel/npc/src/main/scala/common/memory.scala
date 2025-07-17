@@ -50,13 +50,13 @@ class MemIo(val addrWidth: Int) extends Bundle
 
 
 // from the pov of the datapath
-class MemPortIo(val data_width: Int)(implicit val conf: YSYX24100012Config) extends Bundle 
+class MemPortIo(val data_width: Int)(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
    val req    = new DecoupledIO(new MemReq(data_width))
    val resp   = Flipped(new ValidIO(new MemResp(data_width)))
 }
 
-class MemReq(val data_width: Int)(implicit val conf: YSYX24100012Config) extends Bundle
+class MemReq(val data_width: Int)(implicit val conf: ysyx_24100012_Config) extends Bundle
 {
    val addr = Output(UInt(conf.xprlen.W))
    val data = Output(UInt(data_width.W))
@@ -70,7 +70,7 @@ class MemResp(val data_width: Int) extends Bundle
 }
 
 
-class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+class ysyx_24100012_SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dr = new Rport(addrWidth,32)
       val dw = new  Wport(addrWidth,32)
@@ -78,12 +78,12 @@ class YSYX2400012SyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPa
       val reset = Input(Bool())
    }) 
 
-   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012SyncMem.v"
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/ysyx_24100012_SyncMem.v"
    addPath(path)
-   println(s"YSYX2400012SyncMem path: ${path}")
+   println(s"ysyx_24100012_SyncMem path: ${path}")
 }
 
-class YSYX2400012AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
+class ysyx_24100012_AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
    val io = IO(new Bundle{
       val dr = new Rport(addrWidth,32)
       val dw = new Wport(addrWidth,32)
@@ -91,19 +91,19 @@ class YSYX2400012AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxP
       val reset = Input(Bool())
    }) 
 
-   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/YSYX2400012AsyncMem.v"
+   val path = System.getenv("NPC_CHISEL_HOME")+"/npc/src/main/resources/ysyx_24100012_AsyncMem.v"
    addPath(path)
-   println(s"YSYX2400012AsyncMem path: ${path}")
+   println(s"ysyx_24100012_AsyncMem path: ${path}")
 }
 
-class SyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_SyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new Bundle
    {
       val port = Flipped(new MemPortIo(data_width = conf.xprlen))
    })
 
-   val sync_data = Module(new YSYX2400012SyncMem(32))
+   val sync_data = Module(new ysyx_24100012_SyncMem(32))
    sync_data.io.clock := clock
    sync_data.io.reset := reset
    
@@ -139,14 +139,14 @@ class SyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Conf
    /////////////////
 }
 
-class AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new Bundle
    {
       val port = Flipped(new MemPortIo(data_width = conf.xprlen))
    })
 
-   val async_data = Module(new YSYX2400012AsyncMem(32))
+   val async_data = Module(new ysyx_24100012_AsyncMem(32))
    async_data.io.clock := clock
    async_data.io.reset := reset
    
@@ -183,7 +183,7 @@ class AsyncMemory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Con
    /////////////////
 }
 
-class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new Bundle
    {
@@ -192,7 +192,7 @@ class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: YSYX2410001
    }) 
    io := DontCare
 
-   val axi4lite_mem = Module(new AXI4LiteMaster)
+   val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
 
    io.port.req.ready := RegInit(true.B)
    axi4lite_mem.io := DontCare

@@ -3,26 +3,26 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import npc.common.{YSYX24100012Config, MemPortIo,AXI4LiteIo}
+import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo}
 
-class CoreIo(implicit val conf: YSYX24100012Config) extends Bundle 
+class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
   val imem_axi = new AXI4LiteIo()
   val dmem_axi = new AXI4LiteIo()
   val halt = Output(Bool())
 }
 
-class Core(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_Core(implicit val conf: ysyx_24100012_Config) extends Module
 {
   val io = IO(new CoreIo())
   io := DontCare
-  val inst_fetch = Module(new YSYX24100012InstFetch())
-  val c  = Module(new YSYX24100012Cpath())
+  val inst_fetch = Module(new ysyx_24100012_InstFetch())
+  val c  = Module(new ysyx_24100012_Decoder())
   
-  val d  = Module(new YSYX24100012Dpath())
-  val reg_file = Module(new RegFile())
-  val lsu = Module(new YSYX2400012LSU())
-  val wbu = Module(new YSYX2400012WBU())
+  val d  = Module(new ysyx_24100012_EXU())
+  val reg_file = Module(new ysyx_24100012_RegFile())
+  val lsu = Module(new ysyx_24100012_LSU())
+  val wbu = Module(new ysyx_24100012_WBU())
   
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill

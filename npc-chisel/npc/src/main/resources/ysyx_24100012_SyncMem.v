@@ -1,5 +1,5 @@
 
-module YSYX2400012SyncMem #(
+module ysyx_24100012_SyncMem #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     ORIGIN_ADDR=32'h80000000,

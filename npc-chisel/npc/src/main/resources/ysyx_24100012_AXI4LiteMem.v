@@ -2,7 +2,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
 import "DPI-C" function void pmem_mask_write(input int inaddr,input int mask, input int din);
 
 
-module YSYX2400012AXI4LiteMem #(
+module ysyx_24100012_AXI4LiteMem #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     MASK_WIDTH = 4,
@@ -28,7 +28,7 @@ module YSYX2400012AXI4LiteMem #(
     output  reg                     dw_ready
 );
     wire [DATA_WIDTH-1:0] dw_mask_wide;
-    mask_expander me (
+    ysyx_24100012_mask_expander me (
         .mask_narrow(dw_mask),
         .mask_wide(dw_mask_wide)
     );
@@ -61,7 +61,7 @@ endmodule
 
 
 
-module mask_expander #(parameter DATA_WIDTH = 32) (
+module ysyx_24100012_mask_expander #(parameter DATA_WIDTH = 32) (
     input [DATA_WIDTH/8-1:0] mask_narrow,
     output [DATA_WIDTH-1:0] mask_wide
 );

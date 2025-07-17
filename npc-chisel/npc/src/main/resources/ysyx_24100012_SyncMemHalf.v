@@ -1,4 +1,5 @@
-module YSYX2400012AsyncPadMem #(
+
+module ysyx_24100012_SyncMemHalf #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     ORIGIN_ADDR=32'h80000000,
@@ -14,7 +15,6 @@ module YSYX2400012AsyncPadMem #(
     input  dataInstr_0_en,  // 端口0使能
     input  dataInstr_1_en,  // 端口1使能
 
-
     // 数据写端口（dw: Wport）
     input                  dw_en,           // 写使能 (原MemWEn)
     input  [ADDR_WIDTH-1:0] dw_addr,         // 写地址
@@ -24,10 +24,17 @@ module YSYX2400012AsyncPadMem #(
     output  reg [DATA_WIDTH-1:0] dataInstr_1_data   // 端口1数据
 );
 
-    // 1. 重构读写逻辑分离
-    //-----------------------------
-    // 写逻辑：使用dw_en触发pmem_write
-    
+    always @(posedge clock) begin
+        if (reset) begin
+            dataInstr_1_data = 32'b0; // 重置端口1数据
+        end else begin
+            // 端口1读取
+            pmem_read(dataInstr_1_addr, 4, dataInstr_1_data);
+            // assign dataInstr_1_data = read_buf[1];
+        end
+
+    end
+
     always @(*) begin
         // 端口0写入
         if (dw_en) begin
@@ -45,13 +52,5 @@ module YSYX2400012AsyncPadMem #(
         end
     end
 
-    always @(*) begin
-        // 端口0读取
-        if (dataInstr_1_en) begin
-            pmem_read(dataInstr_1_addr, 4, dataInstr_0_data);
-        end else begin
-            dataInstr_1_data = 32'b0; // 重置端口0数据
-        end
-    end
 
 endmodule

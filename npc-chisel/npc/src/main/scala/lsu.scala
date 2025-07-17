@@ -8,11 +8,11 @@ import npc.common._
 import npc.Constants._
 import javax.xml.transform.OutputKeys
 
-class LsuToWBIo(implicit val conf: YSYX24100012Config) extends Bundle {
+class LsuToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
 }
 
-class YSYX2400012LSU(implicit val conf: YSYX24100012Config) extends Module {
+class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
         val ctl = Flipped(new CtlToLSUIo())
         val dmem_axi = new AXI4LiteIo()
@@ -22,7 +22,7 @@ class YSYX2400012LSU(implicit val conf: YSYX24100012Config) extends Module {
         val ls_valid = Output(Bool())
     })
     io := DontCare
-    val dmem = Module(new AXI4LiteMemeory())
+    val dmem = Module(new ysyx_24100012_AXI4LiteMemeory())
     dmem.io.axi_port <> io.dmem_axi
     dmem.io.port.req.valid    := io.ctl.mem_en
     dmem.io.port.req.bits.fcn := io.ctl.mem_fcn

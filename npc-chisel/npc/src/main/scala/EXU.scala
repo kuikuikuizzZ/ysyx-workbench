@@ -8,7 +8,7 @@ import npc.common._
 import npc.Constants._
 
 
-class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
+class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
    val inst = Input(UInt(conf.xprlen.W))
    val ctl  = Flipped(new CtlToDatIo())
@@ -20,18 +20,18 @@ class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val exe_wbu = new exeToWBUIo()
 }
 
-class exeToLSUIo(implicit val conf: YSYX24100012Config) extends Bundle() {
+class exeToLSUIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val addr = Output(UInt(conf.xprlen.W))
   val data = Output(UInt(conf.xprlen.W))
 }
 
-class exeToWBUIo(implicit val conf: YSYX24100012Config) extends Bundle {
+class exeToWBUIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
    val alu_out = Output(UInt(conf.xprlen.W))
    val csr_data = Output(UInt(conf.xprlen.W))
    val pc_plus4 = Output(UInt(conf.xprlen.W))
 }
 
-class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
+class PCTargets(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val pc_sel           =  Output(UInt(PC_4.getWidth.W))
    val br_target        =  Output(UInt(conf.xprlen.W))
    val jmp_target       =  Output(UInt(conf.xprlen.W))
@@ -39,7 +39,7 @@ class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
    val exception_target =  Output(UInt(conf.xprlen.W))
 }
 
-class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
+class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
@@ -98,7 +98,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.targets.jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
 
    // Control Status Registers
-   val csr = Module(new CSRFile())
+   val csr = Module(new ysyx_24100012_CSRFile())
    csr.io := DontCare
    csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
    csr.io.rw.cmd   := io.ctl.csr_cmd

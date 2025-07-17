@@ -25,14 +25,14 @@ class CtlToLSUIo extends Bundle()
    val msk_sel    = Output(UInt(MT_X.getWidth.W))
 }
 
-class CtlToWBIo(implicit val conf: YSYX24100012Config) extends Bundle()
+class CtlToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val rf_wen = Output(Bool())
    val wb_sel = Output(UInt(WB_X.getWidth.W))
    val exception = Output(Bool())
 }
 
-class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
+class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val inst = Input(UInt(conf.xlen.W))
    val ctl  = new CtlToDatIo()
@@ -45,7 +45,7 @@ class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
    val finish     = Output(Bool())
 }
 
-class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new CpathIo())
    io := DontCare

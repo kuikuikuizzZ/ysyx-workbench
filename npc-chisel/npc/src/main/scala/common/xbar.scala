@@ -9,7 +9,7 @@ import npc.common._
 import npc.devices.{ExtendedDevices,DeviceRange}
 
 
-class AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
+class ysyx_24100012_AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
     // 确保设备范围不重叠
     deviceRanges.combinations(2).foreach { case Seq(a, b) =>
         assert(
@@ -50,7 +50,7 @@ class AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
 }
 
 
-// class AXIBar(num_masters: Int, num_slaves: Int) (implicit val conf: YSYX24100012Config) extends Module { 
+// class ysyx_24100012_AXIBar(num_masters: Int, num_slaves: Int) (implicit val conf: ysyx_24100012_Config) extends Module { 
 //     val io = IO(new Bundle { 
 //         val masters = Vec(num_masters, new AXI4LiteIo)
 //         val slaves = Vec(num_slaves, Flipped(new AXI4LiteIo))
@@ -82,131 +82,7 @@ class AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
 // }
 
 
-// class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  extends Module {
-//     val io = IO(new Bundle {
-//         val masters = Flipped(Vec(numMasters, new AXI4LiteIo()))
-//         val slave = new AXI4LiteIo
-//     })
-//     object State extends ChiselEnum {
-//     val Idle, ReadAddress, ReadData, WriteAddress, WriteData, WriteResponse = Value
-//     }
-//     val state = RegInit(State.Idle)
-
-//     val currentMaster = RegInit(0.U(log2Ceil(numMasters).W))
-//     val rrCounter = RegInit(0.U(log2Ceil(numMasters).W))
-
-
-//     // 写事务状态跟踪
-//     val writeActive = RegInit(false.B)
-//     val writeMaster = Reg(UInt(log2Ceil(numMasters).W))
-
-//     // 读事务状态跟踪
-//     val readActive = RegInit(false.B)
-//     val readMaster = Reg(UInt(log2Ceil(numMasters).W))
-
-//     // 默认连接 - 所有主设备未选中
-//     for (i <- 0 until numMasters) {
-//         io.masters(i).aw.ready := false.B
-//         io.masters(i).w.ready := false.B
-//         io.masters(i).b.valid := false.B
-//         io.masters(i).b.resp := 0.U
-//         io.masters(i).ar.ready := false.B
-//         io.masters(i).r.valid := false.B
-//         io.masters(i).r.data := 0.U
-//         io.masters(i).r.resp := 0.U
-//     }
-  
-//     // 从设备接口默认值
-//     io.slave.aw.valid := false.B
-//     io.slave.aw.addr := 0.U
-//     io.slave.w.valid := false.B
-//     io.slave.w.data := 0.U
-//     io.slave.w.strb := 0.U
-//     io.slave.b.ready := false.B
-//     io.slave.ar.valid := false.B
-//     io.slave.ar.addr := 0.U
-//     io.slave.r.ready := false.B
-//     val readRequests = VecInit(io.masters.map(_.ar.valid)).asUInt
-//     val writeRequests = VecInit(io.masters.map(_.aw.valid)).asUInt
-
-//     switch(state){
-//         is(State.Idle){
-//             when (readRequests.orR && !writeActive){
-//                 currentMaster := PriorityEncoder(readRequests)
-//                 state := State.ReadAddress
-//             }
-//             when (writeRequests.orR && !readActive){
-//                 currentMaster := PriorityEncoder(writeRequests)
-//                 state := State.WriteAddress
-//             }
-//         }
-
-//         is(State.ReadAddress){
-//             io.slave.ar.valid := io.masters(currentMaster).ar.valid
-//             io.masters(currentMaster).ar.ready := io.slave.ar.ready
-            
-//             io.slave.ar.addr := io.masters(currentMaster).ar.addr
-//             when(io.slave.ar.ready && io.slave.ar.valid){
-//                 readMaster := currentMaster
-//                 readActive := true.B
-//                 state := State.ReadData
-//             }
-//         }
-
-//         is (State.ReadData){
-//             io.slave.r.ready := io.masters(currentMaster).r.ready
-
-//             io.masters(currentMaster).r.valid := io.slave.r.valid
-//             io.masters(currentMaster).r.data := io.slave.r.data
-//             io.masters(currentMaster).r.resp := io.slave.r.resp
-
-//             when(io.masters(currentMaster).r.valid && io.slave.r.ready){
-//                 readActive := false.B
-//                 state := State.Idle
-//                 rrCounter := rrCounter +% 1.U
-//             }
-//         }
-
-//         is (State.WriteAddress){
-//             io.masters(currentMaster).aw.ready := writeAddrReadyReg
-//             io.slave.aw.valid := io.masters(currentMaster).aw.valid
-//             io.slave.aw.addr := RegEnable(io.masters(currentMaster).aw.addr, state === State.Idle)
-      
-//             when(io.slave.aw.valid && io.slave.aw.ready){
-//                 writeActive := true.B
-//                 state := State.WriteData
-//                 writeMaster := currentMaster
-//             }
-//         }
-//         is(State.WriteData){
-//             writeDataValidReg := io.masters(currentMaster).w.valid
-//             io.masters(currentMaster).w.ready := writeDataReadyReg
-            
-//             io.slave.w.valid := writeDataValidReg
-//             io.slave.w.data := RegEnable(io.masters(currentMaster).w.data, state === State.WriteAddress)
-//             io.slave.w.strb := RegEnable(io.masters(currentMaster).w.strb, state === State.WriteAddress)
-      
-//             when(io.slave.w.valid && io.slave.w.ready){
-//                 state := State.WriteResponse
-//             }
-//         }
-//         is(State.WriteResponse){
-//             writeRespValidReg := io.slave.b.valid
-//             io.slave.b.ready := writeRespReadyReg
-            
-//             io.masters(currentMaster).b.valid := writeRespValidReg
-//             io.masters(currentMaster).b.resp := RegEnable(io.slave.b.resp, state === State.WriteData)
-//             when(io.slave.b.valid && io.slave.b.ready){
-//                 writeActive := false.B
-//                 state := State.Idle
-//                 rrCounter := rrCounter +% 1.U
-//             }
-//         }
-//     }
-// }
-
-
-class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  extends Module {
+class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
     val io = IO(new Bundle {
         val masters = Flipped(Vec(numMasters, new AXI4LiteIo()))
         val slave = new AXI4LiteIo
@@ -239,7 +115,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
         io.masters(i).r.data := 0.U
         io.masters(i).r.resp := 0.U
     }
-  
+    // io.slave := DontCare
     // 从设备接口默认值
     io.slave.aw.valid := false.B
     io.slave.aw.addr := 0.U
@@ -253,26 +129,36 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
     val readRequests = VecInit(io.masters.map(_.ar.valid)).asUInt
     val writeRequests = VecInit(io.masters.map(_.aw.valid)).asUInt
 
+    def clearMastersElse(): Unit = {
+        io.masters.zipWithIndex.foreach { case (m, i) =>
+            when (i.U =/= currentMaster) {
+            m.ar.ready := false.B
+            m.aw.ready := false.B
+            m.w.ready  := false.B
+            }
+        }
+    }
+
     switch(state){
         is(State.Idle){
             when (readRequests.orR ){
                 currentMaster := PriorityEncoder(readRequests)
+                clearMastersElse()
                 state := State.ReadBusy
-                
             }
             when (writeRequests.orR ){
                 currentMaster := PriorityEncoder(writeRequests)
                 state := State.WriteBusy
+                clearMastersElse()
             }
         }
 
         is(State.ReadBusy){
             io.slave.ar <> io.masters(currentMaster).ar
             io.slave.r <> io.masters(currentMaster).r
+            
             when(io.slave.r.ready&&io.slave.r.valid){
                 state := State.Idle    
-                rrCounter := rrCounter +% 1.U
-                currentMaster := rrCounter
             }
             
         }
@@ -282,8 +168,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: YSYX24100012Config)  e
             io.slave.w <> io.masters(currentMaster).w
             io.slave.b <> io.masters(currentMaster).b
             when(io.masters(currentMaster).b.valid && io.slave.b.ready){                state := State.Idle
-                rrCounter := rrCounter +% 1.U
-                currentMaster := rrCounter
+                state := State.Idle    
             }
         }
 

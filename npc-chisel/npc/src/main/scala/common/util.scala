@@ -224,7 +224,7 @@ object Str
   private def validChar(x: Char) = x == (x & 0xFF)
 }
  
-// class LFSR(width: Int=4, seed: Int = 1) extends Module {
+// class ysyx_24100012_LFSR(width: Int=4, seed: Int = 1) extends Module {
 //   val io = IO(new Bundle {
 //     val enable = Input(Bool())
 //     val random = Output(UInt(width.W))

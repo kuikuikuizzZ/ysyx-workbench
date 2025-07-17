@@ -1,5 +1,5 @@
 
-module YSYX2400012AXI4LiteMemRandomDelay #(
+module ysyx_24100012_AXI4LiteMemRandomDelay #(
     ADDR_WIDTH = 32,
     DATA_WIDTH = 32,
     MASK_WIDTH = 4,
@@ -25,21 +25,21 @@ module YSYX2400012AXI4LiteMemRandomDelay #(
     output                          dw_ready
 );
     wire [DATA_WIDTH-1:0] dw_mask_wide;
-    mask_expander me (
+    ysyx_24100012_mask_expander me (
         .mask_narrow(dw_mask),
         .mask_wide(dw_mask_wide)
     );
     reg [3:0] random_read, random_write;
     reg [3:0] num_read, num_write ;
     wire done_r,done_w ;
-    LFSR lfsr_read (
+    ysyx_24100012_LFSR lfsr_read (
         .clk(clock),
         .rst_n(reset),
         .enable(done_r),
         .random(random_read),
         .seed(4'b0101)
     );
-    LFSR lfsr_write (
+    ysyx_24100012_LFSR lfsr_write (
         .clk(clock),
         .rst_n(reset),
         .enable(done_w),

@@ -6,25 +6,25 @@
 // import npc.common._
 // import npc.Constants._
 
-// class AluOpIo(implicit val conf: YSYX24100012Config) extends Bundle {
+// class AluOpIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
 //     val in = Input(new AluOpIn())
 //     val out = Output(new AluOpOut())
 // }
 
-// class AluOpIn (implicit val conf: YSYX24100012Config) extends Bundle {
+// class AluOpIn (implicit val conf: ysyx_24100012_Config) extends Bundle {
 //    val inst = Input(UInt(conf.xprlen.W))
 //    val ctl = Input(new CtlToAluOpIo())
 //    val reg_in = Flipped(new regToDatIo())
 //    val pc = Input(UInt(conf.xprlen.W))
 // }
 
-// class AluOpOut(implicit val conf: YSYX24100012Config) extends Bundle {
+// class AluOpOut(implicit val conf: ysyx_24100012_Config) extends Bundle {
 //    val alu_op1 = Output(UInt(conf.xprlen.W))
 //    val alu_op2 = Output(UInt(conf.xprlen.W))
 // }
 
 
-// class AluOp(implicit val conf: YSYX24100012Config) extends Module {
+// class ysyx_24100012_AluOp(implicit val conf: ysyx_24100012_Config) extends Module {
 //    // immediates
 //    val imm_i = io.inst(31, 20) 
 //    val imm_s = Cat(io.inst(31, 25), io.inst(11,7))

@@ -1,4 +1,4 @@
-module LFSR (
+module ysyx_24100012_LFSR (
     input clk,
     input rst_n,
     input enable,

@@ -2,7 +2,7 @@ package npc
 package common
 
 
-case class YSYX24100012Config(
+case class ysyx_24100012_Config(
  xprlen: Int = 32) {
     val xlen = xprlen
 }
