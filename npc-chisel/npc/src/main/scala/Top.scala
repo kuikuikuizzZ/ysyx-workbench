@@ -21,7 +21,7 @@ class ysyxSoCFull extends Module
 
 
     val axi_mem_slave   = Module(new ysyx_24100012_AXI4LiteSlave())
-    val axi_mem        = Module(new ysyx_24100012_AXI4LiteMem())
+    val axi_mem        = Module(new ysyx_24100012_AXI4LiteMemRandomDelay())
 
     axi_mem_slave.io := DontCare
     axi_mem.io.clock := clock

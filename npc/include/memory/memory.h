@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 
-    // #define MBASE CONFIG_MBASE 
-    #define MBASE CONFIG_MROM_BASE
+    #define MBASE CONFIG_MBASE 
+    // #define MBASE CONFIG_MROM_BASE
     #define MSIZE CONFIG_MSIZE 
     #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
     #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
