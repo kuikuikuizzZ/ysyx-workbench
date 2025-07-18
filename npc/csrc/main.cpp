@@ -30,7 +30,7 @@ long load_prog() {
     fseek(fp, 0, SEEK_SET);
 
     int ret;
-    IFDEF(CONFIG_SOC,ret=fread(guest_to_mrom(MBASE), 1, size, fp));
+    IFDEF(CONFIG_SOC,ret=fread(guest_to_mrom(CONFIG_MROM_BASE), 1, size, fp));
     IFNDEF(CONFIG_SOC,ret=fread(guest_to_host(MBASE), 1, size, fp));
     printf("load image size: %d bytes\n",ret);
     assert(ret == size);

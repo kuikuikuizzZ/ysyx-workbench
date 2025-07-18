@@ -24,6 +24,7 @@ extern "C" {
         if (addr >= CONFIG_MROM_BASE && 
         addr < CONFIG_MROM_BASE + CONFIG_MROM_SIZE)
             *data = host_read(guest_to_mrom(addr), 4);
+            // *data = 0x00100073;
         else 
             printf("mrom_read: invalid address %x\n", addr);
     }
