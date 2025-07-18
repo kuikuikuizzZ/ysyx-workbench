@@ -3,8 +3,9 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo}
-import npc._
+// import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo,ysyx_24100012_AXI4LiteArbiter}
+import npc.common._
+import npc.Constants._
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
@@ -18,19 +19,28 @@ class ysyx_24100012 extends Module
   implicit val conf = ysyx_24100012_Config()
 
   val io = IO(new CoreIo())
+  io := DontCare
+
+
   val inst_fetch = Module(new ysyx_24100012_InstFetch())
+  val arbiter = Module(new ysyx_24100012_AXI4LiteArbiter(2))
   val c  = Module(new ysyx_24100012_Decoder())
-  
   val d  = Module(new ysyx_24100012_EXU())
   val reg_file = Module(new ysyx_24100012_RegFile())
   val lsu = Module(new ysyx_24100012_LSU())
   val wbu = Module(new ysyx_24100012_WBU())
+  
+  arbiter.io := DontCare
+  arbiter.io.axi_port <> io.master
+  arbiter.io.ifu_valid := inst_fetch.io.valid
+  arbiter.io.mem_en := lsu.io.ctl.mem_en
+  arbiter.io.ports(DPORT) <> lsu.io.port  
+  arbiter.io.ports(IPORT) <> inst_fetch.io.port 
 
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
   inst_fetch.io.finish := c.io.finish
-  inst_fetch.io.axi_port <> io.master  
-  
+
   c.io := DontCare
   c.io.ctl  <> d.io.ctl
   c.io.inst := inst_fetch.io.inst
@@ -47,7 +57,6 @@ class ysyx_24100012 extends Module
 
   lsu.io.exe <> d.io.exe_lsu  
   lsu.io.ctl <> c.io.ctl_lsu
-  lsu.io.dmem_axi := DontCare
   lsu.io.pc_io <> inst_fetch.io.pc_io
   
   

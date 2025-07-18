@@ -117,21 +117,13 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
-    val arvalid = Reg(Bool())
-    val araddr  = Reg(UInt(conf.xprlen.W))
-    val awvalid = Reg(Bool())
-    val awaddr  = Reg(UInt(conf.xprlen.W))
-    val wvalid  = Reg(Bool())
-    val wdata  =  Reg(UInt(conf.xlen.W))
-    val wstrb   = Reg(UInt(maskWidth.W))
-
-    arvalid     := (accept_read)
-    araddr      := (io.req.raddr)
-    awvalid     := (accept_write)
-    awaddr      := (io.req.waddr)
-    wvalid      := (accept_write)
-    wdata       := (io.req.data)
-    wstrb       := (io.req.mask)
+    val arvalid = Mux(accept_read,io.req.ren,RegEnable(io.req.ren,     accept_read||io.axi_io.ar.ready))
+    val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,     accept_read||io.axi_io.ar.ready))
+    val awvalid = Mux(accept_write,io.req.wen,RegEnable(io.req.wen,     accept_write||io.axi_io.aw.ready))
+    val awaddr = Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
+    val wvalid  = Mux(accept_write,io.req.wen,RegEnable(io.req.wen,     accept_write||io.axi_io.w.ready))
+    val wdata  =  Mux(accept_write,io.req.data,RegEnable(io.req.data,   accept_write||io.axi_io.w.ready))
+    val wstrb   = Mux(accept_write,io.req.mask,RegEnable(io.req.mask,   accept_write||io.axi_io.w.ready))
 
 
     val rready  = (rstate === rs_wait_rvalid) || (rstate === rs_wait_arready && io.axi_io.ar.ready) 
@@ -143,9 +135,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
     switch(rstate){
         is(rs_idle)         { rstate := Mux(io.req.ren, rs_wait_arready, rs_idle)}
-        is (rs_wait_arready){ 
-            rstate := Mux(io.axi_io.ar.ready, rs_wait_rvalid, rs_wait_arready)
-            when(io.axi_io.ar.ready){  arvalid := false.B   }}
+        is (rs_wait_arready){ rstate := Mux(io.axi_io.ar.ready, rs_wait_rvalid, rs_wait_arready)}
         is (rs_wait_rvalid){ 
             rstate := Mux(io.axi_io.r.valid, rs_idle, rs_wait_rvalid)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
@@ -162,10 +152,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.b.ready      :=  bready
     switch(wstate){
         is(ws_idle)         { wstate := Mux(io.req.wen, ws_wait_ready, ws_idle)}
-        is (ws_wait_ready)  { 
-            wstate := Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_bvalid, ws_wait_ready)
-            when(io.axi_io.aw.ready){ awvalid := false.B}
-            when(io.axi_io.w.ready) {  wvalid := false.B}}
+        is (ws_wait_ready)  { wstate := Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_bvalid, ws_wait_ready)}
         is (ws_wait_bvalid) { wstate := Mux(io.axi_io.b.valid, ws_idle, ws_wait_bvalid)}
     }
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,
@@ -208,9 +195,9 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
     io.axi_io.ar.ready      :=   accept_read  || (state === s_inflight && !is_write)
     io.axi_io.w.ready       :=   accept_write || (state === s_inflight && is_write)
     io.axi_io.aw.ready      :=   accept_write || (state === s_inflight && is_write)
-    val araddr              =   Mux(accept_read, io.axi_io.ar.addr,         RegEnable(io.axi_io.ar.addr,    accept_read))
-    val awaddr              =   Mux(accept_write, io.axi_io.aw.addr,        RegEnable(io.axi_io.aw.addr,    accept_write))
-    val wdata               =   Mux(io.axi_io.w.valid, io.axi_io.w.data,    RegEnable(io.axi_io.w.data,     io.axi_io.aw.valid))
+    val araddr              =   Mux(accept_read, io.axi_io.ar.addr,         RegEnable(io.axi_io.ar.addr,    io.axi_io.ar.valid))
+    val awaddr              =   Mux(accept_write, io.axi_io.aw.addr,        RegEnable(io.axi_io.aw.addr,    io.axi_io.aw.valid))
+    val wdata               =   Mux(io.axi_io.w.valid, io.axi_io.w.data,    RegEnable(io.axi_io.w.data,     io.axi_io.w.valid))
     val wstrb               =   Mux(io.axi_io.w.valid, io.axi_io.w.strb,    RegEnable(io.axi_io.w.strb,     io.axi_io.w.valid)) 
 
     io.out.dr.en      := !is_write && state === s_inflight
