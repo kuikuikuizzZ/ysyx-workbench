@@ -287,11 +287,12 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
    
-   
+   val axi_resp = axi4lite_mem.io.resp.bits.resp
+   val resp_valid = axi_resp === 0.U
    io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
-   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active,axi4lite_mem.io.resp.valid,false.B)  
-   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active,axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
    axi4lite_mem.io.axi_io <> io.axi_port

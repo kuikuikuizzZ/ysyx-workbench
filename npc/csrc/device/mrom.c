@@ -20,7 +20,7 @@ extern "C" {
     void flash_read(int32_t addr, int32_t *data) { assert(0); }
 #endif
     void mrom_read(int32_t addr, int32_t *data){
-        printf("mrom_read: address %x data %x \n", addr,*data);
+        // printf("mrom_read: address %x data %x \n", addr,*data);
         if (addr >= CONFIG_MROM_BASE && 
         addr < CONFIG_MROM_BASE + CONFIG_MROM_SIZE)
             *data = host_read(guest_to_mrom(addr), 4);

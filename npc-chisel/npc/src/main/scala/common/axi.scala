@@ -128,7 +128,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
     val rready  = (rstate === rs_wait_rvalid) || (rstate === rs_wait_arready && io.axi_io.ar.ready) 
     val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready && io.axi_io.aw.ready) 
-
+    
     io.axi_io.ar.valid  := Mux(rstate===rs_idle, accept_read,arvalid)
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
     io.axi_io.r.ready   := rready
@@ -149,7 +149,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.aw.addr      :=  awaddr
     io.axi_io.w.data       :=  wdata
     io.axi_io.w.strb       :=  wstrb
-    io.axi_io.b.ready      :=  bready
+    
     switch(wstate){
         is(ws_idle)         { wstate := Mux(io.req.wen, ws_wait_ready, ws_idle)}
         is (ws_wait_ready)  { wstate := Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_bvalid, ws_wait_ready)}
@@ -159,6 +159,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     //                  (rstate === rs_wait_rvalid)&&(io.axi_io.r.resp === 0.U) )
     io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.valid) ,
                      (rstate === rs_wait_rvalid)&&(io.axi_io.r.valid) )
+    io.resp.bits.resp :=  Mux(is_write ,io.axi_io.b.resp, io.axi_io.r.resp )
 }
 
 
