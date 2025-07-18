@@ -16,6 +16,7 @@
 #include <common.h>
 #include <utils.h>
 #include <device/alarm.h>
+#include <device/device.h>
 #include <npc.h>
 #ifndef CONFIG_TARGET_AM
 #include <SDL2/SDL.h>
