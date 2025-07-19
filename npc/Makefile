@@ -37,7 +37,7 @@ $(info "SOURCES: $(SOURCES)")
 $(info "ARGS: $(ARGS)")
 
 # Verilator基础配置
-VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing
+VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing --autoflush
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
 VERILATOR_BASE_FLAGS += $(LDFLAGS)
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
