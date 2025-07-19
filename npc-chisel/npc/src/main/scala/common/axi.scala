@@ -132,6 +132,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.ar.valid  := Mux(rstate===rs_idle, accept_read,arvalid)
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
     io.axi_io.r.ready   := rready
+    io.axi_io.b.ready   := bready
 
     switch(rstate){
         is(rs_idle)         { rstate := Mux(io.req.ren, rs_wait_arready, rs_idle)}
