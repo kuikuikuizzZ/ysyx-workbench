@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+
 MEMORY {
   mrom (rx): ORIGIN = 0x20000000, LENGTH = 4K
   sram (rwx): ORIGIN = 0x0f000000, LENGTH = 8K
@@ -10,28 +10,32 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } > mrom AT> mrom : text 
-  etext = .;
+  } > mrom AT> mrom
   _etext = .;
   .rodata : {
     *(.rodata*)
-  }
+  } > mrom AT> mrom
+  _erodata = .;
+  _lma_data_start = LOADADDR (.data);
   .data : {
+    _data_start = .;
     *(.data)
-  } > sram AT> mrom : data 
-  edata = .;
-  _data = .;
-  .bss : {
-	_bss_start = .;
+  }  > sram AT> mrom
+  . = . ;
+  _data_end = . ;
+  _rom_bss_start = LOADADDR (.bss);
+  .bss :  {
+	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
   } > sram AT> mrom
-  . = 0x0f000000;
+  . = . ;
+  _bss_end = .;
+  _heap_start = ALIGN(0x400);
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x1000;
   _stack_pointer = .;
   end = .;
   _end = .;
-  _heap_start = ALIGN(0x1000);
 }
