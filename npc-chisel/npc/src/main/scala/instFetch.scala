@@ -50,18 +50,18 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                     ))
 
   val pc_reg = RegInit(START_ADDR)
-  val pc_valid = RegInit(false.B)
+  val pc_valid = RegInit(true.B)
   
-  when(io.finish ) {
+  when(io.finish) {
       pc_reg := pc_next
       pc_valid := true.B
   } .otherwise {
-      pc_valid := io.reset
+      pc_valid := false.B
       pc_reg := pc_reg
   } 
   
   // Memory Requests
-  io.port.req.valid := pc_valid 
+  io.port.req.valid := pc_valid && !io.reset
   io.port.req.bits.addr := pc_reg
   io.port.req.bits.fcn := M_XRD
   io.port.req.bits.typ := MT_WU
