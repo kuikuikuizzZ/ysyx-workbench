@@ -21,8 +21,17 @@
 
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
+static uint8_t *mrom =NULL;
+static uint8_t *sram =NULL;
+
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+#ifdef CONFIG_HAS_MROM
+  static uint8_t mrom[CONFIG_MROM_SIZE]  = {};
+#endif
+#ifdef CONFIG_HAS_SRAM
+  uint8_t sram[CONFIG_SRAM_SIZE]  = {};
+#endif
 #endif
 
 #ifdef CONFIG_ITRACE
@@ -34,13 +43,11 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 #ifdef CONFIG_HAS_MROM
 
-static uint8_t mrom[CONFIG_MROM_SIZE]  = {};
 uint8_t* guest_to_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
 paddr_t host_to_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_BASE; }
 #endif
 
 #ifdef CONFIG_HAS_SRAM
-static uint8_t sram[CONFIG_SRAM_SIZE]  = {};
 uint8_t* guest_to_sram(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
 paddr_t host_to_sram(uint8_t *haddr) { return haddr - sram + CONFIG_SRAM_BASE; }
 #endif
@@ -85,12 +92,22 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-#if   defined(CONFIG_PMEM_MALLOC)
+#if   defined(CONFIG_PMEM_MALLOC) 
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
+  #ifdef CONFIG_HAS_MROM
+  mrom = malloc(CONFIG_MROM_SIZE);
+  assert(mrom);
+  #endif
+  #ifdef CONFIG_HAS_SRAM
+  sram = malloc(CONFIG_SRAM_SIZE);
+  assert(sram);
+  #endif
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
+#ifdef CONFIG_MEM_RANDOM
+  IFNDEF(COMFIG_HAS_MROM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+#endif
 }
 
 word_t paddr_read(paddr_t addr, int len) {

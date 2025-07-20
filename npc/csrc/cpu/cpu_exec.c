@@ -35,11 +35,12 @@ void step() {
 }
 
 void reset(int n) { 
-    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 1);
+    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     while (n --) { step(); } 
     IFDEF(CONFIG_NPC_CHISEL,top()->reset = 0);
-    IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);}
+    IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);
+}
 void sync_cpu(){
     for (int i=0;i<gpr_size;i++)
         cpu.gpr[i] = top_gpr(i);

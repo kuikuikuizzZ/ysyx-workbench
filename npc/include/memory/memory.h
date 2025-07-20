@@ -20,6 +20,7 @@ extern "C" {
     void init_memory();
     void init_mrom();
     uint8_t* guest_to_host(uint32_t paddr) ;
+    uint8_t* guest_to_mrom(uint32_t paddr) ;
 
     static inline bool in_pmem(uint32_t addr) {
         return addr - MBASE < MSIZE;
