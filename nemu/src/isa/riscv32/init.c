@@ -18,17 +18,33 @@
 
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
-static const uint32_t img [] = {
-  0x00000297,  // auipc t0,0
-  0x00028823,  // sb  zero,16(t0)
-  0x0102c503,  // lbu a0,16(t0)
-  0x00100073,  // ebreak (used as nemu_trap)
-  0xdeadbeef,  // some data
+#ifndef CONFIG_HAS_MROM
+  static const uint32_t img [] = {
+    0x00000297,  // auipc t0,0
+    0x00028823,  // sb  zero,16(t0)
+    0x0102c503,  // lbu a0,16(t0)
+    0x00100073,  // ebreak (used as nemu_trap)
+    0xdeadbeef,  // some data
+  };
+#else
+  static const uint32_t img []  = { 
+        0x00100513,      //addi a0 x0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0xef001117,      //auipc	sp,0xef001
+        0xffc10113,      //addi	  sp,sp,-4 # f001000 
+        0x00a12223,      //sw a0, 4(sp)
+        0x00000513,      //addi a0 x0 0
+        0x00412503,      //lw a0, 4(sp)
+        0x00150513,      //addi a0 a0 1
+        0xffc50513,      //addi a0 a0 -4
+        0x00100073,      //ebreak
 };
-
+#endif
 static void restart() {
   /* Set the initial program counter. */
-  cpu.pc = RESET_VECTOR;
+  IFNDEF(CONFIG_HAS_MROM,cpu.pc = RESET_VECTOR);
+  IFDEF(CONFIG_HAS_MROM,cpu.pc = CONFIG_MROM_BASE);
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
@@ -36,7 +52,8 @@ static void restart() {
 
 void init_isa() {
   /* Load built-in image. */
-  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
+  IFNDEF(CONFIG_HAS_MROM,memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img)));
+  IFDEF(CONFIG_HAS_MROM,memcpy(guest_to_mrom(CONFIG_MROM_BASE), img, sizeof(img)));
 
   /* Initialize this virtual computer system. */
   restart();
