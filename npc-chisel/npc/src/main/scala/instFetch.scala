@@ -13,6 +13,8 @@ class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val valid = Output(Bool())
   val inst = Output(UInt(conf.xprlen.W))
   val finish = Input(Bool())
+  val reset = Input(Bool())
+  val clock = Input(Clock())
 }
 
 class InstFetchIn(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -30,7 +32,9 @@ class PCOut(implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Module {
-  val io = IO(new InstFetchIo())
+  val io = IO(
+    new InstFetchIo()
+  )
   io := DontCare
 
   // Instruction Fetch
@@ -46,15 +50,15 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                     ))
 
   val pc_reg = RegInit(START_ADDR)
-  val pc_valid = RegInit(true.B)
+  val pc_valid = RegInit(false.B)
   
-  when(io.finish) {
+  when(io.finish ) {
       pc_reg := pc_next
       pc_valid := true.B
   } .otherwise {
-      pc_valid := false.B
+      pc_valid := io.reset
       pc_reg := pc_reg
-  }
+  } 
   
   // Memory Requests
   io.port.req.valid := pc_valid 
@@ -64,7 +68,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
 
   // Instruction Read
-  val inst_reg = RegEnable(io.port.resp.bits.data,io.port.resp.valid)
+  val inst_reg = RegEnable(io.port.resp.bits.data,BUBBLE,io.port.resp.valid)
   val inst = Mux(io.port.resp.valid,io.port.resp.bits.data,inst_reg)
 
   io.inst := inst_reg
@@ -73,7 +77,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   io.pc_io.pc := pc_reg       
 
   // val valid = RegInit(false.B)
-  val valid = RegNext(io.port.resp.valid)
-  val valid_reg = RegNext(valid)
+  val valid = RegNext(io.port.resp.valid,false.B)
+  val valid_reg = RegNext(valid,false.B)
   io.valid := valid_reg     
 }

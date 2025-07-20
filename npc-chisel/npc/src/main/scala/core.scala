@@ -37,6 +37,8 @@ class ysyx_24100012 extends Module
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
 
+  inst_fetch.io.clock := clock
+  inst_fetch.io.reset := reset
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
   inst_fetch.io.finish := c.io.finish

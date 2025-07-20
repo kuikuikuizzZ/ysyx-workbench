@@ -266,6 +266,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (axi4lite_mem.io.resp.valid) {
             state := s_idle
             req_valid := false.B     
+            
          }
       }
       is (s_lsu_active)  { 

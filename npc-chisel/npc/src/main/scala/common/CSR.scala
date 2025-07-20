@@ -253,7 +253,7 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
   // io.evec must be held stable for more than one cycle for the
   // microcoded code to correctly redirect the PC on exceptions
   // ?????????? should be set to another value?
-  io.evec := START_ADDR
+  io.evec := 0.U
 
   //DRET
   // when(insn_ret && io.decode.csr(10)){
