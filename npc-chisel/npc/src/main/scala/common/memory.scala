@@ -266,7 +266,6 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (axi4lite_mem.io.resp.valid) {
             state := s_idle
             req_valid := false.B     
-            
          }
       }
       is (s_lsu_active)  { 
@@ -290,6 +289,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    
    val axi_resp = axi4lite_mem.io.resp.bits.resp
    val resp_valid = axi_resp === 0.U
+   val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
    io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
@@ -298,20 +298,22 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    axi4lite_mem.io.reset := reset
    axi4lite_mem.io.axi_io <> io.axi_port
 
-   axi4lite_mem.io.req.raddr := req_addri
+   /////////// Read Port
+   axi4lite_mem.io.req.raddr := aligned_req_addri
    axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
    axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
 
-    /////////// Read Port
-   val resp_datai = axi4lite_mem.io.resp.bits.data
    // req_typi may invalid when req_valid is false
+   val resp_datai = axi4lite_mem.io.resp.bits.data
+   val dport_addri = io.ports(DPORT).req.bits.addr
    val dport_typi = io.ports(DPORT).req.bits.typ
+   val aligned_resp_data = resp_datai >> (dport_addri(1,0)<<3)
    when(state === s_lsu_active){
       resp_data := MuxCase(resp_datai,Seq(
-         (dport_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
-         (dport_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
-         (dport_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
-         (dport_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
+         (dport_typi === MT_B) -> Cat(Fill(24,aligned_resp_data(7)),aligned_resp_data(7,0)),
+         (dport_typi === MT_H) -> Cat(Fill(16,aligned_resp_data(15)),aligned_resp_data(15,0)),
+         (dport_typi === MT_BU) -> Cat(Fill(24,0.U),aligned_resp_data(7,0)),
+         (dport_typi === MT_HU) -> Cat(Fill(16,0.U),aligned_resp_data(15,0))
       ))
    } .otherwise{
       resp_data := resp_datai
@@ -322,8 +324,8 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    when (req_valid && (req_fcn === M_XWR)){
       // axi4lite_mem.io.req.waddr := req_addri
       axi4lite_mem.io.req.data := req_data << (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
-      axi4lite_mem.io.req.mask := Mux(req_typi === MT_B,1.U << req_addri(1,0),
-                              Mux(req_typi === MT_H,3.U << req_addri(1,0),15.U))
+      axi4lite_mem.io.req.waddr := aligned_req_addri
+      axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
+                              Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
 }

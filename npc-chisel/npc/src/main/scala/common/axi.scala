@@ -102,7 +102,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     })
     io := DontCare
     io.resp.bits := DontCare
-    
+
     //////  AXI4Lite read/write master
     val rs_idle :: rs_wait_arready :: rs_wait_rvalid :: Nil = Enum(3)
     val rstate = RegInit(rs_idle)
@@ -126,8 +126,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val wstrb   = Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
 
 
-    val rready  = (rstate === rs_wait_rvalid) || (rstate === rs_wait_arready && io.axi_io.ar.ready) 
-    val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready && io.axi_io.aw.ready) 
+    val rready  = (rstate === rs_wait_rvalid) || (rstate === rs_wait_arready ) 
+    val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready ) 
     
     io.axi_io.ar.valid  := Mux(rstate===rs_idle, accept_read,arvalid)
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
@@ -135,7 +135,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.b.ready   := bready
 
     switch(rstate){
-        is(rs_idle)         { rstate := Mux(io.req.ren, rs_wait_arready, rs_idle)}
+        is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
         is (rs_wait_arready){ rstate := Mux(io.axi_io.ar.ready, rs_wait_rvalid, rs_wait_arready)}
         is (rs_wait_rvalid){ 
             rstate := Mux(io.axi_io.r.valid, rs_idle, rs_wait_rvalid)
@@ -152,8 +152,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.w.strb       :=  wstrb
     
     switch(wstate){
-        is(ws_idle)         { wstate := Mux(io.req.wen, ws_wait_ready, ws_idle)}
-        is (ws_wait_ready)  { wstate := Mux(io.axi_io.aw.ready&&io.axi_io.w.ready, ws_wait_bvalid, ws_wait_ready)}
+        is(ws_idle)         { wstate := Mux(accept_write, ws_wait_ready, ws_idle)}
+        is (ws_wait_ready)  { wstate := Mux((io.axi_io.aw.ready&&io.axi_io.w.ready), ws_wait_bvalid, ws_wait_ready)}
         is (ws_wait_bvalid) { wstate := Mux(io.axi_io.b.valid, ws_idle, ws_wait_bvalid)}
     }
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,

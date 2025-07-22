@@ -1,6 +1,6 @@
 #include <am.h>
 #include <riscv.h>
-#include <npc.h>
+#include <ysyxsoc.h>
 
 long long rtc[2];
 static long long  start=0; 

@@ -1,5 +1,5 @@
 #include <am.h>
-#include <npc.h>
+#include <ysyxsoc.h>
 #include <riscv.h>
 
 #define KEYDOWN_MASK 0x8000

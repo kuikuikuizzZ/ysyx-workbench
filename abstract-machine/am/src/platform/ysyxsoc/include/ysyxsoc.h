@@ -15,6 +15,12 @@
 
 #define UART_THR        (UART_BASE + 0x00)
 #define UART_RBR        (UART_BASE + 0x00)
+#define UART_IER        (UART_BASE + 0x01)
+#define UART_FCR        (UART_BASE + 0x02)
+#define UART_LCR        (UART_BASE + 0x03)
+#define UART_LSR        (UART_BASE + 0x05)
+#define UART_DLL         (UART_BASE + 0x00)
+#define UART_DLM         (UART_BASE + 0x01)
 
 #define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
 #define KBD_ADDR        (DEVICE_BASE + 0x0000060)

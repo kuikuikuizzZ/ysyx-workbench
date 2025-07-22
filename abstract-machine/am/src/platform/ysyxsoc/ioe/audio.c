@@ -1,5 +1,5 @@
 #include <am.h>
-#include <npc.h>
+#include <ysyxsoc.h>
 #include <riscv.h>
 
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)

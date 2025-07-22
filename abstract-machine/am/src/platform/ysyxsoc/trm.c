@@ -1,13 +1,13 @@
 #include <am.h>
 #include <klib-macros.h>
-#include <npc.h>
+#include <ysyxsoc.h>
 #include <riscv.h>
 
 extern char _heap_start;
 extern char _data_start;
 extern char _lma_data_start,_data_start, _data_end,_bss_start, _bss_end;
 int main(const char *args);
-
+void init_uart();
 extern char _pmem_start;
 #define PMEM_SIZE (256 * 1024)
 #define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
@@ -19,7 +19,8 @@ static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined 
 
 
 void putch(char ch) {
-  outb(UART_THR,ch);
+  while(!(inb(UART_LSR)&0x20)) ;
+  outb(UART_RBR,ch);
   return;
 }
 
@@ -38,6 +39,7 @@ void _trm_init() {
   }
   for (dst = &_bss_start; dst < &_bss_end; dst++)
     *dst = 0;
+  init_uart();
   int ret = main(mainargs);
   halt(ret);
 }

@@ -1,5 +1,5 @@
 #include <am.h>
-#include <npc.h>
+#include <ysyxsoc.h>
 #include <klib.h>
 #include <riscv.h>
 #define SYNC_ADDR (VGACTL_ADDR + 4)

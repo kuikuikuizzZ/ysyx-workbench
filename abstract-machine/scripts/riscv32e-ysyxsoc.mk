@@ -7,4 +7,8 @@ AM_SRCS += riscv/ysyxsoc/libgcc/div.S \
            riscv/ysyxsoc/libgcc/muldi3.S \
            riscv/ysyxsoc/libgcc/multi3.c \
            riscv/ysyxsoc/libgcc/ashldi3.c \
-           riscv/ysyxsoc/libgcc/unused.c
+           riscv/ysyxsoc/libgcc/unused.c   \
+           riscv/ysyxsoc/cte.c \
+           riscv/ysyxsoc/start.S \
+           riscv/ysyxsoc/trap.S \
+           riscv/ysyxsoc/vme.c 

@@ -12,25 +12,26 @@ SECTIONS {
     *(.text*)
   } > mrom AT> mrom
   _etext = .;
-  .rodata : {
+  . = ALIGN(4);
+  .rodata  : {
     *(.rodata*)
   } > mrom AT> mrom
   _erodata = .;
   _lma_data_start = LOADADDR (.data);
+  . = ALIGN(4);
   .data : {
     _data_start = .;
     *(.data)
   }  > sram AT> mrom
   . = . ;
   _data_end = . ;
-  _rom_bss_start = LOADADDR (.bss);
   .bss :  {
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
   } > sram AT> mrom
-  . = . ;
+  . = ALIGN(4); 
   _bss_end = .;
   _heap_start = ALIGN(0x400);
   _stack_top = ALIGN(0x1000);

@@ -1,17 +1,15 @@
-AM_SRCS := riscv/ysyxsoc/start.S \
-           riscv/ysyxsoc/trm.c \
-           riscv/ysyxsoc/ioe.c \
-           riscv/ysyxsoc/timer.c \
-           riscv/ysyxsoc/gpu.c  \
-           riscv/ysyxsoc/audio.c  \
-           riscv/ysyxsoc/input.c \
-           riscv/ysyxsoc/cte.c \
-           riscv/ysyxsoc/trap.S \
-           platform/dummy/vme.c \
-           platform/dummy/mpe.c
+AM_SRCS :=  platform/ysyxsoc/trm.c         \
+            platform/ysyxsoc/mpe.c        \
+            platform/ysyxsoc/ioe/ioe.c     \
+            platform/ysyxsoc/ioe/timer.c   \
+            platform/ysyxsoc/ioe/gpu.c     \
+            platform/ysyxsoc/ioe/audio.c   \
+            platform/ysyxsoc/ioe/uart.c    \
+            platform/ysyxsoc/ioe/input.c 
+           
 
 CFLAGS    += -fdata-sections -ffunction-sections
-CFLAGS    += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
+CFLAGS    += -I$(AM_HOME)/am/src/platform/ysyxsoc/include
 CFLAGS    += -I$(AM_HOME)/am/src/riscv
 
 LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc.ld
@@ -32,8 +30,8 @@ insert-arg: image
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
-# 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
+	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+# 	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
