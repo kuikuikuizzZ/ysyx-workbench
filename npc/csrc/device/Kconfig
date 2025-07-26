@@ -164,4 +164,19 @@ config MROM_SIZE
   default 0x00001000
 endif # HAS_MROM
 
+
+menuconfig HAS_FLASH
+  bool "Enable flash"
+  default n
+
+if HAS_FLASH
+config FLASH_BASE
+  depends on HAS_FLASH
+  hex "base address of the flash"
+  default 0x30000000
+config FLASH_SIZE
+  depends on HAS_FLASH
+  hex "base address of the flash"
+  default 0x10000000
+endif # HAS_MROM
 endif # DEVICE
