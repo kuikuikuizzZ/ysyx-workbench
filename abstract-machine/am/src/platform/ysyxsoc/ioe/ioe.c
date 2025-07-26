@@ -4,6 +4,7 @@
 void __am_timer_init();
 void __am_gpu_init();
 void __am_audio_init();
+void read_flash(void *addr, int offset, int size);
 
 void __am_timer_rtc(AM_TIMER_RTC_T *);
 void __am_timer_uptime(AM_TIMER_UPTIME_T *);

@@ -11,7 +11,7 @@
 
 #define MMIO_BASE 0xa0000000
 #define UART_BASE 0x10000000 
-
+#define FLASH_BASE 0x30000000 
 
 #define UART_THR        (UART_BASE + 0x00)
 #define UART_RBR        (UART_BASE + 0x00)

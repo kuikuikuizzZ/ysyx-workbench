@@ -19,7 +19,7 @@ static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined 
 
 
 void putch(char ch) {
-  while(!(inb(UART_LSR)&0x20)) ;
+  // while(!(inb(UART_LCR))) ;
   outb(UART_RBR,ch);
   return;
 }
@@ -32,6 +32,7 @@ void halt(int code) {
 }
 
 void _trm_init() {
+  // init_uart();
   char *src = &_lma_data_start;
   char *dst = &_data_start;
   while (dst < &_data_end) {
@@ -39,7 +40,6 @@ void _trm_init() {
   }
   for (dst = &_bss_start; dst < &_bss_end; dst++)
     *dst = 0;
-  init_uart();
   int ret = main(mainargs);
   halt(ret);
 }

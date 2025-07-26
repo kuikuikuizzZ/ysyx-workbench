@@ -14,7 +14,7 @@ void init_uart() {
     outb(UART_DLL, 0x01);
     // 8bits、1stop bit
     outb(UART_LCR, 0x03); 
-    // outb(UART_FCR, 0xC7); 
+    outb(UART_FCR, 0x01); 
 
 
     // default LCR 00000011b
