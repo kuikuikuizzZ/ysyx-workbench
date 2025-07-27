@@ -5,13 +5,17 @@
 
 static uint8_t npc_flash[CONFIG_FLASH_SIZE] = {0};
 
-unsigned short _mem[] = {
-	0x0, 0x0258, 0x4abc, 0x7fff, 0x8000, 0x8100, 0xabcd, 0xffff
-};
 
 void init_flash() {
     // npc_flash = (uint8_t*)malloc(CONFIG_FLASH_SIZE);
-    memcpy(npc_flash, _mem, sizeof(_mem));
+    // memcpy(npc_flash, _mem, sizeof(_mem));
+    // npc_flash[4] = 0x04;
+    // npc_flash[5] = 0x03;
+    // npc_flash[0] = 0x58;
+    // npc_flash[1] = 0x02;
+    // npc_flash[2] = 0x04;
+    // npc_flash[3] = 0x03;
+    return;
 }
 
 #ifdef __cplusplus
@@ -19,13 +23,13 @@ extern "C" {
 #endif
 #ifdef CONFIG_HAS_FLASH
 
-    uint8_t* guest_to_flash(uint32_t paddr) { return npc_flash + paddr; }
-
     void flash_read(int32_t addr, int32_t *data){
         // if (addr >= CONFIG_FLASH_BASE && 
         // addr < CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE)
-        *data = host_read(guest_to_flash(addr), 4);
-        printf("flash_read: address %x data %x \n", addr,*data);
+        uint32_t flash_data = host_read(guest_to_flash(addr), 4);
+        uint32_t temp[4] = {flash_data & 0xff, (flash_data >> 8) & 0xff, (flash_data >> 16) & 0xff, (flash_data >> 24) & 0xff};
+		*data =  (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
+        // printf("flash_read: address %x data %x \n", addr,*data);
             // *data = 0x00100073;
         // else 
         //     printf("flash_read: invalid address %x\n", addr);

@@ -1,7 +1,7 @@
 mainmenu "NPC Configuration Menu"
 
 config ISA
-  string "Instruction Set Architecture"
+  string "Instruction Set Architecture
   default riscv32e 
 
 choice
@@ -90,7 +90,7 @@ config ITRACE_COND
 
 config WATCH_TOP
   depends on TRACE
-  bool "Only trace watch top when the condition is true"
+  bool "watch top inst when the condition is true"
   default y
 
 config WATCHPOINT

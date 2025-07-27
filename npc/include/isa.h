@@ -49,7 +49,7 @@ typedef struct {
 //         0x00000513,      //addi a0 x0 0
 //         0x00100073,      //ebreak
 // };
-#ifndef CONFIG_SOC
+#ifdef CONFIG_IMEM_BASE
 static const uint32_t img [] = { 
         0x00100513,      //addi a0 x0 1
         0x00150513,      //addi a0 a0 1
@@ -66,7 +66,7 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 #endif
-#ifdef CONFIG_SOC
+#ifdef CONFIG_IMEM_MROM_BASE
 static const uint32_t img [] = { 
         0x00100513,      //addi a0 x0 1
         0x00150513,      //addi a0 a0 1
@@ -80,6 +80,18 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 #endif
+
+#ifdef CONFIG_IMEM_FLASH_BASE
+static const uint32_t img [] = {
+        0x00100513,      //addi a0 x0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0x00000513,      //addi a0 x0 0
+        0x00100073,      //ebreak
+};
+#endif
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 
 void isa_reg_display();
@@ -89,8 +101,10 @@ word_t isa_reg_str2val(const char *s, bool *success);
 
 static void init_isa(){
 /* Load built-in image. */
-  IFDEF(CONFIG_SOC,memcpy(guest_to_mrom(CONFIG_MROM_BASE), img, sizeof(img)));
-  IFNDEF(CONFIG_SOC,memcpy(guest_to_host(MBASE), img, sizeof(img)));
+  // IFDEF(CONFIG_SOC,memcpy(guest_to_mrom(CONFIG_MROM_BASE), img, sizeof(img)));
+  // IFNDEF(CONFIG_SOC,memcpy(guest_to_host(MBASE), img, sizeof(img)));
+  memcpy(guest_to_host(MBASE), img, sizeof(img));
+
 }
 
 #endif

@@ -11,6 +11,7 @@
 
 char* img_file = NULL;
 char* log_file = NULL;
+char* flash_img_file = NULL;
 char* diff_so_file = NULL;
 static int difftest_port = 1234;
 
@@ -29,34 +30,58 @@ long load_prog() {
     long size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     int ret;
-    // IFDEF(CONFIG_SOC,ret=fread(guest_to_mrom(CONFIG_MROM_BASE), 1, size, fp));
-    // IFNDEF(CONFIG_SOC,ret=fread(guest_to_host(MBASE), 1, size, fp));
     ret=fread(guest_to_host(MBASE), 1, size, fp);
     printf("load image size: %d bytes\n",ret);
+    // IFDEF(CONFIG_SOC,ret=fread(guest_to_mrom(CONFIG_MROM_BASE), 1, size, fp));
+    // IFNDEF(CONFIG_SOC,ret=fread(guest_to_host(MBASE), 1, size, fp));
     assert(ret == size);
     fclose(fp);
+    
+    return size;
+}
+
+long load_flash_prog() {
+    if (!flash_img_file){
+        return 0;
+    }
+    printf("flash use image: %s \n",flash_img_file);
+    FILE *fp = fopen(flash_img_file, "rb");
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    int ret=fread(guest_to_host(MBASE), 1, size, fp);
+    printf("load flash image size: %d bytes\n",ret);
+    // IFDEF(CONFIG_SOC,ret=fread(guest_to_mrom(CONFIG_MROM_BASE), 1, size, fp));
+    // IFNDEF(CONFIG_SOC,ret=fread(guest_to_host(MBASE), 1, size, fp));
+    assert(ret == size);
+    fclose(fp);
+    
     return size;
 }
 
 
+
+
 static int parse_args(int argc, char **argv) {
   const struct option table[] = {
-    {"batch"    , no_argument      , NULL, 'b'},
-    {"log"      , required_argument, NULL, 'l'},
-    {"diff"     , required_argument, NULL, 'd'},
-    {"port"     , required_argument, NULL, 'p'},
+    {"batch"      , no_argument      , NULL, 'b'},
+    {"log"        , required_argument, NULL, 'l'},
+    {"diff"       , required_argument, NULL, 'd'},
+    {"port"       , required_argument, NULL, 'p'},
+    {"flash_file" , required_argument, NULL, 'f'},
     // {"help"     , no_argument      , NULL, 'h'},
     // {"elf"      , required_argument, NULL, 'e'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
     //   case 'e': elf_file = optarg;break;
+      case 'f': flash_img_file = optarg;break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -64,6 +89,7 @@ static int parse_args(int argc, char **argv) {
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        printf("\t-f,--flash_file=FLASH_FILE        run load FLASH_FILE into flash\n");
         printf("\n");
         exit(0);
     }
@@ -88,7 +114,7 @@ int main(int argc, char** argv) {
     #endif
     
     long img_size = load_prog();
-
+    long flash_img_size = load_flash_prog();
     init_cpu(argc,argv);
     #ifdef CONFIG_DIFFTEST
     init_difftest(diff_so_file, img_size, difftest_port);

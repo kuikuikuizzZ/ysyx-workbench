@@ -16,7 +16,14 @@ extern "C" {
         npc_pmem = (uint8_t*)malloc(MSIZE);
     }
 
-    uint8_t* guest_to_host(uint32_t paddr) { return npc_pmem + paddr - MBASE; }
+    uint8_t* guest_to_host(uint32_t paddr) { 
+        // uint8_t *addr = npc_pmem + paddr - MBASE;
+        // IFNDEF(CONFIG_IMEM_FLASH_BASE,addr =  npc_pmem + paddr - MBASE);
+        // IFDEF(CONFIG_IMEM_FLASH_BASE, addr =  npc_pmem + paddr );
+        return npc_pmem + paddr-MBASE;
+    }
+    uint8_t* guest_to_flash(uint32_t paddr) { return npc_pmem + paddr; }
+
 
     void pmem_read(int raddr, int len, int *rword) {
         // printf("pmem read: raddr = %x, data %x len %d\n", raddr,*rword,len);
