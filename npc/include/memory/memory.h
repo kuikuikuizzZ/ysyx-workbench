@@ -23,6 +23,7 @@ extern "C" {
     uint8_t* guest_to_mrom(uint32_t paddr) ;
     uint8_t* guest_to_flash(uint32_t paddr) ;
 
+
     static inline bool in_pmem(uint32_t addr) {
         return addr - MBASE < MSIZE;
     }

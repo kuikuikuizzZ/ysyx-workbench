@@ -178,5 +178,35 @@ config FLASH_SIZE
   depends on HAS_FLASH
   hex "base address of the flash"
   default 0x10000000
-endif # HAS_MROM
+endif # HAS_FLASH
+
+
+menuconfig HAS_PSRAM
+  bool "Enable psram"
+  default n
+if HAS_PSRAM
+config PSRAM_BASE
+  depends on HAS_PSRAM
+  hex "base address of the psram"
+  default 0x80000000
+config PSRAM_SIZE
+  depends on HAS_PSRAM
+  hex "base address of the psram"
+  default 0x20000000
+endif # HAS_PSRAM
+
+config HAS_SRAM
+   bool "Enable SRAM memory "
+   default n
+
+config SRAM_BASE 
+  depends on HAS_SRAM
+  hex "SRAM base address"
+  default 0x0f000000 
+
+config SRAM_SIZE
+  depends on HAS_SRAM
+  hex "SRAM size"
+  default 0x2000
+
 endif # DEVICE

@@ -24,15 +24,11 @@ extern "C" {
 #ifdef CONFIG_HAS_FLASH
 
     void flash_read(int32_t addr, int32_t *data){
-        // if (addr >= CONFIG_FLASH_BASE && 
-        // addr < CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE)
-        uint32_t flash_data = host_read(guest_to_flash(addr), 4);
-        uint32_t temp[4] = {flash_data & 0xff, (flash_data >> 8) & 0xff, (flash_data >> 16) & 0xff, (flash_data >> 24) & 0xff};
-		*data =  (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
+        // uint32_t flash_data = host_read(guest_to_flash(addr), 4);
+        // uint32_t temp[4] = {flash_data & 0xff, (flash_data >> 8) & 0xff, (flash_data >> 16) & 0xff, (flash_data >> 24) & 0xff};
+		// *data =  (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
         // printf("flash_read: address %x data %x \n", addr,*data);
-            // *data = 0x00100073;
-        // else 
-        //     printf("flash_read: invalid address %x\n", addr);
+        *data =  host_read(guest_to_flash(addr), 4);
     }
 #endif
 
