@@ -129,23 +129,22 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
-    val arvalid = Mux(arfire,false.B, is_read)
+    val arvalid = Mux(arfire || rstate === rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
     val arlen  = 1.U
-    // val awvalid =   Mux(accept_write,io.req.wen,RegEnable(accept_write,  false.B,   accept_write||io.axi_io.aw.ready))
-    val awvalid =   Mux(awfire,false.B, is_write)
+
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
-    // val wvalid  =   Mux(accept_write,io.req.wen,RegEnable(accept_write,   false.B,  accept_write||io.axi_io.w.ready))
-    val wvalid =   Mux(wfire,false.B, is_write)
+    val awvalid =   Mux(awfire || awfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val wvalid =    Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
-    val wlast   =  1.U
 
     val rready  = (rstate === rs_wait_rlast) || (rstate === rs_wait_arready ) 
     val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready ) 
     
-    io.axi_io.ar.valid  := Mux(rstate===rs_idle, accept_read,Mux(io.axi_io.ar.ready, false.B,arvalid))
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
+    io.axi_io.ar.valid  := arvalid
     io.axi_io.ar.len    := arlen
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
@@ -153,6 +152,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
         is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
         is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}
         is (rs_wait_rlast){ 
+            // rlast is high when rvalid is high
             rstate := Mux(io.axi_io.r.last, rs_idle, rs_wait_rlast)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
