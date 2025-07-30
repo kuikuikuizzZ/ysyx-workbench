@@ -119,11 +119,11 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val bfire = RegInit(false.B)
     val rfire = RegInit(false.B)
 
-    awfire  :=  Mux(wstate === ws_wait_bvalid, false.B, (io.axi_io.aw.valid && io.axi_io.aw.ready) || awfire)
-    wfire   :=  Mux(wstate === ws_wait_bvalid, false.B, (io.axi_io.w.valid && io.axi_io.w.ready) || wfire)
-    bfire   :=  Mux(wstate === ws_idle, false.B,        (io.axi_io.b.valid && io.axi_io.b.ready) || bfire)
-    arfire  :=  Mux(rstate === rs_wait_rlast, false.B,  io.axi_io.ar.valid && io.axi_io.ar.ready || arfire)
-    rfire   :=  Mux(rstate === rs_idle, false.B,  io.axi_io.r.valid && io.axi_io.r.ready || rfire)
+    awfire  :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.aw.valid && io.axi_io.aw.ready) || awfire)
+    wfire   :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.w.valid && io.axi_io.w.ready) || wfire)
+    bfire   :=  Mux(wstate === ws_idle,         false.B,        (io.axi_io.b.valid && io.axi_io.b.ready) || bfire)
+    arfire  :=  Mux(rstate === rs_wait_rlast,   false.B,  (io.axi_io.ar.valid && io.axi_io.ar.ready) || arfire)
+    rfire   :=  Mux(rstate === rs_idle,         false.B,  (io.axi_io.r.valid && io.axi_io.r.ready) || rfire)
 
 
     //////  AXI4Lite write/read channel
