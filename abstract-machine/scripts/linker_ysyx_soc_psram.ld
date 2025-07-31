@@ -24,7 +24,7 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data)
-  }  > sram AT> flash
+  }  > psram AT> flash
   . = . ;
   _data_end = . ;
   .bss :  {
@@ -32,11 +32,11 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram AT> flash
+  } > psram AT> flash
   _bss_end = .;
-  _heap_start = ALIGN(0x1000);
-  _stack_top =  ALIGN(0x1000) ;
-  . = _stack_top + 0x1000;
+  _heap_start = ALIGN(0x100000);
+  _stack_top =  ALIGN(0x100000) ;
+  . = _stack_top + 0x100000;
   _stack_pointer = .;
   end = .;
   _end = .;

@@ -12,8 +12,8 @@ CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/ysyxsoc/include
 CFLAGS    += -I$(AM_HOME)/am/src/riscv
 
-LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc.ld
-LDFLAGS   += --defsym=_pmem_start=0x20000000 --defsym=_entry_offset=0x0
+LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc_psram.ld
+LDFLAGS   += --defsym=_pmem_start=0x30000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 YSYXSOCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 # YSYXSOCFLAGS += -e $(IMAGE).elf

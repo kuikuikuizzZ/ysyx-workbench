@@ -22,14 +22,14 @@ extern "C" {
     uint8_t* guest_to_psram(uint32_t paddr) { return npc_psram + paddr; }
     void psram_read(int32_t addr,int32_t length, int32_t *data){
         *data =  host_read(guest_to_psram(addr), length);
-        printf("psram_read: address %x length %d, data %x \n", addr,length, *data);
+        // printf("psram_read: address %x length %d, data %x \n", addr,length, *data);
     }
 
     void psram_write(int32_t addr, int32_t length, int32_t data){
-        printf("psram_write: address %x x length %d, data %x \n", addr,length,data);
+        // printf("psram_write: address %x x length %d, data %x \n", addr,length,data);
         host_write(guest_to_psram(addr), length, data);
-        uint32_t new_data =  host_read(guest_to_psram(addr), 4);
-        printf("new_data: address %x data %x \n", addr,new_data);
+        // uint32_t new_data =  host_read(guest_to_psram(addr), 4);
+        // printf("new_data: address %x data %x \n", addr,new_data);
 
     }
 #endif
