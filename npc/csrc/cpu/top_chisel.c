@@ -32,6 +32,12 @@ Top* top() {
 
 
 
+typedef struct {
+    uint32_t inst;
+    uint32_t pc;
+    uint32_t dnpc;
+} Watch_top;
+Watch_top *wt = NULL;
 
 uint32_t top_gpr(int i) {
     if (!_rootp) return 0;
@@ -109,16 +115,29 @@ void watch_top(){
     // if (!(top->ysyxSoCFull_top__DOT__inst==WATCH_INST)) return;
     _top = top();
     if (!_top) return;
-    // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-    printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
-        top_halt(),
-        top_pc(),
-        top_dnpc(),
-        top_inst(),
-        top_gpr(10),
-        top_op1(),
-        top_op2()
-    );
+    if (!wt) {
+        wt = new Watch_top;
+        wt->inst = top_inst();
+        wt->pc = top_pc();
+        wt->dnpc =top_dnpc();
+    } 
+    if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
+    else {
+        // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
+        printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+            top_halt(),
+            top_pc(),
+            top_dnpc(),
+            top_inst(),
+            top_gpr(10),
+            top_op1(),
+            top_op2()
+        );
+        wt->inst = top_inst();
+        wt->pc = top_pc();
+        wt->dnpc = top_dnpc();
+    }
+    
 }
 
  
