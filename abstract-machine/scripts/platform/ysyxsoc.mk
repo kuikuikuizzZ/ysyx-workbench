@@ -1,5 +1,6 @@
 AM_SRCS :=  platform/ysyxsoc/trm.c         \
-            platform/ysyxsoc/mpe.c        \
+            platform/ysyxsoc/mpe.c         \
+            platform/ysyxsoc/bootloader.c  \
             platform/ysyxsoc/ioe/ioe.c     \
             platform/ysyxsoc/ioe/timer.c   \
             platform/ysyxsoc/ioe/gpu.c     \
@@ -13,8 +14,8 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/ysyxsoc/include
 CFLAGS    += -I$(AM_HOME)/am/src/riscv
 
 LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc_psram.ld
-LDFLAGS   += --defsym=_pmem_start=0x30000000 --defsym=_entry_offset=0x0
-LDFLAGS   += --gc-sections -e _start
+LDFLAGS   += --defsym=_pmem_start=0x0f000000 --defsym=_entry_offset=0x00
+LDFLAGS   += --gc-sections -e _start 
 YSYXSOCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 # YSYXSOCFLAGS += -e $(IMAGE).elf
 YSYXSOCFLAGS += -b

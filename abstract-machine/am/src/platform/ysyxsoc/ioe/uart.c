@@ -2,7 +2,7 @@
 #include <riscv.h>
 #include <ysyxsoc.h>
 
-void init_uart() {
+__attribute__ ((section(".bootutils"))) void init_uart() {
     
     outb(UART_LCR, 0b10000011); 
     // set baud rate

@@ -8,16 +8,37 @@ MEMORY {
 }
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
-  . = _pmem_start + _entry_offset;
+  /* . = _pmem_start + _entry_offset;  */
+  .entry : {
+    _entry_start = .;
+    KEEP(*(.entry))
+  } > flash
+  .first_boost : {
+    _first_boost_start = .;
+    KEEP(*(.first_boost))
+  } > flash
+
+  _lma_sec_boost_start = LOADADDR (.sec_boost);
+  .sec_boost : {
+    _sec_boost_start = .;
+    KEEP(*(.sec_boost))
+    KEEP(*(.bootutils))
+  } > psram AT> flash
+  _sec_boost_end = .;
+  
+  _lma_code_start = LOADADDR (.text);
   .text : {
-    *(entry)
+    _text_start = .;
+    KEEP(*(.text._trm_init))
     *(.text*)
-  } > flash AT> flash
+  } > psram AT> flash
+
   _etext = .;
   . = ALIGN(4);
   .rodata  : {
     *(.rodata*)
-  } > flash AT> flash
+  } > psram AT> flash
+  . = . ;
   _erodata = .;
   _lma_data_start = LOADADDR (.data);
   . = ALIGN(4);
@@ -34,9 +55,13 @@ SECTIONS {
     *(.scommon)
   } > psram AT> flash
   _bss_end = .;
-  _heap_start = ALIGN(0x100000);
-  _stack_top =  ALIGN(0x100000) ;
-  . = _stack_top + 0x100000;
+  /* _heap_start = ALIGN(0x100000);  */
+  /* _stack_top =  ALIGN(0x100000) ; */
+  /* . = _stack_top + 0x100000;      */ 
+  . = 0x0f000000;                  
+  _heap_start = ALIGN(0x1000);
+  _stack_top =  ALIGN(0x1000) ;
+  . = _stack_top + 0x2000;
   _stack_pointer = .;
   end = .;
   _end = .;
