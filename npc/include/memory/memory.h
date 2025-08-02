@@ -5,8 +5,9 @@
 #include <assert.h>
 #include <generated/autoconf.h>
 
-// use DPI-C should add this macro
+// use DPI-C should add this macro#ifdef __cplusplus
 #ifdef __cplusplus
+
 extern "C" {
 #endif
 
@@ -17,8 +18,11 @@ extern "C" {
     #define WORD_SIZE 4
 
     void init_memory();
-
+    void init_mrom();
     uint8_t* guest_to_host(uint32_t paddr) ;
+    uint8_t* guest_to_mrom(uint32_t paddr) ;
+    uint8_t* guest_to_flash(uint32_t paddr) ;
+
 
     static inline bool in_pmem(uint32_t addr) {
         return addr - MBASE < MSIZE;

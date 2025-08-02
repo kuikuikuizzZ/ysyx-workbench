@@ -5,7 +5,9 @@ import chisel3.util._
 trait PrivilegedConstants
 {
    val MTVEC = 0x100
-   val START_ADDR = "h80000000".U
+   val START_ADDR = (0x30000000.U(32.W))
+   // val START_ADDR = "h8000_0000".U
+
    val MSTATUS = 0x1800.U
    
    val SZ_PRV = 2

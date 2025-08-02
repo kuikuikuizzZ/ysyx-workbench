@@ -2,7 +2,6 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.experimental.decode._
 
 import npc.common.Instructions._
 import npc.common._
@@ -10,34 +9,48 @@ import npc.Constants._
 
 class CtlToDatIo extends Bundle()
 {
-   val stall     = Output(Bool())
-   val dmiss     = Output(Bool())
    val op1_sel   = Output(UInt(OP1_X.getWidth.W))
    val op2_sel   = Output(UInt(OP2_X.getWidth.W))
    val alu_fun   = Output(UInt(ALU_X.getWidth.W))
-   val wb_sel    = Output(UInt(WB_X.getWidth.W))
    val csr_cmd   = Output(UInt(CSR.SZ.W))
+   val br_type   = Output(UInt(BR_N.getWidth.W))
    val exception = Output(Bool())
 }
 
 
-class CpathIo(implicit val conf: YSYX24100012Config) extends Bundle()
-{
-   // val imem = new MemPortIo(conf.xprlen)
-   val dmem = new MemPortIo(conf.xprlen)
-   val dat  = Flipped(new DatToCtlIo())
-   val ctl  = new CtlToDatIo()
-   val inst = Input(UInt(conf.xlen.W))
-   val pc_sel = Output(UInt(PC_4.getWidth.W))
-   val rf_wen    = Output(Bool())
-
+class CtlToLSUIo extends Bundle()
+{  
+   val mem_en     = Output(Bool())
+   val mem_fcn    = Output(UInt(M_X.getWidth.W))
+   val msk_sel    = Output(UInt(MT_X.getWidth.W))
 }
 
-class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
+class CtlToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
-  val io = IO(new CpathIo())
-  io := DontCare
+   val rf_wen = Output(Bool())
+   val wb_sel = Output(UInt(WB_X.getWidth.W))
+   val exception = Output(Bool())
+}
 
+class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
+{
+   val inst = Input(UInt(conf.xlen.W))
+   val ctl  = new CtlToDatIo()
+   val ctl_lsu = new CtlToLSUIo()
+   val ctl_wb    = new CtlToWBIo()
+   val pipeline_kill = Output(Bool())
+   val ifu_valid   = Input(Bool())
+   val ls_valid   =  Input(Bool())
+   val pc_io      =  Flipped(new PCOut())
+   val finish     = Output(Bool())
+}
+
+class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
+{
+   val io = IO(new CpathIo())
+   io := DontCare
+   
+   // Control Signals
    val csignals =
       ListLookup(io.inst,                                                                                       
                              List(N, BR_N  , OP1_X  ,  OP2_X  , ALU_X   , WB_X   , REN_0, MEN_0, M_X  , MT_X,  CSR.N),
@@ -108,44 +121,51 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    val cs_alu_fun          :: cs_wb_sel          :: (cs_rf_wen: Bool)     ::               cs1 = cs0
    val (cs_mem_en: Bool)   :: cs_mem_fcn         :: cs_msk_sel            :: (cs_csr_cmd:UInt) :: Nil = cs1
 
-   // Branch Logic   
-   val ctrl_pc_sel = Mux(io.dat.csr_eret  ||
-                         io.ctl.exception      ,  PC_EXC,
-                     Mux(cs_br_type === BR_N  ,  PC_4,
-                     Mux(cs_br_type === BR_NE ,  Mux(!io.dat.br_eq,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_EQ ,  Mux( io.dat.br_eq,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_GE ,  Mux(!io.dat.br_lt,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_GEU,  Mux(!io.dat.br_ltu, PC_BR, PC_4),
-                     Mux(cs_br_type === BR_LT ,  Mux( io.dat.br_lt,  PC_BR, PC_4),
-                     Mux(cs_br_type === BR_LTU,  Mux( io.dat.br_ltu, PC_BR, PC_4),
-                     Mux(cs_br_type === BR_J  ,  PC_J,
-                     Mux(cs_br_type === BR_JR ,  PC_JR,
-                                                 PC_4))))))))))
-   
-   // val stall =  !io.imem.resp.valid || !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
-   val stall =   !((cs_mem_en && io.dmem.resp.valid) || !cs_mem_en)
+   // val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
+   // val rs2_addr = io.inst(RS2_MSB, RS2_LSB)
+   // val wb_addr  = io.inst(RD_MSB, RD_LSB)
 
+   // cs_op1_sel     cs_op1_sel
+   // cs_op2_sel     cs_op2_sel
+   // cs_alu_fun     cs_alu_fun
+   // cs_br_type     cs_br_type
+   // cs_mem_en      cs_mem_en
+   // cs_mem_fcn     cs_mem_fcn
+   // cs_msk_sel     cs_msk_sel
+   // cs_rf_wen      cs_rf_wen
+   // cs_wb_sel      cs_wb_sel
+
+   // rs1_addr       rs1_addr 
+   // rs2_addr       rs2_addr 
+   // wb_addr        wb_addr  
    // Set the data-path control signals
-   io.pc_sel   := ctrl_pc_sel
-   io.ctl.stall    := stall
-   io.ctl.op1_sel  := cs_op1_sel
-   io.ctl.op2_sel  := cs_op2_sel
-   io.ctl.alu_fun  := cs_alu_fun
-   io.ctl.wb_sel   := cs_wb_sel
+   io.ctl.op1_sel       :=      cs_op1_sel
+   io.ctl.op2_sel       :=      cs_op2_sel
+   io.ctl.alu_fun       :=      cs_alu_fun
+   io.ctl.br_type       :=      cs_br_type
 
-   io.rf_wen   := Mux(stall || io.ctl.exception, false.B, cs_rf_wen)
-  
+   val mem_en           =        Mux(io.ifu_valid, cs_mem_en, MEN_0)  
+   io.ctl_lsu.mem_en    :=       mem_en
+   io.ctl_lsu.mem_fcn   :=      cs_mem_fcn
+   io.ctl_lsu.msk_sel   :=      cs_msk_sel
+   io.ctl_wb.exception := io.ctl.exception
+   
+   io.finish := Mux(cs_mem_en, io.ls_valid, io.ifu_valid) 
+
+   io.ctl_wb.rf_wen     := Mux(cs_mem_en, 
+                              Mux( io.ls_valid  , cs_rf_wen, REN_0),
+                              Mux( io.ifu_valid , cs_rf_wen, REN_0))  
+   io.ctl_wb.wb_sel     :=       cs_wb_sel
+   
    // convert CSR instructions with raddr1 == 0 to read-only CSR commands
    val rs1_addr = io.inst(RS1_MSB, RS1_LSB)
    val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
    val csr_cmd = Mux(csr_ren, CSR.R, cs_csr_cmd)
 
-   io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
-   
+   // io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
+   io.ctl.csr_cmd := csr_cmd
 
-   io.dmem.req.valid    := cs_mem_en
-   io.dmem.req.bits.fcn := cs_mem_fcn
-   io.dmem.req.bits.typ := cs_msk_sel
+
    
    // Exception Handling ---------------------
    // We only need to check if the instruction is illegal (or unsupported)
@@ -155,5 +175,5 @@ class YSYX24100012Cpath(implicit val conf: YSYX24100012Config) extends Module
    // fit.
    // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
    io.ctl.exception := (!cs_val_inst ) 
-
+   io.pipeline_kill :=  (!cs_val_inst ) 
 }

@@ -2,7 +2,6 @@ mainmenu "NPC Configuration Menu"
 
 config ISA
   string "Instruction Set Architecture
-  string
   default riscv32e 
 
 choice
@@ -13,6 +12,10 @@ config NPC_VERILOG
 config NPC_CHISEL
   bool "npc-chisel"
 endchoice
+
+config SOC
+  bool "run with/without soc"
+  default y
 
 menu "Testing and Debugging"
 
@@ -29,6 +32,21 @@ config TRACE_END
   depends on TRACE
   int "When tracing is disabled (unit: number of instructions)"
   default 10000
+
+config WAVETRACE
+  depends on TRACE
+  bool "Enable wave trace"
+  default y
+
+choice
+  prompt "gtkwave format"
+  default WAVETRACE_FST
+  depends on WAVETRACE
+config WAVETRACE_FST
+  bool "fst"
+config WAVETRACE_VCD
+  bool "vcd"
+endchoice
 
 config ITRACE
   depends on TRACE 
@@ -72,12 +90,12 @@ config ITRACE_COND
 
 config WATCH_TOP
   depends on TRACE
-  bool "Only trace watch top when the condition is true"
+  bool "watch top inst when the condition is true"
   default y
 
 config WATCHPOINT
   depends on TRACE
-  bool "Eynable watchpoint when the condition is true"
+  bool "Enable watchpoint when the condition is true"
   default n
 
 config DIFFTEST
@@ -88,38 +106,36 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
 
-# choice
-#   prompt "Reference design"
-#   default DIFFTEST_REF_SPIKE if ISA_riscv
-#   default DIFFTEST_REF_KVM if ISA_x86
-#   default DIFFTEST_REF_QEMU
-#   depends on DIFFTEST
-# config DIFFTEST_REF_QEMU
-#   bool "QEMU, communicate with socket"
-# if ISA_riscv
-# config DIFFTEST_REF_SPIKE
-#   bool "Spike"
-# endif
-# if ISA_x86
-# config DIFFTEST_REF_KVM
-#   bool "KVM"
-# endif
-# endchoice
+config PC_REPEAT_COUNT
+  depends on TRACE
+  bool "Enable pc repeat count"
+  default y
+config PC_MAX_REPEAT
+  depends on PC_REPEAT_COUNT
+  int "same pc repeat max times"
+  default 32
 
-# config DIFFTEST_REF_PATH
-#   string
-#   default "tools/qemu-diff" if DIFFTEST_REF_QEMU
-#   default "tools/kvm-diff" if DIFFTEST_REF_KVM
-#   default "tools/spike-diff" if DIFFTEST_REF_SPIKE
-#   default "none"
+choice
+  prompt "Reference design"
+  default DIFFTEST_REF_NEMU
+  depends on DIFFTEST
+config DIFFTEST_REF_NEMU
+  bool "nemu"
+#if ISA_riscv
+#config DIFFTEST_REF_SPIKE
+#  bool "Spike"
+#endif
+endchoice
 
-# config DIFFTEST_REF_NAME
-#   string
-#   default "qemu" if DIFFTEST_REF_QEMU
-#   default "kvm" if DIFFTEST_REF_KVM
-#   default "spike" if DIFFTEST_REF_SPIKE
-#   default "none"
-# endmenu
+config DIFFTEST_REF_PATH
+  string
+  default "" if DIFFTEST_REF_NEMU
+  default "none"
+
+config DIFFTEST_REF_NAME
+  string
+  default "nemu" if DIFFTEST_REF_NEMU
+  default "none"
 
 endmenu
 

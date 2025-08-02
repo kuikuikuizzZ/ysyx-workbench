@@ -148,4 +148,65 @@ config SDCARD_IMG_PATH
   string "The path of sdcard image"
   default ""
 endif # HAS_SDCARD
+
+menuconfig HAS_MROM
+  bool "Enable mrom"
+  default y
+
+if HAS_MROM
+config MROM_BASE
+  depends on HAS_MROM
+  hex "base address of the mrom"
+  default 0x20000000
+config MROM_SIZE
+  depends on HAS_MROM
+  hex "base address of the mrom"
+  default 0x00001000
+endif # HAS_MROM
+
+
+menuconfig HAS_FLASH
+  bool "Enable flash"
+  default n
+
+if HAS_FLASH
+config FLASH_BASE
+  depends on HAS_FLASH
+  hex "base address of the flash"
+  default 0x30000000
+config FLASH_SIZE
+  depends on HAS_FLASH
+  hex "base address of the flash"
+  default 0x10000000
+endif # HAS_FLASH
+
+
+menuconfig HAS_PSRAM
+  bool "Enable psram"
+  default n
+if HAS_PSRAM
+config PSRAM_BASE
+  depends on HAS_PSRAM
+  hex "base address of the psram"
+  default 0x80000000
+config PSRAM_SIZE
+  depends on HAS_PSRAM
+  hex "base address of the psram"
+  default 0x20000000
+endif # HAS_PSRAM
+
+config HAS_SRAM
+   bool "Enable SRAM memory "
+   default n
+
+config SRAM_BASE 
+  depends on HAS_SRAM
+  hex "SRAM base address"
+  default 0x0f000000 
+
+config SRAM_SIZE
+  depends on HAS_SRAM
+  hex "SRAM size"
+  default 0x2000
+
 endif # DEVICE

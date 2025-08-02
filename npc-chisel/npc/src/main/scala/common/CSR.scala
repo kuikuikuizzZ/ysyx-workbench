@@ -71,7 +71,7 @@ object CSR
 
 
 
-class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
+class CSRFileIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val hartid = Input(UInt(conf.xprlen.W))
   val rw = new Bundle {
     val cmd = Input(UInt(CSR.SZ.W))
@@ -79,7 +79,8 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
     val wdata = Input(UInt(conf.xprlen.W))
   }
 
-  val csr_stall = Output(Bool())
+  // val csr_stall = Output(Bool())
+  val insn_break = Output(Bool())
   val eret = Output(Bool())
   // val singleStep = Output(Bool())
 
@@ -101,7 +102,7 @@ class CSRFileIO(implicit val conf: YSYX24100012Config) extends Bundle {
 
 }
 
-class CSRFile(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Module
 {
   val io = IO(new CSRFileIO)
   io := DontCare
@@ -252,7 +253,7 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   // io.evec must be held stable for more than one cycle for the
   // microcoded code to correctly redirect the PC on exceptions
   // ?????????? should be set to another value?
-  io.evec := 0x80000004L.U
+  io.evec := 1000.U
 
   //DRET
   // when(insn_ret && io.decode.csr(10)){
@@ -287,8 +288,8 @@ class CSRFile(implicit val conf: YSYX24100012Config) extends Module
   }
 
   // io.time := reg_time
-  io.csr_stall := reg_wfi || insn_break
-
+  // io.csr_stall := reg_wfi || insn_break
+  io.insn_break := insn_break
 
   io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
 

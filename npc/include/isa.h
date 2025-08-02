@@ -40,15 +40,61 @@ typedef struct {
 
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
+// static const uint32_t img [] = {
+//         0x00100513,      //addi a0 x0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00150513,      //addi a0 a0 1
+//         0x00000513,      //addi a0 x0 0
+//         0x00100073,      //ebreak
+// };
+#ifdef CONFIG_IMEM_BASE
+static const uint32_t img [] = { 
+        0x00100513,      //addi a0 x0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0x00009117,      //auipc	sp,0x9 # 80009000
+        0x00a12223,      //sw a0, 4(sp)
+        0x00000513,      //addi a0 x0 0
+        0x00412503,      //lw a0, 4(sp)
+        0x00150513,      //addi a0 a0 1
+        0xffc50513,      //addi a0 a0 -4
+        // 0x00150513,      //addi a0 a0 1
+        // 0x00150513,      //addi a0 a0 1
+        // 0x00000513,      //addi a0 x0 1
+        0x00100073,      //ebreak
+};
+#endif
+#ifdef CONFIG_IMEM_MROM_BASE
+static const uint32_t img [] = { 
+        0x00100513,      //addi a0 x0 1
+        0x00150513,      //addi a0 a0 1
+        0x00150513,      //addi a0 a0 1
+        0xef001117,      //auipc	sp,0xef001
+        0x00a12223,      //sw a0, 4(sp)
+        0x00000513,      //addi a0 x0 0
+        0x00412503,      //lw a0, 4(sp)
+        0x00150513,      //addi a0 a0 1
+        0xffc50513,      //addi a0 a0 -4
+        0x00100073,      //ebreak
+};
+#endif
+
+#ifdef CONFIG_IMEM_FLASH_BASE
 static const uint32_t img [] = {
         0x00100513,      //addi a0 x0 1
         0x00150513,      //addi a0 a0 1
         0x00150513,      //addi a0 a0 1
-        0x00150513,      //addi a0 a0 1
-        0x00150513,      //addi a0 a0 1
+        0xdf001117,      //auipc sp,0x000df001
+        0x00a12223,      //sw a0, 4(sp)
         0x00000513,      //addi a0 x0 0
+        0x00412503,      //lw a0, 4(sp)
+        0x00150513,      //addi a0 a0 1
+        0xffc50513,      //addi a0 a0 -4
         0x00100073,      //ebreak
 };
+#endif
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 
 void isa_reg_display();
@@ -58,7 +104,10 @@ word_t isa_reg_str2val(const char *s, bool *success);
 
 static void init_isa(){
 /* Load built-in image. */
-    memcpy(guest_to_host(MBASE), img, sizeof(img));
+  // IFDEF(CONFIG_SOC,memcpy(guest_to_mrom(CONFIG_MROM_BASE), img, sizeof(img)));
+  // IFNDEF(CONFIG_SOC,memcpy(guest_to_host(MBASE), img, sizeof(img)));
+  memcpy(guest_to_host(MBASE), img, sizeof(img));
+
 }
 
 #endif

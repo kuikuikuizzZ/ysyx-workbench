@@ -7,41 +7,43 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class DatToCtlIo(implicit val conf: YSYX24100012Config) extends Bundle() 
-{
-   // val inst   = Output(UInt(32.W))
-   val br_eq  = Output(Bool())
-   val br_lt  = Output(Bool())
-   val br_ltu = Output(Bool())
-   val csr_eret = Output(Bool())
-}
 
-class DpathIo(implicit val conf: YSYX24100012Config) extends Bundle() 
+class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
-   val dmem = new MemPortIo(conf.xprlen)
-   val inst = Input(UInt(conf.xlen.W))
+   val inst = Input(UInt(conf.xprlen.W))
    val ctl  = Flipped(new CtlToDatIo())
-   val dat  = new DatToCtlIo()
    val ebreak = Output(Bool())
    val targets = new PCTargets()
-   val pc_io = Flipped(new PCIo())
-   val reg_in = Flipped(new regToDatIo())
-   val wb_data = Output(UInt(conf.xlen.W))
+   val pc_io = Flipped(new PCOut())
+   val reg_in = Flipped(new RegFileOut())
+   val exe_lsu = new exeToLSUIo()
+   val exe_wbu = new exeToWBUIo()
 }
 
-
-class PCTargets(implicit val conf: YSYX24100012Config) extends Bundle() {
-  val br_target = Output(UInt(conf.xprlen.W))
-  val jmp_target = Output(UInt(conf.xprlen.W))
-  val jump_reg_target = Output(UInt(conf.xprlen.W))
-  val exception_target = Output(UInt(conf.xprlen.W))
+class exeToLSUIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+  val addr = Output(UInt(conf.xprlen.W))
+  val data = Output(UInt(conf.xprlen.W))
 }
 
-class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
+class exeToWBUIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
+   val alu_out = Output(UInt(conf.xprlen.W))
+   val csr_data = Output(UInt(conf.xprlen.W))
+   val pc_plus4 = Output(UInt(conf.xprlen.W))
+}
+
+class PCTargets(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val pc_sel           =  Output(UInt(PC_4.getWidth.W))
+   val br_target        =  Output(UInt(conf.xprlen.W))
+   val jmp_target       =  Output(UInt(conf.xprlen.W))
+   val jump_reg_target  =  Output(UInt(conf.xprlen.W))
+   val exception_target =  Output(UInt(conf.xprlen.W))
+}
+
+class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
-
+   io.pc_io := DontCare
    // immediates
    val imm_i = io.inst(31, 20) 
    val imm_s = Cat(io.inst(31, 25), io.inst(11,7))
@@ -70,6 +72,7 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
                (io.ctl.op2_sel === OP2_IMS) -> imm_s_sext
                )).asUInt
 
+
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
 
@@ -95,41 +98,48 @@ class YSYX24100012Dpath(implicit conf: YSYX24100012Config) extends Module
    io.targets.jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
 
    // Control Status Registers
-   val csr = Module(new CSRFile())
+   val csr = Module(new ysyx_24100012_CSRFile())
    csr.io := DontCare
    csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
    csr.io.rw.cmd   := io.ctl.csr_cmd
    csr.io.rw.wdata := alu_out
 
-   csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
+   // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
    csr.io.exception := io.ctl.exception
    csr.io.pc        := io.pc_io.pc
    io.targets.exception_target := csr.io.evec
 
-   io.dat.csr_eret := csr.io.eret
-   io.ebreak := csr.io.csr_stall
+   // io.dat.csr_eret := csr.io.eret
+   io.ebreak := csr.io.insn_break
    // Add your own uarch counters here!
    // csr.io.counters.foreach(_.inc := false.B)
-
-   // WB Mux
-   io.wb_data := MuxCase(alu_out, Seq(
-                  (io.ctl.wb_sel === WB_ALU) -> alu_out,
-                  (io.ctl.wb_sel === WB_MEM) -> io.dmem.resp.bits.data, 
-                  (io.ctl.wb_sel === WB_PC4) -> io.pc_io.pc_plus4,
-                  (io.ctl.wb_sel === WB_CSR) -> csr.io.rw.rdata
-                  ))
                                   
-
-
    // datapath to controlpath outputs
-   io.dat.br_eq  := (io.reg_in.rs1_data === io.reg_in.rs2_data)
-   io.dat.br_lt  := (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
-   io.dat.br_ltu := (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
+   val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
+   val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
+   val br_ltu = (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
    
+
+   // Branch Logic   
+   io.targets.pc_sel := Mux( csr.io.eret  ||
+                         io.ctl.exception      ,  PC_EXC,
+                     Mux(io.ctl.br_type === BR_N  ,  PC_4,
+                     Mux(io.ctl.br_type === BR_NE ,  Mux(!br_eq,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_EQ ,  Mux( br_eq,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_GE ,  Mux(!br_lt,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_GEU,  Mux(!br_ltu, PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_LT ,  Mux( br_lt,  PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_LTU,  Mux( br_ltu, PC_BR, PC_4),
+                     Mux(io.ctl.br_type === BR_J  ,  PC_J,
+                     Mux(io.ctl.br_type === BR_JR ,  PC_JR,
+                                                 PC_4))))))))))
+
    // datapath to data memory outputs
-   io.dmem.req.bits.addr  := alu_out
-   io.dmem.req.bits.data := io.reg_in.rs2_data.asUInt 
- 
+   io.exe_lsu.addr  := alu_out
+   io.exe_lsu.data := io.reg_in.rs2_data.asUInt 
+   io.exe_wbu.alu_out := alu_out
+   io.exe_wbu.csr_data := csr.io.rw.rdata
+   io.exe_wbu.pc_plus4 := io.pc_io.pc_plus4
 }
 
  

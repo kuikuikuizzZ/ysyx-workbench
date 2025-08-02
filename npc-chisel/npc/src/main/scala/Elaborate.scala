@@ -1,9 +1,8 @@
 import chisel3._
-import npc.Top
-import circt.stage.FirtoolOption
+import npc._
 
 object Elaborate extends App {
-  val firtoolOptions = Seq(
+  val firtoolOptions = Array(
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
@@ -11,10 +10,26 @@ object Elaborate extends App {
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
-    FirtoolOption("--split-verilog"),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new Top(),
+    new ysyx_24100012(),
     args,
     firtoolOptions)
 }
+
+
+// object Elaborate extends App {
+//   val firtoolOptions = Array(
+//     "--lowering-options=" + List(
+//       // make yosys happy
+//       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
+//       "disallowLocalVariables",
+//       "disallowPackedArrays",
+//       "locationInfoStyle=wrapInAtSquareBracket",
+//     ).reduce(_ + "," + _),
+//   )
+//   circt.stage.ChiselStage.emitSystemVerilogFile(
+//     new ysyxSoCFull(),
+//     args,
+//     firtoolOptions)
+// }

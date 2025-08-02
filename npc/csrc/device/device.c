@@ -16,6 +16,7 @@
 #include <common.h>
 #include <utils.h>
 #include <device/alarm.h>
+#include <device/device.h>
 #include <npc.h>
 #ifndef CONFIG_TARGET_AM
 #include <SDL2/SDL.h>
@@ -28,6 +29,9 @@ void init_timer();
 void init_serial();
 void init_vga();
 void init_i8042();
+void init_mrom();
+void init_flash();
+void init_psram();
 // void init_audio();
 // void init_disk();
 // void init_sdcard();
@@ -83,6 +87,9 @@ void init_device() {
   IFDEF(CONFIG_HAS_TIMER, init_timer());
   IFDEF(CONFIG_HAS_VGA, init_vga());
   IFDEF(CONFIG_HAS_KEYBOARD, init_i8042());
+  IFDEF(CONFIG_HAS_MROM, init_mrom());
+  IFDEF(CONFIG_HAS_FLASH, init_flash());
+  IFDEF(CONFIG_HAS_PSRAM, init_psram());
   // IFDEF(CONFIG_HAS_AUDIO, init_audio());
   // IFDEF(CONFIG_HAS_DISK, init_disk());
   // IFDEF(CONFIG_HAS_SDCARD, init_sdcard());

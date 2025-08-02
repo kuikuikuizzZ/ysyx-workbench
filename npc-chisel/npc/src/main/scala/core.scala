@@ -3,47 +3,103 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import npc.common.{YSYX24100012Config, MemPortIo}
+// import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo,ysyx_24100012_AXI4LiteArbiter}
+import npc.common._
+import npc.Constants._
 
-class CoreIo(implicit val conf: YSYX24100012Config) extends Bundle 
+class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
-  val imem = new MemPortIo(conf.xprlen)
-  val dmem = new MemPortIo(conf.xprlen)
-  val halt = Output(Bool())
+  val interrupt = Input(Bool())
+  val master = new AXI4LiteIo()
+  val slave = Flipped(new AXI4LiteIo())
 }
 
-class Core(implicit val conf: YSYX24100012Config) extends Module
+class ysyx_24100012 extends Module
 {
+  implicit val conf = ysyx_24100012_Config()
+
   val io = IO(new CoreIo())
   io := DontCare
-  val c  = Module(new YSYX24100012Cpath())
-  val d  = Module(new YSYX24100012Dpath())
-  val inst_fetch = Module(new YSYX24100012InstFetch())
-  val reg_file = Module(new RegFile())
 
+
+  val inst_fetch = Module(new ysyx_24100012_InstFetch())
+  val arbiter = Module(new ysyx_24100012_AXI4LiteArbiter(2))
+  val c  = Module(new ysyx_24100012_Decoder())
+  val d  = Module(new ysyx_24100012_EXU())
+  val reg_file = Module(new ysyx_24100012_RegFile())
+  val lsu = Module(new ysyx_24100012_LSU())
+  val wbu = Module(new ysyx_24100012_WBU())
+  
+  arbiter.io := DontCare
+  arbiter.io.axi_port <> io.master
+  arbiter.io.ifu_valid := inst_fetch.io.valid
+  arbiter.io.mem_en := lsu.io.ctl.mem_en
+  arbiter.io.ports(DPORT) <> lsu.io.port  
+  arbiter.io.ports(IPORT) <> inst_fetch.io.port 
+
+  inst_fetch.io.clock := clock
+  inst_fetch.io.reset := reset
+  inst_fetch.io.in <> d.io.targets
+  inst_fetch.io.pipeline_kill := c.io.pipeline_kill
+  inst_fetch.io.finish := c.io.finish
+
+  c.io := DontCare
   c.io.ctl  <> d.io.ctl
-  c.io.dat  <> d.io.dat
   c.io.inst := inst_fetch.io.inst
+  c.io.ifu_valid := inst_fetch.io.valid 
+  c.io.ls_valid := lsu.io.ls_valid
+  c.io.pc_io <> inst_fetch.io.pc_io
 
   reg_file.io.inst := inst_fetch.io.inst
-  reg_file.io.wb_data := d.io.wb_data
-  reg_file.io.rf_wen := c.io.rf_wen
+  reg_file.io.wb <> wbu.io.reg
 
-  d.io.reg_in <> reg_file.io.reg_to_dat_io
+  d.io.reg_in <> reg_file.io.out
   d.io.pc_io <> inst_fetch.io.pc_io
   d.io.inst := inst_fetch.io.inst
-  inst_fetch.io.targets <> d.io.targets
-  inst_fetch.io.pc_sel :=  c.io.pc_sel
+
+  lsu.io.exe <> d.io.exe_lsu  
+  lsu.io.ctl <> c.io.ctl_lsu
+  lsu.io.pc_io <> inst_fetch.io.pc_io
   
-  io.imem <> inst_fetch.io.imem
   
-  io.dmem <> c.io.dmem
-  io.dmem <> d.io.dmem
-  io.dmem.req.valid := c.io.dmem.req.valid
-  io.dmem.req.bits.typ := c.io.dmem.req.bits.typ
-  io.dmem.req.bits.fcn := c.io.dmem.req.bits.fcn
+  wbu.io.ctl <> c.io.ctl_wb
+  wbu.io.exe <> d.io.exe_wbu
+  wbu.io.lsu <> lsu.io.wb
+
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
-  io.halt := Mux(d.io.ebreak, true.B, false.B)
+  val halt = Mux(d.io.ebreak, true.B, false.B)
+
+  // object StageConnect {
+  //   def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
+  //     val arch = "single"
+      
+  //     if (arch == "single")         { left.bits := right.bits}
+  //     else if (arch == "multi")     { right <> left}
+  //     else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
+     
+  //     right.ready := left.ready
+  //   }
+  // }
+
+  io.slave.ar.ready := false.B
+  io.slave.r.data := 0.U
+  io.slave.r.resp := 0.U
+  io.slave.r.valid := false.B
+  io.slave.r.last := false.B
+  io.slave.r.id := 0.U
+  io.slave.aw.ready := false.B
+  io.slave.w.ready := false.B
+  io.slave.b.valid := false.B
+  io.slave.b.resp := 0.U
+  io.slave.b.id := 0.U
+
+  /////// debug port
+  val debug = Module(new debug_port())
+  debug.io.clock := clock
+  debug.io.reset := reset
+  debug.io.halt := halt
+  debug.io.pc := inst_fetch.io.pc_io.pc
+  debug.io.inst := inst_fetch.io.inst
 }
 
 

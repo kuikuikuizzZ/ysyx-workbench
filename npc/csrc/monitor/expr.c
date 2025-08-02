@@ -349,7 +349,7 @@ int eval(int p,int q){
           break;
     }
     char str[32];
-    int n = sprintf(str,"%u",res); 
+    int n = snprintf(str,4,"%u",res); 
     for (int i=p;i<=expr_end;i++){
         tokens[i].type = TK_NOTYPE;
         memset(tokens[i].str,0,32*sizeof(char));

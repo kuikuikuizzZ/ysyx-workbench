@@ -32,7 +32,11 @@ static uint64_t get_time_internal() {
   uint64_t us = now.tv_sec * 1000000 + now.tv_usec;
 #else
   struct timespec now;
+  #if defined(__APPLE__)
+  clock_gettime(CLOCK_MONOTONIC, &now);
+  #else
   clock_gettime(CLOCK_MONOTONIC_COARSE, &now);
+  #endif
   uint64_t us = now.tv_sec * 1000000 + now.tv_nsec / 1000;
 #endif
   return us;

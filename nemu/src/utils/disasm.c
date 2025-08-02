@@ -17,6 +17,13 @@
 #include <capstone/capstone.h>
 #include <common.h>
 
+#if defined(__APPLE__)
+#define CS_LIB_SUFFIX "5.dylib"
+#elif defined(__linux__)
+#define CS_LIB_SUFFIX "so.5"
+#else
+#error "Unsupported platform"
+#endif
 
 static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
     size_t code_size, uint64_t address, size_t count, cs_insn **insn);
@@ -26,7 +33,7 @@ static csh handle;
 
 void init_disasm() {
   void *dl_handle;
-  dl_handle = dlopen("tools/capstone/repo/libcapstone.so.5", RTLD_LAZY);
+  dl_handle = dlopen("tools/capstone/repo/libcapstone." CS_LIB_SUFFIX, RTLD_LAZY);
   assert(dl_handle);
 
   cs_err (*cs_open_dl)(cs_arch arch, cs_mode mode, csh *handle) = NULL;
@@ -60,8 +67,8 @@ void init_disasm() {
 #endif
 }
 
-void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte, char* inst_name) {
-	cs_insn *insn;
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte, char* inst_name) {	
+  cs_insn *insn;
 	size_t count = cs_disasm_dl(handle, code, nbyte, pc, 0, &insn);
   assert(count == 1);
   int ret = snprintf(str, size, "%s", insn->mnemonic);

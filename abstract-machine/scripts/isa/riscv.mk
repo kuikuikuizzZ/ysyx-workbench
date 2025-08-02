@@ -1,4 +1,8 @@
+UNAME_S := $(shell uname -s)
 CROSS_COMPILE := riscv64-linux-gnu-
+ifeq ($(UNAME_S), Darwin)
+	CROSS_COMPILE := riscv64-unknown-elf-
+endif
 COMMON_CFLAGS := -fno-pic -march=rv64g -mcmodel=medany -mstrict-align
 CFLAGS        += $(COMMON_CFLAGS) -static
 ASFLAGS       += $(COMMON_CFLAGS) -O0

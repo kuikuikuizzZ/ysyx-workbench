@@ -10,6 +10,12 @@
 CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
+VerilatedContext* contextp = NULL;
+
+#ifdef CONFIG_PC_MAX_REPEAT
+static int pc_repeat_count = 0;
+static paddr_t pc_old = 0;
+#endif
 
 void init_disasm();
 void device_update();
@@ -19,15 +25,22 @@ void step() {
     IFDEF(CONFIG_NPC_CHISEL,top()->clock = 0);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 0);
     top()->eval(); 
+    contextp->timeInc(1);
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
     IFDEF(CONFIG_NPC_CHISEL,top()->clock = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 1); 
-    top()->eval(); }
+    top()->eval(); 
+    contextp->timeInc(1);
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+}
+
 void reset(int n) { 
-    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 1);
+    IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
     while (n --) { step(); } 
     IFDEF(CONFIG_NPC_CHISEL,top()->reset = 0);
-    IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);}
+    IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);
+}
 void sync_cpu(){
     for (int i=0;i<gpr_size;i++)
         cpu.gpr[i] = top_gpr(i);
@@ -37,7 +50,7 @@ void sync_cpu(){
 
 void init_cpu(int argc ,char** argv){
     // Construct a VerilatedContext to hold simulation time, etc.
-    VerilatedContext* contextp = new VerilatedContext;
+    contextp = new VerilatedContext;
 
     // Pass arguments so Verilated code can see them, e.g. $value$plusargs
     // This needs to be called before you create any model
@@ -131,6 +144,17 @@ void exec_once(Decode *s){
 }
 
 void trace_and_difftest(Decode* s, vaddr_t dnpc){
+
+    #ifdef CONFIG_PC_MAX_REPEAT
+        if (s->pc != pc_old) {pc_old = s->pc; pc_repeat_count = 0;}
+        else pc_repeat_count++;
+        if (pc_repeat_count >= CONFIG_PC_MAX_REPEAT) {
+            npc_state.state = NPC_ABORT;
+            npc_state.halt_pc = s->pc;
+            Log("pc %0.8x repeat %d times!!!",s->pc, CONFIG_PC_MAX_REPEAT);
+        }
+    #endif
+
     #ifdef CONFIG_DIFFTEST
     difftest_step(s->pc,dnpc);
     #endif
@@ -164,6 +188,7 @@ void execute(u_int64_t n){
 void free_cpu(){
     // Final model cleanup
     top()->final();
+    IFDEF(CONFIG_WAVETRACE_FST, tfp()->close());
     // Destroy model
     delete_top();
 }

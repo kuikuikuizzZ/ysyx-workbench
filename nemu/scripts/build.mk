@@ -3,8 +3,16 @@
 # Add necessary options if the target is a shared library
 ifeq ($(SHARE),1)
 SO = -so
-CFLAGS  += -fPIC -fvisibility=hidden -g
+CFLAGS  += -fPIC -fvisibility=hidden
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S), Darwin)
+LDFLAGS += -fPIC -ledit -shared
+endif
+ifeq ($(UNAME_S), Linux)
 LDFLAGS += -shared -fPIC
+endif
+
 endif
 
 WORK_DIR  = $(shell pwd)
