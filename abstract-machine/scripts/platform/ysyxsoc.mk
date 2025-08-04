@@ -15,7 +15,7 @@ CFLAGS    += -I$(AM_HOME)/am/src/riscv
 
 LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc_psram.ld
 LDFLAGS   += --defsym=_pmem_start=0x0f000000 --defsym=_entry_offset=0x00
-LDFLAGS   += --gc-sections -e _start 
+LDFLAGS   += --gc-sections -e _start
 YSYXSOCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 # YSYXSOCFLAGS += -e $(IMAGE).elf
 YSYXSOCFLAGS += -b
