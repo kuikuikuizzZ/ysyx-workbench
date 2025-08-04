@@ -165,6 +165,20 @@ config MROM_SIZE
 endif # HAS_MROM
 
 
+config HAS_SRAM
+   bool "Enable SRAM memory "
+   default n
+
+config SRAM_BASE 
+  depends on HAS_SRAM
+  hex "SRAM base address"
+  default 0x0f000000 
+
+config SRAM_SIZE
+  depends on HAS_SRAM
+  hex "SRAM size"
+  default 0x2000
+
 menuconfig HAS_FLASH
   bool "Enable flash"
   default n
@@ -195,18 +209,32 @@ config PSRAM_SIZE
   default 0x20000000
 endif # HAS_PSRAM
 
-config HAS_SRAM
-   bool "Enable SRAM memory "
-   default n
+menuconfig HAS_SDRAM
+  bool "Enable sdram"
+  default n
+if HAS_SDRAM
+config SDRAM_BASE
+  depends on HAS_SDRAM
+  hex "base address of the sdram"
+  default 0xa0000000
+config SDRAM_SIZE
+  depends on HAS_SDRAM
+  hex "base address of the sdram"
+  default 0x20000000
+config SDRAM_ROW_BITS
+  depends on HAS_SDRAM
+  int "Number of bits for row address"
+  default 13
+config SDRAM_COL_BITS
+  depends on HAS_SDRAM
+  int "Number of bits for column address"
+  default 9
+config SDRAM_BA_BITS
+  depends on HAS_SDRAM
+  int "Number of bits for bank address"
+  default 2
+endif # HAS_SDRAM
 
-config SRAM_BASE 
-  depends on HAS_SRAM
-  hex "SRAM base address"
-  default 0x0f000000 
 
-config SRAM_SIZE
-  depends on HAS_SRAM
-  hex "SRAM size"
-  default 0x2000
 
 endif # DEVICE
