@@ -60,10 +60,10 @@ SECTIONS {
   /* _heap_start = ALIGN(0x100000);  */
   /* _stack_top =  ALIGN(0x100000) ; */
   /* . = _stack_top + 0x100000;      */ 
-  . = 0x0f000000;                  
-  _heap_start = ALIGN(0x1000);
-  _stack_top =  ALIGN(0x1000) ;
-  . = _stack_top + 0x2000;
+  . = 0x80000000;                  
+  _heap_start = ALIGN(0x10000);
+  _stack_top =  ALIGN(0x10000) ;
+  . = _stack_top + 0x20000;
   _stack_pointer = .;
   end = .;
   _end = .;
