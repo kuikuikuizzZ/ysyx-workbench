@@ -66,10 +66,7 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret;
-  IFNDEF(CONFIG_HAS_MROM,ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp));
-  IFDEF(CONFIG_HAS_MROM,ret = fread(guest_to_mrom(CONFIG_MROM_BASE), size, 1, fp));
-
+  int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);
