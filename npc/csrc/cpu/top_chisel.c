@@ -57,7 +57,13 @@ uint32_t top_csr(int i) {
         printf("csr index %d out of range\n", i);
         return 0;
     }
-    return 0;
+    uint32_t mstatus    = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mstatus;
+    uint32_t mtvec      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mtvec;
+    uint32_t mepc       = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mepc;
+    uint32_t mcause     = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mcause;
+    uint32_t mtval      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mtval;
+    uint32_t csrs[5] = {0,mstatus,mtvec,mepc, mcause};  
+    return csrs[i]; 
 }
 
 uint32_t top_pc() {

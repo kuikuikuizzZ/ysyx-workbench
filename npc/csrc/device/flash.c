@@ -9,12 +9,6 @@ static uint8_t npc_flash[CONFIG_FLASH_SIZE] = {0};
 void init_flash() {
     // npc_flash = (uint8_t*)malloc(CONFIG_FLASH_SIZE);
     // memcpy(npc_flash, _mem, sizeof(_mem));
-    // npc_flash[4] = 0x04;
-    // npc_flash[5] = 0x03;
-    // npc_flash[0] = 0x58;
-    // npc_flash[1] = 0x02;
-    // npc_flash[2] = 0x04;
-    // npc_flash[3] = 0x03;
     return;
 }
 
