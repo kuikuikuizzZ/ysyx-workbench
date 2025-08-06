@@ -2,10 +2,10 @@ ENTRY(_start)
 
 MEMORY {
   mrom (rx): ORIGIN = 0x20000000, LENGTH = 4K
-  flash (rx): ORIGIN = 0x30000000, LENGTH = 0x01000000
+  flash (rx): ORIGIN = 0x30000000, LENGTH = 0x10000000
   sram (rwx): ORIGIN = 0x0f000000, LENGTH = 8K
-  sdram (rwx): ORIGIN = 0xa0000000, LENGTH = 32M
-  psram (rwx): ORIGIN = 0x80000000, LENGTH = 4M
+  sdram (rwx): ORIGIN = 0xa0000000, LENGTH = 128M
+  psram (rwx): ORIGIN = 0x80000000, LENGTH = 32M
 }
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
@@ -60,9 +60,9 @@ SECTIONS {
   /* _heap_start = ALIGN(0x100000);  */
   /* _stack_top =  ALIGN(0x100000) ; */
   /* . = _stack_top + 0x10000;      */ 
-  _heap_start = ALIGN(0x100000);
-  _stack_top =  ALIGN(0x100000) ;
-  . = _stack_top + 0x200000;
+  _heap_start = ALIGN(0x10000);
+  _stack_top =  ALIGN(0x10000) ;
+  . = _stack_top + 0x20000;
   _stack_pointer = .;
   end = .;
   _end = .;

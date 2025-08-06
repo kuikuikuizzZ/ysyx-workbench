@@ -1,7 +1,7 @@
 mainmenu "NPC Configuration Menu"
 
 config ISA
-  string "Instruction Set Architecture
+  string "Instruction Set Architecture"
   default riscv32e 
 
 choice
