@@ -4,8 +4,8 @@ MEMORY {
   mrom (rx): ORIGIN = 0x20000000, LENGTH = 4K
   flash (rx): ORIGIN = 0x30000000, LENGTH = 0x10000000
   sram (rwx): ORIGIN = 0x0f000000, LENGTH = 8K
-  sdram (rwx): ORIGIN = 0xa0000000, LENGTH = 128M
   psram (rwx): ORIGIN = 0x80000000, LENGTH = 32M
+  sdram (rwx): ORIGIN = 0xa0000000, LENGTH = 128M
 }
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
@@ -26,8 +26,7 @@ SECTIONS {
     KEEP(*(.bootutils))
   } > sdram AT> flash
   _sec_boost_end = .;
-  . = .;
-  . = ALIGN(4);
+
   _lma_code_start = LOADADDR (.text);
   .text : {
     _text_start = .;
@@ -57,12 +56,9 @@ SECTIONS {
     *(.scommon)
   } > sdram AT> flash
   _bss_end = .;
-  /* _heap_start = ALIGN(0x100000);  */
-  /* _stack_top =  ALIGN(0x100000) ; */
-  /* . = _stack_top + 0x10000;      */ 
-  _heap_start = ALIGN(0x10000);
-  _stack_top =  ALIGN(0x10000) ;
-  . = _stack_top + 0x20000;
+  _heap_start = ALIGN(0x1000000);
+  _stack_top =  ALIGN(0x1000000) ;
+  . = _stack_top + 0x2000000;
   _stack_pointer = .;
   end = .;
   _end = .;

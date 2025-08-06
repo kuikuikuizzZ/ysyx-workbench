@@ -51,7 +51,7 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     cdst = (char*)dst;
     for (;cdst < &_bss_end; cdst++) *cdst=0;
 
-
+    putch('l'); putch('o'); putch('a'); putch('d'); putch('e'); putch('d');putch('\n');
 
     void (*app_entry)(void) = (void(*)(void))&_trm_init;
     app_entry();

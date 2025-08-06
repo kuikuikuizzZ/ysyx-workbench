@@ -224,11 +224,11 @@ config SDRAM_SIZE
 config SDRAM_ROW_BITS
   depends on HAS_SDRAM
   int "Number of bits for row address"
-  default 13
+  default 8192
 config SDRAM_COL_BITS
   depends on HAS_SDRAM
   int "Number of bits for column address"
-  default 9
+  default 512
 config SDRAM_BA_BITS
   depends on HAS_SDRAM
   int "Number of bits for bank address"
