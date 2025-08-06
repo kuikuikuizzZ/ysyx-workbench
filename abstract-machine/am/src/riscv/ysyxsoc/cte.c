@@ -23,6 +23,9 @@ Context* __am_irq_handle(Context *c) {
 extern void __am_asm_trap(void);
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
+  putch('c');
+  putch('t');
+  putch('e');
   // initialize exception entry
   asm volatile("li t0, %0" : : "n"(0x1800) );
   asm volatile("csrw mstatus, t0");
