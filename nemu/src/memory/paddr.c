@@ -190,5 +190,6 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     likely(in_sdram_pmem(addr))
   )  { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  if (likely(in_uart_pmem(addr))) return;
   out_of_bound(addr);
 }

@@ -88,7 +88,7 @@ config FLASH_SIZE
   default 0x2000000
 
 config HAS_SDRAM
-   bool "Enable FLASH memory "
+   bool "Enable SDRAM memory "
    default n
 
 config SDRAM_BASE 
@@ -100,5 +100,20 @@ config SDRAM_SIZE
   depends on HAS_SDRAM
   hex "SDRAM size"
   default 0x10000000
+
+config HAS_UART
+   bool "Enable UART "
+   default n
+
+config UART_BASE 
+  depends on HAS_UART
+  hex "UART base address"
+  default 0x10000000 
+
+config UART_SIZE
+  depends on HAS_UART
+  hex "UART size"
+  default 0x100
+
 
 endmenu #MEMORY
