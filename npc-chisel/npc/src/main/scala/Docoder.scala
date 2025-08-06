@@ -144,11 +144,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ctl.alu_fun       :=      cs_alu_fun
    io.ctl.br_type       :=      cs_br_type
 
-   val mem_en           =        Mux(io.ifu_valid, cs_mem_en, MEN_0)  
+   val mem_en            =       Mux(io.ifu_valid, cs_mem_en, MEN_0)  
    io.ctl_lsu.mem_en    :=       mem_en
-   io.ctl_lsu.mem_fcn   :=      cs_mem_fcn
-   io.ctl_lsu.msk_sel   :=      cs_msk_sel
-   io.ctl_wb.exception := io.ctl.exception
+   io.ctl_lsu.mem_fcn   :=       cs_mem_fcn
+   io.ctl_lsu.msk_sel   :=       cs_msk_sel
+   io.ctl_wb.exception  :=       io.ctl.exception
    
    io.finish := Mux(cs_mem_en, io.ls_valid, io.ifu_valid) 
 
@@ -173,7 +173,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // Other exceptions are detected later in the pipeline by passing the
    // instruction to the CSR File and letting it redirect the PC as it sees
    // fit.
-   // io.ctl.exception := (!cs_val_inst && io.imem.resp.valid) 
-   io.ctl.exception := (!cs_val_inst ) 
+   io.ctl.exception := (!cs_val_inst && io.ifu_valid) 
    io.pipeline_kill :=  (!cs_val_inst ) 
 }

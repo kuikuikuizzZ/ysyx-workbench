@@ -90,9 +90,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
   ref_difftest_init(port);
-  IFNDEF(CONFIG_HAS_MROM,ref_difftest_memcpy(MBASE, guest_to_host(MBASE), img_size, DIFFTEST_TO_REF));
-  IFDEF(CONFIG_HAS_MROM,ref_difftest_memcpy(CONFIG_MROM_BASE, guest_to_mrom(CONFIG_MROM_BASE), img_size, DIFFTEST_TO_REF));
-
+  ref_difftest_memcpy(CONFIG_MBASE, guest_to_host(CONFIG_MBASE), img_size, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
@@ -138,14 +136,7 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
     is_skip_ref = false;
     return;
   }
-  // if (is_valid_inst){
-  //   ref_difftest_exec(1);
-  //   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-  //   checkregs(&ref_r, pc);
-  // }
-  // // 0x00004033 is nop instruction
-  // if (top_inst() == 0x00004033) is_valid_inst = false; 
-  // else is_valid_inst = true;
+
   if ( pc_next != pc) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);

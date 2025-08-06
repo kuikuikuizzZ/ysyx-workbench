@@ -56,6 +56,7 @@ class ysyx_24100012 extends Module
   d.io.reg_in <> reg_file.io.out
   d.io.pc_io <> inst_fetch.io.pc_io
   d.io.inst := inst_fetch.io.inst
+  d.io.ifu_valid := inst_fetch.io.valid
 
   lsu.io.exe <> d.io.exe_lsu  
   lsu.io.ctl <> c.io.ctl_lsu

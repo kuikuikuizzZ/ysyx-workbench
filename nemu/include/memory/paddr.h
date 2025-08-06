@@ -50,6 +50,31 @@ static inline bool in_sram_pmem(paddr_t addr) {
   return  res;  
 }
 
+static inline bool in_psram_pmem(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_PSRAM, res=addr - CONFIG_PSRAM_BASE < CONFIG_PSRAM_SIZE);
+  return  res;  
+}
+
+static inline bool in_sdram_pmem(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_SDRAM, res=addr - CONFIG_SDRAM_BASE < CONFIG_SDRAM_SIZE);
+  return  res;  
+}
+
+static inline bool in_flash_pmem(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_FLASH, res=addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE);
+  return  res;  
+}
+
+
+static inline bool in_uart_pmem(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_UART, res=addr - CONFIG_UART_BASE < CONFIG_UART_SIZE);
+  return  res;  
+}
+
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
 

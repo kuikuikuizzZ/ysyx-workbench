@@ -18,6 +18,7 @@ class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val reg_in = Flipped(new RegFileOut())
    val exe_lsu = new exeToLSUIo()
    val exe_wbu = new exeToWBUIo()
+   val ifu_valid = Input(Bool())
 }
 
 class exeToLSUIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -101,7 +102,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val csr = Module(new ysyx_24100012_CSRFile())
    csr.io := DontCare
    csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
-   csr.io.rw.cmd   := io.ctl.csr_cmd
+   csr.io.rw.cmd   := Mux(io.ifu_valid, io.ctl.csr_cmd,CSR.N)
    csr.io.rw.wdata := alu_out
 
    // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)

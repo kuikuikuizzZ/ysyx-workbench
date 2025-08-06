@@ -23,29 +23,36 @@ __attribute__ ((section(".first_boost"))) void _load_sec_boost() {
 }
 
 __attribute__ ((section(".sec_boost"))) void _sec_boost(){
-    putch('s');
-    putch('e');
-    putch('c');
-    putch('\n');
     init_uart();
+    putch('H');
+    putch('i');
+    putch('\n');
 
     // load code from LMA to VMA
-    char *src = &_lma_code_start;
-    char *dst = &_text_start;
-    while (dst < &_erodata) {
-        *dst++ = *src++;
-    }
+    unsigned *src = (unsigned*)&_lma_code_start;
+    unsigned *dst = (unsigned*)&_text_start;
+    while (dst < (unsigned*)&_erodata)  *dst++ = *src++;
+    char *csrc = (char*)src;
+    char *cdst = (char*)dst;
+    while (cdst < &_erodata ) *cdst++ = *csrc++;
+
 
     // load data from LMA to VMA
-    src = &_lma_data_start;
-    dst = &_data_start;
-    while (dst < &_data_end) {
-        *dst++ = *src++;
-    }
-    // init empty data
-    for (dst = &_bss_start; dst < &_bss_end; dst++)
-        *dst = 0;
+    src = (unsigned*)&_lma_data_start;
+    dst = (unsigned*)&_data_start;
+    while (dst < (unsigned*)&_data_end) *dst++ = *src++; 
+    csrc = (char*)src;
+    cdst = (char*)dst;
+    while (cdst < &_data_end ) *cdst++ = *csrc++;
     
+    // init empty data
+    for (dst = (unsigned*)&_bss_start; dst < (unsigned*)&_bss_end; dst++)
+        *dst = 0;
+    cdst = (char*)dst;
+    for (;cdst < &_bss_end; cdst++) *cdst=0;
+
+
+
     void (*app_entry)(void) = (void(*)(void))&_trm_init;
     app_entry();
 }
