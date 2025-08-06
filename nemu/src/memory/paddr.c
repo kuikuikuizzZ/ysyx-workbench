@@ -25,7 +25,7 @@ static uint8_t *mrom =NULL;
 static uint8_t *sram =NULL;
 static uint8_t *flash =NULL;
 static uint8_t *sdram =NULL;
-static uint8_t *psram =NULL;
+// static uint8_t *psram =NULL;
 
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
@@ -131,7 +131,7 @@ static void out_of_bound(paddr_t addr) {
     log_write("%s\n", itrace_log);
   #endif
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "], sdram:" FMT_PADDR ", psram:" FMT_PADDR ",flash:" FMT_PADDR ",sram:" FMT_PADDR ",mrom:" FMT_PADDR " at pc = " FMT_WORD, 
-    addr, PMEM_LEFT, PMEM_RIGHT, CONFIG_SDRAM_BASE,CONFIG_PSRAM_BASE,
+    addr, PMEM_LEFT, PMEM_RIGHT, CONFIG_SDRAM_BASE,0x10000000,
     CONFIG_FLASH_BASE,CONFIG_SRAM_BASE,CONFIG_MROM_BASE, cpu.pc);
 }
 
