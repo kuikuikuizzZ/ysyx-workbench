@@ -12,19 +12,29 @@ GUEST_ISA ?= riscv32
 FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
+
 $(info FILELIST_MK = $(FILELIST_MK))
 # 参数设置
-override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
+override ARGS ?= --log=$(BUILD_DIR_BASE)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
-
 # 编译器和链接器设置
-# CFLAGS+= -g
-CFLAGS+= -O3
-INC_PATH := $(WORK_DIR)/include $(INC_PATH) 
+
+CFLAGS+= -g
+# CFLAGS+= -O3
+
+# nvboard.a should be linked before include nvboard.mk
+# because nvboard.a need LDFLAGS in nvboard.mk
+LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
+LDFLAGS += -lreadline 
+
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+
+INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES) 
-LIBS += -lreadline
-LDFLAGS += $(addprefix -LDFLAGS , $(LIBS))
+VCFLAGS += $(addprefix -CFLAGS , $(CXXFLAGS))
+
 
 # 源文件定义
 DIRS-BLACKLIST-y += $(DIRS-BLACKLIST)
@@ -35,11 +45,12 @@ SOURCES += $(addprefix ${NPC_HOME}/, $(SRCS))
 
 $(info "SOURCES: $(SOURCES)")
 $(info "ARGS: $(ARGS)")
+$(info "LDFLAGS: $(LDFLAGS)")
 
 # Verilator基础配置
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing --autoflush
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
-VERILATOR_BASE_FLAGS += $(LDFLAGS)
+VERILATOR_BASE_FLAGS += $(addprefix -LDFLAGS , $(LDFLAGS))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 
 ifdef CONFIG_WAVETRACE_FST
@@ -53,12 +64,9 @@ else
     include $(NPC_HOME)/scripts/npc.mk
 endif
 
-ifdef CONFIG_NVBORAD
-    include $(NVBOARD_HOME)/scripts/nvboard.mk
-endif
 
 # 通用规则
-run: build
+run: build 
 	@echo $(ARGS) $(IMG)
 	$(NPC_EXEC)
 

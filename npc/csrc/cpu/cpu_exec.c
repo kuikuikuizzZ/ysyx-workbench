@@ -4,9 +4,10 @@
 #include <npc.h>
 #include <ringbuffer.h>
 
-#ifdef CONFIG_NVBOARD
 #include <nvboard.h>
-#endif
+
+void nvboard_bind_all_pins(Top* _top);
+
 
 
 CPU_state cpu = {};
@@ -52,20 +53,23 @@ void sync_cpu(){
 }
 
 void init_cpu(int argc ,char** argv){
+
     // Construct a VerilatedContext to hold simulation time, etc.
     contextp = new VerilatedContext;
 
     // Pass arguments so Verilated code can see them, e.g. $value$plusargs
     // This needs to be called before you create any model
     contextp->commandArgs(argc, argv);
-
+    
+    IFDEF(CONFIG_NVBOARD,nvboard_bind_all_pins(top()));
+    IFDEF(CONFIG_NVBOARD,nvboard_init());
+    
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     reset(1);
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif
-    IFDEF(CONFIG_NVBOARD,nvboard_bind_all_pins(top()));
-    IFDEF(CONFIG_NVBOARD,nvboard_init());
+
 
     sync_cpu();
 }

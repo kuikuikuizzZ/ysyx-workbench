@@ -27,28 +27,22 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     putch('h');
     putch('i');
 
-    unsigned *src = (unsigned*)&_lma_rodata_start;
-    unsigned *dst = (unsigned*)&_etext;
-    while (dst < (unsigned*)&_erodata) *dst++ = *src++; 
-    char *csrc = (char*)src;
-    char *cdst = (char*)dst;
-    while (cdst < &_erodata ) *cdst++ = *csrc++;
-    putch('\n');
-    print_hex((uint32_t)&_text_start);
-    putch('\n');
-    print_hex((uint32_t)&_erodata);
-    putch('\n');
-    print_hex((uint32_t)&_erodata-(uint32_t)&_text_start);
-    putstr(" bytes\n");
 
     // load code from LMA to VMA
-    src = (unsigned*)&_lma_code_start;
-    dst = (unsigned*)&_text_start;
+    unsigned* src = (unsigned*)&_lma_code_start;
+    unsigned* dst = (unsigned*)&_text_start;
     while (dst < (unsigned*)&_etext)  *dst++ = *src++;
-        cdst = (char*)dst;
-        csrc = (char*)src;
+        char *cdst = (char*)dst;
+        char *csrc = (char*)src;
     while (cdst < &_etext ) *cdst++ = *csrc++;
     
+     src = (unsigned*)&_lma_rodata_start;
+     dst = (unsigned*)&_etext;
+    while (dst < (unsigned*)&_erodata) *dst++ = *src++; 
+    csrc = (char*)src;
+    cdst = (char*)dst;
+    while (cdst < &_erodata ) *cdst++ = *csrc++;
+
     // load data from LMA to VMA
     src = (unsigned*)&_lma_data_start;
     dst = (unsigned*)&_data_start;

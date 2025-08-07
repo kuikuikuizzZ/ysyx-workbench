@@ -1293,11 +1293,9 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
                 auto_anon_out_3_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_anon_out_3_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [28:0] auto_anon_out_3_paddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [2:0]  auto_anon_out_3_pprot,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_anon_out_3_pwdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [3:0]  auto_anon_out_3_pstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input         auto_anon_out_3_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-                auto_anon_out_3_pslverr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [31:0] auto_anon_out_3_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_anon_out_2_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_anon_out_2_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -1369,9 +1367,8 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
       & ~auto_anon_out_6_pready);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, :55:{21,44}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
   assign auto_anon_in_pslverr =
     sel_0 & auto_anon_out_0_pslverr | sel_1 & auto_anon_out_1_pslverr | sel_2
-    & auto_anon_out_2_pslverr | sel_3 & auto_anon_out_3_pslverr | sel_4
-    & auto_anon_out_4_pslverr | sel_5 & auto_anon_out_5_pslverr | sel_6
-    & auto_anon_out_6_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
+    & auto_anon_out_2_pslverr | sel_4 & auto_anon_out_4_pslverr | sel_5
+    & auto_anon_out_5_pslverr | sel_6 & auto_anon_out_6_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
   assign auto_anon_in_prdata =
     (sel_0 ? auto_anon_out_0_prdata : 32'h0) | (sel_1 ? auto_anon_out_1_prdata : 32'h0)
     | (sel_2 ? auto_anon_out_2_prdata : 32'h0) | (sel_3 ? auto_anon_out_3_prdata : 32'h0)
@@ -1402,7 +1399,6 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
   assign auto_anon_out_3_penable = sel_3 & auto_anon_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :52:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
   assign auto_anon_out_3_pwrite = auto_anon_in_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
   assign auto_anon_out_3_paddr = auto_anon_in_paddr[28:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:31
-  assign auto_anon_out_3_pprot = auto_anon_in_pprot;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
   assign auto_anon_out_3_pwdata = auto_anon_in_pwdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
   assign auto_anon_out_3_pstrb = auto_anon_in_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
   assign auto_anon_out_2_psel = sel_2 & auto_anon_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :51:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
@@ -1562,6 +1558,144 @@ module APBUart16550(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:39:23
 endmodule
 
+module Bcd16seg(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:30:7
+  input  [3:0] io_code,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:31:16
+  output [7:0] io_seg	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:31:16
+);
+
+  wire [15:0][7:0] _GEN =
+    '{8'h8E,
+      8'h9E,
+      8'h7A,
+      8'h9C,
+      8'h3E,
+      8'hEE,
+      8'hF6,
+      8'hFE,
+      8'hE0,
+      8'hBE,
+      8'hB6,
+      8'h66,
+      8'hF2,
+      8'hDA,
+      8'h60,
+      8'hFD};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
+  assign io_seg = ~_GEN[io_code];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:30:7, :36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30, :55:15
+endmodule
+
+module gpioChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+                io_in_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_in_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_in_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  input  [31:0] io_in_paddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_in_pwdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  input  [3:0]  io_in_pstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  output        io_in_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  output [31:0] io_in_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  output [15:0] io_gpio_out,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  input  [15:0] io_gpio_in,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+  output [7:0]  io_gpio_seg_0,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_1,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_2,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_3,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_4,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_5,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_6,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+                io_gpio_seg_7	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:59:14
+);
+
+  wire [6:0]  mask = {3'h0, io_in_pstrb} << io_in_paddr[1:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:{53,59}, :64:37
+  reg  [15:0] led_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:65:32
+  reg  [15:0] switch_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:66:32
+  reg  [31:0] seg_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32
+  wire [7:0]  byteMasks_0 = {8{mask[0]}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:64:37, :76:{24,29}
+  wire [7:0]  byteMasks_1 = {8{mask[1]}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:64:37, :76:{24,29}
+  wire        _io_gpio_out_T = io_in_paddr[31:2] == 30'h4000800;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:63:40, :78:27
+  wire [46:0] _io_in_prdata_T_3 = {31'h0, switch_reg} << {42'h0, io_in_paddr[1:0], 3'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:{38,53,59}, :66:32, :82:32
+  always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+    if (reset) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      led_reg <= 16'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:65:32
+      switch_reg <= 16'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:66:32
+      seg_reg <= 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32
+    end
+    else begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      automatic logic        write_valid = io_in_pwrite & io_in_psel & io_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}
+      automatic logic [62:0] align_data;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:38
+      align_data = {31'h0, io_in_pwdata} << {58'h0, io_in_paddr[1:0], 3'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:{38,53,59}
+      if (write_valid & _io_gpio_out_T) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}, :78:27, :92:20
+        automatic logic [15:0] _led_reg_T_3 = {byteMasks_1, byteMasks_0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:76:24, :93:36
+        led_reg <= led_reg & ~_led_reg_T_3 | align_data[15:0] & _led_reg_T_3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:38, :65:32, :93:{25,27,36,44,58}
+      end
+      switch_reg <= io_gpio_in;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:66:32
+      if (write_valid & io_in_paddr[31:2] == 30'h4000802) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}, :63:40, :98:{20,28}
+        automatic logic [31:0] fullMask =
+          {{8{mask[3]}}, {8{mask[2]}}, byteMasks_1, byteMasks_0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:64:37, :74:28, :76:{24,29}
+        seg_reg <= seg_reg & ~fullMask | align_data[31:0] & fullMask;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:38, :67:32, :74:28, :99:{26,28,39,53}
+      end
+    end
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      `FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+    `endif // FIRRTL_BEFORE_INITIAL
+    initial begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      automatic logic [31:0] _RANDOM[0:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      `ifdef INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+        `INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+        for (logic [1:0] i = 2'h0; i < 2'h2; i += 2'h1) begin
+          _RANDOM[i[0]] = `RANDOM;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+        end	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+        led_reg = _RANDOM[1'h0][15:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32
+        switch_reg = _RANDOM[1'h0][31:16];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32, :66:32
+        seg_reg = _RANDOM[1'h1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :67:32
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+      `FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  Bcd16seg Bcd16seg (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[3:0]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_0)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_1 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[7:4]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_1)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_2 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[11:8]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_2)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_3 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[15:12]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_3)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_4 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[19:16]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_4)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_5 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[23:20]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_5)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_6 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[27:24]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_6)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  Bcd16seg Bcd16seg_7 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+    .io_code (seg_reg[31:28]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
+    .io_seg  (io_gpio_seg_7)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
+  assign io_in_pready = io_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+  assign io_in_prdata =
+    io_in_paddr[31:2] == 30'h4000801 ? _io_in_prdata_T_3[31:0] : 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :63:40, :81:{22,28,47}, :82:32
+  assign io_gpio_out = _io_gpio_out_T ? led_reg : 16'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32, :78:{21,27}
+endmodule
+
 module APBGPIO(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:118:9
   input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:118:9
                 reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:118:9
@@ -1569,11 +1703,9 @@ module APBGPIO(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/d
                 auto_in_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [28:0] auto_in_paddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input  [2:0]  auto_in_pprot,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [31:0] auto_in_pwdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [3:0]  auto_in_pstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_in_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-                auto_in_pslverr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [15:0] gpio_bundle_out,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:120:25
   input  [15:0] gpio_bundle_in,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:120:25
@@ -1587,29 +1719,27 @@ module APBGPIO(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/d
                 gpio_bundle_seg_7	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:120:25
 );
 
-  gpio_top_apb mgpio (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:122:23
-    .clock      (clock),
-    .reset      (reset),
-    .in_psel    (auto_in_psel),
-    .in_penable (auto_in_penable),
-    .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({3'h0, auto_in_paddr}),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:125:17
-    .in_pprot   (auto_in_pprot),
-    .in_pwdata  (auto_in_pwdata),
-    .in_pstrb   (auto_in_pstrb),
-    .in_pready  (auto_in_pready),
-    .in_pslverr (auto_in_pslverr),
-    .in_prdata  (auto_in_prdata),
-    .gpio_out   (gpio_bundle_out),
-    .gpio_in    (gpio_bundle_in),
-    .gpio_seg_0 (gpio_bundle_seg_0),
-    .gpio_seg_1 (gpio_bundle_seg_1),
-    .gpio_seg_2 (gpio_bundle_seg_2),
-    .gpio_seg_3 (gpio_bundle_seg_3),
-    .gpio_seg_4 (gpio_bundle_seg_4),
-    .gpio_seg_5 (gpio_bundle_seg_5),
-    .gpio_seg_6 (gpio_bundle_seg_6),
-    .gpio_seg_7 (gpio_bundle_seg_7)
+  gpioChisel mgpio (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:122:23
+    .clock         (clock),
+    .reset         (reset),
+    .io_in_psel    (auto_in_psel),
+    .io_in_penable (auto_in_penable),
+    .io_in_pwrite  (auto_in_pwrite),
+    .io_in_paddr   ({3'h0, auto_in_paddr}),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:125:17
+    .io_in_pwdata  (auto_in_pwdata),
+    .io_in_pstrb   (auto_in_pstrb),
+    .io_in_pready  (auto_in_pready),
+    .io_in_prdata  (auto_in_prdata),
+    .io_gpio_out   (gpio_bundle_out),
+    .io_gpio_in    (gpio_bundle_in),
+    .io_gpio_seg_0 (gpio_bundle_seg_0),
+    .io_gpio_seg_1 (gpio_bundle_seg_1),
+    .io_gpio_seg_2 (gpio_bundle_seg_2),
+    .io_gpio_seg_3 (gpio_bundle_seg_3),
+    .io_gpio_seg_4 (gpio_bundle_seg_4),
+    .io_gpio_seg_5 (gpio_bundle_seg_5),
+    .io_gpio_seg_6 (gpio_bundle_seg_6),
+    .io_gpio_seg_7 (gpio_bundle_seg_7)
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:122:23
 endmodule
 
@@ -4470,7 +4600,6 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
   wire        _lkeyboard_auto_in_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
   wire [31:0] _lkeyboard_auto_in_prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
   wire        _lgpio_auto_in_pready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-  wire        _lgpio_auto_in_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
   wire [31:0] _lgpio_auto_in_prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
   wire        _luart_auto_in_pready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
   wire        _luart_auto_in_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
@@ -4521,7 +4650,6 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
   wire        _apbxbar_auto_anon_out_3_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_3_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire [28:0] _apbxbar_auto_anon_out_3_paddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_3_pprot;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire [31:0] _apbxbar_auto_anon_out_3_pwdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire [3:0]  _apbxbar_auto_anon_out_3_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_2_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
@@ -4840,11 +4968,9 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_anon_out_3_penable (_apbxbar_auto_anon_out_3_penable),
     .auto_anon_out_3_pwrite  (_apbxbar_auto_anon_out_3_pwrite),
     .auto_anon_out_3_paddr   (_apbxbar_auto_anon_out_3_paddr),
-    .auto_anon_out_3_pprot   (_apbxbar_auto_anon_out_3_pprot),
     .auto_anon_out_3_pwdata  (_apbxbar_auto_anon_out_3_pwdata),
     .auto_anon_out_3_pstrb   (_apbxbar_auto_anon_out_3_pstrb),
     .auto_anon_out_3_pready  (_lgpio_auto_in_pready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-    .auto_anon_out_3_pslverr (_lgpio_auto_in_pslverr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
     .auto_anon_out_3_prdata  (_lgpio_auto_in_prdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
     .auto_anon_out_2_psel    (_apbxbar_auto_anon_out_2_psel),
     .auto_anon_out_2_penable (_apbxbar_auto_anon_out_2_penable),
@@ -4933,11 +5059,9 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_in_penable   (_apbxbar_auto_anon_out_3_penable),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pwrite    (_apbxbar_auto_anon_out_3_pwrite),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_paddr     (_apbxbar_auto_anon_out_3_paddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot     (_apbxbar_auto_anon_out_3_pprot),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pwdata    (_apbxbar_auto_anon_out_3_pwdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pstrb     (_apbxbar_auto_anon_out_3_pstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready    (_lgpio_auto_in_pready),
-    .auto_in_pslverr   (_lgpio_auto_in_pslverr),
     .auto_in_prdata    (_lgpio_auto_in_prdata),
     .gpio_bundle_out   (gpio_out),
     .gpio_bundle_in    (gpio_in),
