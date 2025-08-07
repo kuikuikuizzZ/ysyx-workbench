@@ -160,7 +160,7 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
     // CSRs.minstret -> reg_instret,
     CSRs.mimpid -> 0.U,
     CSRs.marchid ->   24100012.U,
-    CSRs.mvendorid -> 0x79737978.U,
+    CSRs.mvendorid -> 0x78797379.U,
     // CSRs.misa -> misa.U,
     // CSRs.mimpid -> impid.U,
     CSRs.mstatus -> read_mstatus,

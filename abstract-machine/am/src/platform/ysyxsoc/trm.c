@@ -32,14 +32,16 @@ void halt(int code) {
 
 void _trm_init() {
   // mvendorid: 0xf11 marchid: 0xf12
-  uint32_t mvendorid,marchid;
+  uint32_t marchid,mvendorid;
+  char name[4];
   asm volatile("csrr %0, mvendorid"
     : "=r"(mvendorid)
   );
   asm volatile("csrr %0, marchid"
     : "=r"(marchid)
   );
-  printf("\n*** %s_%d ***\n",mvendorid,marchid);
+  memcpy(name,&mvendorid,4);
+  printf("\n*** %s_%d ***\n",name,marchid);
 
   int ret = main(mainargs);
   halt(ret);
