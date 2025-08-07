@@ -24,13 +24,21 @@ __attribute__ ((section(".bootutils"))) void putch(char ch) {
   return;
 }
 
+__attribute__ ((section(".bootutils"))) void print_hex(uint32_t num) {
+    const char hex_chars[] = "0123456789abcdef";  
+    for (int i = 7; i >= 0; i--) {
+        uint8_t nibble = (num >> (i * 4)) & 0x0F;  
+        char hex_char = hex_chars[nibble];
+        putch(hex_char);  
+    }
+}
 void halt(int code) {
   npc_trap(code);
   // should not reach here.
   while (1);
 }
 
-void _trm_init() {
+void print_id(){
   // mvendorid: 0xf11 marchid: 0xf12
   uint32_t marchid,mvendorid;
   char name[4];
@@ -42,8 +50,11 @@ void _trm_init() {
   );
   memcpy(name,&mvendorid,4);
   printf("\n*** %s_%d ***\n",name,marchid);
-
+  print_hex(121);
+  putch('\n');
+}
+void _trm_init() {
+  print_id();
   int ret = main(mainargs);
   halt(ret);
-
 }

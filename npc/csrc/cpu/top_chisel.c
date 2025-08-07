@@ -1,8 +1,6 @@
 
 #include <cpu/cpu.h>
 
-
-
 #ifdef CONFIG_NPC_CHISEL
 #include <cpu/top.h>
 #ifndef __DEBUG_TOP__
@@ -10,6 +8,7 @@
 static uint32_t pc = 0;
 static uint32_t inst = 0;
 static uint32_t halt = 0;
+
 
 
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
@@ -30,7 +29,10 @@ Top* top() {
     return _top;
 }
 
+#ifdef CONFIG_NVBOARD
+void nvboard_bind_all_pins(TOP_NAME* top);
 
+#endif
 
 typedef struct {
     uint32_t inst;

@@ -4,7 +4,9 @@
 #include <npc.h>
 #include <ringbuffer.h>
 
-
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
+#endif
 
 
 CPU_state cpu = {};
@@ -32,6 +34,7 @@ void step() {
     top()->eval(); 
     contextp->timeInc(1);
     IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+    IFDEF(CONFIG_NVBOARD,nvboard_update(););
 }
 
 void reset(int n) { 
@@ -61,6 +64,9 @@ void init_cpu(int argc ,char** argv){
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif
+    IFDEF(CONFIG_NVBOARD,nvboard_bind_all_pins(top()));
+    IFDEF(CONFIG_NVBOARD,nvboard_init());
+
     sync_cpu();
 }
 
@@ -191,6 +197,7 @@ void free_cpu(){
     IFDEF(CONFIG_WAVETRACE_FST, tfp()->close());
     // Destroy model
     delete_top();
+    IFDEF(CONFIG_NVBOARD,nvboard_quit());
 }
 
 int cpu_exec(uint64_t n){

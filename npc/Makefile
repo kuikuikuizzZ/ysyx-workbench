@@ -53,6 +53,10 @@ else
     include $(NPC_HOME)/scripts/npc.mk
 endif
 
+ifdef CONFIG_NVBORAD
+    include $(NVBOARD_HOME)/scripts/nvboard.mk
+endif
+
 # 通用规则
 run: build
 	@echo $(ARGS) $(IMG)

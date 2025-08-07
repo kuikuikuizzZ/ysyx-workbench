@@ -13,6 +13,10 @@ config NPC_CHISEL
   bool "npc-chisel"
 endchoice
 
+config NVBOARD
+  bool "nvboard enable"
+  default n
+
 config SOC
   bool "run with/without soc"
   default y

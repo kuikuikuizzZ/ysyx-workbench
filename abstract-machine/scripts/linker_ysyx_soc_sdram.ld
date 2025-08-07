@@ -35,6 +35,7 @@ SECTIONS {
   } > sdram AT> flash
 
   _etext = .;
+  _lma_rodata_start = LOADADDR (.rodata);
   . = ALIGN(4);
   .rodata  : {
     *(.rodata*)

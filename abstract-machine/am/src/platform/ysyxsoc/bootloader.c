@@ -6,7 +6,7 @@
 extern char _heap_start;
 extern char _data_start;
 
-extern char _lma_code_start,_text_start,_erodata;
+extern char _lma_code_start,_text_start,_etext,_lma_rodata_start,_erodata;
 extern char _lma_data_start,_data_start, _data_end,_bss_start, _bss_end;
 extern char _lma_sec_boost_start,_sec_boost_start, _sec_boost_end;
 extern char _trm_init;
@@ -23,20 +23,32 @@ __attribute__ ((section(".first_boost"))) void _load_sec_boost() {
 }
 
 __attribute__ ((section(".sec_boost"))) void _sec_boost(){
-    init_uart();
-    putch('H');
+    init_uart();    
+    putch('h');
     putch('i');
-    putch('\n');
 
-    // load code from LMA to VMA
-    unsigned *src = (unsigned*)&_lma_code_start;
-    unsigned *dst = (unsigned*)&_text_start;
-    while (dst < (unsigned*)&_erodata)  *dst++ = *src++;
+    unsigned *src = (unsigned*)&_lma_rodata_start;
+    unsigned *dst = (unsigned*)&_etext;
+    while (dst < (unsigned*)&_erodata) *dst++ = *src++; 
     char *csrc = (char*)src;
     char *cdst = (char*)dst;
     while (cdst < &_erodata ) *cdst++ = *csrc++;
+    putch('\n');
+    print_hex((uint32_t)&_text_start);
+    putch('\n');
+    print_hex((uint32_t)&_erodata);
+    putch('\n');
+    print_hex((uint32_t)&_erodata-(uint32_t)&_text_start);
+    putstr(" bytes\n");
 
-
+    // load code from LMA to VMA
+    src = (unsigned*)&_lma_code_start;
+    dst = (unsigned*)&_text_start;
+    while (dst < (unsigned*)&_etext)  *dst++ = *src++;
+        cdst = (char*)dst;
+        csrc = (char*)src;
+    while (cdst < &_etext ) *cdst++ = *csrc++;
+    
     // load data from LMA to VMA
     src = (unsigned*)&_lma_data_start;
     dst = (unsigned*)&_data_start;

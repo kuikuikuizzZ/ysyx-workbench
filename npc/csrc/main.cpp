@@ -1,3 +1,4 @@
+#include <nvboard.h>
 #include <common.h>
 #include <memory/memory.h>
 #include <device/device.h>

@@ -22,8 +22,8 @@ SECTIONS {
   _lma_sec_boost_start = LOADADDR (.sec_boost);
   .sec_boost : {
     _sec_boost_start = .;
-    KEEP(*(.sec_boost))
     KEEP(*(.bootutils))
+    KEEP(*(.sec_boost))
   } > sram AT> flash
   _sec_boost_end = .;
 
@@ -35,6 +35,7 @@ SECTIONS {
   } > sdram AT> flash
 
   _etext = .;
+  _lma_rodata_start = LOADADDR (.rodata);
   . = ALIGN(4);
   .rodata  : {
     *(.rodata*)
