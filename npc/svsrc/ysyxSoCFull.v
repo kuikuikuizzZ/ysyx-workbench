@@ -1612,7 +1612,6 @@ module gpioChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/sr
   reg  [31:0] seg_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32
   wire [7:0]  byteMasks_0 = {8{mask[0]}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:64:37, :76:{24,29}
   wire [7:0]  byteMasks_1 = {8{mask[1]}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:64:37, :76:{24,29}
-  wire        _io_gpio_out_T = io_in_paddr[31:2] == 30'h4000800;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:63:40, :78:27
   wire [46:0] _io_in_prdata_T_3 = {31'h0, switch_reg} << {42'h0, io_in_paddr[1:0], 3'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:{38,53,59}, :66:32, :82:32
   always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
     if (reset) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
@@ -1624,10 +1623,9 @@ module gpioChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/sr
       automatic logic        write_valid = io_in_pwrite & io_in_psel & io_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}
       automatic logic [62:0] align_data;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:38
       align_data = {31'h0, io_in_pwdata} << {58'h0, io_in_paddr[1:0], 3'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:{38,53,59}
-      if (write_valid & _io_gpio_out_T) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}, :78:27, :92:20
+      if (write_valid & io_in_paddr[31:2] == 30'h4000800) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}, :63:40, :92:{20,28}
         automatic logic [15:0] _led_reg_T_3 = {byteMasks_1, byteMasks_0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:76:24, :93:36
         led_reg <= led_reg & ~_led_reg_T_3 | align_data[15:0] & _led_reg_T_3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:62:38, :65:32, :93:{25,27,36,44,58}
-        $display("led_reg %x",led_reg);
       end
       switch_reg <= io_gpio_in;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:66:32
       if (write_valid & io_in_paddr[31:2] == 30'h4000802) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:60:{38,52}, :63:40, :98:{20,28}
@@ -1694,7 +1692,7 @@ module gpioChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/sr
   assign io_in_pready = io_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
   assign io_in_prdata =
     io_in_paddr[31:2] == 30'h4000801 ? _io_in_prdata_T_3[31:0] : 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :63:40, :81:{22,28,47}, :82:32
-  assign io_gpio_out = _io_gpio_out_T ? led_reg : 16'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32, :78:{21,27}
+  assign io_gpio_out = led_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32
 endmodule
 
 module APBGPIO(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:118:9
