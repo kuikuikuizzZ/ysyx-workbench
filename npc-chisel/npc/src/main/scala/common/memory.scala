@@ -330,6 +330,6 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
       // axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
       //                         Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))      axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
       axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U ,
-                              Mux(dport_typi === MT_H,3.U15.U))
+                              Mux(dport_typi === MT_H,3.U,15.U))
    }
 }
