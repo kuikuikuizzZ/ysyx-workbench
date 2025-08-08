@@ -49,8 +49,9 @@ void print_id(){
     : "=r"(marchid)
   );
   memcpy(name,&mvendorid,4);
-  printf("\n*** %s_%d ***\n",name,marchid);
-  print_hex(121);
+  print_hex(mvendorid);
+  putch('_');
+  print_hex(marchid);
   putch('\n');
 }
 void _trm_init() {

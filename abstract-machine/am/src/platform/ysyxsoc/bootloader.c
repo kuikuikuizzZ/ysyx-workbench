@@ -30,11 +30,11 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     unsigned* src = (unsigned*)&_lma_code_start;
     unsigned* dst = (unsigned*)&_text_start;
     
-    putstr("\n load size: ");
+    putch('\n');
     print_hex((unsigned ) (&_data_end-&_text_start));
-    putstr("\n_text_start ");
+    putch('\n');
     print_hex((unsigned )&_text_start);
-    putstr("\n ");
+    putch('\n');
 
     while (dst < (unsigned*)&_data_end)  *dst++ = *src++;
         char *cdst = (char*)dst;
