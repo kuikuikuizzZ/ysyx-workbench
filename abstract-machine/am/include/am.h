@@ -47,7 +47,7 @@ extern "C" {
 extern   Area        heap;
 void     putch       (char ch);
 void     halt        (int code) __attribute__((__noreturn__));
-
+void     print_hex(uint32_t num); 
 // -------------------- IOE: Input/Output Devices --------------------
 bool     ioe_init    (void);
 void     ioe_read    (int reg, void *buf);

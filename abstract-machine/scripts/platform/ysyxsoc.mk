@@ -13,12 +13,10 @@ CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/ysyxsoc/include
 CFLAGS    += -I$(AM_HOME)/am/src/riscv
 
-LDSCRIPTS += $(AM_HOME)/scripts/linker_ysyx_soc_sdram.ld
-LDFLAGS   += --defsym=_pmem_start=0xa0100000 --defsym=_entry_offset=0x00
-LDFLAGS   += --gc-sections -e _start
+
 YSYXSOCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 # YSYXSOCFLAGS += -e $(IMAGE).elf
-# YSYXSOCFLAGS += -b
+YSYXSOCFLAGS += -b
 # YSYXSOCFLAGS += --flash_file=$(AM_KERNELS_HOME)/tests/soc-tests/build/char-test-riscv32e-ysyxsoc.bin
 
 MAINARGS_MAX_LEN = 64
@@ -31,8 +29,8 @@ insert-arg: image
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
-	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-# 	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
+# 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
