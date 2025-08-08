@@ -20,9 +20,7 @@ Area heap = RANGE(&_heap_start, &_heap_start+0x1000);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 __attribute__ ((section(".bootutils"))) void putch(char ch) {
-  uint16_t i = 0;
-  while(!(inb(UART_LSR)&0x20) && i!=10)   i++; 
-  i = 0;
+  while(!(inb(UART_LSR)&0x20)); 
   outb(UART_RBR,ch);
   return;
 }
