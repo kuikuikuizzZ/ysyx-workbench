@@ -71,7 +71,7 @@ static inline bool in_flash_pmem(paddr_t addr) {
 
 static inline bool in_uart_pmem(paddr_t addr) {
   bool res = false;
-  IFDEF(CONFIG_HAS_UART, res=addr - CONFIG_UART_BASE < CONFIG_UART_SIZE);
+  IFDEF(CONFIG_HAS_UART, res=(addr - CONFIG_UART_BASE) < CONFIG_UART_SIZE);
   return  res;  
 }
 

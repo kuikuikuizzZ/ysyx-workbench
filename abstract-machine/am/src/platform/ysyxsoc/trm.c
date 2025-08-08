@@ -20,7 +20,7 @@ Area heap = RANGE(&_heap_start, &_heap_start+0x1000);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 __attribute__ ((section(".bootutils"))) void putch(char ch) {
-  // while(!(inb(UART_LSR)&0x20)) ;
+  // while(!(inb(UART_LSR)&0x20)); 
   outb(UART_RBR,ch);
   return;
 }
@@ -49,8 +49,9 @@ void print_id(){
     : "=r"(marchid)
   );
   memcpy(name,&mvendorid,4);
-  printf("\n*** %s_%d ***\n",name,marchid);
-  print_hex(121);
+  print_hex(mvendorid);
+  putch('_');
+  print_hex(marchid);
   putch('\n');
 }
 void _trm_init() {

@@ -26,7 +26,7 @@ SECTIONS {
     KEEP(*(.bootutils))
   } > sram AT> flash
   _sec_boost_end = .;
-
+  . = ALIGN(4);
   _lma_code_start = LOADADDR (.text);
   .text : {
     _text_start = .;
@@ -36,7 +36,6 @@ SECTIONS {
 
   _etext = .;
   _lma_rodata_start = LOADADDR (.rodata);
-  . = ALIGN(4);
   .rodata  : {
     *(.rodata*)
   } > sdram AT> flash
