@@ -1689,7 +1689,7 @@ module gpioChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/sr
     .io_code (seg_reg[31:28]),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:67:32, :89:36
     .io_seg  (io_gpio_seg_7)
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:68:51
-  assign io_in_pready = io_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7
+  assign io_in_pready = io_in_psel & io_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :79:30
   assign io_in_prdata =
     io_in_paddr[31:2] == 30'h4000801 ? _io_in_prdata_T_3[31:0] : 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :63:40, :81:{22,28,47}, :82:32
   assign io_gpio_out = led_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:58:7, :65:32

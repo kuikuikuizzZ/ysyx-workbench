@@ -6,6 +6,7 @@
 
 extern char _heap_start;
 extern char _data_start;
+
 int main(const char *args);
 void init_uart();
 void bootloader();
@@ -19,16 +20,17 @@ Area heap = RANGE(&_heap_start, &_heap_start+0x1000);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 __attribute__ ((section(".bootutils"))) void putch(char ch) {
-  // while(!(inb(UART_LSR)&0x20)) ;
+  uint16_t i = 0;
+  while(!(inb(UART_LSR)&0x20) && i!=10)   i++; 
+  i = 0;
   outb(UART_RBR,ch);
   return;
 }
 
 __attribute__ ((section(".bootutils"))) void print_hex(uint32_t num) {
-    const char hex_chars[] = "0123456789abcdef";  
     for (int i = 7; i >= 0; i--) {
         uint8_t nibble = (num >> (i * 4)) & 0x0F;  
-        char hex_char = hex_chars[nibble];
+        char hex_char = (nibble < 10) ? ('0' + nibble) : ('a' + nibble - 10);
         putch(hex_char);  
     }
 }
