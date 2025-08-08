@@ -282,14 +282,14 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.fcn,M_X))
    req_typi := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.typ,
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.typ,MT_X))
-   req_addri := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.addr,
+   req_addri := Mux(io.ports(IPORT).req.valid,Cat(io.ports(IPORT).req.bits.addr(31,2),0.asUInt(2.W))
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.addr,0.U))
    req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
    
    val axi_resp = axi4lite_mem.io.resp.bits.resp
    val resp_valid = axi_resp === 0.U
-   // val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
+   val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
    io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
