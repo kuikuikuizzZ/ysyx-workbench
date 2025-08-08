@@ -4,6 +4,9 @@
 #include <npc.h>
 #include <ringbuffer.h>
 
+#include <nvboard.h>
+
+void nvboard_bind_all_pins(Top* _top);
 
 
 
@@ -32,6 +35,7 @@ void step() {
     top()->eval(); 
     contextp->timeInc(1);
     IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
+    IFDEF(CONFIG_NVBOARD,nvboard_update(););
 }
 
 void reset(int n) { 
@@ -49,18 +53,24 @@ void sync_cpu(){
 }
 
 void init_cpu(int argc ,char** argv){
+
     // Construct a VerilatedContext to hold simulation time, etc.
     contextp = new VerilatedContext;
 
     // Pass arguments so Verilated code can see them, e.g. $value$plusargs
     // This needs to be called before you create any model
     contextp->commandArgs(argc, argv);
-
+    
+    IFDEF(CONFIG_NVBOARD,nvboard_bind_all_pins(top()));
+    IFDEF(CONFIG_NVBOARD,nvboard_init());
+    
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     reset(1);
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif
+
+
     sync_cpu();
 }
 
@@ -191,6 +201,7 @@ void free_cpu(){
     IFDEF(CONFIG_WAVETRACE_FST, tfp()->close());
     // Destroy model
     delete_top();
+    IFDEF(CONFIG_NVBOARD,nvboard_quit());
 }
 
 int cpu_exec(uint64_t n){

@@ -1,7 +1,7 @@
 mainmenu "NPC Configuration Menu"
 
 config ISA
-  string "Instruction Set Architecture
+  string "Instruction Set Architecture"
   default riscv32e 
 
 choice
@@ -12,6 +12,10 @@ config NPC_VERILOG
 config NPC_CHISEL
   bool "npc-chisel"
 endchoice
+
+config NVBOARD
+  bool "nvboard enable"
+  default n
 
 config SOC
   bool "run with/without soc"

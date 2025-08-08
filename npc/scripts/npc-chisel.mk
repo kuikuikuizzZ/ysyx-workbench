@@ -19,6 +19,7 @@ VINCLUDES = $(addprefix -I, $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 
-build:
+
+build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
-	verilator $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) --trace-fst --autoflush
+	verilator $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
