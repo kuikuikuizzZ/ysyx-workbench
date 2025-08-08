@@ -22,8 +22,8 @@ SECTIONS {
   _lma_sec_boost_start = LOADADDR (.sec_boost);
   .sec_boost : {
     _sec_boost_start = .;
-    KEEP(*(.bootutils))
     KEEP(*(.sec_boost))
+    KEEP(*(.bootutils))
   } > sram AT> flash
   _sec_boost_end = .;
 

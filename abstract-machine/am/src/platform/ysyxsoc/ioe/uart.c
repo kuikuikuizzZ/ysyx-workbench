@@ -4,7 +4,6 @@
 
 __attribute__ ((section(".bootutils"))) void init_uart() {
   
-    outb(UART_FCR, 0b11000100); 
     outb(UART_LCR, 0b10000011); 
     // set baud rate
     outb(UART_DLM, 0x00);
