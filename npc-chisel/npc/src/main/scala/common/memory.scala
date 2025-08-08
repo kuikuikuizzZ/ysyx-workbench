@@ -299,7 +299,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    axi4lite_mem.io.axi_io <> io.axi_port
 
    /////////// Read Port
-   axi4lite_mem.io.req.raddr := Mux(req_typi ===MT_W || req_typi === MT_WU,  aligned_req_addri,req_addri)
+   axi4lite_mem.io.req.raddr := req_addri
    axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
    axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
 
