@@ -323,8 +323,8 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
 
    /////////// Write Port
    when (req_valid && (req_fcn === M_XWR)){
-      // axi4lite_mem.io.req.waddr := req_addri
-      axi4lite_mem.io.req.waddr := aligned_req_addri
+      axi4lite_mem.io.req.waddr := req_addri
+      // axi4lite_mem.io.req.waddr := aligned_req_addri
       axi4lite_mem.io.req.data := req_data << (req_addri(1,0) << 3)
       axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
                               Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
