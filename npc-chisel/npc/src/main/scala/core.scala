@@ -33,6 +33,8 @@ class ysyx_24100012 extends Module
   
   val clint = Module(new ysyx_24100012_AXI4CLINT())
   clint.io.axi_io <> io.slave
+  clint.io.clock := clock
+  clint.io.reset := reset
 
   arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
