@@ -22,10 +22,15 @@ class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends M
 
     val clint = Module(new ysyx_24100012_CLINT())
     val node = Module(new ysyx_24100012_AXI4LiteSlave())
+    
+    clint.io.clock := io.clock
+    clint.io.reset := io.reset
     node.io.axi_io <> io.axi_io
     node.io.reset := io.reset
     node.io.clock := io.clock
     node.io.out <> clint.io.in 
+
+
 
 }
 

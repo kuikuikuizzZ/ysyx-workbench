@@ -223,19 +223,6 @@ object Str
 
   private def validChar(x: Char) = x == (x & 0xFF)
 }
- 
-// class ysyx_24100012_LFSR(width: Int=4, seed: Int = 1) extends Module {
-//   val io = IO(new Bundle {
-//     val enable = Input(Bool())
-//     val random = Output(UInt(width.W))
-//   })
-//   val reg = RegInit(seed.U(width.W))
-//   when(io.enable) {
-//     val feedback = reg(3) ^ reg(2)  // 4-bit: taps at [0] and [3]
-//     reg := Cat(reg(2, 0),feedback)
-//   }
-//   io.random := reg
-// }
 
 }
 
