@@ -50,7 +50,7 @@ class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Modul
 
     io.in.dw := DontCare
     io.in.dr.ready := true.B
-    io.in.dr.data := read_data
+    io.in.dr.data := Mux(io.in.dr.en,read_data,0.U)
 
     reg_mtime := reg_mtime + 1.U
 }

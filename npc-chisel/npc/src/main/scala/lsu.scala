@@ -27,7 +27,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     })
     io := DontCare
     val valid = WireInit(false.B)
-    when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE && io.exe.addr < CLINT_BASE + CLINT_SIZE){
+
+    when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE && io.exe.addr < (CLINT_BASE + CLINT_SIZE)){
         io.port.req.valid    := false.B
         when (io.ctl.mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B

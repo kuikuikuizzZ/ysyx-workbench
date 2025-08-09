@@ -30,9 +30,9 @@ class ysyx_24100012 extends Module
   val wbu = Module(new ysyx_24100012_WBU())
   val clint = Module(new ysyx_24100012_CLINT())
 
-  clint.io.in <> lsu.io.clintIO
   clint.io.clock := clock
   clint.io.reset := reset
+  clint.io.in <> lsu.io.clintIO
 
   arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
