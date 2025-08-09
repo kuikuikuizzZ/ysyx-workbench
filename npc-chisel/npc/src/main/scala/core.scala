@@ -74,6 +74,17 @@ class ysyx_24100012 extends Module
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(d.io.ebreak, true.B, false.B)
 
+  io.slave.ar.ready := false.B
+  io.slave.r.data := 0.U
+  io.slave.r.resp := 0.U
+  io.slave.r.valid := false.B
+  io.slave.r.last := false.B
+  io.slave.r.id := 0.U
+  io.slave.aw.ready := false.B
+  io.slave.w.ready := false.B
+  io.slave.b.valid := false.B
+  io.slave.b.resp := 0.U
+  io.slave.b.id := 0.U
 
   /////// debug port
   val debug = Module(new debug_port())
