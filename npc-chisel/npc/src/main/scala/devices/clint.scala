@@ -6,6 +6,7 @@ import chisel3.util._
 
 import npc.common.Constants._
 import npc.common._
+import npc.common.Util._
 
 object  CLINTS{
     val mtime = 0XBFF8
