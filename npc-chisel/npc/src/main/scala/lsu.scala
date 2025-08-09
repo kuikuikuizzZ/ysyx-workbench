@@ -20,15 +20,33 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         val pc_io = Flipped(new PCOut())
         val wb = new LsuToWBIo()
         val ls_valid = Output(Bool())
+        val clintIO = Flipped(new Bundle{
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+        })
     })
     io := DontCare
-    io.port.req.valid    := io.ctl.mem_en
-    io.port.req.bits.fcn := io.ctl.mem_fcn
-    io.port.req.bits.typ := io.ctl.msk_sel
-    io.port.req.bits.addr := io.exe.addr
-    io.port.req.bits.data := io.exe.data
-    //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
-    io.wb.data :=  io.port.resp.bits.data
-    val valid = io.port.resp.valid
+    val valid = Wire(Bool())
+    when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE.U && io.exe.addr < CLINT_BASE.U + CLINT_SIZE.U){
+        io.port.req.valid    := false.B
+        when (io.ctl.mem_fn === M_XRD){
+            io.clintIO.dr.ar.en := true.B
+            io.clintIO.dr.ar.addr := io.exe.addr
+            io.wb.data := io.clintIO.dr.data
+            valid = io.clintIO.dr.ar.ready
+        } .otherwise{
+            io.clintIO.dr.ar.en := false.B
+        }
+    } .otherwise {
+        io.port.req.valid    := io.ctl.mem_en
+        io.port.req.bits.fcn := io.ctl.mem_fcn
+        io.port.req.bits.typ := io.ctl.msk_sel
+        io.port.req.bits.addr := io.exe.addr
+        io.port.req.bits.data := io.exe.data
+        //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
+        io.wb.data :=  io.port.resp.bits.data
+        valid := io.port.resp.valid
+    }
+    
     io.ls_valid := valid
 }

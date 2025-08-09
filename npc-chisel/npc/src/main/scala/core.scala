@@ -5,7 +5,7 @@ import chisel3._
 import chisel3.util._
 import npc.common._
 import npc.Constants._
-import npc.devices.{ysyx_24100012_AXI4CLINT}
+import npc.devices.{ysyx_24100012_CLINT}
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
@@ -28,9 +28,9 @@ class ysyx_24100012 extends Module
   val reg_file = Module(new ysyx_24100012_RegFile())
   val lsu = Module(new ysyx_24100012_LSU())
   val wbu = Module(new ysyx_24100012_WBU())
-  val clint = Module(new ysyx_24100012_AXI4CLINT())
+  val clint = Module(new ysyx_24100012_CLINT())
 
-  clint.io.axi_io <> io.slave
+  clint.io.in <> lsu.io.clintIO
   clint.io.clock := clock
   clint.io.reset := reset
 
