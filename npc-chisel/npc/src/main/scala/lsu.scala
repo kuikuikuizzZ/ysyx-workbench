@@ -33,7 +33,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := io.exe.addr
             io.wb.data := io.clintIO.dr.data
-            valid := io.clintIO.dr.ar.ready
+            valid := io.clintIO.dr.ready
         } .otherwise{
             io.clintIO.dr.en := false.B
         }
