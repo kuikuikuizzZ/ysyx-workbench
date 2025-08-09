@@ -74,29 +74,6 @@ class ysyx_24100012 extends Module
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(d.io.ebreak, true.B, false.B)
 
-  // object StageConnect {
-  //   def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
-  //     val arch = "single"
-      
-  //     if (arch == "single")         { left.bits := right.bits}
-  //     else if (arch == "multi")     { right <> left}
-  //     else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
-     
-  //     right.ready := left.ready
-  //   }
-  // }
-
-  io.slave.ar.ready := false.B
-  io.slave.r.data := 0.U
-  io.slave.r.resp := 0.U
-  io.slave.r.valid := false.B
-  io.slave.r.last := false.B
-  io.slave.r.id := 0.U
-  io.slave.aw.ready := false.B
-  io.slave.w.ready := false.B
-  io.slave.b.valid := false.B
-  io.slave.b.resp := 0.U
-  io.slave.b.id := 0.U
 
   /////// debug port
   val debug = Module(new debug_port())
