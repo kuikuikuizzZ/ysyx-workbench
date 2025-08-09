@@ -19,7 +19,6 @@ class ysyx_24100012 extends Module
   implicit val conf = ysyx_24100012_Config()
 
   val io = IO(new CoreIo())
-  io := DontCare
 
 
   val inst_fetch = Module(new ysyx_24100012_InstFetch())
