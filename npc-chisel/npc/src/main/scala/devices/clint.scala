@@ -5,7 +5,7 @@ import chisel3._
 import chisel3.util._
 
 import npc.common.Constants._
-import npc.common.{AXI4LiteIO, AXIRport, AXIWport}
+import npc.common._
 
 object  CLINTS{
     val mtime = 0XBFF8
