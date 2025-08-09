@@ -42,15 +42,15 @@ class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Modul
         }
     })
     val reg_mtime = RegInit(0.U(64.W))
-    val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
+    val read_data = MuxLookup(io.in.dr.addr,0.U)(Array(
         CLINTS.mtime -> reg_mtime(31,0),
         CLINTS.mtime_high -> reg_mtime(63,32)
-    )
+    ))
     val decoded_addr = read_mapping map { case (k, v) => k -> (io.in.dr.addr === k) }
     
     io.in.dw := DontCare
     io.in.dr.ready := true.B
-    io.in.dr.data := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
+    io.in.dr.data := read_data
     
     reg_mtime := reg_mtime + 1.U
 }
