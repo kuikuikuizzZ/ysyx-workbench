@@ -42,7 +42,8 @@ class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Modul
         }
     })
     val reg_mtime = RegInit(0.U(64.W))
-    val read_data = MuxLookup(io.in.dr.addr,0.U)(Seq(
+    val clint_addr = io.in.dr.ar.bits.addr(15,0)
+    val read_data = MuxLookup(clint_addr,0.U)(Seq(
         CLINTS.mtime -> reg_mtime(31,0),
         CLINTS.mtime_high -> reg_mtime(63,32)
     ))
