@@ -15,7 +15,7 @@ object  CLINTS{
 
 class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends Module { 
     val io = IO(new Bundle() { 
-        val axi_io = Flipped(new AXI4LiteIo())
+        val axi_io = (new AXI4LiteIo())
         val reset = Input(Bool())
         val clock = Input(Clock())
     })
