@@ -27,13 +27,13 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     })
     io := DontCare
     val valid = Wire(Bool())
-    when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE.U && io.exe.addr < CLINT_BASE.U + CLINT_SIZE.U){
+    when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE && io.exe.addr < CLINT_BASE + CLINT_SIZE){
         io.port.req.valid    := false.B
-        when (io.ctl.mem_fn === M_XRD){
+        when (io.ctl.mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := io.exe.addr
             io.wb.data := io.clintIO.dr.data
-            valid = io.clintIO.dr.ar.ready
+            valid := io.clintIO.dr.ar.ready
         } .otherwise{
             io.clintIO.dr.en := false.B
         }
