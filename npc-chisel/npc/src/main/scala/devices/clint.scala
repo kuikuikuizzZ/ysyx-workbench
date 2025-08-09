@@ -38,7 +38,7 @@ class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Modul
         }
     })
     val reg_mtime = RegInit(0.U(64.W))
-    val read_mapping = collection.mutable.LinkedHashMap[chisel.Int,Bits](
+    val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
         CLINTS.mtime -> reg_mtime(31,0),
         CLINTS.mtime_high -> reg_mtime(63,32)
     )
