@@ -30,8 +30,6 @@ class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends M
     node.io.clock := io.clock
     node.io.out <> clint.io.in 
 
-
-
 }
 
 class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Module { 
