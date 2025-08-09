@@ -6,6 +6,7 @@ import chisel3.util._
 // import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo,ysyx_24100012_AXI4LiteArbiter}
 import npc.common._
 import npc.Constants._
+import npc.devices.{ysyx_24100012_AXI4CLINT}
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
@@ -30,6 +31,9 @@ class ysyx_24100012 extends Module
   val lsu = Module(new ysyx_24100012_LSU())
   val wbu = Module(new ysyx_24100012_WBU())
   
+  val clint = Module(new ysyx_24100012_AXI4CLINT())
+  clint.io.axi_io <> io.slave
+
   arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
   arbiter.io.ifu_valid := inst_fetch.io.valid

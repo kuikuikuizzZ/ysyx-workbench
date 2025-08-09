@@ -187,8 +187,8 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
         val reset   =   Input(Bool())
         val axi_io  =   Flipped(new AXI4LiteIo())
         val out     =   Flipped(new Bundle{
-        val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-        val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         })
         val debug =   new Bundle{
             val state = Output(UInt(2.W))
@@ -237,3 +237,5 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
     io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
     io.axi_io.b.resp    := resp_hold
 }
+
+

@@ -1282,12 +1282,7 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
   output        auto_anon_out_4_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_anon_out_4_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_anon_out_4_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [28:0] auto_anon_out_4_paddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [2:0]  auto_anon_out_4_pprot,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [31:0] auto_anon_out_4_pwdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [3:0]  auto_anon_out_4_pstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input         auto_anon_out_4_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-                auto_anon_out_4_pslverr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [31:0] auto_anon_out_4_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_anon_out_3_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_anon_out_3_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -1367,8 +1362,8 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
       & ~auto_anon_out_6_pready);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, :55:{21,44}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
   assign auto_anon_in_pslverr =
     sel_0 & auto_anon_out_0_pslverr | sel_1 & auto_anon_out_1_pslverr | sel_2
-    & auto_anon_out_2_pslverr | sel_4 & auto_anon_out_4_pslverr | sel_5
-    & auto_anon_out_5_pslverr | sel_6 & auto_anon_out_6_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
+    & auto_anon_out_2_pslverr | sel_5 & auto_anon_out_5_pslverr | sel_6
+    & auto_anon_out_6_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :48:87, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}, src/main/scala/chisel3/util/Mux.scala:30:73
   assign auto_anon_in_prdata =
     (sel_0 ? auto_anon_out_0_prdata : 32'h0) | (sel_1 ? auto_anon_out_1_prdata : 32'h0)
     | (sel_2 ? auto_anon_out_2_prdata : 32'h0) | (sel_3 ? auto_anon_out_3_prdata : 32'h0)
@@ -1391,10 +1386,6 @@ module APBFanout(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/roc
   assign auto_anon_out_4_psel = sel_4 & auto_anon_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :51:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
   assign auto_anon_out_4_penable = sel_4 & auto_anon_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :52:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
   assign auto_anon_out_4_pwrite = auto_anon_in_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
-  assign auto_anon_out_4_paddr = auto_anon_in_paddr[28:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:31
-  assign auto_anon_out_4_pprot = auto_anon_in_pprot;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
-  assign auto_anon_out_4_pwdata = auto_anon_in_pwdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
-  assign auto_anon_out_4_pstrb = auto_anon_in_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
   assign auto_anon_out_3_psel = sel_3 & auto_anon_in_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :51:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
   assign auto_anon_out_3_penable = sel_3 & auto_anon_in_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9, :52:28, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
   assign auto_anon_out_3_pwrite = auto_anon_in_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
@@ -1742,39 +1733,146 @@ module APBGPIO(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/d
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:122:23
 endmodule
 
-module APBKeyboard(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
-  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
-                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
+module ps2Chisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+                io_in_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+                io_in_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+                io_in_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+  output        io_in_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+  output [31:0] io_in_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+  input         io_ps2_clk,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+                io_ps2_data	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:28:14
+);
+
+  reg  [9:0]      buffer;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28
+  reg  [7:0]      fifo_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_4;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_5;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [7:0]      fifo_7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24
+  reg  [2:0]      w_ptr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28
+  reg  [2:0]      r_ptr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:34:28
+  reg  [3:0]      count;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:35:28
+  reg             ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:36:28
+  reg  [2:0]      ps2_clk_sync;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:39:29
+  wire [7:0][7:0] _GEN =
+    {{fifo_7}, {fifo_6}, {fifo_5}, {fifo_4}, {fifo_3}, {fifo_2}, {fifo_1}, {fifo_0}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :71:25
+  always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+    automatic logic sampling;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:40:34
+    automatic logic _GEN_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:51:16
+    automatic logic _GEN_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:57:{21,32}
+    sampling = ps2_clk_sync[2] & ~(ps2_clk_sync[1]);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:39:29, :40:{30,34,37,50}
+    _GEN_0 = count == 4'hA;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:35:28, :51:16
+    _GEN_1 = ~(buffer[0]) & io_ps2_data & ^(buffer[9:1]);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :52:{23,30}, :54:{29,35}, :57:{21,32}
+    if (reset) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      buffer <= 10'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28
+      w_ptr <= 3'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28
+      r_ptr <= 3'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:34:28
+      count <= 4'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:35:28
+      ready <= 1'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:36:28
+      ps2_clk_sync <= 3'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:39:29
+    end
+    else begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      automatic logic       _GEN_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:29:{28,45}, :43:14
+      automatic logic [2:0] _rptr_T;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:44:20
+      automatic logic       _GEN_3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28, :50:18, :51:26, :57:43, :59:15
+      _GEN_2 = ready & io_in_psel & io_in_penable & ~io_in_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:29:{28,45,48}, :36:28, :43:14
+      _rptr_T = r_ptr + 3'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:34:28, :44:20
+      _GEN_3 = sampling & _GEN_0 & _GEN_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :59:15
+      if (~sampling | _GEN_0) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :40:34, :50:18, :51:{16,26}
+      end
+      else	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :50:18, :51:26
+        buffer <= {buffer[8:0], io_ps2_data};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :66:14
+      if (_GEN_3)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28, :50:18, :51:26, :57:43, :59:15
+        w_ptr <= w_ptr + 3'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:33:28, :59:24
+      if (_GEN_2)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:29:{28,45}, :43:14
+        r_ptr <= _rptr_T;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:34:28, :44:20
+      if (sampling)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:40:34
+        count <= _GEN_0 ? 4'h0 : count + 4'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:35:28, :51:{16,26}, :64:13, :67:{13,22}
+      ready <= _GEN_3 | ~(_GEN_2 & w_ptr == _rptr_T) & ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:29:{28,45}, :33:28, :36:28, :43:{14,26}, :44:20, :45:{16,35}, :46:13, :50:18, :51:26, :57:43, :59:15, :60:15
+      ps2_clk_sync <= {ps2_clk_sync[1:0], io_ps2_clk};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:39:29, :41:{22,35}
+    end
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h0)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_0 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_1 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h2)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_2 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h3)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_3 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h4)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_4 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h5)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_5 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & w_ptr == 3'h6)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_6 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+    if (sampling & _GEN_0 & _GEN_1 & (&w_ptr))	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:32:24, :33:28, :40:34, :50:18, :51:{16,26}, :57:{21,32,43}, :58:21
+      fifo_7 <= buffer[8:1];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:31:28, :32:24, :58:30
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      `FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+    `endif // FIRRTL_BEFORE_INITIAL
+    initial begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      automatic logic [31:0] _RANDOM[0:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      `ifdef INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+        `INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+        for (logic [1:0] i = 2'h0; i < 2'h3; i += 2'h1) begin
+          _RANDOM[i] = `RANDOM;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+        end	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+        buffer = _RANDOM[2'h0][9:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :31:28
+        fifo_0 = _RANDOM[2'h0][17:10];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :31:28, :32:24
+        fifo_1 = _RANDOM[2'h0][25:18];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :31:28, :32:24
+        fifo_2 = {_RANDOM[2'h0][31:26], _RANDOM[2'h1][1:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :31:28, :32:24
+        fifo_3 = _RANDOM[2'h1][9:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24
+        fifo_4 = _RANDOM[2'h1][17:10];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24
+        fifo_5 = _RANDOM[2'h1][25:18];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24
+        fifo_6 = {_RANDOM[2'h1][31:26], _RANDOM[2'h2][1:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24
+        fifo_7 = _RANDOM[2'h2][9:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24
+        w_ptr = _RANDOM[2'h2][12:10];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24, :33:28
+        r_ptr = _RANDOM[2'h2][15:13];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24, :34:28
+        count = _RANDOM[2'h2][19:16];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24, :35:28
+        ready = _RANDOM[2'h2][20];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24, :36:28
+        ps2_clk_sync = _RANDOM[2'h2][24:22];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :32:24, :39:29
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+      `FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  assign io_in_pready = ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :36:28
+  assign io_in_prdata = {24'h0, _GEN[r_ptr]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:27:7, :34:28, :71:25
+endmodule
+
+module APBKeyboard(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:86:9
+  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:86:9
+                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:86:9
                 auto_in_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input  [28:0] auto_in_paddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input  [2:0]  auto_in_pprot,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input  [31:0] auto_in_pwdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input  [3:0]  auto_in_pstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_in_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-                auto_in_pslverr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input         ps2_bundle_clk,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:43:24
-                ps2_bundle_data	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:43:24
+  input         ps2_bundle_clk,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:88:24
+                ps2_bundle_data	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:88:24
 );
 
-  ps2_top_apb mps2 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:45:22
-    .clock      (clock),
-    .reset      (reset),
-    .in_psel    (auto_in_psel),
-    .in_penable (auto_in_penable),
-    .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({3'h0, auto_in_paddr}),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:48:16
-    .in_pprot   (auto_in_pprot),
-    .in_pwdata  (auto_in_pwdata),
-    .in_pstrb   (auto_in_pstrb),
-    .in_pready  (auto_in_pready),
-    .in_pslverr (auto_in_pslverr),
-    .in_prdata  (auto_in_prdata),
-    .ps2_clk    (ps2_bundle_clk),
-    .ps2_data   (ps2_bundle_data)
-  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:45:22
+  ps2Chisel mps2 (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:90:22
+    .clock         (clock),
+    .reset         (reset),
+    .io_in_psel    (auto_in_psel),
+    .io_in_penable (auto_in_penable),
+    .io_in_pwrite  (auto_in_pwrite),
+    .io_in_pready  (auto_in_pready),
+    .io_in_prdata  (auto_in_prdata),
+    .io_ps2_clk    (ps2_bundle_clk),
+    .io_ps2_data   (ps2_bundle_data)
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:90:22
 endmodule
 
 module APBVGA(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:9
@@ -4596,7 +4694,6 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
   wire        _lvga_auto_in_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
   wire [31:0] _lvga_auto_in_prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
   wire        _lkeyboard_auto_in_pready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-  wire        _lkeyboard_auto_in_pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
   wire [31:0] _lkeyboard_auto_in_prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
   wire        _lgpio_auto_in_pready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
   wire [31:0] _lgpio_auto_in_prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
@@ -4641,10 +4738,6 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
   wire        _apbxbar_auto_anon_out_4_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_4_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_4_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [28:0] _apbxbar_auto_anon_out_4_paddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_4_pprot;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_4_pwdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_4_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_3_psel;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_3_penable;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   wire        _apbxbar_auto_anon_out_3_pwrite;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
@@ -4956,12 +5049,7 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_anon_out_4_psel    (_apbxbar_auto_anon_out_4_psel),
     .auto_anon_out_4_penable (_apbxbar_auto_anon_out_4_penable),
     .auto_anon_out_4_pwrite  (_apbxbar_auto_anon_out_4_pwrite),
-    .auto_anon_out_4_paddr   (_apbxbar_auto_anon_out_4_paddr),
-    .auto_anon_out_4_pprot   (_apbxbar_auto_anon_out_4_pprot),
-    .auto_anon_out_4_pwdata  (_apbxbar_auto_anon_out_4_pwdata),
-    .auto_anon_out_4_pstrb   (_apbxbar_auto_anon_out_4_pstrb),
     .auto_anon_out_4_pready  (_lkeyboard_auto_in_pready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-    .auto_anon_out_4_pslverr (_lkeyboard_auto_in_pslverr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
     .auto_anon_out_4_prdata  (_lkeyboard_auto_in_prdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
     .auto_anon_out_3_psel    (_apbxbar_auto_anon_out_3_psel),
     .auto_anon_out_3_penable (_apbxbar_auto_anon_out_3_penable),
@@ -5079,12 +5167,7 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_in_psel    (_apbxbar_auto_anon_out_4_psel),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_penable (_apbxbar_auto_anon_out_4_penable),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pwrite  (_apbxbar_auto_anon_out_4_pwrite),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr   (_apbxbar_auto_anon_out_4_paddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot   (_apbxbar_auto_anon_out_4_pprot),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata  (_apbxbar_auto_anon_out_4_pwdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb   (_apbxbar_auto_anon_out_4_pstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready  (_lkeyboard_auto_in_pready),
-    .auto_in_pslverr (_lkeyboard_auto_in_pslverr),
     .auto_in_prdata  (_lkeyboard_auto_in_prdata),
     .ps2_bundle_clk  (ps2_clk),
     .ps2_bundle_data (ps2_data)

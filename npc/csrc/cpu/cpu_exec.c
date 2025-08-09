@@ -65,7 +65,7 @@ void init_cpu(int argc ,char** argv){
     IFDEF(CONFIG_NVBOARD,nvboard_init());
     
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    reset(1);
+    reset(10);
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif

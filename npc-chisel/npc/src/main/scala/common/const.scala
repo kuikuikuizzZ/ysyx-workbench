@@ -15,3 +15,4 @@ trait PrivilegedConstants
    val PRV_S = 1
    val PRV_M = 3
 }
+

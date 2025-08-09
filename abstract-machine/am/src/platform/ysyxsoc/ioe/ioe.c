@@ -17,11 +17,13 @@ void __am_audio_status(AM_AUDIO_STATUS_T *);
 void __am_audio_play(AM_AUDIO_PLAY_T *);
 void __am_uart_rx(AM_UART_RX_T *recv);
 void __am_uart_tx(AM_UART_TX_T *send);
+
 static void __am_timer_config(AM_TIMER_CONFIG_T *cfg) { cfg->present = true; cfg->has_rtc = true; }
 static void __am_input_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
 static void __am_uart_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
 
 typedef void (*handler_t)(void *buf);
+
 static void *lut[128] = {
   [AM_TIMER_CONFIG] = __am_timer_config,
   [AM_TIMER_RTC   ] = __am_timer_rtc,
