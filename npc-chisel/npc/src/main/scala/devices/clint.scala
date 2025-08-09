@@ -9,8 +9,8 @@ import npc.common._
 import npc.common.Util._
 
 object  CLINTS{
-    val mtime = 0XBFF8
-    val mtime_high = 0XBFFC
+    val mtime       =     0XBFF8.U(16.W)
+    val mtime_high  =     0XBFFC.U(16.W)
 }
 
 class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends Module { 
