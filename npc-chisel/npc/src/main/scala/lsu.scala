@@ -30,12 +30,12 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE.U && io.exe.addr < CLINT_BASE.U + CLINT_SIZE.U){
         io.port.req.valid    := false.B
         when (io.ctl.mem_fn === M_XRD){
-            io.clintIO.dr.ar.en := true.B
-            io.clintIO.dr.ar.addr := io.exe.addr
+            io.clintIO.dr.en := true.B
+            io.clintIO.dr.addr := io.exe.addr
             io.wb.data := io.clintIO.dr.data
             valid = io.clintIO.dr.ar.ready
         } .otherwise{
-            io.clintIO.dr.ar.en := false.B
+            io.clintIO.dr.en := false.B
         }
     } .otherwise {
         io.port.req.valid    := io.ctl.mem_en
