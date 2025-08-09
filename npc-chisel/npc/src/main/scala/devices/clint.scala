@@ -42,7 +42,7 @@ class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Modul
         CLINTS.mtime -> reg_mtime(31,0),
         CLINTS.mtime_high -> reg_mtime(63,32)
     )
-    val decoded_addr = read_mapping map { case (k, v) => k -> (io.decode.csr === k) }
+    val decoded_addr = read_mapping map { case (k, v) => k -> (io.in.dr.addr === k) }
     
     io.in.dw := DontCare
     io.in.dr.ready := true.B
