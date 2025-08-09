@@ -233,7 +233,7 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
     io.axi_io.r.resp    := resp_hold
     io.axi_io.r.valid   := !is_write && (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
     io.axi_io.r.data    := Mux((state === s_inflight),io.out.dr.data, RegEnable(io.out.dr.data,(state === s_inflight)))  
-
+    io.axi_io.r.last    := io.axi_io.r.valid 
     io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
     io.axi_io.b.resp    := resp_hold
 }

@@ -7,15 +7,15 @@ static long long  start=0;
 static long long  now=0; 
 
 void __am_timer_init() {
-  rtc[0] = inl(RTC_ADDR);
-  rtc[1] = inl(RTC_ADDR+4);
+  rtc[0] = inl(MTIME_LOW);
+  rtc[1] = inl(MTIME_HIGH);
   start = (rtc[1]<<32)+rtc[0];
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  rtc[0] = inl(RTC_ADDR);
-  rtc[1] = inl(RTC_ADDR+4);
-  now = (rtc[1]<<32)+rtc[0];
+  rtc[0] = inl(MTIME_LOW);
+  rtc[1] = inl(MTIME_HIGH);
+  now = ((rtc[1]<<32)+rtc[0])>>32;
   uptime->us = now-start;
 }
 
