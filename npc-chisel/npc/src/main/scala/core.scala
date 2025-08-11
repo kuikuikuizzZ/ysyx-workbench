@@ -3,9 +3,9 @@ package npc
 
 import chisel3._
 import chisel3.util._
-// import npc.common.{ysyx_24100012_Config, MemPortIo,AXI4LiteIo,ysyx_24100012_AXI4LiteArbiter}
 import npc.common._
 import npc.Constants._
+import npc.devices.{ysyx_24100012_CLINT}
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
@@ -19,7 +19,6 @@ class ysyx_24100012 extends Module
   implicit val conf = ysyx_24100012_Config()
 
   val io = IO(new CoreIo())
-  io := DontCare
 
 
   val inst_fetch = Module(new ysyx_24100012_InstFetch())
@@ -29,7 +28,12 @@ class ysyx_24100012 extends Module
   val reg_file = Module(new ysyx_24100012_RegFile())
   val lsu = Module(new ysyx_24100012_LSU())
   val wbu = Module(new ysyx_24100012_WBU())
-  
+  val clint = Module(new ysyx_24100012_CLINT())
+
+  clint.io.clock := clock
+  clint.io.reset := reset
+  clint.io.in <> lsu.io.clintIO
+
   arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
   arbiter.io.ifu_valid := inst_fetch.io.valid
@@ -41,7 +45,8 @@ class ysyx_24100012 extends Module
   inst_fetch.io.reset := reset
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
-  inst_fetch.io.finish := c.io.finish
+  inst_fetch.io.finish  := c.io.finish
+  inst_fetch.io.halt    := d.io.ebreak
 
   c.io := DontCare
   c.io.ctl  <> d.io.ctl
@@ -69,18 +74,6 @@ class ysyx_24100012 extends Module
 
   // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(d.io.ebreak, true.B, false.B)
-
-  // object StageConnect {
-  //   def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]): Unit = {
-  //     val arch = "single"
-      
-  //     if (arch == "single")         { left.bits := right.bits}
-  //     else if (arch == "multi")     { right <> left}
-  //     else if {arch == "pipeline"}  { right <> RegEnable(left, left.io.stall) }
-     
-  //     right.ready := left.ready
-  //   }
-  // }
 
   io.slave.ar.ready := false.B
   io.slave.r.data := 0.U

@@ -122,16 +122,16 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     awfire  :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.aw.valid && io.axi_io.aw.ready) || awfire)
     wfire   :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.w.valid && io.axi_io.w.ready) || wfire)
     bfire   :=  Mux(wstate === ws_idle,         false.B,        (io.axi_io.b.valid && io.axi_io.b.ready) || bfire)
-    arfire  :=  Mux(rstate === rs_wait_rlast,   false.B,  (io.axi_io.ar.valid && io.axi_io.ar.ready) || arfire)
+    arfire  :=  Mux(rstate === rs_wait_rlast || io.axi_io.r.last,   false.B,  (io.axi_io.ar.valid && io.axi_io.ar.ready) || arfire)
     rfire   :=  Mux(rstate === rs_idle,         false.B,  (io.axi_io.r.valid && io.axi_io.r.ready) || rfire)
 
 
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
-    val arvalid = Mux(arfire || rstate === rs_wait_rlast,false.B, is_read)
+    val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
-    val arlen  = 1.U
+    val arlen  = 0.U
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
     val awvalid =   Mux(awfire || awfire || wstate === ws_wait_bvalid,false.B, is_write)
@@ -150,7 +150,9 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.b.ready   := bready
     switch(rstate){
         is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
-        is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}
+        is (rs_wait_arready){ rstate := Mux(arfire, Mux(io.axi_io.r.last, rs_idle,rs_wait_rlast), rs_wait_arready)
+            when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
+        }
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
             rstate := Mux(io.axi_io.r.last, rs_idle, rs_wait_rlast)
@@ -175,7 +177,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,
     //                  (rstate === rs_wait_rlast)&&(io.axi_io.r.resp === 0.U) )
     io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) ,
-                     (rstate === rs_wait_rlast)&&(io.axi_io.r.last) )
+                     (io.axi_io.r.last) || (rstate === rs_wait_rlast) && (rfire) )
     io.resp.bits.resp :=  Mux(is_write ,io.axi_io.b.resp, io.axi_io.r.resp )
 }
 
@@ -187,8 +189,8 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
         val reset   =   Input(Bool())
         val axi_io  =   Flipped(new AXI4LiteIo())
         val out     =   Flipped(new Bundle{
-        val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-        val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         })
         val debug =   new Bundle{
             val state = Output(UInt(2.W))
@@ -233,7 +235,9 @@ class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) exte
     io.axi_io.r.resp    := resp_hold
     io.axi_io.r.valid   := !is_write && (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
     io.axi_io.r.data    := Mux((state === s_inflight),io.out.dr.data, RegEnable(io.out.dr.data,(state === s_inflight)))  
-
+    io.axi_io.r.last    := io.axi_io.r.valid 
     io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
     io.axi_io.b.resp    := resp_hold
 }
+
+

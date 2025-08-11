@@ -13,6 +13,7 @@ class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val valid = Output(Bool())
   val inst = Output(UInt(conf.xprlen.W))
   val finish = Input(Bool())
+  val halt = Input(Bool())
   val reset = Input(Bool())
   val clock = Input(Clock())
 }
@@ -52,7 +53,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
   
-  when(io.finish) {
+  when(io.finish && !io.halt) {
       pc_reg := pc_next
       pc_valid := true.B
   } .otherwise {
@@ -78,6 +79,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   // val valid = RegInit(false.B)
   val valid = RegNext(io.port.resp.valid,false.B)
-  val valid_reg = RegNext(valid,false.B)
-  io.valid := valid_reg     
+  // val valid_reg = RegNext(valid,false.B)
+  io.valid := valid     
 }
