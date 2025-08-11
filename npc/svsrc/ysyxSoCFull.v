@@ -1908,10 +1908,6 @@ module ps2Chisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src
     .io_ps2_clk    (io_ps2_clk),
     .io_ps2_data   (io_ps2_data)
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:96:23
-  always @(posedge clock) begin
-    if (ready)
-      $display("ps2_data: %x,%b,rdata%x,psel %d,enable%d,ready %d", _ps2Ctrl_io_data,nextdata_n,io_in_prdata,io_in_psel,	io_in_penable,io_in_pready);
-  end
   assign io_in_pready = is_read;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:92:7, :100:{28,45}
   assign io_in_prdata = ready ? rdata : 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:92:7, :97:22, :99:22, :115:25
 endmodule

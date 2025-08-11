@@ -112,17 +112,16 @@ static const uint16_t KEY_SCANCODES[] = {
 };
 
 void scancode_to_ascii(AM_INPUT_KEYBRD_T* kbd) {
-    uint32_t scancode = inw(KEYBOARD_BASE);
-    if (scancode) print_hex(scancode);
+    uint32_t scancode = inb(KEYBOARD_BASE);
     // 0xF0是断码标志
     if (scancode == 0xF0) {
         kbd->keydown = false;
-        scancode = inw(KEYBOARD_BASE);
+        scancode = inb(KEYBOARD_BASE);
     } else kbd->keydown = true;
     
     // E0扩展序列标志 (单独字节不产生ASCII)
     if (scancode == 0xE0 || scancode == 0xE1) 
-        scancode = scancode << 8 | inw(KEYBOARD_BASE);
+        scancode = scancode << 8 | inb(KEYBOARD_BASE);
     for (int i = 0; i < sizeof(KEY_SCANCODES)/sizeof(KEY_SCANCODES[0]); i++){
         if ((uint16_t)scancode == KEY_SCANCODES[i]) {
             kbd->keycode = i;

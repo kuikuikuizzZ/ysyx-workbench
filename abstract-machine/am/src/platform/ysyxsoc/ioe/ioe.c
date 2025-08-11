@@ -20,7 +20,7 @@ void __am_uart_tx(AM_UART_TX_T *send);
 
 static void __am_timer_config(AM_TIMER_CONFIG_T *cfg) { cfg->present = true; cfg->has_rtc = false; }
 static void __am_input_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
-static void __am_uart_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = false;  }
+static void __am_uart_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
 
 typedef void (*handler_t)(void *buf) ; 
 

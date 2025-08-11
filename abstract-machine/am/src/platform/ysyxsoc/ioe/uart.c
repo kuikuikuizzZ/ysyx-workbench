@@ -19,6 +19,5 @@ void __am_uart_tx(AM_UART_TX_T *send) {
  
 
 void __am_uart_rx(AM_UART_RX_T *recv) {
-  // putch('!');
   recv->data = (inb(UART_LSR) & 0x01) ? inb(UART_RBR) : -1;
 }
