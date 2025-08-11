@@ -79,5 +79,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   // val valid = RegInit(false.B)
   val valid = RegNext(io.port.resp.valid,false.B)
-  io.valid := valid     
+  val valid_reg = RegNext(valid,false.B)
+  io.valid := valid_reg     
 }
