@@ -129,7 +129,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
-    val arvalid = Mux(arfire || rstate === rs_wait_rlast,false.B, is_read)
+    val arvalid = Mux(arfire || io.axi_io.r.valid ,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
     val arlen  = 0.U
 
@@ -177,7 +177,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,
     //                  (rstate === rs_wait_rlast)&&(io.axi_io.r.resp === 0.U) )
     io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) ,
-                     (rstate === rs_wait_rlast)&&(io.axi_io.r.last) )
+                     io.axi_io.r.last  )
     io.resp.bits.resp :=  Mux(is_write ,io.axi_io.b.resp, io.axi_io.r.resp )
 }
 
