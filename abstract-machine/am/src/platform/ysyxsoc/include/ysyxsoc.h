@@ -14,6 +14,7 @@
 #define UART_BASE     0x10000000 
 #define KEYBOARD_BASE 0x10011000
 #define CLINT_BASE    0x02000000
+#define FB_BASE      0x21000000
 
 #define UART_THR        (UART_BASE + 0x00)
 #define UART_RBR        (UART_BASE + 0x00)
@@ -28,10 +29,10 @@
 #define MTIME_LOW         (CLINT_BASE + 0X0000BFF8)
 #define MTIME_HIGH        (CLINT_BASE + 0X0000BFFC)
 
-#define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
-#define AUDIO_ADDR      (DEVICE_BASE + 0x0000200)
+// #define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
+// #define AUDIO_ADDR      (DEVICE_BASE + 0x0000200)
 // #define DISK_ADDR       (DEVICE_BASE + 0x0000300)
-#define FB_ADDR         (MMIO_BASE   + 0x1000000)
+#define FB_SIZE           0x200000
 // #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
 #

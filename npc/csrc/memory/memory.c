@@ -17,9 +17,7 @@ extern "C" {
     }
 
     uint8_t* guest_to_host(uint32_t paddr) { 
-        // uint8_t *addr = npc_pmem + paddr - MBASE;
-        // IFNDEF(CONFIG_IMEM_FLASH_BASE,addr =  npc_pmem + paddr - MBASE);
-        // IFDEF(CONFIG_IMEM_FLASH_BASE, addr =  npc_pmem + paddr );
+
         return npc_pmem + paddr-MBASE;
     }
     uint8_t* guest_to_flash(uint32_t paddr) { return npc_pmem + paddr; }
@@ -33,10 +31,6 @@ extern "C" {
             return;
         }
         IFDEF(CONFIG_DEVICE, {
-            // if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
-            // (raddr>=CONFIG_VGA_CTL_MMIO && raddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-            // (raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size) ||
-            // raddr==CONFIG_I8042_DATA_MMIO)
             if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) )
             *rword = mmio_read(raddr, len);
         });
@@ -48,15 +42,6 @@ extern "C" {
         if (in_pmem(waddr)){
             host_write(guest_to_host(waddr), len, wdata);
         }
-        IFDEF(CONFIG_DEVICE, {
-        // if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
-        //     (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-        //     (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)) ||
-        //     waddr == CONFIG_I8042_DATA_MMIO)
-        if (waddr==CONFIG_RTC_MMIO || waddr==(CONFIG_RTC_MMIO+4) || 
-            (waddr==CONFIG_SERIAL_MMIO) ||  (waddr==CONFIG_SERIAL_MMIO+4))
-            mmio_write(waddr, len, wdata);
-        });
         return;
     }
 
@@ -69,15 +54,6 @@ extern "C" {
             printf("pmem read: raddr = %x, data %.8x mask %.8x\n", raddr,*rword,mask);
             return;
         }
-        IFDEF(CONFIG_DEVICE, {
-            // if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
-            // (raddr>=CONFIG_VGA_CTL_MMIO && raddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-            // (raddr>=CONFIG_FB_ADDR && raddr< CONFIG_FB_ADDR+ screen_size) ||
-            // raddr==CONFIG_I8042_DATA_MMIO)
-            if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) )
-            // TODO: support mask read, 4 bytes read and npc take care of mask
-            *rword = mmio_read(raddr, 4);
-        });
         return;
     }
 
@@ -89,16 +65,6 @@ extern "C" {
             host_write(guest_to_host(waddr), 4,rword);
             printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
         }
-        IFDEF(CONFIG_DEVICE, {
-        // if (waddr==CONFIG_SERIAL_MMIO || waddr==(CONFIG_SERIAL_MMIO+4) ||
-        //     (waddr>=CONFIG_VGA_CTL_MMIO && waddr<(CONFIG_VGA_CTL_MMIO+8)) || 
-        //     (waddr>=CONFIG_FB_ADDR && waddr< (CONFIG_FB_ADDR+ screen_size)) ||
-        //     waddr == CONFIG_I8042_DATA_MMIO)
-        if (waddr==CONFIG_RTC_MMIO || waddr==(CONFIG_RTC_MMIO+4) || 
-            (waddr==CONFIG_SERIAL_MMIO) ||  (waddr==CONFIG_SERIAL_MMIO+4))
-            // align write
-            mmio_write(waddr, 4, wdata&mask);
-        });
 
         return;
     }

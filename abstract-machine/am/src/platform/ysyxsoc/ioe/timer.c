@@ -1,7 +1,7 @@
 #include <am.h>
 #include <riscv.h>
 #include <ysyxsoc.h>
-
+#include <klib.h>
 long long rtc[2];
 static long long  start=0; 
 static long long  now=0; 
@@ -9,13 +9,13 @@ static long long  now=0;
 void __am_timer_init() {
   rtc[0] = inl(MTIME_LOW);
   rtc[1] = inl(MTIME_HIGH);
-  start = (rtc[1]<<32)+rtc[0];
+  start = ((rtc[1]<<32)|rtc[0]);
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
   rtc[0] = inl(MTIME_LOW);
   rtc[1] = inl(MTIME_HIGH);
-  now = ((rtc[1]<<32)+rtc[0])>>32;
+  now = ((rtc[1]<<32)|rtc[0]);
   uptime->us = now-start;
 }
 

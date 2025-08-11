@@ -3,7 +3,6 @@
 #include <ysyxsoc.h>
 
 __attribute__ ((section(".bootutils"))) void init_uart() {
-  
     outb(UART_LCR, 0b10000011); 
     // set baud rate
     outb(UART_DLM, 0x00);
@@ -20,5 +19,6 @@ void __am_uart_tx(AM_UART_TX_T *send) {
  
 
 void __am_uart_rx(AM_UART_RX_T *recv) {
+  // putch('!');
   recv->data = (inb(UART_LSR) & 0x01) ? inb(UART_RBR) : -1;
 }

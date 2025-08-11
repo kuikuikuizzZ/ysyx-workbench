@@ -15,12 +15,14 @@ SECTIONS {
     KEEP(*(.entry))
   } > flash
   .first_boost : {
+    . = ALIGN(4);
     _first_boost_start = .;
     KEEP(*(.first_boost))
   } > flash
-
+  . = ALIGN(4);
   _lma_sec_boost_start = LOADADDR (.sec_boost);
   .sec_boost : {
+    . = ALIGN(4);
     _sec_boost_start = .;
     KEEP(*(.sec_boost))
     KEEP(*(.bootutils))
@@ -29,6 +31,7 @@ SECTIONS {
   . = ALIGN(4);
   _lma_code_start = LOADADDR (.text);
   .text : {
+    . = ALIGN(4);
     _text_start = .;
     KEEP(*(.text._trm_init))
     *(.text*)
@@ -37,19 +40,22 @@ SECTIONS {
   _etext = .;
   _lma_rodata_start = LOADADDR (.rodata);
   .rodata  : {
+    . = ALIGN(4);
     *(.rodata*)
   } > sdram AT> flash
   . = . ;
   _erodata = .;
   _lma_data_start = LOADADDR (.data);
-  . = ALIGN(4);
   .data : {
+    . = ALIGN(4);
     _data_start = .;
     *(.data)
+
   }  > sdram AT> flash
   . = . ;
   _data_end = . ;
   .bss :  {
+    . = ALIGN(4);
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)

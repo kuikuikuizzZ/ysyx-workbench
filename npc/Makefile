@@ -19,8 +19,8 @@ override ARGS ?= --log=$(BUILD_DIR_BASE)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 # 编译器和链接器设置
 
-CFLAGS+= -g
-# CFLAGS+= -O3
+# CFLAGS+= -g
+CFLAGS+= -O3
 
 # nvboard.a should be linked before include nvboard.mk
 # because nvboard.a need LDFLAGS in nvboard.mk
