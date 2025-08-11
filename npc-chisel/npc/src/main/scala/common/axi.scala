@@ -150,7 +150,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.b.ready   := bready
     switch(rstate){
         is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
-        is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}
+        is (rs_wait_arready){ rstate := Mux(arfire, Mux(io.axi_io.r.last,rs_idle,rs_wait_rlast), rs_wait_arready)}
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
             rstate := Mux(io.axi_io.r.last, rs_idle, rs_wait_rlast)
