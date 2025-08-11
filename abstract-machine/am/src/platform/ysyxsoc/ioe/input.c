@@ -17,77 +17,117 @@
 //     kbd->keycode = (kbd->keydown)?key-KEYDOWN_MASK:key;
 //   }
 // }
-char scancode_to_ascii(uint8_t scan_byte);
+void scancode_to_ascii(AM_INPUT_KEYBRD_T *);
 
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
-    char code = inl(KEYBOARD_BASE);
-    char key = 0;
-    if (code == BREAK_CODE) {
-        kbd->keydown = 0;
-        code = inl(KEYBOARD_BASE);
-    } else{
-        kbd->keydown = 1;
-    }     
-    key = scancode_to_ascii(code);
-    if (key == 0) {
-        kbd->keycode = 0;
-        // putch('-');
-    }
-    kbd->keycode = key;
+    scancode_to_ascii(kbd);
 }
-
-
-static const char BASE_KEYMAP[128] = {
-    [0x00] = 0,      [0x01] = 0,      [0x02] = 0,      [0x03] = 0,
-    [0x04] = 0,      [0x05] = 0,      [0x06] = 0,      [0x07] = 0,
-    [0x08] = 0,      [0x09] = 0,      [0x0A] = 0,      [0x0B] = 0,
-    [0x0C] = 0,      [0x0D] = '\t',   [0x0E] = '`',    [0x0F] = 0,
-    [0x10] = 0,      [0x11] = 0,      [0x12] = 0,      [0x13] = 0,
-    [0x14] = 0,      [0x15] = 'q',    [0x16] = '1',    [0x17] = 0,
-    [0x18] = 0,      [0x19] = 0,      [0x1A] = 'z',    [0x1B] = 's',
-    [0x1C] = 'a',    [0x1D] = 'w',    [0x1E] = '2',    [0x1F] = 0,
-    [0x20] = 0,      [0x21] = 'c',    [0x22] = 'x',    [0x23] = 'd',
-    [0x24] = 'e',    [0x25] = '4',    [0x26] = '3',    [0x27] = 0,
-    [0x28] = 0,      [0x29] = ' ',    [0x2A] = 'v',    [0x2B] = 'f',
-    [0x2C] = 't',    [0x2D] = 'r',    [0x2E] = '5',    [0x2F] = 0,
-    [0x30] = 0,      [0x31] = 'n',    [0x32] = 'b',    [0x33] = 'h',
-    [0x34] = 'g',    [0x35] = 'y',    [0x36] = '6',    [0x37] = 0,
-    [0x38] = 0,      [0x39] = 0,      [0x3A] = 'm',    [0x3B] = 'j',
-    [0x3C] = 'u',    [0x3D] = '7',    [0x3E] = '8',    [0x3F] = 0,
-    [0x40] = 0,      [0x41] = ',',    [0x42] = 'k',    [0x43] = 'i',
-    [0x44] = 'o',    [0x45] = '0',    [0x46] = '9',    [0x47] = 0,
-    [0x48] = 0,      [0x49] = '.',    [0x4A] = '/',    [0x4B] = 'l',
-    [0x4C] = ';',    [0x4D] = 'p',    [0x4E] = '-',    [0x4F] = 0,
-    [0x50] = 0,      [0x51] = 0,      [0x52] = '\'',   [0x53] = 0,
-    [0x54] = '[',    [0x55] = '=',    [0x56] = 0,      [0x57] = 0,
-    [0x58] = 0,      [0x59] = 0,      [0x5A] = '\n',   [0x5B] = ']',
-    [0x5C] = 0,      [0x5D] = '\\',   [0x5E] = 0,      [0x5F] = 0,
-    [0x60] = 0,      [0x61] = 0,      [0x62] = 0,      [0x63] = 0,
-    [0x64] = 0,      [0x65] = 0,      [0x66] = '\b',   [0x67] = 0,
-    [0x68] = 0,      [0x69] = '1',    [0x6A] = 0,      [0x6B] = '4',
-    [0x6C] = '7',    [0x6D] = 0,      [0x6E] = 0,      [0x6F] = 0,
-    [0x70] = '0',    [0x71] = '.',    [0x72] = '2',    [0x73] = '5',
-    [0x74] = '6',    [0x75] = '8',    [0x76] = 0x1B,   [0x77] = 0,
-    [0x78] = 0,      [0x79] = '+',    [0x7A] = '3',    [0x7B] = '-',
-    [0x7C] = '*',    [0x7D] = '9',    [0x7E] = 0,      [0x7F] = 0
+// 主键盘区扫描码映射（图 Fig.56）
+static const uint16_t KEY_SCANCODES[] = {
+  [AM_KEY_ESCAPE]      = 0x76,
+  [AM_KEY_F1]          = 0x05,
+  [AM_KEY_F2]          = 0x06,
+  [AM_KEY_F3]          = 0x04,
+  [AM_KEY_F4]          = 0x0C,
+  [AM_KEY_F5]          = 0x03,
+  [AM_KEY_F6]          = 0x0B,
+  [AM_KEY_F7]          = 0x83,
+  [AM_KEY_F8]          = 0x0A,
+  [AM_KEY_F9]          = 0x01,
+  [AM_KEY_F10]         = 0x09,
+  [AM_KEY_F11]         = 0x78,
+  [AM_KEY_F12]         = 0x07,
+  [AM_KEY_GRAVE]       = 0x0E,   // `~
+  [AM_KEY_1]           = 0x16,
+  [AM_KEY_2]           = 0x1E,
+  [AM_KEY_3]           = 0x26,
+  [AM_KEY_4]           = 0x25,
+  [AM_KEY_5]           = 0x2E,
+  [AM_KEY_6]           = 0x36,
+  [AM_KEY_7]           = 0x3D,
+  [AM_KEY_8]           = 0x3E,
+  [AM_KEY_9]           = 0x46,
+  [AM_KEY_0]           = 0x45,
+  [AM_KEY_MINUS]       = 0x4E,   // - (减号)
+  [AM_KEY_EQUALS]      = 0x55,   // = (等号)
+  [AM_KEY_BACKSPACE]   = 0x66,
+  [AM_KEY_TAB]         = 0x0D,
+  [AM_KEY_Q]           = 0x15,
+  [AM_KEY_W]           = 0x1D,
+  [AM_KEY_E]           = 0x24,
+  [AM_KEY_R]           = 0x2D,
+  [AM_KEY_T]           = 0x2C,
+  [AM_KEY_Y]           = 0x35,
+  [AM_KEY_U]           = 0x3C,
+  [AM_KEY_I]           = 0x43,
+  [AM_KEY_O]           = 0x44,
+  [AM_KEY_P]           = 0x4D,
+  [AM_KEY_LEFTBRACKET] = 0x54,   // [
+  [AM_KEY_RIGHTBRACKET]= 0x5B,   // ]
+  [AM_KEY_BACKSLASH]   = 0x5D,   // 
+  [AM_KEY_CAPSLOCK]    = 0x58,
+  [AM_KEY_A]           = 0x1C,
+  [AM_KEY_S]           = 0x1B,
+  [AM_KEY_D]           = 0x23,
+  [AM_KEY_F]           = 0x2B,
+  [AM_KEY_G]           = 0x34,
+  [AM_KEY_H]           = 0x33,
+  [AM_KEY_J]           = 0x3B,
+  [AM_KEY_K]           = 0x42,
+  [AM_KEY_L]           = 0x4B,
+  [AM_KEY_SEMICOLON]   = 0x4C,   // ;
+  [AM_KEY_APOSTROPHE]  = 0x52,   // '
+  [AM_KEY_RETURN]      = 0x5A,   // 回车
+  [AM_KEY_LSHIFT]      = 0x12,
+  [AM_KEY_Z]           = 0x1A,
+  [AM_KEY_X]           = 0x22,
+  [AM_KEY_C]           = 0x21,
+  [AM_KEY_V]           = 0x2A,
+  [AM_KEY_B]           = 0x32,
+  [AM_KEY_N]           = 0x31,
+  [AM_KEY_M]           = 0x3A,
+  [AM_KEY_COMMA]       = 0x41,   // ,
+  [AM_KEY_PERIOD]      = 0x49,   // .
+  [AM_KEY_SLASH]       = 0x4A,   // /
+  [AM_KEY_RSHIFT]      = 0x59,
+  [AM_KEY_LCTRL]       = 0x14,
+  
+  // 扩展键扫描码（高字节为E0，低字节为实际扫描码）
+  [AM_KEY_APPLICATION] = 0xE05D, // 应用键
+  [AM_KEY_LALT]        = 0x11,   // 标准键，无扩展
+  [AM_KEY_SPACE]       = 0x29,   // 空格键
+  [AM_KEY_RALT]        = 0xE011, // 右侧Alt
+  [AM_KEY_RCTRL]       = 0xE014, // 右侧Ctrl
+  [AM_KEY_UP]          = 0xE075, // 上箭头
+  [AM_KEY_DOWN]        = 0xE072, // 下箭头
+  [AM_KEY_LEFT]        = 0xE06B, // 左箭头
+  [AM_KEY_RIGHT]       = 0xE074, // 右箭头
+  [AM_KEY_INSERT]      = 0xE070, // Insert
+  [AM_KEY_DELETE]      = 0xE071, // Delete
+  [AM_KEY_HOME]        = 0xE06C, // Home
+  [AM_KEY_END]         = 0xE069, // End
+  [AM_KEY_PAGEUP]      = 0xE07D, // Page Up
+  [AM_KEY_PAGEDOWN]    = 0xE07A  // Page Down
 };
 
-
-char scancode_to_ascii(uint8_t scancode) {
+void scancode_to_ascii(AM_INPUT_KEYBRD_T* kbd) {
+    uint32_t scancode = inb(KEYBOARD_BASE);
     // 0xF0是断码标志
-    if (scancode == 0xF0) return 0xF0;
+    if (scancode == 0xF0) {
+        kbd->keydown = false;
+        scancode = inb(KEYBOARD_BASE);
+    } else kbd->keydown = true;
     
     // E0扩展序列标志 (单独字节不产生ASCII)
-    if (scancode == 0xE0 || scancode == 0xE1) return 0;
-    
-    // 0x76是ESC键的特殊扫描码
-    if (scancode == 0x76) return 0x1B;
-    
-    // 从映射表中获取ASCII值
-    if (scancode < sizeof(BASE_KEYMAP)) {
-        return BASE_KEYMAP[scancode];
+    if (scancode == 0xE0 || scancode == 0xE1) 
+        scancode = scancode << 8 | inb(KEYBOARD_BASE);
+    for (int i = 0; i < sizeof(KEY_SCANCODES)/sizeof(KEY_SCANCODES[0]); i++){
+        if ((uint16_t)scancode == KEY_SCANCODES[i]) {
+            kbd->keycode = i;
+            return;   
+        }
     }
-    
-    return 0; // 未知扫描码返回0
+    kbd->keycode = AM_KEY_NONE;
+    return;
 }

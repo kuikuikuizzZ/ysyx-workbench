@@ -34,15 +34,15 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     unsigned* dst = (unsigned*)&_text_start;
     
     putch('\n');
-    print_hex((unsigned ) (&_bss_start-&_text_start));
+    print_hex((unsigned ) (&_data_end-&_text_start));
     putch('\n');
     print_hex((unsigned )&_text_start);
     putch('\n');
 
-    while (dst < (unsigned*)&_bss_start)  *dst++ = *src++;
+    while (dst < (unsigned*)&_data_end)  *dst++ = *src++;
     char *cdst = (char*)dst;
     char *csrc = (char*)src;
-    while (cdst < &_bss_start ) *cdst++ = *csrc++;
+    while (cdst < &_data_end ) *cdst++ = *csrc++;
     
     putch('l'); putch('o'); putch('a'); putch('d'); putch('e'); putch('d');putch('\n');
 
