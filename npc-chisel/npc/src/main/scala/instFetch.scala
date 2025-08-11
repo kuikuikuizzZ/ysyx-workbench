@@ -71,7 +71,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val inst_reg = RegEnable(io.port.resp.bits.data,BUBBLE,io.port.resp.valid)
   val inst = Mux(io.port.resp.valid,io.port.resp.bits.data,inst_reg)
 
-  io.inst := inst
+  io.inst := inst_reg
   // val pc_reg_reg = RegNext(pc_reg)
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
   io.pc_io.pc := pc_reg       
