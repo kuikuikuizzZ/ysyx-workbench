@@ -106,6 +106,7 @@ void ref_reg_display(){
 }
 
 static void checkregs(CPU_state *ref, vaddr_t pc) {
+  if (top_halt()) return;
   if (!isa_difftest_checkregs(ref, pc)) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;

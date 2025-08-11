@@ -45,7 +45,8 @@ class ysyx_24100012 extends Module
   inst_fetch.io.reset := reset
   inst_fetch.io.in <> d.io.targets
   inst_fetch.io.pipeline_kill := c.io.pipeline_kill
-  inst_fetch.io.finish := c.io.finish
+  inst_fetch.io.finish  := c.io.finish
+  inst_fetch.io.halt    := d.io.ebreak
 
   c.io := DontCare
   c.io.ctl  <> d.io.ctl
