@@ -83,6 +83,7 @@ SECTIONS {
   _data_end = . ;
   .bss.extra : {
     . = ALIGN(8);
+    _bss_start = .;
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
     *(__am_apps.sbss*)
