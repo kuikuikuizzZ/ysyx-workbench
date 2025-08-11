@@ -151,7 +151,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     switch(rstate){
         is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
         is (rs_wait_arready){ rstate := Mux(arfire, Mux(io.axi_io.r.last,rs_idle,rs_wait_rlast), rs_wait_arready)
-            when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data
+            when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
