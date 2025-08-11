@@ -21,6 +21,15 @@ config SOC
   bool "run with/without soc"
   default y
 
+config PC_REPEAT_COUNT
+  depends on TRACE
+  bool "Enable pc repeat count"
+  default y
+config PC_MAX_REPEAT
+  depends on PC_REPEAT_COUNT
+  int "same pc repeat max times"
+  default 1024
+
 menu "Testing and Debugging"
 
 config TRACE
@@ -109,15 +118,6 @@ config DIFFTEST
   help
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
-
-config PC_REPEAT_COUNT
-  depends on TRACE
-  bool "Enable pc repeat count"
-  default y
-config PC_MAX_REPEAT
-  depends on PC_REPEAT_COUNT
-  int "same pc repeat max times"
-  default 32
 
 choice
   prompt "Reference design"
