@@ -250,4 +250,19 @@ config UART_SIZE
   default 0x10
 endif # HAS_UART
 
+config HAS_CLINT
+   bool "Enable CLINT "
+   default n
+
+config CLINT_BASE 
+  depends on HAS_CLINT
+  hex "CLINT base address"
+  default 0x02000000 
+
+config CLINT_SIZE
+  depends on HAS_CLINT
+  hex "CLINT size"
+  default 0x10000
+
+
 endif # DEVICE
