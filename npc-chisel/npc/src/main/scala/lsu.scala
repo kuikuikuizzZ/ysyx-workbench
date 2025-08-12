@@ -68,5 +68,5 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.wdata      := io.exe.data
     io.debug.rdata      := io.port.resp.bits.data
     io.debug.valid      := io.port.resp.valid
-    io.debug.typ        := io.ctl.mem_typ
+    io.debug.typ        := io.ctl.msk_sel
 }
