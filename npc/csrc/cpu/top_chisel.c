@@ -8,10 +8,38 @@
 #include <cpu/top.h>
 #ifndef __DEBUG_TOP__
 #define __DEBUG_TOP__
-static uint32_t pc = 0;
-static uint32_t inst = 0;
-static uint32_t halt = 0;
+#define LSU_FCN(key) 
+enum LSU_FCN {
+    LSU_FCN_LOAD,
+    LSU_FCN_STORE,
+};
 
+
+static uint32_t pc          = 0;
+static uint32_t inst        = 0;
+static uint32_t halt        = 0;
+static uint32_t lsu_enable  = 0;
+static uint32_t lsu_addr    = 0;
+static uint32_t lsu_fcn     = 0;
+static uint32_t lsu_data    = 0;
+extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
+    pc      = in_pc;
+    inst    = in_inst;
+    halt    = in_halt;
+}
+
+extern "C" void lsu_port(int en ,int fcn, int addr, int data){
+    lsu_enable  = en;
+    if (en){
+        lsu_fcn     = fcn;
+        lsu_addr    = lsu_addr;
+        lsu_data    = data;
+    }
+}
+
+#endif
+
+#ifdef CONFIG_NVBOARD
 void nvboard_bind_all_pins(VysyxSoCFull* top) {
 	nvboard_bind_pin( &top->externalPins_gpio_in, 16, SW15, SW14, SW13, SW12, SW11, SW10, SW9, SW8, SW7, SW6, SW5, SW4, SW3, SW2, SW1, SW0);
 	nvboard_bind_pin( &top->externalPins_gpio_out, 16, LD15, LD14, LD13, LD12, LD11, LD10, LD9, LD8, LD7, LD6, LD5, LD4, LD3, LD2, LD1, LD0);
@@ -35,14 +63,8 @@ void nvboard_bind_all_pins(VysyxSoCFull* top) {
 	nvboard_bind_pin( &top->externalPins_uart_rx	,   1,  UART_RX);
 	nvboard_bind_pin( &top->externalPins_uart_tx	,   1,  UART_TX);
 }
-
-extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
-    pc = in_pc;
-    inst = in_inst;
-    halt = in_halt;
-}
-
 #endif
+
 Top* _top = NULL;
 Top_rootp* _rootp =NULL;
 
@@ -115,6 +137,15 @@ uint32_t top_dnpc() {
     return pc;
 }
 
+LSU_state top_lsu_state(){
+    LSU_state state;
+    state.enable = lsu_enable;
+    state.fcn = lsu_fcn;
+    state.data = lsu_data;
+    state.addr = lsu_addr;
+    return state;
+}
+
 // uint32_t top_state(){
 //     if (!_rootp) return 0;
 //     return _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__c__DOT__state;
@@ -152,15 +183,20 @@ void watch_top(){
     } 
     if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
     else {
+        LSU_state lsu_state = top_lsu_state(); 
         // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-        printf(" io_halt %d ,pc %x,dnpc %x, inst: %.8x, a0 %x alu1 %x, alu2 %x\n",
+        printf(" io_halt %d ,pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x alu1 %.8x, alu2 %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
             top_halt(),
             top_pc(),
             top_dnpc(),
             top_inst(),
             top_gpr(10),
             top_op1(),
-            top_op2()
+            top_op2(),
+            lsu_state.enable,
+            lsu_state.fcn,
+            lsu_state.addr,
+            lsu_state.data
         );
         wt->inst = top_inst();
         wt->pc = top_pc();

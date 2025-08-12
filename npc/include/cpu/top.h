@@ -20,6 +20,13 @@ uint32_t top_state();
 
 typedef VerilatedFstC Tfp;
 
+typedef struct {
+    uint32_t enable;
+    uint32_t fcn;
+    uint32_t addr;
+    uint32_t data;
+} LSU_state;
+
 Top* top();
 Tfp* tfp();
 
@@ -35,6 +42,8 @@ uint32_t top_halt();
 uint32_t top_inst();
 
 uint32_t top_dnpc();
+
+LSU_state top_lsu_state();
 
 void delete_top();
 

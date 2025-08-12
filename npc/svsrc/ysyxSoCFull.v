@@ -1957,8 +1957,10 @@ module sram_524288x24(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
     _R0_addr_d0 <= R0_addr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
   end // always @(posedge)
   always @(posedge W0_clk) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
-    if (W0_en & 1'h1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
+    if (W0_en & 1'h1)	begin// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
       Memory[W0_addr] <= W0_data;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
+      $display("[VGA] Write addr: %x, data: %x", W0_addr, W0_data);
+    end
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_MEM_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27
     `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/VGA.scala:50:27

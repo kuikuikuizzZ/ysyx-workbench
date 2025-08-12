@@ -11,6 +11,14 @@ import javax.xml.transform.OutputKeys
 class LsuToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
 }
+class LSUDebugPort extends Bundle {
+    val mem_en      = Output(Bool())
+    val fcn         = Output(Bool())
+    val addr        = Output(UInt(conf.xprlen.W))
+    val rdata       = Output(UInt(conf.xprlen.W))
+    val wdata       = Output(UInt(conf.xprlen.W))
+    val valid  = Output(Bool())
+}
 
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
@@ -20,6 +28,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         val pc_io = Flipped(new PCOut())
         val wb = new LsuToWBIo()
         val ls_valid = Output(Bool())
+        val debug = new debug_port
         val clintIO = Flipped(new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
@@ -50,4 +59,12 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     }
     
     io.ls_valid := valid
+
+    /* Debug */
+    io.debug.mem_en     := io.ctl.mem_en
+    io.debug.addr       := io.exe.addr
+    io.debug.fcn        := io.ctl.mem_fcn
+    io.debug.wdata      := io.exe.data
+    io.debug.rdata      := io.port.resp.bits.data
+    io.debug.valid := io.port.resp.valid
 }

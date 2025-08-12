@@ -29,6 +29,10 @@ static handler_t lut[128];
 static void fail(void *buf) { panic("access nonexist register"); }
 
 bool ioe_init() {
+    
+  for (int i = 0; i < LENGTH(lut); i++)
+  if (!lut[i]) lut[i] = fail;
+  
   lut[AM_TIMER_CONFIG] = (handler_t)__am_timer_config,
   lut[AM_TIMER_RTC   ] = (handler_t)__am_timer_rtc,
   lut[AM_TIMER_UPTIME] = (handler_t)__am_timer_uptime,
@@ -44,14 +48,11 @@ bool ioe_init() {
   lut[AM_AUDIO_PLAY  ] = (handler_t)__am_audio_play,
   lut[AM_UART_TX     ] = (handler_t)__am_uart_tx,
   lut[AM_UART_RX     ] = (handler_t)__am_uart_rx;
-  
-  for (int i = 0; i < LENGTH(lut); i++)
-  if (!lut[i]) lut[i] = fail;
+
 
   __am_timer_init();
   // __am_gpu_init();
   // __am_audio_init();
-  printf("%d %d\n",AM_TIMER_CONFIG,AM_TIMER_UPTIME);
   return true;
 }
 

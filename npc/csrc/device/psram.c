@@ -6,12 +6,12 @@
 static uint8_t npc_psram[CONFIG_PSRAM_SIZE] = {0};
 
 void init_psram() {
-    npc_psram[4] = 0x04;
-    npc_psram[5] = 0x03;
-    npc_psram[0] = 0x58;
-    npc_psram[1] = 0x02;
-    npc_psram[2] = 0x04;
-    npc_psram[3] = 0x03;
+    // npc_psram[4] = 0x04;
+    // npc_psram[5] = 0x03;
+    // npc_psram[0] = 0x58;
+    // npc_psram[1] = 0x02;
+    // npc_psram[2] = 0x04;
+    // npc_psram[3] = 0x03;
     return;
 }
 
