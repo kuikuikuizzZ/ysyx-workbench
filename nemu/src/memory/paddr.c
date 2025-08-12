@@ -135,6 +135,8 @@ static void out_of_bound(paddr_t addr) {
     CONFIG_FLASH_BASE,CONFIG_SRAM_BASE,CONFIG_MROM_BASE, cpu.pc);
 }
 
+
+
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC) 
   pmem = malloc(CONFIG_MSIZE);
@@ -167,6 +169,7 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+
   #ifdef CONFIG_MTRACE
     log_write("R\t0x%x\t%d\n",addr,len);
   #endif
@@ -176,10 +179,9 @@ word_t paddr_read(paddr_t addr, int len) {
     likely(in_flash_pmem(addr)) ||
     likely(in_psram_pmem(addr))   ||
     likely(in_sdram_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  if (likely(in_uart_pmem(addr))) return 1;
-
-  out_of_bound(addr);
+  // IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  else if (likely(in_uart_pmem(addr))) return 0x20;
+  out_of_bound(addr); 
   return 0;
 }
 

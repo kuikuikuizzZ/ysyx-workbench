@@ -108,10 +108,12 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
+  cpu.mem_access = (mem_access_t){0, 0, 0, 0};
   s->pc = pc;
   s->snpc = pc;
   IFDEF(CONFIG_ETRACE, s->is_exception = 0);
   isa_exec_once(s);
+  printf("pc: %.8x, inst %.8x\n", s->pc,s->isa.inst);
   cpu.pc = s->dnpc;
 }
 

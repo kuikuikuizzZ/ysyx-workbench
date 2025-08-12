@@ -16,14 +16,26 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
+void mem_access_hook(uint8_t role , vaddr_t addr, word_t data){
+  mem_access_t  mem_access = (mem_access_t){
+    .addr = addr,
+    .data = data,
+    .enable = 1,
+    .fcn = role
+  };
+  cpu.mem_access = mem_access;
+}
 word_t vaddr_ifetch(vaddr_t addr, int len) {
   return paddr_read(addr, len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+  word_t data = paddr_read(addr, len);
+  mem_access_hook(MEM_READ,addr,data);
+  return data;
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data) {
+  mem_access_hook(MEM_WRITE,addr, data);
   paddr_write(addr, len, data);
 }

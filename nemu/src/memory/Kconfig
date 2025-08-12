@@ -71,7 +71,7 @@ config PSRAM_BASE
 config PSRAM_SIZE
   depends on HAS_PSRAM
   hex "PSRAM size"
-  default 0x2000
+  default 0x200000
 
 config HAS_FLASH
    bool "Enable FLASH memory "
