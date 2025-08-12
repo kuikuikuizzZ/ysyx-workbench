@@ -28,6 +28,7 @@ typedef struct {
   uint32_t data;
   uint32_t enable;
   uint32_t fcn; 
+  uint32_t typ;
 } mem_access_t;
 
 Top* top();

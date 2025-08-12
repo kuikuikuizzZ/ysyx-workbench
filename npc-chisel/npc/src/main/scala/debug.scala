@@ -21,7 +21,7 @@ class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox wit
      setInline("debug_port.v",
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
-     import "DPI-C" function void lsu_port(input enable,  input fcn, input lsu_port_typ,input int addr, input int data);
+     import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
 
      module debug_port(
         input clock,

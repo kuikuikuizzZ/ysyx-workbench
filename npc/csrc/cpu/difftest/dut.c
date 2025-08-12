@@ -39,6 +39,14 @@ typedef struct {
     bool    mem_enable;
 }diff_context;
 
+bool mem_data_equal(uint32_t ref, uint32_t dut, uint32_t typ){
+  if (typ == MT_X ) return true;
+  if (typ == MT_W || MT_WU) return ref == dut;
+  if (typ == MT_H || MT_HU) return ((uint16_t)ref) == ((uint16_t)dut);
+  if (typ == MT_B || MT_BU) return ((uint8_t)ref) == ((uint8_t)dut);
+  retunr false;
+}
+
 bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc ){
     printf("checkreg pc, ref %.8x, top %.8x \n",ref_r->pc,cpu.pc);
@@ -52,7 +60,7 @@ bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
   }  
   mem_access_t mem = top_lsu_state();
   if (ref_r->mem_addr != mem.addr ||
-      ref_r->mem_data != mem.data  ){
+      mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
         printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
         printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
         return false;}      

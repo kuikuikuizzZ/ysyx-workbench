@@ -14,6 +14,16 @@ enum LSU_FCN {
     LSU_FCN_STORE,
 };
 
+enum LSU_TYP {
+   MT_X  ,
+   MT_B  ,
+   MT_H  ,
+   MT_W  ,
+   MT_D  ,
+   MT_BU ,
+   MT_HU ,
+   MT_WU ,
+};
 
 static uint32_t pc          = 0;
 static uint32_t inst        = 0;
@@ -27,15 +37,15 @@ extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     halt    = in_halt;
 }
 
-extern "C" void lsu_port(bool en ,bool fcn, int addr, int data){
+extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
     if (en){
         lsu_state.fcn     = fcn;
         lsu_state.addr    = addr;
         lsu_state.data    = data;
         lsu_state.enable  = true;
+        lsu_state.typ     = typ;
     }
 }
-
 #endif
 
 #ifdef CONFIG_NVBOARD
