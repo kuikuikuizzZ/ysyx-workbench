@@ -11,7 +11,7 @@ import javax.xml.transform.OutputKeys
 class LsuToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
 }
-class LSUDebugPort extends Bundle {
+class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val mem_en      = Output(Bool())
     val fcn         = Output(Bool())
     val addr        = Output(UInt(conf.xprlen.W))
@@ -28,7 +28,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         val pc_io = Flipped(new PCOut())
         val wb = new LsuToWBIo()
         val ls_valid = Output(Bool())
-        val debug = new debug_port
+        val debug = new LSUDebugPort
         val clintIO = Flipped(new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
