@@ -20,7 +20,7 @@ static uint32_t inst        = 0;
 static uint32_t halt        = 0;
 
 static mem_access_t lsu_state = {0};
-
+#
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     pc      = in_pc;
     inst    = in_inst;
@@ -147,10 +147,6 @@ void clear_top_lsu_state(){
     lsu_state.fcn = 0;
 }
 
-// uint32_t top_state(){
-//     if (!_rootp) return 0;
-//     return _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__c__DOT__state;
-// }
 
 void delete_top() {
     if (_top) {

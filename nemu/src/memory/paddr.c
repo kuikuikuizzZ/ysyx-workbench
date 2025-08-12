@@ -135,15 +135,7 @@ static void out_of_bound(paddr_t addr) {
     CONFIG_FLASH_BASE,CONFIG_SRAM_BASE,CONFIG_MROM_BASE, cpu.pc);
 }
 
-void mem_access_hook(uint8_t role , paddr_t addr, word_t data){
-  mem_access_t  mem_access = (mem_access_t){
-    .addr = addr,
-    .data = data,
-    .enable = 1,
-    .fcn = role
-  };
-  cpu.mem_access = mem_access;
-}
+
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC) 
@@ -181,22 +173,19 @@ word_t paddr_read(paddr_t addr, int len) {
   #ifdef CONFIG_MTRACE
     log_write("R\t0x%x\t%d\n",addr,len);
   #endif
-  word_t data = 0;
   if (likely(in_pmem(addr))     || 
     likely(in_mrom_pmem(addr))  ||
     likely(in_sram_pmem(addr))  ||
     likely(in_flash_pmem(addr)) ||
     likely(in_psram_pmem(addr))   ||
-    likely(in_sdram_pmem(addr))) data = pmem_read(addr, len);
+    likely(in_sdram_pmem(addr))) return pmem_read(addr, len);
   // IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  else if (likely(in_uart_pmem(addr))) data=1;
-  else out_of_bound(addr); 
-  mem_access_hook(MEM_READ,addr,data);
-  return data;
+  else if (likely(in_uart_pmem(addr))) return 0x20;
+  out_of_bound(addr); 
+  return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  mem_access_hook(MEM_WRITE,addr, data);
   if (likely(in_pmem(addr)) || 
     likely(in_mrom_pmem(addr)) ||
     likely(in_sram_pmem(addr)) ||

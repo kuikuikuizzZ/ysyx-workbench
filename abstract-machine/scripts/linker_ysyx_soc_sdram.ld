@@ -15,12 +15,11 @@ SECTIONS {
     KEEP(*(.entry))
   } > flash
   .first_boost : {
-    . = ALIGN(4);
     _first_boost_start = .;
     KEEP(*(.first_boost))
   } > flash
-  . = ALIGN(4);
   _lma_sec_boost_start = LOADADDR (.sec_boost);
+  . = ALIGN(4);  
   .sec_boost : {
     . = ALIGN(4);
     _sec_boost_start = .;

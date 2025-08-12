@@ -79,27 +79,6 @@ void init_itrace(){
     rb = RingBuffer_create(LOG_BUFSIZE);
 }
 
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc != cpu.pc ){
-    printf("checkreg pc, ref %.8x, top %.8x \n",ref_r->pc,cpu.pc);
-    return false;
-  }
-  for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[i]) {
-        printf("checkreg x%d, ref %.8x, top %.8x \n",i,ref_r->gpr[i],cpu.gpr[i]);
-        return false;
-     }
-  }  
-  if (ref_r->mem_access.addr != cpu.mem_access.addr ||
-      ref_r->mem_access.data != cpu.mem_access.data ||
-      ref_r->mem_access.fcn  != cpu.mem_access.fcn ){
-        printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_access.addr,cpu.mem_access.addr);
-        printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_access.data,cpu.mem_access.data);
-        return false;
-      }      
-  return true;
-}
-
 void assert_fail_msg() {
   isa_reg_display();
 }

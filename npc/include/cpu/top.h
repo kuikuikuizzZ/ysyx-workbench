@@ -24,10 +24,10 @@ typedef VerilatedFstC Tfp;
 
 
 typedef struct {
-  bool      enable;
-  bool      fcn; 
   uint32_t addr;
   uint32_t data;
+  uint32_t enable;
+  uint32_t fcn; 
 } mem_access_t;
 
 Top* top();

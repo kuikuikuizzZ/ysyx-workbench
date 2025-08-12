@@ -37,7 +37,6 @@ typedef struct {
     word_t gpr[gpr_size];
     vaddr_t pc; 
     word_t csr[csr_size];
-    mem_access_t mem_access;
 } CPU_state;
 
 // this is not consistent with uint8_t
@@ -97,7 +96,6 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 #endif
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 
 void isa_reg_display();
 
