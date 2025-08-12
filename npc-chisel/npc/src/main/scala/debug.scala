@@ -8,7 +8,7 @@ import npc._
 import npc.devices._
 
 
-class debug_port() extends BlackBox with HasBlackBoxInline{ 
+class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
     val io = IO(new Bundle {
         val clock = Input(Clock())
         val reset = Input(Bool())   
