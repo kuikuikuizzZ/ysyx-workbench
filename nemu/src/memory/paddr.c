@@ -179,7 +179,7 @@ word_t paddr_read(paddr_t addr, int len) {
     likely(in_flash_pmem(addr)) ||
     likely(in_psram_pmem(addr))   ||
     likely(in_sdram_pmem(addr))) return pmem_read(addr, len);
-  else if (likely(in_uart_pmem(addr)))  return 0x20;
+  else if (likely(in_uart_pmem(addr)))  return 0;
   else if (likely(in_clint_pmem(addr))) return 0;
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr); 
