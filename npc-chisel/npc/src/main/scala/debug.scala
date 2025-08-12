@@ -21,7 +21,7 @@ class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox wit
      setInline("debug_port.v",
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
-     import "DPI-C" function void lsu_port( input enable, input int fcn,input int addr, input int data);
+     import "DPI-C" function void lsu_port( input enable, input fcn,input int addr, input int data);
 
      module debug_port(
         input clock,
@@ -47,11 +47,11 @@ class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox wit
         wire [31:0] expand_valid = {31'b0,lsu_port_valid};
         always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
-                lsu_port(expand_mem_en,expand_fcn, lsu_port_addr, lsu_port_wdata);
+                lsu_port(lsu_port_mem_en,lsu_port_fcn, lsu_port_addr, lsu_port_wdata);
             end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
-                lsu_port(expand_valid,expand_fcn, lsu_port_addr, lsu_port_rdata);
+                lsu_port(lsu_port_valid,lsu_port_fcn, lsu_port_addr, lsu_port_rdata);
             end else begin
-                lsu_port(32'd0,32'd0,32'd0,32'd0);
+                lsu_port(1'd0,1'd0,32'd0,32'd0);
             end
         end
      endmodule

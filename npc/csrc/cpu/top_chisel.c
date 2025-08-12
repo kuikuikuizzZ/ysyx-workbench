@@ -28,7 +28,7 @@ extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     halt    = in_halt;
 }
 
-extern "C" void lsu_port(int en ,int fcn, int addr, int data){
+extern "C" void lsu_port(bool en ,bool fcn, int addr, int data){
     lsu_enable  = en;
     if (en){
         lsu_fcn     = fcn;
