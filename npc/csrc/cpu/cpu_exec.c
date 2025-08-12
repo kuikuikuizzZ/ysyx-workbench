@@ -79,20 +79,6 @@ void init_itrace(){
     rb = RingBuffer_create(LOG_BUFSIZE);
 }
 
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc != cpu.pc ){
-    printf("checkreg pc, ref %x, top %x \n",ref_r->pc,cpu.pc);
-    return false;
-  }
-  for (int i=0;i<gpr_size;i++){
-     if(ref_r->gpr[i]!=cpu.gpr[i]) {
-        printf("checkreg x%d, ref %x, top %x \n",i,ref_r->gpr[i],cpu.gpr[i]);
-        return false;
-     }
-  }  
-  return true;
-}
-
 void assert_fail_msg() {
   isa_reg_display();
 }
@@ -182,6 +168,7 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
         npc_state.state = NPC_STOP;
     }
     #endif
+    if (dnpc != s->pc) clear_top_lsu_state();
     return;
 }
 

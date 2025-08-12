@@ -1,3 +1,5 @@
+#ifndef __TOP__H
+#define __TOP__H
 #include "verilated_fst_c.h"
 #include <generated/autoconf.h>
 
@@ -19,6 +21,29 @@ uint32_t top_state();
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)
 
 typedef VerilatedFstC Tfp;
+enum LSU_FCN {
+    LSU_FCN_LOAD,
+    LSU_FCN_STORE,
+};
+
+enum LSU_TYP {
+   MT_X  ,
+   MT_B  ,
+   MT_H  ,
+   MT_W  ,
+   MT_D  ,
+   MT_BU ,
+   MT_HU ,
+   MT_WU ,
+};
+
+typedef struct {
+  uint32_t addr;
+  uint32_t data;
+  uint32_t enable;
+  uint32_t fcn; 
+  uint32_t typ;
+} mem_access_t;
 
 Top* top();
 Tfp* tfp();
@@ -36,6 +61,12 @@ uint32_t top_inst();
 
 uint32_t top_dnpc();
 
+mem_access_t top_lsu_state();
+
+void clear_top_lsu_state();
+
 void delete_top();
 
 void watch_top();
+
+#endif

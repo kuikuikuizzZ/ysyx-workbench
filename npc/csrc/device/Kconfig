@@ -236,5 +236,18 @@ config SDRAM_BA_BITS
 endif # HAS_SDRAM
 
 
+menuconfig HAS_UART
+  bool "Enable uart"
+  default n
+if HAS_UART
+config UART_BASE
+  depends on HAS_UART
+  hex "size of the uart"
+  default 0x10000000
+config UART_SIZE
+  depends on HAS_UART
+  hex "size of the uart"
+  default 0x10
+endif # HAS_UART
 
 endif # DEVICE

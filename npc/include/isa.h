@@ -4,6 +4,7 @@
 #include <memory/memory.h>
 #include <string.h>
 #include <common.h>
+#include <cpu/top.h>
 
 // const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
 const int gpr_size = 16;
@@ -95,7 +96,6 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 #endif
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 
 void isa_reg_display();
 

@@ -26,6 +26,7 @@ SRCS-$(CONFIG_HAS_MROM) += csrc/device/mrom.c
 SRCS-$(CONFIG_HAS_FLASH) += csrc/device/flash.c
 SRCS-$(CONFIG_HAS_PSRAM) += csrc/device/psram.c
 SRCS-$(CONFIG_HAS_SDRAM) += csrc/device/sdram.c
+SRCS-$(CONFIG_HAS_UART) += csrc/device/uart.c
 
 SRCS-BLACKLIST-$(CONFIG_TARGET_AM) += csrc/device/alarm.c
 
