@@ -1,3 +1,5 @@
+#ifndef __TOP__H
+#define __TOP__H
 #include "verilated_fst_c.h"
 #include <generated/autoconf.h>
 
@@ -20,12 +22,13 @@ uint32_t top_state();
 
 typedef VerilatedFstC Tfp;
 
+
 typedef struct {
-    uint32_t enable;
-    uint32_t fcn;
-    uint32_t addr;
-    uint32_t data;
-} LSU_state;
+  bool      enable;
+  bool      fcn; 
+  uint32_t addr;
+  uint32_t data;
+} mem_access_t;
 
 Top* top();
 Tfp* tfp();
@@ -43,8 +46,12 @@ uint32_t top_inst();
 
 uint32_t top_dnpc();
 
-LSU_state top_lsu_state();
+mem_access_t top_lsu_state();
+
+void clear_top_lsu_state();
 
 void delete_top();
 
 void watch_top();
+
+#endif

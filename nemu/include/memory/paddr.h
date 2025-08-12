@@ -21,6 +21,19 @@
 #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
 #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
+enum  mem_rw{
+    MEM_READ,
+    MEM_WRITE,
+};
+
+typedef struct {
+  bool      enable;
+  bool      fcn; 
+  uint32_t addr;
+  uint32_t data;
+} mem_access_t;
+
+void mem_access_hook(uint8_t rw, paddr_t addr, word_t data);
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);

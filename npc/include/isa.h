@@ -4,6 +4,7 @@
 #include <memory/memory.h>
 #include <string.h>
 #include <common.h>
+#include <cpu/top.h>
 
 // const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
 const int gpr_size = 16;
@@ -36,6 +37,7 @@ typedef struct {
     word_t gpr[gpr_size];
     vaddr_t pc; 
     word_t csr[csr_size];
+    mem_access_t mem_access;
 } CPU_state;
 
 // this is not consistent with uint8_t

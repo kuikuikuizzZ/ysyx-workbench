@@ -22,6 +22,7 @@ void cpu_exec(uint64_t n);
 typedef struct {
     word_t gpr[MUXDEF(CONFIG_RVE,16,32)];
     word_t pc;
+    mem_access_t mem_access;
 }diff_context;
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
@@ -47,6 +48,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
       context->gpr[i] = cpu.gpr[i];
     }
     context->pc = cpu.pc;
+    memcpy(&context->mem_access,&cpu.mem_access,sizeof(mem_access_t));
+    printf("[ref] cpu.mem_access addr %x data %x\n",cpu.mem_access.addr,cpu.mem_access.data);
   } else{
     for (int i=0;i<NXPR;i++){
       cpu.gpr[i] = context->gpr[i];

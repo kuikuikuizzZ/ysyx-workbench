@@ -20,6 +20,7 @@
 #include <utils.h>
 #include <npc.h>
 #include <memory.h>
+#include <cpu/top.h>
 #include <cpu/difftest.h>
 extern CPU_state cpu;
 
@@ -59,6 +60,11 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
   while (nr_ref -- > 0) {
     ref_difftest_exec(1);
   }
+}
+
+void memory_access_skip_ref(){
+  mem_access_t lsu_state = top_lsu_state();
+  IFDEF(CONFIG_HAS_UART,is_skip_ref = is_skip_ref || in_uart(lsu_state.addr) );
 }
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
@@ -129,6 +135,7 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
       panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
     return;
   }
+  memory_access_skip_ref();
 
   if (is_skip_ref) {
     // to skip the checking of an instruction, just copy the reg state to reference design
@@ -140,6 +147,8 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   if ( pc_next != pc) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    printf("[ref] ref.mem_access addr %x data %x %x %x\n",ref_r.mem_access.addr,ref_r.mem_access.data,ref_r.mem_access.enable,ref_r.mem_access.fcn);
+
     checkregs(&ref_r, pc);
   }
 }

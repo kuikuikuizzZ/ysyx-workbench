@@ -11,6 +11,15 @@
 extern "C" {
 #endif
 
+    typedef struct {
+        uint32_t addr;
+        uint32_t data;
+        uint32_t enable;
+        uint32_t fcn;
+    } mem_access_state;
+
+    
+
     #define MBASE CONFIG_MBASE 
     #define MSIZE CONFIG_MSIZE 
     #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
@@ -22,7 +31,7 @@ extern "C" {
     uint8_t* guest_to_host(uint32_t paddr) ;
     uint8_t* guest_to_mrom(uint32_t paddr) ;
     uint8_t* guest_to_flash(uint32_t paddr) ;
-
+    bool in_uart(uint32_t addr);
 
     static inline bool in_pmem(uint32_t addr) {
         return addr - MBASE < MSIZE;

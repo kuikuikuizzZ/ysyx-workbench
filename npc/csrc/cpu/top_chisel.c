@@ -18,10 +18,9 @@ enum LSU_FCN {
 static uint32_t pc          = 0;
 static uint32_t inst        = 0;
 static uint32_t halt        = 0;
-static uint32_t lsu_enable  = 0;
-static uint32_t lsu_addr    = 0;
-static uint32_t lsu_fcn     = 0;
-static uint32_t lsu_data    = 0;
+
+static mem_access_t lsu_state = {0};
+
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     pc      = in_pc;
     inst    = in_inst;
@@ -29,11 +28,11 @@ extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
 }
 
 extern "C" void lsu_port(bool en ,bool fcn, int addr, int data){
-    lsu_enable  = en;
     if (en){
-        lsu_fcn     = fcn;
-        lsu_addr    = lsu_addr;
-        lsu_data    = data;
+        lsu_state.fcn     = fcn;
+        lsu_state.addr    = addr;
+        lsu_state.data    = data;
+        lsu_state.enable  = true;
     }
 }
 
@@ -137,13 +136,15 @@ uint32_t top_dnpc() {
     return pc;
 }
 
-LSU_state top_lsu_state(){
-    LSU_state state;
-    state.enable = lsu_enable;
-    state.fcn = lsu_fcn;
-    state.data = lsu_data;
-    state.addr = lsu_addr;
-    return state;
+mem_access_t top_lsu_state(){
+    return lsu_state;
+}
+
+void clear_top_lsu_state(){
+    lsu_state.addr = 0;
+    lsu_state.data = 0;
+    lsu_state.enable = 0;
+    lsu_state.fcn = 0;
 }
 
 // uint32_t top_state(){
@@ -183,7 +184,6 @@ void watch_top(){
     } 
     if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
     else {
-        LSU_state lsu_state = top_lsu_state(); 
         // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
         printf(" io_halt %d ,pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x alu1 %.8x, alu2 %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
             top_halt(),
