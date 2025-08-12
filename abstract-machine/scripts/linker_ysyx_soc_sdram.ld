@@ -14,42 +14,34 @@ SECTIONS {
     _entry_start = .;
     KEEP(*(.entry))
   } > flash
-  .first_boost : {
+  .first_boost : ALIGN(4){
     _first_boost_start = .;
     KEEP(*(.first_boost))
   } > flash
   _lma_sec_boost_start = LOADADDR (.sec_boost);
-  . = ALIGN(4);  
-  .sec_boost : {
-    . = ALIGN(4);
+  .sec_boost : ALIGN(4) {
     _sec_boost_start = .;
     KEEP(*(.sec_boost))
     KEEP(*(.bootutils))
   } > sram AT> flash
   _sec_boost_end = .;
-  . = ALIGN(4);
   _lma_code_start = LOADADDR (.text);
-  .text : {
-    . = ALIGN(4);
+  .text : ALIGN(4){
     _text_start = .;
     KEEP(*(.text._trm_init))
     *(.text*)
   } > sdram AT> flash
   _etext = .;
-  . = ALIGN(4);
   _lma_rodata_start = LOADADDR (.rodata);
-  .rodata  : {
+  .rodata : ALIGN(4) {
     *(.rodata*)
   } > sdram AT> flash
   _erodata = .;
-  . = ALIGN(4);
   _lma_data_start = LOADADDR (.data);
-  .data : {
+  .data : ALIGN(4){
     _data_start = .;
     *(.data)
-
   }  > sdram AT> flash
-  . = . ;
   _data_end = . ;
   .bss :  {
     . = ALIGN(4);
@@ -59,7 +51,7 @@ SECTIONS {
     *(.scommon)
   } > sdram AT> flash
   _bss_end = .;
-  _heap_start = ALIGN(0x1000000);
+  _heap_start = ALIGN(0x100000);
   . = 0x0f000000;
   _stack_top =  ALIGN(0x1000) ;
   . = _stack_top + 0x2000;
