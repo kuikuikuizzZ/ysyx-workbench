@@ -160,7 +160,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
             rstate := Mux(io.axi_io.r.last || rlast, rs_idle, rs_wait_rlast)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
             when (rlast) { rlast := false.B
-             io.resp.bits.data := rdatas 
+             io.resp.bits.data := rdata 
             }
         }
     }
