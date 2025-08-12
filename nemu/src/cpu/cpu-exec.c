@@ -113,7 +113,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   IFDEF(CONFIG_ETRACE, s->is_exception = 0);
   isa_exec_once(s);
-  printf("pc: %.8x, inst %.8x\n", s->pc,s->isa.inst);
   cpu.pc = s->dnpc;
 }
 

@@ -18,7 +18,7 @@
 
 #include <common.h>
 
-#define USED_CSR_NUM 5
+#define USED_CSR_NUM 7
 
 typedef enum  {
   STAP    = 0x180, 
@@ -26,6 +26,8 @@ typedef enum  {
   MTVEC   = 0x305,
   MEPC    = 0x341,
   MCAUSE  = 0x342,
+  mvendorid = 0xf11,
+  marchid = 0xf12,
 } csrs;
 
 typedef struct {

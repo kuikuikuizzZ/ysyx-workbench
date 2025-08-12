@@ -37,26 +37,10 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     // load code from LMA to VMA
     unsigned *src = (unsigned*)&_lma_code_start;
     unsigned *dst = (unsigned*)&_text_start;
-    while (dst < (unsigned*)&_erodata)  *dst++ = *src++;
+    while (dst < (unsigned*)&_data_end)  *dst++ = *src++;
     char *csrc = (char*)src;
     char *cdst = (char*)dst;
-    while (cdst < &_erodata ) *cdst++ = *csrc++;
-
-
-    // load data from LMA to VMA
-    src = (unsigned*)&_lma_data_start;
-    dst = (unsigned*)&_data_start;
-    while (dst < (unsigned*)&_data_end) *dst++ = *src++; 
-    csrc = (char*)src;
-    cdst = (char*)dst;
     while (cdst < &_data_end ) *cdst++ = *csrc++;
-    
-    // init empty data
-    for (dst = (unsigned*)&_bss_start; dst < (unsigned*)&_bss_end; dst++)
-        *dst = 0;
-    cdst = (char*)dst;
-    for (;cdst < &_bss_end; cdst++) *cdst=0;
-
 
     
     putch('l'); putch('o'); putch('a'); putch('d'); putch('e'); putch('d');putch('\n');

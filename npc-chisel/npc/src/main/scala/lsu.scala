@@ -17,7 +17,8 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val addr        = Output(UInt(conf.xprlen.W))
     val rdata       = Output(UInt(conf.xprlen.W))
     val wdata       = Output(UInt(conf.xprlen.W))
-    val valid  = Output(Bool())
+    val valid       = Output(Bool())
+    val typ        = Output(UInt(2.W))
 }
 
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
@@ -66,5 +67,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.fcn        := io.ctl.mem_fcn
     io.debug.wdata      := io.exe.data
     io.debug.rdata      := io.port.resp.bits.data
-    io.debug.valid := io.port.resp.valid
+    io.debug.valid      := io.port.resp.valid
+    io.debug.typ        := io.ctl.mem_typ
 }
