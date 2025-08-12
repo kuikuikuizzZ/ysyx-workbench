@@ -39,7 +39,7 @@ class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox wit
         );
 
         wire [31:0] expand_halt = {31'b0,halt};
-        wire [31:0] expand_typ   = {31'b0,lsu_port_typ};
+        wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         always @(posedge clock) begin
             dpi_port(expand_halt, pc, inst);
         end
