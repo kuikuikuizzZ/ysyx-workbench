@@ -44,7 +44,7 @@ class debug_port() (implicit val conf: ysyx_24100012_Config)extends BlackBox wit
 
         wire [31:0] expand_fcn = {31'b0,lsu_port_fcn};
         wire [31:0] expand_mem_en = {31'b0,lsu_port_mem_en};
-        wire [31:0] expand_valid = {31'b0,lsu_port_valid}};
+        wire [31:0] expand_valid = {31'b0,lsu_port_valid};
     }
         always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
