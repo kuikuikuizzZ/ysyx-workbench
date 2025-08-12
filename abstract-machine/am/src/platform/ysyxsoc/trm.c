@@ -16,11 +16,11 @@ extern char _pmem_start;
 #define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
 #define npc_trap(code) asm volatile ("mv a0, %0; ebreak" : :"r"(code))
 
-Area heap = RANGE(&_heap_start, &_heap_start+0x1000);
+Area heap = RANGE(&_heap_start, &_heap_start+0x100000);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 __attribute__ ((section(".bootutils"))) void putch(char ch) {
-  // while(!(inb(UART_LSR)&0x20)); 
+  while(!(inb(UART_LSR)&0x20)); 
   outb(UART_RBR,ch);
   return;
 }

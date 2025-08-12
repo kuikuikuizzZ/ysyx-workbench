@@ -15,12 +15,11 @@ SECTIONS {
     KEEP(*(.entry))
   } > flash
   .first_boost : {
-    . = ALIGN(4);
     _first_boost_start = .;
     KEEP(*(.first_boost))
   } > flash
-  . = ALIGN(4);
   _lma_sec_boost_start = LOADADDR (.sec_boost);
+  . = ALIGN(4);  
   .sec_boost : {
     . = ALIGN(4);
     _sec_boost_start = .;
@@ -36,18 +35,16 @@ SECTIONS {
     KEEP(*(.text._trm_init))
     *(.text*)
   } > sdram AT> flash
-
   _etext = .;
+  . = ALIGN(4);
   _lma_rodata_start = LOADADDR (.rodata);
   .rodata  : {
-    . = ALIGN(4);
     *(.rodata*)
   } > sdram AT> flash
-  . = . ;
   _erodata = .;
+  . = ALIGN(4);
   _lma_data_start = LOADADDR (.data);
   .data : {
-    . = ALIGN(4);
     _data_start = .;
     *(.data)
 
@@ -63,8 +60,9 @@ SECTIONS {
   } > sdram AT> flash
   _bss_end = .;
   _heap_start = ALIGN(0x1000000);
-  _stack_top =  ALIGN(0x1000000) ;
-  . = _stack_top + 0x2000000;
+  . = 0x0f000000;
+  _stack_top =  ALIGN(0x1000) ;
+  . = _stack_top + 0x2000;
   _stack_pointer = .;
   end = .;
   _end = .;

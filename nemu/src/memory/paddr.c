@@ -75,8 +75,8 @@ paddr_t host_to_flash(uint8_t *haddr) { return haddr - sram + CONFIG_FLASH_BASE;
 #endif
 
 #ifdef CONFIG_HAS_SDRAM
-uint8_t* guest_to_sdram(paddr_t paddr) { return sram + paddr - CONFIG_SDRAM_BASE; }
-paddr_t host_to_sdram(uint8_t *haddr) { return haddr - sram + CONFIG_SDRAM_BASE; }
+uint8_t* guest_to_sdram(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
+paddr_t host_to_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_SDRAM_BASE; }
 #endif
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret;
