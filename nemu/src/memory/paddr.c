@@ -24,7 +24,7 @@ static uint8_t *pmem = NULL;
 static uint8_t *mrom =NULL;
 static uint8_t *sram =NULL;
 static uint8_t *flash =NULL;
-static uint8_t *sdram =NULL;
+IFDEF(CONFIG_HAS_SDRAM,static uint8_t *sdram =NULL);
 IFDEF(CONFIG_HAS_PSRAM,static uint8_t *psram =NULL);
 
 #else // CONFIG_PMEM_GARRAY
