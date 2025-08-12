@@ -9,21 +9,7 @@
 #ifndef __DEBUG_TOP__
 #define __DEBUG_TOP__
 #define LSU_FCN(key) 
-enum LSU_FCN {
-    LSU_FCN_LOAD,
-    LSU_FCN_STORE,
-};
 
-enum LSU_TYP {
-   MT_X  ,
-   MT_B  ,
-   MT_H  ,
-   MT_W  ,
-   MT_D  ,
-   MT_BU ,
-   MT_HU ,
-   MT_WU ,
-};
 
 static uint32_t pc          = 0;
 static uint32_t inst        = 0;

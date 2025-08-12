@@ -21,7 +21,21 @@ uint32_t top_state();
 #define NPCTRAP(thispc, code) set_npc_state(NPC_END, thispc, code)
 
 typedef VerilatedFstC Tfp;
+enum LSU_FCN {
+    LSU_FCN_LOAD,
+    LSU_FCN_STORE,
+};
 
+enum LSU_TYP {
+   MT_X  ,
+   MT_B  ,
+   MT_H  ,
+   MT_W  ,
+   MT_D  ,
+   MT_BU ,
+   MT_HU ,
+   MT_WU ,
+};
 
 typedef struct {
   uint32_t addr;

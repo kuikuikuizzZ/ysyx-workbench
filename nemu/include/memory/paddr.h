@@ -87,6 +87,12 @@ static inline bool in_uart_pmem(paddr_t addr) {
   return  res;  
 }
 
+static inline bool in_clint_pmem(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_CLINT, res=(addr - CONFIG_CLINT_BASE) < CONFIG_CLINT_SIZE);
+  return  res;  
+}
+
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
 

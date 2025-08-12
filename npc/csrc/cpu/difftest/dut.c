@@ -40,11 +40,14 @@ typedef struct {
 }diff_context;
 
 bool mem_data_equal(uint32_t ref, uint32_t dut, uint32_t typ){
+  // printf("hf  ref %x  dut %x  %d\n",((uint16_t)ref), ((uint16_t)dut),((uint16_t)ref) == ((uint16_t)dut));
+  // printf("bit ref %x  dut %x %d\n",((uint8_t)ref), ((uint8_t)dut), ((uint8_t)ref) == ((uint8_t)dut));
   if (typ == MT_X ) return true;
-  if (typ == MT_W || MT_WU) return ref == dut;
-  if (typ == MT_H || MT_HU) return ((uint16_t)ref) == ((uint16_t)dut);
-  if (typ == MT_B || MT_BU) return ((uint8_t)ref) == ((uint8_t)dut);
-  retunr false;
+  else if (typ == MT_W || typ == MT_WU) return ref == dut;
+  else if (typ == MT_H || typ == MT_HU) return ((uint16_t)ref) == ((uint16_t)dut);
+  else if (typ == MT_B || typ == MT_BU) return ((uint8_t)ref) == ((uint8_t)dut);
+
+  return false;
 }
 
 bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
@@ -60,7 +63,7 @@ bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
   }  
   mem_access_t mem = top_lsu_state();
   if (ref_r->mem_addr != mem.addr ||
-      mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
+      !mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
         printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
         printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
         return false;}      
@@ -184,8 +187,6 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   if ( pc_next != pc) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    printf("ref_r enable %d, r/w %d addr %.8x data %.8x\n",ref_r.mem_enable,ref_r.mem_fcn,ref_r.mem_addr,ref_r.mem_data);
-
     checkregs(&ref_r, pc);
   }
 }

@@ -118,6 +118,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val arfire = RegInit(false.B)
     val bfire = RegInit(false.B)
     val rfire = RegInit(false.B)
+    val rdata = RegInit(0.U(32.W))
+    val rlast = RegInit(false.B)
 
     awfire  :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.aw.valid && io.axi_io.aw.ready) || awfire)
     wfire   :=  Mux(wstate === ws_wait_bvalid,  false.B, (io.axi_io.w.valid && io.axi_io.w.ready) || wfire)

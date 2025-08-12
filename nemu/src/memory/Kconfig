@@ -115,5 +115,20 @@ config UART_SIZE
   hex "UART size"
   default 0x100
 
+config HAS_CLINT
+   bool "Enable CLINT "
+   default n
+
+config CLINT_BASE 
+  depends on HAS_CLINT
+  hex "CLINT base address"
+  default 0x02000000 
+
+config CLINT_SIZE
+  depends on HAS_CLINT
+  hex "CLINT size"
+  default 0x10000
+
+
 
 endmenu #MEMORY

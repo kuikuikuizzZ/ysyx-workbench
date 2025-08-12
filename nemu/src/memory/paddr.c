@@ -25,7 +25,7 @@ static uint8_t *mrom =NULL;
 static uint8_t *sram =NULL;
 static uint8_t *flash =NULL;
 static uint8_t *sdram =NULL;
-// static uint8_t *psram =NULL;
+static uint8_t *psram =NULL;
 
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
@@ -180,7 +180,8 @@ word_t paddr_read(paddr_t addr, int len) {
     likely(in_psram_pmem(addr))   ||
     likely(in_sdram_pmem(addr))) return pmem_read(addr, len);
   // IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  else if (likely(in_uart_pmem(addr))) return 0x20;
+  else if (likely(in_uart_pmem(addr)))  return 0x20;
+  else if (likely(in_clint_pmem(addr))) return 0;
   out_of_bound(addr); 
   return 0;
 }
@@ -194,6 +195,8 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     likely(in_sdram_pmem(addr))
   )  { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  if (likely(in_uart_pmem(addr))) return;
+  if (likely(in_uart_pmem(addr)) || 
+      likely(in_clint_pmem(addr))) return;
+
   out_of_bound(addr);
 }

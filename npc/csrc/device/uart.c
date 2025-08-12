@@ -11,3 +11,10 @@
     }
     
 #endif
+
+
+bool in_clint(paddr_t addr) {
+  bool res = false;
+  IFDEF(CONFIG_HAS_CLINT, res=(addr - CONFIG_CLINT_BASE) < CONFIG_CLINT_SIZE);
+  return  res;  
+}
