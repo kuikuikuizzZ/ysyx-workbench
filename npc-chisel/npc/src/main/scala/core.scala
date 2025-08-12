@@ -94,6 +94,7 @@ class ysyx_24100012 extends Module
   debug.io.halt := halt
   debug.io.pc := inst_fetch.io.pc_io.pc
   debug.io.inst := inst_fetch.io.inst
+  debug.io.lsu_port := lsu.io.debug
 }
 
 
