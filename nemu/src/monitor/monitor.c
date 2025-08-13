@@ -134,6 +134,7 @@ void init_monitor(int argc, char *argv[]) {
 
   IFDEF(CONFIG_DIFFTEST,printf("diff_so_file = %s\n",diff_so_file));
   /* Initialize differential testing. */
+  diff_so_file = "tools/spike-diff/build/riscv32-spike-so";
   init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize ftrace */
