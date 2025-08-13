@@ -50,7 +50,7 @@ void print_id(){
   );
   memcpy(name,&mvendorid,4);
   // putstr(name);
-  // print_hex(marchid);
+  print_hex(marchid);
 }
 void _trm_init() {
   print_id();
