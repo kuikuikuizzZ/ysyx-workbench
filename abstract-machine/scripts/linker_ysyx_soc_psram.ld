@@ -33,7 +33,6 @@ SECTIONS {
     KEEP(*(.text._trm_init))
     *(.text*)
   } > psram AT> flash
-
   _etext = .;
   . = ALIGN(4);
   .rodata  : {

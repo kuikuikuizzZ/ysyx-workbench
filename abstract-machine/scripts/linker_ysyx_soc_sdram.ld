@@ -25,26 +25,28 @@ SECTIONS {
     KEEP(*(.bootutils))
   } > sram AT> flash
   _sec_boost_end = .;
-   . = .;
+  . = .;
   _lma_code_start = LOADADDR (.text);
   .text : ALIGN(4){
     _text_start = .;
     KEEP(*(.text._trm_init))
     *(.text*)
   } > sdram AT> flash
-  . = .;
   _etext = .;
   _lma_rodata_start = LOADADDR (.rodata);
   .rodata : ALIGN(4) {
     . = ALIGN(4);
     *(.rodata*)
+    *(.srodata*)
   } > sdram AT> flash
-  _erodata = .;
   . = .;
+  _erodata = .;
   _lma_data_start = LOADADDR (.data);
   .data : ALIGN(4){
     _data_start = .;
-    *(.data)
+    *(.data*)
+    *(.data.*)
+    *(.sdata*)
   }  > sdram AT> flash
   . = .;
   _data_end = . ;
