@@ -34,6 +34,7 @@ SECTIONS {
   _etext = .;
   _lma_rodata_start = LOADADDR (.rodata);
   .rodata : ALIGN(4) {
+    . = ALIGN(4);
     *(.rodata*)
   } > sdram AT> flash
   _erodata = .;
@@ -43,7 +44,6 @@ SECTIONS {
     *(.data)
   }  > sdram AT> flash
   _data_end = . ;
-  . = .;
   .bss :  {
     . = ALIGN(4);
 	  _bss_start = .;
