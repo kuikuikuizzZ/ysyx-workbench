@@ -190,15 +190,19 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
 
    /////////   Debug Signals
-   val csrCount      = RegInit(0.U(conf.perfCountBits.W))    
-   val storeCount    = RegInit(0.U(conf.perfCountBits.W))  
-   val loadCount     = RegInit(0.U(conf.perfCountBits.W))   
-   val itypeCount    = RegInit(0.U(conf.perfCountBits.W))  
-   val rtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
-   val jtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
-   val utypeCount    = RegInit(0.U(conf.perfCountBits.W))
-   val otherCount    = RegInit(0.U(conf.perfCountBits.W))
-
+   // val csrCount      = RegInit(0.U(conf.perfCountBits.W))    
+   // val storeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   // val loadCount     = RegInit(0.U(conf.perfCountBits.W))   
+   // val itypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   // val rtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   // val jtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   // val utypeCount    = RegInit(0.U(conf.perfCountBits.W))
+   // val otherCount    = RegInit(0.U(conf.perfCountBits.W))
+   val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
+   val Seq(
+    loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
+    rtypeCount, csrCount, otherCount
+  ) = perfCounters
   // 加载指令检测
    val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
                   io.inst === LBU || io.inst === LHU
