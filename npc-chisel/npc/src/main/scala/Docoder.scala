@@ -33,14 +33,14 @@ class CtlToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 }
 
 class CtrlDebugPort (implicit val conf: ysyx_24100012_Config) extends Bundle(){
-   csrCount    = Output(conf.perfCountBits)
-   storeCount  = Output(conf.perfCountBits)
-   loadCount   = Output(conf.perfCountBits)
-   itypeCount  = Output(conf.perfCountBits)
-   rtypeCount  = Output(conf.perfCountBits)
-   jtypeCount  = Output(conf.perfCountBits)
-   utypeCount  = Output(conf.perfCountBits)
-   otherCount  = Output(conf.perfCountBits)
+   val csrCount    = Output(conf.perfCountBits)
+   val storeCount  = Output(conf.perfCountBits)
+   val loadCount   = Output(conf.perfCountBits)
+   val itypeCount  = Output(conf.perfCountBits)
+   val rtypeCount  = Output(conf.perfCountBits)
+   val jtypeCount  = Output(conf.perfCountBits)
+   val utypeCount  = Output(conf.perfCountBits)
+   val otherCount  = Output(conf.perfCountBits)
 }
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
