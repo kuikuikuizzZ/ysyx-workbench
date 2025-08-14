@@ -35,14 +35,14 @@ SECTIONS {
   } > psram AT> flash
   _etext = .;
   . = ALIGN(4);
-  .rodata  : {
+  .rodata  : ALIGN(8){
     *(.rodata*)
   } > psram AT> flash
   . = . ;
   _erodata = .;
   _lma_data_start = LOADADDR (.data);
   . = ALIGN(4);
-  .data : {
+  .data : ALIGN(8){
     _data_start = .;
     *(.data)
   }  > psram AT> flash

@@ -49,8 +49,7 @@ void print_id(){
     : "=r"(marchid)
   );
   memcpy(name,&mvendorid,4);
-  // putstr(name);
-  print_hex(marchid);
+  printf("%s_%d\n",name,marchid);
 }
 void _trm_init() {
   print_id();

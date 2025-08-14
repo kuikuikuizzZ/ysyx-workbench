@@ -14,53 +14,95 @@ SECTIONS {
     _entry_start = .;
     KEEP(*(.entry))
   } > flash
-  .first_boost : ALIGN(4){
+  .first_boost : {
     _first_boost_start = .;
     KEEP(*(.first_boost))
   } > flash
+
   _lma_sec_boost_start = LOADADDR (.sec_boost);
-  .sec_boost : ALIGN(4) {
+  .sec_boost : {
     _sec_boost_start = .;
     KEEP(*(.sec_boost))
     KEEP(*(.bootutils))
   } > sram AT> flash
   _sec_boost_end = .;
-  . = .;
+
   _lma_code_start = LOADADDR (.text);
-  .text : ALIGN(4){
+  .text : {
     _text_start = .;
     KEEP(*(.text._trm_init))
     *(.text*)
   } > sdram AT> flash
   _etext = .;
+
   _lma_rodata_start = LOADADDR (.rodata);
-  .rodata : ALIGN(4) {
-    . = ALIGN(4);
+  .rodata  :ALIGN(8) {
     *(.rodata*)
     *(.srodata*)
   } > sdram AT> flash
-  . = .;
+  . = . ;
   _erodata = .;
-  _lma_data_start = LOADADDR (.data);
-  .data : ALIGN(4){
+  
+  _lma_data_start = LOADADDR (.data.extra);
+  . = ALIGN(4);
+  .data.extra : ALIGN(8){
     _data_start = .;
+    /* section information for finsh shell */
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(8);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(8);
+
+    /* section information for initial. */
+    . = ALIGN(8);
+    __rt_init_start = .;
+    KEEP(*(SORT(.rti_fn*)))
+    __rt_init_end = .;
+    . = ALIGN(8);
+
+    __rt_utest_tc_tab_start = .;
+    KEEP(*(UtestTcTab))
+    __rt_utest_tc_tab_end = .;
+
+    . = ALIGN(8);
+    __am_apps_data_start = .;
+    *(__am_apps.data*)
+    *(__am_apps.sdata*)
+    __am_apps_data_end = .;
+    . = ALIGN(8);
+  } > sdram AT> flash
+
+  .data :ALIGN(8) {
     *(.data*)
     *(.data.*)
     *(.sdata*)
   }  > sdram AT> flash
-  . = .;
+  . = . ;
   _data_end = . ;
+  
+  .bss.extra : {
+    . = ALIGN(8);
+    _bss_start = .;
+    __am_apps_bss_start = .;
+    *(__am_apps.bss*)
+    *(__am_apps.sbss*)
+    *(__am_apps.scommon*)
+    __am_apps_bss_end = .;
+    . = ALIGN(8);
+  } > sdram AT> flash
   .bss :  {
-    . = ALIGN(4);
-	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
   } > sdram AT> flash
   _bss_end = .;
-  _heap_start = ALIGN(0x100000);
-  _stack_top =  ALIGN(0x100000) ;
-  . = _stack_top + 0x200000;
+  _heap_start = ALIGN(0x1000000);
+  _stack_top =  ALIGN(0x1000000) ;
+  . = _stack_top + 0x2000000;
   _stack_pointer = .;
   end = .;
   _end = .;

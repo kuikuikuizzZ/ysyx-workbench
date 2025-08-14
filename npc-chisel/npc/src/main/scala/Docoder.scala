@@ -32,6 +32,16 @@ class CtlToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val exception = Output(Bool())
 }
 
+class CtrlDebugPort (implicit val conf: ysyx_24100012_Config) extends Bundle(){
+   csrCount    = Output(conf.perfCountBits)
+   storeCount  = Output(conf.perfCountBits)
+   loadCount   = Output(conf.perfCountBits)
+   itypeCount  = Output(conf.perfCountBits)
+   rtypeCount  = Output(conf.perfCountBits)
+   jtypeCount  = Output(conf.perfCountBits)
+   utypeCount  = Output(conf.perfCountBits)
+}
+
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val inst = Input(UInt(conf.xlen.W))
@@ -43,6 +53,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ls_valid   =  Input(Bool())
    val pc_io      =  Flipped(new PCOut())
    val finish     = Output(Bool())
+   val debug_port = Output(new CtrlDebugPort())
 }
 
 class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
@@ -175,4 +186,45 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // fit.
    io.ctl.exception := (!cs_val_inst && io.ifu_valid) 
    io.pipeline_kill :=  (!cs_val_inst ) 
+
+
+   /////////   Debug Signals
+   val perfEvents = RegInit(VecInit(Seq.fill(7)(0.U(conf.perfCountBits.W))))
+   // aliases
+   val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount) = perfEvents
+   when(ifu_valid){
+      switch(inst_type) {
+         // 加载指令
+         is(LW)  | is(LB)  | is(LBU) | is(LH)  | is(LHU)  -> loadCount := loadCount + 1.U
+         // 存储指令
+         is(SW)  | is(SB)  | is(SH)                      -> storeCount := storeCount + 1.U
+         // 算术指令（I型）
+         is(ADDI) | is(ANDI) | is(ORI) | is(XORI) | 
+         is(SLTI)| is(SLTIU)| is(SLLI) | is(SRAI) | is(SRLI) -> itypeCount := itypeCount + 1.U
+         // 算术指令（R型）
+         is(SLL) | is(ADD) | is(SUB) | is(SLT)  | is(SLTU) | 
+         is(AND) | is(OR)  | is(XOR) | is(SRA)  | is(SRL)   -> rtypeCount := rtypeCount + 1.U
+         // 跳转指令
+         is(JAL) | is(JALR)                                -> jtypeCount := jtypeCount + 1.U
+         // 分支指令
+         is(BEQ) | is(BNE) | is(BGE) | is(BGEU) | 
+         is(BLT) | is(BLTU)                                -> jtypeCount := jtypeCount + 1.U  // 分支也归类到跳转
+         // 系统指令
+         is(CSRRWI) | is(CSRRSI) | is(CSRRCI) | 
+         is(CSRRW) | is(CSRRS)  | is(CSRRC) | 
+         is(ECALL) | is(MRET)  | is(DRET)   | 
+         is(EBREAK)| is(WFI)   | is(FENCE_I)| is(FENCE)   -> csrCount := csrCount + 1.U
+         // U型指令
+         is(AUIPC) | is(LUI)                              -> utypeCount := utypeCount + 1.U
+      }
+   }
+
+   io.debug.csrCount    := csrCount      
+   io.debug.storeCount  := storeCount  
+   io.debug.loadCount   := loadCount    
+   io.debug.itypeCount  := itypeCount  
+   io.debug.rtypeCount  := rtypeCount  
+   io.debug.jtypeCount  := jtypeCount  
+   io.debug.utypeCount  := utypeCount  
+   /////////
 }
