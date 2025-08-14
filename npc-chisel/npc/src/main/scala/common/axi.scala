@@ -149,13 +149,11 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
     switch(rstate){
-        is(rs_idle)         { rstate := Mux(accept_read, rs_wait_arready, rs_idle)}
-        is (rs_wait_arready){ rstate := Mux(arfire, Mux(io.axi_io.r.last, rs_idle,rs_wait_rlast), rs_wait_arready)
-            when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
-        }
+        is(rs_idle)         { rstate := Mux(accept_read, Mux(io.axi_io.ar.valid && io.axi_io.ar.ready,rs_wait_rlast , rs_wait_arready), rs_idle)}
+        is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
-            rstate := Mux(io.axi_io.r.last, rs_idle, rs_wait_rlast)
+            rstate := Mux(io.axi_io.r.last || (rstate === rs_wait_rlast) && (rfire), rs_idle, rs_wait_rlast)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
     }
@@ -174,8 +172,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
         is (ws_wait_ready)  { wstate := Mux((awfire&&wfire), ws_wait_bvalid, ws_wait_ready)}
         is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)}
     }
-    // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(io.axi_io.b.resp === 0.U) ,
-    //                  (rstate === rs_wait_rlast)&&(io.axi_io.r.resp === 0.U) )
+
     io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) ,
                      (io.axi_io.r.last) || (rstate === rs_wait_rlast) && (rfire) )
     io.resp.bits.resp :=  Mux(is_write ,io.axi_io.b.resp, io.axi_io.r.resp )
