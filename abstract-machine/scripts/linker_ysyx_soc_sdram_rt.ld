@@ -37,7 +37,7 @@ SECTIONS {
   _etext = .;
   _lma_rodata_start = LOADADDR (.rodata);
   . = ALIGN(4);
-  .rodata  : {
+  .rodata  :ALIGN(8) {
     *(.rodata*)
   } > sdram AT> flash
   . = . ;
@@ -45,7 +45,7 @@ SECTIONS {
   
   _lma_data_start = LOADADDR (.data.extra);
   . = ALIGN(4);
-  .data.extra : {
+  .data.extra : ALIGN(8){
     _data_start = .;
     /* section information for finsh shell */
     __fsymtab_start = .;
@@ -76,7 +76,7 @@ SECTIONS {
     . = ALIGN(8);
   } > sdram AT> flash
 
-  .data : {
+  .data :ALIGN(8) {
     *(.data)
   }  > sdram AT> flash
   . = . ;

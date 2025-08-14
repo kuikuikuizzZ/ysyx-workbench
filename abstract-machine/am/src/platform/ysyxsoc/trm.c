@@ -40,7 +40,7 @@ void halt(int code) {
 
 void print_id(){
   // mvendorid: 0xf11 marchid: 0xf12
-  uint32_t marchid,mvendorid;
+  uint32_t marchid=0,mvendorid=0;
   char name[4];
   asm volatile("csrr %0, mvendorid"
     : "=r"(mvendorid)
@@ -49,7 +49,8 @@ void print_id(){
     : "=r"(marchid)
   );
   memcpy(name,&mvendorid,4);
-  printf("\n%s_%d\n",name,marchid);
+  putstr(name);
+  print_hex(marchid);
 }
 void _trm_init() {
   print_id();
