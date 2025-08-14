@@ -192,30 +192,53 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val perfEvents = RegInit(VecInit(Seq.fill(7)(0.U(conf.perfCountBits.W))))
    // aliases
    val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount) = perfEvents
+      // 加载指令检测
+   val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
+                  io.inst === LBU || io.inst === LHU
+   
+   // 存储指令检测
+   val isStore = io.inst === SB || io.inst === SH || io.inst === SW
+   
+   // 分支指令检测
+   val isBranch = io.inst === BEQ || io.inst === BNE || 
+                  io.inst === BLT || io.inst === BGE || 
+                  io.inst === BLTU || io.inst === BGEU
+   
+   // 跳转指令检测
+   val isJump = io.inst === JAL || io.inst === JALR
+   
+   // I型指令检测
+   val isIType = io.inst === ADDI || io.inst === ANDI || io.inst === ORI || 
+                  io.inst === XORI || io.inst === SLTI || io.inst === SLTIU || 
+                  io.inst === SLLI || io.inst === SRAI || io.inst === SRLI
+   
+   // R型指令检测
+   val isRType = io.inst === ADD || io.inst === SUB || io.inst === SLL || 
+                  io.inst === SLT || io.inst === SLTU || io.inst === XOR || 
+                  io.inst === SRL || io.inst === SRA || io.inst === OR || 
+                  io.inst === AND
+   
+   // CSR指令检测
+   val isCSR = io.inst === CSRRSI ||io.inst === CSRRCI ||io.inst === CSRRW || io.inst === CSRRS || 
+         io.inst === CSRRC || io.inst === ECALL || io.inst === MRET ||   io.inst === DRET || 
+         io.inst === EBREAK ||io.inst === WFI  || io.inst === FENCE_I || io.inst === FENCE  
    when(ifu_valid){
-      switch(io.inst) {
-         // 加载指令
-         is(LW)  | is(LB)  | is(LBU) | is(LH)  | is(LHU)  -> loadCount := loadCount + 1.U
-         // 存储指令
-         is(SW)  | is(SB)  | is(SH)                      -> storeCount := storeCount + 1.U
-         // 算术指令（I型）
-         is(ADDI) | is(ANDI) | is(ORI) | is(XORI) | 
-         is(SLTI)| is(SLTIU)| is(SLLI) | is(SRAI) | is(SRLI) -> itypeCount := itypeCount + 1.U
-         // 算术指令（R型）
-         is(SLL) | is(ADD) | is(SUB) | is(SLT)  | is(SLTU) | 
-         is(AND) | is(OR)  | is(XOR) | is(SRA)  | is(SRL)   -> rtypeCount := rtypeCount + 1.U
-         // 跳转指令
-         is(JAL) | is(JALR)                                -> jtypeCount := jtypeCount + 1.U
-         // 分支指令
-         is(BEQ) | is(BNE) | is(BGE) | is(BGEU) | 
-         is(BLT) | is(BLTU)                                -> jtypeCount := jtypeCount + 1.U  // 分支也归类到跳转
-         // 系统指令
-         is(CSRRWI) | is(CSRRSI) | is(CSRRCI) | 
-         is(CSRRW) | is(CSRRS)  | is(CSRRC) | 
-         is(ECALL) | is(MRET)  | is(DRET)   | 
-         is(EBREAK)| is(WFI)   | is(FENCE_I)| is(FENCE)   -> csrCount := csrCount + 1.U
-         // U型指令
-         is(AUIPC) | is(LUI)                              -> utypeCount := utypeCount + 1.U
+      when(isLoad) {
+         loadCount := loadCount + 1.U
+      }.elsewhen(isStore) {
+         storeCount := storeCount + 1.U
+      }.elsewhen(isBranch) {
+         branchCount := branchCount + 1.U
+      }.elsewhen(isJump) {
+         jumpCount := jumpCount + 1.U
+      }.elsewhen(isIType) {
+         itypeCount := itypeCount + 1.U
+      }.elsewhen(isRType) {
+         rtypeCount := rtypeCount + 1.U
+      }.elsewhen(isCSR) {
+         csrCount := csrCount + 1.U
+      }.otherwise {
+         otherCount := otherCount + 1.U
       }
    }
 
