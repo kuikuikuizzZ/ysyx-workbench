@@ -189,10 +189,10 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
 
    /////////   Debug Signals
-   val perfEvents = RegInit(VecInit(Seq.fill(7)(0.U(conf.perfCountBits.W))))
+   val perfEvents = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
    // aliases
-   val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount) = perfEvents
-      // 加载指令检测
+   val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount,otherCount) = perfEvents
+   // 加载指令检测
    val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
                   io.inst === LBU || io.inst === LHU
    
@@ -224,7 +224,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.inst === EBREAK ||io.inst === WFI  || io.inst === FENCE_I || io.inst === FENCE  
 
    val isUtype = io.inst === LUI || io.inst === AUIPC
-   when(ifu_valid){
+   when(io.ifu_valid){
       when(isLoad) {
          loadCount := loadCount + 1.U
       }.elsewhen(isStore) {
