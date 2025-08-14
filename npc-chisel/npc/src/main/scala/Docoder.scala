@@ -193,7 +193,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // aliases
    val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount) = perfEvents
    when(ifu_valid){
-      switch(inst_type) {
+      switch(io.inst) {
          // 加载指令
          is(LW)  | is(LB)  | is(LBU) | is(LH)  | is(LHU)  -> loadCount := loadCount + 1.U
          // 存储指令
