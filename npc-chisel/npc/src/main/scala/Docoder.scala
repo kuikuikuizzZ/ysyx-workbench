@@ -40,6 +40,7 @@ class CtrlDebugPort (implicit val conf: ysyx_24100012_Config) extends Bundle(){
    rtypeCount  = Output(conf.perfCountBits)
    jtypeCount  = Output(conf.perfCountBits)
    utypeCount  = Output(conf.perfCountBits)
+   otherCount  = Output(conf.perfCountBits)
 }
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
@@ -189,10 +190,16 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
 
    /////////   Debug Signals
-   val perfEvents = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
-   // aliases
-   val Seq(csrCount, storeCount, loadCount, itypeCount, rtypeCount, jtypeCount, utypeCount,otherCount) = perfEvents
-   // 加载指令检测
+   val csrCount      = RegInit(0.U(conf.perfCountBits.W))    
+   val storeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   val loadCount     = RegInit(0.U(conf.perfCountBits.W))   
+   val itypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   val rtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   val jtypeCount    = RegInit(0.U(conf.perfCountBits.W))  
+   val utypeCount    = RegInit(0.U(conf.perfCountBits.W))
+   val otherCount    = RegInit(0.U(conf.perfCountBits.W))
+
+  // 加载指令检测
    val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
                   io.inst === LBU || io.inst === LHU
    
@@ -252,6 +259,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.debug.itypeCount  := itypeCount  
    io.debug.rtypeCount  := rtypeCount  
    io.debug.jtypeCount  := jtypeCount  
-   io.debug.utypeCount  := utypeCount  
+   io.debug.utypeCount  := utypeCount
+   io.debug.otherCount  := otherCount
    /////////
 }
