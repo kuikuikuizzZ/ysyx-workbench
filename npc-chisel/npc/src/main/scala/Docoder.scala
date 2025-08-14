@@ -222,21 +222,25 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val isCSR = io.inst === CSRRSI ||io.inst === CSRRCI ||io.inst === CSRRW || io.inst === CSRRS || 
          io.inst === CSRRC || io.inst === ECALL || io.inst === MRET ||   io.inst === DRET || 
          io.inst === EBREAK ||io.inst === WFI  || io.inst === FENCE_I || io.inst === FENCE  
+
+   val isUtype = io.inst === LUI || io.inst === AUIPC
    when(ifu_valid){
       when(isLoad) {
          loadCount := loadCount + 1.U
       }.elsewhen(isStore) {
          storeCount := storeCount + 1.U
       }.elsewhen(isBranch) {
-         branchCount := branchCount + 1.U
+         jtypeCount := jtypeCount + 1.U
       }.elsewhen(isJump) {
-         jumpCount := jumpCount + 1.U
+         jtypeCount := jtypeCount + 1.U
       }.elsewhen(isIType) {
          itypeCount := itypeCount + 1.U
       }.elsewhen(isRType) {
          rtypeCount := rtypeCount + 1.U
       }.elsewhen(isCSR) {
          csrCount := csrCount + 1.U
+      } .elsewhen(isUtype){
+         utypeCount := utypeCount + 1.U
       }.otherwise {
          otherCount := otherCount + 1.U
       }
