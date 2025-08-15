@@ -18,7 +18,14 @@ static uint32_t halt        = 0;
 static mem_access_t lsu_state = {0};
 
 
+//// PERF_EVENTS COUNTER
+static uint32_t lsu_store_count     = 0;
+static uint32_t lsu_load_count      = 0;
+static uint32_t ifu_fetch_count     = 0;
+static uint32_t wbu_wb_count        = 0;
 
+static ctrl_perf_event_t ctrl_perf_event = {0};
+//// PERF_EVENTS COUNTER
 
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     pc      = in_pc;
@@ -223,6 +230,22 @@ void watch_top(){
         wt->dnpc = top_dnpc();
     }
     
+}
+
+void top_perf_event_display(){
+    printf("Fetch Inst:\t %.12d\n", ifu_fetch_count);
+    printf("Store:  \t %.12d, Load %.12d\n", lsu_store_count,lsu_load_count);
+    printf("Write Back\t %.12d\n", wbu_wb_count);
+    printf("Decode Inst: csr %.12d, store %.12d, load %.12d\n",      
+        ctrl_perf_event.csr_count  ,
+        ctrl_perf_event.store_count,
+        ctrl_perf_event.load_count );
+        printf("itype %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
+            ctrl_perf_event.itype_count,
+            ctrl_perf_event.rtype_count,
+            ctrl_perf_event.jtype_count,
+            ctrl_perf_event.utype_count,
+            ctrl_perf_event.other_count);
 }
 
  

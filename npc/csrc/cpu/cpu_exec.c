@@ -8,11 +8,6 @@
 
 void nvboard_bind_all_pins(Top* _top);
 void perf_event_display();
-// extern uint32_t lsu_store_count;
-// extern uint32_t lsu_load_count ;
-// extern uint32_t ifu_fetch_count;
-// extern uint32_t wbu_wb_count   ;
-// extern ctrl_perf_event_t ctrl_perf_event;
 
 CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
@@ -228,19 +223,7 @@ int cpu_exec(uint64_t n){
 
 void perf_event_display(){
     printf("******* Performance counter *******\n");
-    printf("Cycles: \t %.8x\n", cycles);
-    printf("Fetch Inst:\t %.8x\n", ifu_fetch_count);
-    printf("Store:  \t %.8x, Load %.8x\n", lsu_store_count,lsu_load_count);
-    printf("Write Back\t %.8x\n", wbu_wb_count);
-    printf("Decode Inst: csr %.8x, store %.8x, load %.8x\n",      
-        ctrl_perf_event.csr_count  ,
-        ctrl_perf_event.store_count,
-        ctrl_perf_event.load_count );
-        printf("itype %.8x, rtype %.8x, jtype %.8x, utype %.8x, other %.8x\n",
-            ctrl_perf_event.itype_count,
-            ctrl_perf_event.rtype_count,
-            ctrl_perf_event.jtype_count,
-            ctrl_perf_event.utype_count,
-            ctrl_perf_event.other_count);
+    printf("Cycles: \t %.12d\n", cycles);
+    top_perf_event_display();
     printf("******* Performance counter *******\n");
 }

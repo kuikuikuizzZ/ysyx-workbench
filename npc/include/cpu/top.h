@@ -56,14 +56,12 @@ typedef struct {
   uint32_t other_count; 
 } ctrl_perf_event_t;
 
-//// PERF_EVENTS COUNTER
-static uint32_t lsu_store_count     = 0;
-static uint32_t lsu_load_count      = 0;
-static uint32_t ifu_fetch_count     = 0;
-static uint32_t wbu_wb_count        = 0;
+// extern uint32_t lsu_store_count;
+// extern uint32_t lsu_load_count ;
+// extern uint32_t ifu_fetch_count;
+// extern uint32_t wbu_wb_count   ;
+// extern ctrl_perf_event_t ctrl_perf_event;
 
-static ctrl_perf_event_t ctrl_perf_event = {0};
-//// PERF_EVENTS COUNTER
 
 Top* top();
 Tfp* tfp();
@@ -88,5 +86,7 @@ void clear_top_lsu_state();
 void delete_top();
 
 void watch_top();
+
+void top_perf_event_display();
 
 #endif
