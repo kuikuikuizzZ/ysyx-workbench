@@ -6,7 +6,7 @@ import npc.common._
 import npc.Constants._
 
 class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
-  val instFetchCount = Output(UInt(conf.perfCountBits))
+  val instFetchCount = Output(UInt(conf.perfCountBits.W))
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {

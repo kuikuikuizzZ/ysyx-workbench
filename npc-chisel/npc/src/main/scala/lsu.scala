@@ -22,8 +22,8 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val wdata       = Output(UInt(conf.xprlen.W))
     val valid       = Output(Bool())
     val typ        = Output(UInt(2.W))
-    val storeCount = Output(conf.perfCountBits.W)
-    val loadCount  = Output(conf.perfCountBits.W)
+    val storeCount = Output(UInt(conf.perfCountBits.W))
+    val loadCount  = Output(UInt(conf.perfCountBits.W))
 }
 
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
