@@ -69,14 +69,14 @@ class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox 
         val ctl_port    = Flipped(new CtrlDebugPort())
      })
 
-     setInline("DebugPort.v",
+     setInline("PerfEventPort.v",
      """
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
      import "DPI-C" function void perf_event_ifu(input int instFetchCount);
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
-     module DebugPort(
+     module PerfEventPort(
         input clock,
         input reset,
         input finish,

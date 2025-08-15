@@ -16,7 +16,25 @@ static uint32_t inst        = 0;
 static uint32_t halt        = 0;
 
 static mem_access_t lsu_state = {0};
-#
+
+
+//// PERF_EVENTS COUNTER
+static uint32_t lsu_store_count     = 0;
+static uint32_t lsu_load_count      = 0;
+static uint32_t ifu_fetch_count     = 0;
+static uint32_t wbu_wb_count        = 0;
+
+static uint32_t ctrl_csr_count      = 0;  
+static uint32_t ctrl_store_count    = 0;
+static uint32_t ctrl_load_count     = 0;
+static uint32_t ctrl_itype_count   = 0;
+static uint32_t ctrl_rtype_count   = 0;
+static uint32_t ctrl_jtype_count   = 0;
+static uint32_t ctrl_utype_count   = 0;
+static uint32_t ctrl_other_count   = 0;
+
+//// PERF_EVENTS COUNTER
+
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     pc      = in_pc;
     inst    = in_inst;
@@ -31,6 +49,31 @@ extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
         lsu_state.enable  = true;
         lsu_state.typ     = typ;
     }
+}
+
+extern "C" void perf_event_lsu(uint32_t store_cnt, uint32_t load_cnt){
+    lsu_load_count = load_cnt;
+    lsu_store_count = store_cnt;
+}
+
+extern "C" void perf_event_ifu(uint32_t fetch_cnt){
+    ifu_fetch_count = fetch_cnt;
+}
+extern "C" void perf_event_wbu(uint32_t wb_cnt){
+    wbu_wb_count = wb_cnt;
+}
+
+extern "C" void perf_event_ctrl(uint32_t csr_cnt, uint32_t ctrl_store,uint32_t ctrl_load,
+                                uint32_t itype,uint32_t rtype,uint32_t jtype,
+                                uint32_t utype,uint32_t other ){
+    ctrl_csr_count = csr_cnt;
+    ctrl_store_count = ctrl_store;
+    ctrl_load_count = ctrl_load;
+    ctrl_itype_count = itype;
+    ctrl_rtype_count = rtype;
+    ctrl_jtype_count = jtype;
+    ctrl_utype_count = utype;
+    ctrl_other_count = other;
 }
 #endif
 
