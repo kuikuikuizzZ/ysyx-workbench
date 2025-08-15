@@ -32,7 +32,7 @@
 
         always @(posedge clock) begin
             if (finish) begin
-                perf_event_ctrlctl_port_csrCount, ctl_port_storeCount, 
+                perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
                     ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
                     ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
