@@ -16,9 +16,6 @@ class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with
         val pc = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
         val lsu_port = Flipped(new LSUDebugPort()) 
-        val ifu_port = Flipped(new IFUDebugPort())
-        val wbu_port = Flipped(new WBUDebugPort())
-        val ctrl_port = Flipped(new CtlDebugPort())
      })
 
      setInline("DebugPort.v",
@@ -66,10 +63,10 @@ class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with
 
 class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
      val io = IO(new Bundle {
-        val lsu_port = Flipped(new LSUDebugPort()) 
-        val ifu_port = Flipped(new IFUDebugPort())
-        val wbu_port = Flipped(new WBUDebugPort())
-        val ctrl_port = Flipped(new CtlDebugPort())
+        val lsu_port    = Flipped(new LSUDebugPort()) 
+        val ifu_port    = Flipped(new IFUDebugPort())
+        val wbu_port    = Flipped(new WBUDebugPort())
+        val ctrl_port   = Flipped(new CtrlDebugPort())
      })
 
      setInline("DebugPort.v",
