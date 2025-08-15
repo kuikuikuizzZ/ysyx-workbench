@@ -98,7 +98,7 @@ class ysyx_24100012 extends Module
   debug.io.lsu_port := lsu.io.debug
 
   perfEvent.io.ifu_port := inst_fetch.io.debug
-  perfEvent.io.ctl_port := ctl.io.debug
+  perfEvent.io.ctl_port := c.io.debug
   perfEvent.io.lsu_port := lsu.io.debug
   perfEvent.io.wbu_port := wbu.io.debug
 }
