@@ -83,4 +83,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         loadCnt := loadCnt + 1.U
       }
     }
+    io.debug.loadCount  := loadCnt
+    io.debug.storeCount := storeCnt
 }
