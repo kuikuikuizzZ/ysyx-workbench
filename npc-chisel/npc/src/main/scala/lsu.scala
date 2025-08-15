@@ -8,9 +8,12 @@ import npc.common._
 import npc.Constants._
 import javax.xml.transform.OutputKeys
 
+
+
 class LsuToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
 }
+
 class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val mem_en      = Output(Bool())
     val fcn         = Output(Bool())
@@ -19,6 +22,8 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val wdata       = Output(UInt(conf.xprlen.W))
     val valid       = Output(Bool())
     val typ        = Output(UInt(2.W))
+    val storeCount = Output(conf.perfCountBits.W)
+    val loadCount  = Output(conf.perfCountBits.W)
 }
 
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
@@ -62,6 +67,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.ls_valid := valid
 
     /* Debug */
+    val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
+    val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
     io.debug.mem_en     := io.ctl.mem_en
     io.debug.addr       := io.exe.addr
     io.debug.fcn        := io.ctl.mem_fcn
@@ -69,4 +76,11 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.rdata      := io.port.resp.bits.data
     io.debug.valid      := io.port.resp.valid
     io.debug.typ        := io.ctl.msk_sel
+    when(io.port.req.valid) {
+      when(io.ctl.mem_fcn === M_XWR) {
+        storeCnt := storeCnt + 1.U
+      }.otherwise {
+        loadCnt := loadCnt + 1.U
+      }
+    }
 }

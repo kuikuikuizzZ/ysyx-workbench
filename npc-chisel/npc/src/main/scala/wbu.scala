@@ -6,6 +6,10 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
+class WBUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
+    val wbCount = Output(UInt(conf.perfCountBits.W))
+}
+
 class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val rf_wen = Output(Bool())
     val data = Output(UInt(conf.xprlen.W))
@@ -30,4 +34,12 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
                 ))
 
     io.reg.rf_wen :=  io.ctl.rf_wen
+
+    ///////// DEBUG PORT
+    val wbCount = RegInit(0.U(conf.perfCountBits.W))
+    when(io.ctl.rf_wen === WB_MEM) {
+        wbCount := wbCount + 1.U
+    }
+    io.debug.wbCount := wbCount
+    ///////// END DEBUG
 }

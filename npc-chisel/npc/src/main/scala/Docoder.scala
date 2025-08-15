@@ -177,69 +177,69 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.pipeline_kill :=  (!cs_val_inst ) 
 
    /////////   Debug Signals
-//    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
-//    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
-//             rtypeCount, csrCount, otherCount ) = perfCounters
-//   // 加载指令检测
-//    val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
-//                   io.inst === LBU || io.inst === LHU
+   val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
+   val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
+            rtypeCount, csrCount, otherCount ) = perfCounters
+  // 加载指令检测
+   val isLoad = io.inst === LB || io.inst === LH || io.inst === LW || 
+                  io.inst === LBU || io.inst === LHU
    
-//    // 存储指令检测
-//    val isStore = io.inst === SB || io.inst === SH || io.inst === SW
+   // 存储指令检测
+   val isStore = io.inst === SB || io.inst === SH || io.inst === SW
    
-//    // 分支指令检测
-//    val isBranch = io.inst === BEQ || io.inst === BNE || 
-//                   io.inst === BLT || io.inst === BGE || 
-//                   io.inst === BLTU || io.inst === BGEU
+   // 分支指令检测
+   val isBranch = io.inst === BEQ || io.inst === BNE || 
+                  io.inst === BLT || io.inst === BGE || 
+                  io.inst === BLTU || io.inst === BGEU
    
-//    // 跳转指令检测
-//    val isJump = io.inst === JAL || io.inst === JALR
+   // 跳转指令检测
+   val isJump = io.inst === JAL || io.inst === JALR
    
-//    // I型指令检测
-//    val isIType = io.inst === ADDI || io.inst === ANDI || io.inst === ORI || 
-//                   io.inst === XORI || io.inst === SLTI || io.inst === SLTIU || 
-//                   io.inst === SLLI || io.inst === SRAI || io.inst === SRLI
+   // I型指令检测
+   val isIType = io.inst === ADDI || io.inst === ANDI || io.inst === ORI || 
+                  io.inst === XORI || io.inst === SLTI || io.inst === SLTIU || 
+                  io.inst === SLLI || io.inst === SRAI || io.inst === SRLI
    
-//    // R型指令检测
-//    val isRType = io.inst === ADD || io.inst === SUB || io.inst === SLL || 
-//                   io.inst === SLT || io.inst === SLTU || io.inst === XOR || 
-//                   io.inst === SRL || io.inst === SRA || io.inst === OR || 
-//                   io.inst === AND
+   // R型指令检测
+   val isRType = io.inst === ADD || io.inst === SUB || io.inst === SLL || 
+                  io.inst === SLT || io.inst === SLTU || io.inst === XOR || 
+                  io.inst === SRL || io.inst === SRA || io.inst === OR || 
+                  io.inst === AND
    
-//    // CSR指令检测
-//    val isCSR = io.inst === CSRRSI ||io.inst === CSRRCI ||io.inst === CSRRW || io.inst === CSRRS || 
-//          io.inst === CSRRC || io.inst === ECALL || io.inst === MRET ||   io.inst === DRET || 
-//          io.inst === EBREAK ||io.inst === WFI  || io.inst === FENCE_I || io.inst === FENCE  
+   // CSR指令检测
+   val isCSR = io.inst === CSRRSI ||io.inst === CSRRCI ||io.inst === CSRRW || io.inst === CSRRS || 
+         io.inst === CSRRC || io.inst === ECALL || io.inst === MRET ||   io.inst === DRET || 
+         io.inst === EBREAK ||io.inst === WFI  || io.inst === FENCE_I || io.inst === FENCE  
 
-//    val isUtype = io.inst === LUI || io.inst === AUIPC
-//    when(io.ifu_valid){
-//       when(isLoad) {
-//          loadCount := loadCount + 1.U
-//       }.elsewhen(isStore) {
-//          storeCount := storeCount + 1.U
-//       }.elsewhen(isBranch) {
-//          jtypeCount := jtypeCount + 1.U
-//       }.elsewhen(isJump) {
-//          jtypeCount := jtypeCount + 1.U
-//       }.elsewhen(isIType) {
-//          itypeCount := itypeCount + 1.U
-//       }.elsewhen(isRType) {
-//          rtypeCount := rtypeCount + 1.U
-//       }.elsewhen(isCSR) {
-//          csrCount := csrCount + 1.U
-//       } .elsewhen(isUtype){
-//          utypeCount := utypeCount + 1.U
-//       }.otherwise {
-//          otherCount := otherCount + 1.U
-//       }
-//    }
+   val isUtype = io.inst === LUI || io.inst === AUIPC
+   when(io.ifu_valid){
+      when(isLoad) {
+         loadCount := loadCount + 1.U
+      }.elsewhen(isStore) {
+         storeCount := storeCount + 1.U
+      }.elsewhen(isBranch) {
+         jtypeCount := jtypeCount + 1.U
+      }.elsewhen(isJump) {
+         jtypeCount := jtypeCount + 1.U
+      }.elsewhen(isIType) {
+         itypeCount := itypeCount + 1.U
+      }.elsewhen(isRType) {
+         rtypeCount := rtypeCount + 1.U
+      }.elsewhen(isCSR) {
+         csrCount := csrCount + 1.U
+      } .elsewhen(isUtype){
+         utypeCount := utypeCount + 1.U
+      }.otherwise {
+         otherCount := otherCount + 1.U
+      }
+   }
 
-//    io.debug.csrCount    := csrCount      
-//    io.debug.storeCount  := storeCount  
-//    io.debug.loadCount   := loadCount    
-//    io.debug.itypeCount  := itypeCount  
-//    io.debug.rtypeCount  := rtypeCount  
-//    io.debug.jtypeCount  := jtypeCount  
-//    io.debug.utypeCount  := utypeCount
-//    io.debug.otherCount  := otherCount
+   io.debug.csrCount    := csrCount      
+   io.debug.storeCount  := storeCount  
+   io.debug.loadCount   := loadCount    
+   io.debug.itypeCount  := itypeCount  
+   io.debug.rtypeCount  := rtypeCount  
+   io.debug.jtypeCount  := jtypeCount  
+   io.debug.utypeCount  := utypeCount
+   io.debug.otherCount  := otherCount
 }
