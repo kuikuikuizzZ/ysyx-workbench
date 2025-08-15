@@ -55,6 +55,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ls_valid   =  Input(Bool())
    val pc_io      =  Flipped(new PCOut())
    val finish     = Output(Bool())
+   val debug      =  new CtrlDebugPort
 }
 
 class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
