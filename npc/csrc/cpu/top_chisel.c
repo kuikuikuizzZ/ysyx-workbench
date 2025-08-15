@@ -16,7 +16,17 @@ static uint32_t inst        = 0;
 static uint32_t halt        = 0;
 
 static mem_access_t lsu_state = {0};
-#
+
+
+//// PERF_EVENTS COUNTER
+static uint32_t lsu_store_count     = 0;
+static uint32_t lsu_load_count      = 0;
+static uint32_t ifu_fetch_count     = 0;
+static uint32_t wbu_wb_count        = 0;
+
+static ctrl_perf_event_t ctrl_perf_event = {0};
+//// PERF_EVENTS COUNTER
+
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
     pc      = in_pc;
     inst    = in_inst;
@@ -31,6 +41,31 @@ extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
         lsu_state.enable  = true;
         lsu_state.typ     = typ;
     }
+}
+
+extern "C" void perf_event_lsu(uint32_t store_cnt, uint32_t load_cnt){
+    lsu_load_count = load_cnt;
+    lsu_store_count = store_cnt;
+}
+
+extern "C" void perf_event_ifu(uint32_t fetch_cnt){
+    ifu_fetch_count = fetch_cnt;
+}
+extern "C" void perf_event_wbu(uint32_t wb_cnt){
+    wbu_wb_count = wb_cnt;
+}
+
+extern "C" void perf_event_ctrl(uint32_t csr_cnt, uint32_t ctrl_store,uint32_t ctrl_load,
+                                uint32_t itype,uint32_t rtype,uint32_t jtype,
+                                uint32_t utype,uint32_t other ){
+    ctrl_perf_event.csr_count   = csr_cnt;
+    ctrl_perf_event.store_count = ctrl_store;
+    ctrl_perf_event.load_count  = ctrl_load;
+    ctrl_perf_event.itype_count = itype;
+    ctrl_perf_event.rtype_count = rtype;
+    ctrl_perf_event.jtype_count = jtype;
+    ctrl_perf_event.utype_count = utype;
+    ctrl_perf_event.other_count = other;
 }
 #endif
 
@@ -195,6 +230,22 @@ void watch_top(){
         wt->dnpc = top_dnpc();
     }
     
+}
+
+void top_perf_event_display(){
+    printf("Fetch Inst:\t %.12d\n", ifu_fetch_count);
+    printf("Store:  \t %.12d, Load %.12d\n", lsu_store_count,lsu_load_count);
+    printf("Write Back\t %.12d\n", wbu_wb_count);
+    printf("Decode Inst: csr %.12d, store %.12d, load %.12d\n",      
+        ctrl_perf_event.csr_count  ,
+        ctrl_perf_event.store_count,
+        ctrl_perf_event.load_count );
+        printf("itype \t\t %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
+            ctrl_perf_event.itype_count,
+            ctrl_perf_event.rtype_count,
+            ctrl_perf_event.jtype_count,
+            ctrl_perf_event.utype_count,
+            ctrl_perf_event.other_count);
 }
 
  

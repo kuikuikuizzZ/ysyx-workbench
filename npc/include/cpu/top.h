@@ -45,6 +45,24 @@ typedef struct {
   uint32_t typ;
 } mem_access_t;
 
+typedef struct {
+  uint32_t csr_count  ; 
+  uint32_t store_count; 
+  uint32_t load_count ; 
+  uint32_t itype_count; 
+  uint32_t rtype_count; 
+  uint32_t jtype_count; 
+  uint32_t utype_count; 
+  uint32_t other_count; 
+} ctrl_perf_event_t;
+
+// extern uint32_t lsu_store_count;
+// extern uint32_t lsu_load_count ;
+// extern uint32_t ifu_fetch_count;
+// extern uint32_t wbu_wb_count   ;
+// extern ctrl_perf_event_t ctrl_perf_event;
+
+
 Top* top();
 Tfp* tfp();
 
@@ -68,5 +86,7 @@ void clear_top_lsu_state();
 void delete_top();
 
 void watch_top();
+
+void top_perf_event_display();
 
 #endif
