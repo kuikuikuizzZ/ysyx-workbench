@@ -21,7 +21,7 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
         val exe = Flipped(new exeToWBUIo())
         val lsu = Flipped(new LsuToWBIo())
         val reg = new WBToRegIo()
-        val debug = new WBDebugPort()
+        val debug = new WBUDebugPort()
     })
 
     io := DontCare
