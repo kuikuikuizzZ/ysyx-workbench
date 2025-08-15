@@ -66,7 +66,7 @@ class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox 
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
-        val ctrl_port   = Flipped(new CtrlDebugPort())
+        val ctl_port    = Flipped(new CtrlDebugPort())
      })
 
      setInline("DebugPort.v",
