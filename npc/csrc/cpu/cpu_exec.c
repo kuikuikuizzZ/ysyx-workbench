@@ -7,8 +7,12 @@
 #include <nvboard.h>
 
 void nvboard_bind_all_pins(Top* _top);
-
-
+void perf_event_display();
+// extern uint32_t lsu_store_count;
+// extern uint32_t lsu_load_count ;
+// extern uint32_t ifu_fetch_count;
+// extern uint32_t wbu_wb_count   ;
+// extern ctrl_perf_event_t ctrl_perf_event;
 
 CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
@@ -16,8 +20,9 @@ RingBuffer *rb = NULL;
 VerilatedContext* contextp = NULL;
 
 #ifdef CONFIG_PC_MAX_REPEAT
-static int pc_repeat_count = 0;
-static paddr_t pc_old = 0;
+static uint32_t pc_repeat_count = 0;
+static paddr_t  pc_old = 0;
+static uint32_t cycles = 0;
 #endif
 
 void init_disasm();
@@ -34,6 +39,7 @@ void step() {
     IFDEF(CONFIG_NPC_VERILOG,top()->clk = 1); 
     top()->eval(); 
     contextp->timeInc(1);
+    cycles++;
     IFDEF(CONFIG_WAVETRACE_FST, tfp()->dump(contextp->time())); // 记录当前时间点波形
     IFDEF(CONFIG_NVBOARD,nvboard_update(););
 }
@@ -41,9 +47,11 @@ void step() {
 void reset(int n) { 
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 1);
     IFDEF(CONFIG_NPC_CHISEL,top()->reset = 1);
+    cycles = 0;
     while (n --) { step(); } 
     IFDEF(CONFIG_NPC_CHISEL,top()->reset = 0);
     IFDEF(CONFIG_NPC_VERILOG,top()->rst = 0);
+
 }
 void sync_cpu(){
     for (int i=0;i<gpr_size;i++)
@@ -172,6 +180,7 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
     return;
 }
 
+
 void execute(u_int64_t n){
     Decode s;
     for(;n>0;n--){
@@ -209,8 +218,29 @@ int cpu_exec(uint64_t n){
            (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           npc_state.halt_pc);
-      // fall through
+        perf_event_display();
+    // fall through
     case NPC_QUIT: break;;
     }
     return 0;
+}
+
+
+void perf_event_display(){
+    printf("******* Performance counter *******\n");
+    printf("Cycles: \t %.8x\n", cycles);
+    printf("Fetch Inst:\t %.8x\n", ifu_fetch_count);
+    printf("Store:  \t %.8x, Load %.8x\n", lsu_store_count,lsu_load_count);
+    printf("Write Back\t %.8x\n", wbu_wb_count);
+    printf("Decode Inst: csr %.8x, store %.8x, load %.8x\n",      
+        ctrl_perf_event.csr_count  ,
+        ctrl_perf_event.store_count,
+        ctrl_perf_event.load_count );
+        printf("itype %.8x, rtype %.8x, jtype %.8x, utype %.8x, other %.8x\n",
+            ctrl_perf_event.itype_count,
+            ctrl_perf_event.rtype_count,
+            ctrl_perf_event.jtype_count,
+            ctrl_perf_event.utype_count,
+            ctrl_perf_event.other_count);
+    printf("******* Performance counter *******\n");
 }

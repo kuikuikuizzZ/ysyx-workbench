@@ -1,7 +1,6 @@
 
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
-     import "DPI-C" function void perf_event_port(input int halt, input int pc, input int inst);
      module DebugPort(
         input clock,
         input reset,

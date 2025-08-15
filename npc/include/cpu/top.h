@@ -45,6 +45,26 @@ typedef struct {
   uint32_t typ;
 } mem_access_t;
 
+typedef struct {
+  uint32_t csr_count  ; 
+  uint32_t store_count; 
+  uint32_t load_count ; 
+  uint32_t itype_count; 
+  uint32_t rtype_count; 
+  uint32_t jtype_count; 
+  uint32_t utype_count; 
+  uint32_t other_count; 
+} ctrl_perf_event_t;
+
+//// PERF_EVENTS COUNTER
+static uint32_t lsu_store_count     = 0;
+static uint32_t lsu_load_count      = 0;
+static uint32_t ifu_fetch_count     = 0;
+static uint32_t wbu_wb_count        = 0;
+
+static ctrl_perf_event_t ctrl_perf_event = {0};
+//// PERF_EVENTS COUNTER
+
 Top* top();
 Tfp* tfp();
 
