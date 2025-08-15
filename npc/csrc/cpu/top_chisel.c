@@ -240,7 +240,7 @@ void top_perf_event_display(){
         ctrl_perf_event.csr_count  ,
         ctrl_perf_event.store_count,
         ctrl_perf_event.load_count );
-        printf("itype %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
+        printf("itype \t\t %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
             ctrl_perf_event.itype_count,
             ctrl_perf_event.rtype_count,
             ctrl_perf_event.jtype_count,

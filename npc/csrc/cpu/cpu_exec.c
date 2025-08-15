@@ -225,5 +225,5 @@ void perf_event_display(){
     printf("******* Performance counter *******\n");
     printf("Cycles: \t %.12d\n", cycles);
     top_perf_event_display();
-    printf("******* Performance counter *******\n");
+    printf("******* End Performance counter *******\n");
 }

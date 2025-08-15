@@ -38,7 +38,6 @@
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
                 perf_event_wbu(wbu_port_wbCount);
                 perf_event_ifu(ifu_port_instFetchCount);                
-                $display("if %d load %d finish %d",ifu_port_instFetchCount,lsu_port_loadCount,finish);                
             end 
         end
 
