@@ -63,6 +63,8 @@ class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with
 
 class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
      val io = IO(new Bundle {
+        val clock = Input(Clock())
+        val reset = Input(Bool()) 
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
