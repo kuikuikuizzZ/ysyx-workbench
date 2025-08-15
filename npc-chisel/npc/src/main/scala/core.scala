@@ -88,13 +88,17 @@ class ysyx_24100012 extends Module
   io.slave.b.id := 0.U
 
   /////// debug port
-  val debug = Module(new debug_port())
+  val debug = Module(new DebugPort())
+  val perfEvent = Module(new PerfEventPort())
   debug.io.clock := clock
   debug.io.reset := reset
   debug.io.halt := halt
   debug.io.pc := inst_fetch.io.pc_io.pc
   debug.io.inst := inst_fetch.io.inst
+  debug.io.ifu_port := inst_fetch.io.debug
+  debug.io.ctl_port := ctl.io.debug
   debug.io.lsu_port := lsu.io.debug
+  debug.io.wbu_port := wbu.io.debug
 }
 
 
