@@ -10,4 +10,5 @@ case class ysyx_24100012_Config(
     val lenBits = 8
     val burstBits = 2
     val maskBits = xlen/8
+    val perfCountBits = 32
 }

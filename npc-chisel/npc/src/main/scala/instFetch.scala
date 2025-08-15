@@ -5,17 +5,23 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
+class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
+  val instFetchCount = Output(UInt(conf.perfCountBits.W))
+}
+
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val port = new MemPortIo(conf.xlen)
+  val port          = new MemPortIo(conf.xlen)
   val pipeline_kill = Input(Bool()) 
-  val in = new InstFetchIn
-  val pc_io = new PCOut()
-  val valid = Output(Bool())
-  val inst = Output(UInt(conf.xprlen.W))
-  val finish = Input(Bool())
-  val halt = Input(Bool())
-  val reset = Input(Bool())
-  val clock = Input(Clock())
+  val in            = new InstFetchIn
+  val pc_io         = new PCOut()
+  val valid         = Output(Bool())
+  val inst          = Output(UInt(conf.xprlen.W))
+  val finish        = Input(Bool())
+  val halt          = Input(Bool())
+  val reset         = Input(Bool())
+  val clock         = Input(Clock())
+  val debug         = Output(new IFUDebugPort)
+
 }
 
 class InstFetchIn(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -81,4 +87,12 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val valid = RegNext(io.port.resp.valid,false.B)
   // val valid_reg = RegNext(valid,false.B)
   io.valid := valid     
+
+  ////////// debug
+  val instFetchCount = RegInit(0.U(conf.perfCountBits.W))
+  when(io.port.resp.valid) {
+    instFetchCount := instFetchCount + 1.U
+  }
+  io.debug.instFetchCount := instFetchCount
+  ////////// end of debug 
 }
