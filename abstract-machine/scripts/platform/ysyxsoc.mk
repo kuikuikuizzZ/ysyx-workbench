@@ -38,6 +38,9 @@ run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
 
+perf: insert-arg
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) perf ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
+
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb  ARGS="$(YSYXSOCFLAGS)" IMG=$(IMAGE).bin
