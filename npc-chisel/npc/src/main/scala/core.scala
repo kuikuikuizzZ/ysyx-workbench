@@ -87,23 +87,23 @@ class ysyx_24100012 extends Module
   io.slave.b.resp := 0.U
   io.slave.b.id := 0.U
 
-  /////// debug port
-  // val debug = Module(new ysyx_24100012_DebugPort())
-  // val perfEvent = Module(new ysyx_24100012_PerfEventPort())
-  // debug.io.clock := clock
-  // debug.io.reset := reset
-  // debug.io.halt := halt
-  // debug.io.pc := inst_fetch.io.pc_io.pc
-  // debug.io.inst := inst_fetch.io.inst
-  // debug.io.lsu_port := lsu.io.debug
+  ///// debug port
+  val debug = Module(new ysyx_24100012_DebugPort())
+  val perfEvent = Module(new ysyx_24100012_PerfEventPort())
+  debug.io.clock := clock
+  debug.io.reset := reset
+  debug.io.halt := halt
+  debug.io.pc := inst_fetch.io.pc_io.pc
+  debug.io.inst := inst_fetch.io.inst
+  debug.io.lsu_port := lsu.io.debug
   
-  // perfEvent.io.clock    := clock
-  // perfEvent.io.reset    := reset
-  // perfEvent.io.finish   := c.io.finish
-  // perfEvent.io.ifu_port := inst_fetch.io.debug
-  // perfEvent.io.ctl_port := c.io.debug
-  // perfEvent.io.lsu_port := lsu.io.debug
-  // perfEvent.io.wbu_port := wbu.io.debug
+  perfEvent.io.clock    := clock
+  perfEvent.io.reset    := reset
+  perfEvent.io.finish   := c.io.finish
+  perfEvent.io.ifu_port := inst_fetch.io.debug
+  perfEvent.io.ctl_port := c.io.debug
+  perfEvent.io.lsu_port := lsu.io.debug
+  perfEvent.io.wbu_port := wbu.io.debug
 }
 
 
