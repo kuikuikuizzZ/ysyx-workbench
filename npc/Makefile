@@ -17,6 +17,8 @@ $(info FILELIST_MK = $(FILELIST_MK))
 # 参数设置
 override ARGS ?= --log=$(BUILD_DIR_BASE)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
+PERF_ARGS ?= $(ARGS)
+PEEF_ARGS += --perf
 # 编译器和链接器设置
 
 # CFLAGS+= -g
@@ -76,6 +78,8 @@ clean:
 sim:
 	$(call git_commit, "sim RTL")
 	@echo "Write this Makefile by your self."
+
+	
 
 .PHONY: run build clean sim
 
