@@ -8,7 +8,7 @@ import npc._
 import npc.devices._
 
 
-class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
+class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
     val io = IO(new Bundle {
         val clock = Input(Clock())
         val reset = Input(Bool())   
@@ -18,11 +18,11 @@ class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
-     setInline("DebugPort.v",
+     setInline("ysyx_24100012_DebugPort.v",
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
-     module DebugPort(
+     module ysyx_24100012_DebugPort(
         input clock,
         input reset,
         input halt, 
@@ -60,7 +60,7 @@ class DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with
 
 }
 
-class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
+class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
      val io = IO(new Bundle {
         val clock       = Input(Clock())
         val reset       = Input(Bool()) 
@@ -71,14 +71,14 @@ class PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox 
         val ctl_port    = Flipped(new CtrlDebugPort())
      })
 
-     setInline("PerfEventPort.v",
+     setInline("ysyx_24100012_PerfEventPort.v",
      """
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
      import "DPI-C" function void perf_event_ifu(input int instFetchCount);
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
-     module PerfEventPort(
+     module ysyx_24100012_PerfEventPort(
         input clock,
         input reset,
         input finish,
