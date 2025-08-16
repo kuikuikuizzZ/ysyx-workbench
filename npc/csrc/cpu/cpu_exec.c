@@ -13,6 +13,7 @@ CPU_state cpu = {};
 char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 VerilatedContext* contextp = NULL;
+extern char* perf_file;
 
 #ifdef CONFIG_PC_MAX_REPEAT
 static uint32_t pc_repeat_count = 0;
@@ -222,8 +223,12 @@ int cpu_exec(uint64_t n){
 
 
 void perf_event_display(){
-    printf("******* Performance counter *******\n");
-    printf("Cycles: \t %.12d\n", cycles);
-    top_perf_event_display();
-    printf("******* End Performance counter *******\n");
+    FILE *fp = stdout;
+    printf("perf_file: %s\n",perf_file);
+    if (perf_file) fp = fopen(perf_file,"w");
+    fprintf(fp,"******* Performance counter *******\n");
+    fprintf(fp,"Cycles: \t %.12d\n", cycles);
+    top_perf_event_display(fp);
+    fprintf(fp,"******* End Performance counter *******\n");
+    if (perf_file) fclose(fp);
 }

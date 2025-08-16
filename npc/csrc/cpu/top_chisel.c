@@ -232,15 +232,15 @@ void watch_top(){
     
 }
 
-void top_perf_event_display(){
-    printf("Fetch Inst:\t %.12d\n", ifu_fetch_count);
-    printf("Store:  \t %.12d, Load %.12d\n", lsu_store_count,lsu_load_count);
-    printf("Write Back\t %.12d\n", wbu_wb_count);
-    printf("Decode Inst: csr %.12d, store %.12d, load %.12d\n",      
+void top_perf_event_display(FILE *fp = stdout){
+    fprintf(fp,"Fetch Inst:\t %.12d\n", ifu_fetch_count);
+    fprintf(fp,"Store:  \t %.12d, Load %.12d\n", lsu_store_count,lsu_load_count);
+    fprintf(fp,"Write Back\t %.12d\n", wbu_wb_count);
+    fprintf(fp,"Decode Inst: csr %.12d, store %.12d, load %.12d\n",      
         ctrl_perf_event.csr_count  ,
         ctrl_perf_event.store_count,
         ctrl_perf_event.load_count );
-        printf("itype \t\t %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
+        fprintf(fp,"itype \t\t %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
             ctrl_perf_event.itype_count,
             ctrl_perf_event.rtype_count,
             ctrl_perf_event.jtype_count,
@@ -248,5 +248,5 @@ void top_perf_event_display(){
             ctrl_perf_event.other_count);
 }
 
- 
+
 #endif
