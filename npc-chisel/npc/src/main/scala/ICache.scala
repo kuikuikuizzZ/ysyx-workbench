@@ -35,10 +35,10 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
-    val in_sdram = io.pc >= SDRAM_BASE && io.pc < SDRAM_END
-    // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
-    // val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
-    val in_mem = in_sdram 
+    val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
+    val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
+    val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
+    val in_mem = in_sdram || in_flash || in_psram
 
     val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
     val cache_valid = cache_data(58) && in_mem
