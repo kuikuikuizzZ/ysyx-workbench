@@ -67,36 +67,36 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
       pc_reg := pc_reg
   } 
   
-  // // Memory Requests
-  // io.port.req.valid := pc_valid && !io.reset
-  // io.port.req.bits.addr := pc_reg
-  // io.port.req.bits.fcn := M_XRD
-  // io.port.req.bits.typ := MT_WU
+  // Memory Requests
+  io.port.req.valid := pc_valid && !io.reset
+  io.port.req.bits.addr := pc_reg
+  io.port.req.bits.fcn := M_XRD
+  io.port.req.bits.typ := MT_WU
 
-
-  // // Instruction Read
-  // val inst_reg = RegEnable(io.port.resp.bits.data,BUBBLE,io.port.resp.valid)
-  // val inst = Mux(io.port.resp.valid,io.port.resp.bits.data,inst_reg)
-
-  // // val valid = RegInit(false.B)
-  // val valid = RegNext(io.port.resp.valid,false.B)
-  // // val valid_reg = RegNext(valid,false.B)
-  // io.valid := valid     
-
-  val cache = Module(new ysyx_24100012_ICache)
-  val inst_reg = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
-  cache.io.clock := clock
-  cache.io.reset := reset
-  cache.io.port <> io.port
-  cache.io.pc := pc_reg
-  cache.io.req_valid := pc_valid && !io.reset
+  // Instruction Read
+  val inst_reg = RegEnable(io.port.resp.bits.data,BUBBLE,io.port.resp.valid)
+  val inst = Mux(io.port.resp.valid,io.port.resp.bits.data,inst_reg)
 
   // val valid = RegInit(false.B)
-  val valid = RegNext(cache.io.valid,false.B)
+  val valid = RegNext(io.port.resp.valid,false.B)
   // val valid_reg = RegNext(valid,false.B)
+  io.valid := valid     
+
+  // val cache = Module(new ysyx_24100012_ICache)
+  // val inst_reg = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
+  // cache.io.clock := clock
+  // cache.io.reset := reset
+  // cache.io.port <> io.port
+  // cache.io.pc := pc_reg
+  // cache.io.req_valid := pc_valid && !io.reset
+
+  // // val valid = RegInit(false.B)
+  // val valid = RegNext(cache.io.valid,false.B)
+  // // val valid_reg = RegNext(valid,false.B)
+  
+  
   io.valid := valid 
   io.inst := inst_reg
-
   io.pc_io.pc_plus4 := (pc_reg + 4.asUInt(conf.xprlen.W)) 
   io.pc_io.pc := pc_reg     
   ////////// debug
