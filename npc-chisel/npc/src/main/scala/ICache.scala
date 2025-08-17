@@ -26,6 +26,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Module { 
     val io = IO(new ICacheIO)
     io := DontCare
+    io.port := DontCare
 
     // tag bits = 32-4-2 = 26 (16 = 2^4,4 = 2^2 bytes)
     // valid bits = 1, tag bits = 26, 32 (4bytes) 
