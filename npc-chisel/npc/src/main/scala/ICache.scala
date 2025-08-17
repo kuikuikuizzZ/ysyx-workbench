@@ -24,8 +24,8 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // valid bits = 1, tag bits = 26, 32 (4bytes) 
     // 1+ 26 +32 = 59
     val mem = SyncReadMem(conf.ICacheSize,UInt(conf.ICacheBlockBits.W))
-
-    val cache_data = mem.read(io.pc(5,2),io.req_valid)
+    val ren = RegInit(false.B)
+    val cache_data = mem.read(io.pc(5,2),io.req_valid || ren)
     val cache_valid = cache_data(58)
     val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
     
@@ -35,6 +35,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     io.port.req.bits.typ := MT_WU
     when (io.port.resp.valid){
         mem.write(io.pc(5,2),Cat(1.U,io.pc(31,6),io.port.resp.bits.data))
+        ren := true.B
+    } .otherwise {
+        ren := false.B
     }
     
     io.inst := Mux(hit,cache_data(31,0),0.U)
