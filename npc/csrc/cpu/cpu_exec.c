@@ -227,7 +227,7 @@ void perf_event_display(){
     printf("perf_file: %s\n",perf_file);
     if (perf_file) fp = fopen(perf_file,"w");
     fprintf(fp,"******* Performance counter *******\n");
-    fprintf(fp,"Cycles: \t %.20d\n", cycles);
+    fprintf(fp,"Cycles: \t %ld\n", cycles);
     top_perf_event_display(fp);
     fprintf(fp,"******* End Performance counter *******\n");
     if (perf_file) fclose(fp);

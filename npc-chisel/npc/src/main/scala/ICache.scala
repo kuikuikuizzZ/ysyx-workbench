@@ -34,21 +34,21 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
-    val in_sdram = io.pc >= SDRAM_BASE && io.pc < SDRAM_BASE + SDRAM_SIZE
-    val in_flash = io.pc >= FLASH_BASE && io.pc < FLASH_BASE + FLASH_SIZE
-    val in_psram = io.pc >= PSRAM_BASE && io.pc < PSRAM_BASE + PSRAM_SIZE
+    val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
+    val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
+    val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
     val in_mem = in_sdram || in_flash || in_psram
 
-    val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren)&&in_mem)
+    val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
     val cache_valid = cache_data(58) && in_mem
     val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
 
     io.port.req.valid := !hit && reg_req_valid
-    io.port.req.bits.addr := io.pc
-    io.port.req.bits.fcn := M_XRD
-    io.port.req.bits.typ := MT_WU
+    io.port.req.bits.addr   := io.pc
+    io.port.req.bits.fcn    := M_XRD
+    io.port.req.bits.typ    := MT_WU
     
-    when (io.port.resp.valid && in_mem){
+    when (in_mem && io.port.resp.valid){
         mem.write(io.pc(5,2),Cat(1.U,io.pc(31,6),io.port.resp.bits.data))
         ren := true.B
     } .otherwise {
