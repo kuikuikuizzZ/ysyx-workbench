@@ -7,7 +7,7 @@ trait PrivilegedConstants
    val MTVEC = 0x100
    val START_ADDR = (0x30000000.U(32.W))
    // val START_ADDR = "h8000_0000".U
-   val SDRAM_BASE = (0xa0000000.U(32.W))
+   // val SDRAM_BASE = (0xa0000000.U(32.W))
    val SDRAM_SIZE = (0x10000000.U(32.W))
    val FLASH_BASE = (0x30000000.U(32.W))
    val FLASH_SIZE = (0x01000000.U(32.W))
