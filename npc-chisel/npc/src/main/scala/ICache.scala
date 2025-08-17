@@ -35,7 +35,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     mem.write(io.pc(5,2),Cat(1.U,(31,6),io.inst),io.port.resp.valid)
 
 
-    io.inst := Mux(io.hit,cache_data(31:0),0.U)
-    io.valid := Mux(io.hit,true.B,false.B)
+    io.inst := Mux(hit,cache_data(31:0),0.U)
+    io.valid := Mux(hit,true.B,false.B)
 
 }
