@@ -75,6 +75,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      """
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
      import "DPI-C" function void perf_event_ifu(input int instFetchCount);
+     import "DPI-C" function void perf_event_icache(input int hit,input int miss);
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
@@ -93,6 +94,8 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
         input [31:0] lsu_port_loadCount,
         input [31:0] wbu_port_wbCount,
         input [31:0] ifu_port_instFetchCount,
+        input [31:0] ifu_port_icache_hit_cnt,
+        input [31:0] ifu_port_icache_miss_cnt,        
         input [31:0] ctl_port_csrCount,
         input [31:0] ctl_port_storeCount,
         input [31:0] ctl_port_loadCount,
@@ -111,7 +114,8 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
                     ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
                 perf_event_wbu(wbu_port_wbCount);
-                perf_event_ifu(ifu_port_instFetchCount);                
+                perf_event_ifu(ifu_port_instFetchCount);   
+                perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
             end 
         end
 
