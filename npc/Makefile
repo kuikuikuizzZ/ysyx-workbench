@@ -1,6 +1,10 @@
 # 通用配置和变量定义
 WORK_DIR  = $(shell pwd)
 BUILD_DIR_BASE = $(WORK_DIR)/build
+PERF_DIR  = $(WORK_DIR)/perf
+
+COMMIT_ID = $(shell git rev-parse --short HEAD)
+DATE_ID = $(shell date +%Y%m%d-%H%M%S)
 
 # 包含配置文件(包括 menuconfig生成的配置)
 
@@ -17,8 +21,6 @@ $(info FILELIST_MK = $(FILELIST_MK))
 # 参数设置
 override ARGS ?= --log=$(BUILD_DIR_BASE)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
-PERF_ARGS ?= $(ARGS)
-PEEF_ARGS += --perf
 # 编译器和链接器设置
 
 # CFLAGS+= -g
@@ -66,7 +68,15 @@ else
     include $(NPC_HOME)/scripts/npc.mk
 endif
 
+ifdef IMG
+	IMG_NAME ?= $(notdir $(IMG))
+else 
+	IMG_NAME ?= npc_default
+endif
 
+PERF_FILE_PATH = $(PERF_DIR)/$(IMG_NAME)_$(COMMIT_ID)_$(DATE_ID).txt
+PERF_ARGS ?= $(ARGS)
+PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
 run: build 
 	@echo $(ARGS) $(IMG)
@@ -79,7 +89,11 @@ sim:
 	$(call git_commit, "sim RTL")
 	@echo "Write this Makefile by your self."
 
-	
+perf: build
+	@echo PERF_ARGS: $(PERF_ARGS) IMG: $(IMG)
+	@mkdir -p $(PERF_DIR)
+	$(NPC_PERF)
+	@cat $(PERF_FILE_PATH)
 
 .PHONY: run build clean sim
 

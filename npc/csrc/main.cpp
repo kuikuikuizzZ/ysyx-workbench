@@ -14,12 +14,14 @@ char* img_file = NULL;
 char* log_file = NULL;
 char* flash_img_file = NULL;
 char* diff_so_file = NULL;
+char* perf_file = NULL;
 static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 void init_log(const char*);
 void init_device();
 int is_exit_status_bad();
+
 long load_prog() {
     if (!img_file){
         printf("Use default img\n");
@@ -66,6 +68,7 @@ long load_flash_prog() {
 static int parse_args(int argc, char **argv) {
   const struct option table[] = {
     {"batch"      , no_argument      , NULL, 'b'},
+    {"perf"       , required_argument, NULL, 'P'},
     {"log"        , required_argument, NULL, 'l'},
     {"diff"       , required_argument, NULL, 'd'},
     {"port"       , required_argument, NULL, 'p'},
@@ -75,7 +78,7 @@ static int parse_args(int argc, char **argv) {
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:P:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
@@ -83,6 +86,7 @@ static int parse_args(int argc, char **argv) {
       case 'd': diff_so_file = optarg; break;
     //   case 'e': elf_file = optarg;break;
       case 'f': flash_img_file = optarg;break;
+      case 'P': perf_file = optarg;break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -90,6 +94,7 @@ static int parse_args(int argc, char **argv) {
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        printf("\t-P,--perf=perf_file     enable record perf for commit\n");
         printf("\t-f,--flash_file=FLASH_FILE        run load FLASH_FILE into flash\n");
         printf("\n");
         exit(0);

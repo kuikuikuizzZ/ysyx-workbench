@@ -12,7 +12,7 @@ else
 endif
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
-NPC_PERF_EXEC = $(BINARY) $(PERF_ARGS) $(IMG)
+NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)
 
 
 VSINC_PATH := $(SOC_HOME)/perip/uart16550/rtl

@@ -68,7 +68,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   } 
   
   // Memory Requests
-  io.port.req.valid := pc_valid && !io.reset
+  io.port.req.valid := pc_valid 
   io.port.req.bits.addr := pc_reg
   io.port.req.bits.fcn := M_XRD
   io.port.req.bits.typ := MT_WU
