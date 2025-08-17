@@ -23,6 +23,8 @@ static uint32_t lsu_store_count     = 0;
 static uint32_t lsu_load_count      = 0;
 static uint32_t ifu_fetch_count     = 0;
 static uint32_t wbu_wb_count        = 0;
+static uint32_t icache_hit          = 0;
+static uint32_t icache_miss         = 0;
 
 static ctrl_perf_event_t ctrl_perf_event = {0};
 //// PERF_EVENTS COUNTER
@@ -53,6 +55,11 @@ extern "C" void perf_event_ifu(uint32_t fetch_cnt){
 }
 extern "C" void perf_event_wbu(uint32_t wb_cnt){
     wbu_wb_count = wb_cnt;
+}
+
+extern "C" void perf_event_icache(uint32_t hit_cnt,uint32_t miss_cnt){
+    icache_hit  = hit_cnt;
+    icache_miss = miss_cnt;
 }
 
 extern "C" void perf_event_ctrl(uint32_t csr_cnt, uint32_t ctrl_store,uint32_t ctrl_load,
@@ -246,6 +253,7 @@ void top_perf_event_display(FILE *fp = stdout){
             ctrl_perf_event.jtype_count,
             ctrl_perf_event.utype_count,
             ctrl_perf_event.other_count);
+    fprintf(fp,"ICache hit:  \t %.12d, miss %.12d\n", icache_hit,icache_miss);
 }
 
 
