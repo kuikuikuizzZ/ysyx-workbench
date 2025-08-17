@@ -56,7 +56,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
     val miss_cnt = RegInit(0.U(conf.perfCountBits.W))
-    hit_cnt := Mux(hit && io.req_valid,hit_cnt+1.U,hit_cnt)
+    hit_cnt := Mux(hit && reg_req_valid,hit_cnt+1.U,hit_cnt)
     miss_cnt := Mux(!hit && reg_req_valid,miss_cnt+1.U,miss_cnt)
     io.debug.hit_cnt := hit_cnt
     io.debug.miss_cnt := miss_cnt
