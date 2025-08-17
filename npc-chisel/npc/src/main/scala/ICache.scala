@@ -6,6 +6,12 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
+
+class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle { 
+    val hit_cnt = Output(UInt(conf.perfCountBits.W))
+    val miss_cnt = Output(UInt(conf.perfCountBits.W))
+}
+
 class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val clock     = Input(Clock())
   val reset     = Input(Bool())
@@ -14,6 +20,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
+  val debug     = Output(new ICacheDebugPort)
 }
 
 class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Module { 
@@ -44,5 +51,11 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     
     io.inst := Mux(hit,cache_data(31,0),BUBBLE)
     io.valid := Mux(hit,true.B,false.B)
+
+
+    /////// DEBUG PORT
+    io.debug.hit_cnt := hit && io.req_valid
+    io.debug.miss_cnt := !hit && reg_req_valid
+    ////// END DEBUG
 
 }

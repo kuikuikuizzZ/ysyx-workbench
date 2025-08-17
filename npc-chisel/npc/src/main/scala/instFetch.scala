@@ -6,7 +6,8 @@ import npc.common._
 import npc.Constants._
 
 class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
-  val instFetchCount = Output(UInt(conf.perfCountBits.W))
+  val instFetchCount  = Output(UInt(conf.perfCountBits.W))
+  val icache     = new ICacheDebugPort
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -89,7 +90,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.port <> io.port
   cache.io.pc := pc_reg
   cache.io.req_valid := pc_valid && !io.reset
-
+  cache.io.debug <> io.debug.icache 
   // val valid = RegInit(false.B)
   val valid = RegNext(cache.io.valid,false.B)
   // val valid_reg = RegNext(valid,false.B)
