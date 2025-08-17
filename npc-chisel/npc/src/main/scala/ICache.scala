@@ -28,11 +28,11 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
     
     io.port.req.valid := !hit && io.req_valid
-    io.port.req.bits.addr := pc_reg
+    io.port.req.bits.addr := io.pc
     io.port.req.bits.fcn := M_XRD
     io.port.req.bits.typ := MT_WU
-    io.port.resp.bits.data
-    mem.write(io.pc(5,2),Cat(1.U,(31,6),io.inst),io.port.resp.valid)
+    
+    mem.write(io.pc(5,2),Cat(1.U,io.pc(31,6),io.port.resp.bits.data),io.port.resp.valid)
 
 
     io.inst := Mux(hit,cache_data(31:0),0.U)
