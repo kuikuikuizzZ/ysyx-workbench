@@ -11,7 +11,7 @@ trait PrivilegedConstants
    val SDRAM_SIZE = (0x10000000.U(32.W))
    val FLASH_BASE = (0x30000000.U(32.W))
    val FLASH_SIZE = (0x01000000.U(32.W))
-   val PSRAM_BASE = (0x80000000.U(32.W))
+   // val PSRAM_BASE = (0x80000000.U(32.W))
    val PSRAM_SIZE = (0x01000000.U(32.W))
 
    val MSTATUS = 0x1800.U
