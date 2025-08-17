@@ -56,7 +56,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         ren := false.B
     }
     
-    io.inst := Mux(hit,cache_data(31,0),Mux(io.port.resp.valid,io.port.resp.bits.data,BUBBLE))
+    io.inst := Mux(hit,cache_data(31,0),BUBBLE)
     io.valid := Mux(hit,true.B,io.port.resp.valid)
 
 
