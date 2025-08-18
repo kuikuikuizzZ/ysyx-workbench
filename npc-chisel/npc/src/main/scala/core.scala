@@ -97,14 +97,14 @@ class ysyx_24100012 extends Module
   debug.io.inst := inst_fetch.io.inst
   debug.io.lsu_port := lsu.io.debug
   
-  perfEvent.io.clock    := clock
-  perfEvent.io.reset    := reset
-  perfEvent.io.finish   := c.io.finish
-  perfEvent.io.valid    := inst_fetch.io.valid
-  perfEvent.io.ifu_port := inst_fetch.io.debug
-  perfEvent.io.ctl_port := c.io.debug
-  perfEvent.io.lsu_port := lsu.io.debug
-  perfEvent.io.wbu_port := wbu.io.debug
+  perfEvent.io.clock      := clock
+  perfEvent.io.reset      := reset
+  perfEvent.io.finish     := c.io.finish
+  perfEvent.io.ifu_valid  := inst_fetch.io.valid
+  perfEvent.io.ifu_port   := inst_fetch.io.debug
+  perfEvent.io.ctl_port   := c.io.debug
+  perfEvent.io.lsu_port   := lsu.io.debug
+  perfEvent.io.wbu_port   := wbu.io.debug
 }
 
 
