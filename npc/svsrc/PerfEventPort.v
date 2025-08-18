@@ -9,6 +9,7 @@
         input clock,
         input reset,
         input finish,
+        input ifu_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
         input [31:0] lsu_port_wdata,
@@ -41,8 +42,9 @@
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
                 perf_event_wbu(wbu_port_wbCount);
                 perf_event_ifu(ifu_port_instFetchCount);   
-                perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
             end 
+            if (ifu_valid)
+                perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
         end
 
      endmodule
