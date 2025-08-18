@@ -31,9 +31,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // tag bits = 32-4-2 = 26 (16 = 2^4,4 = 2^2 bytes)
     // valid bits = 1, tag bits = 26, 32 (4bytes) 
     // 1+ 26 +32 = 59
-    val mem = SyncReadMem(conf.ICacheSize,UInt(conf.xlen.W))
-    val tags = SyncReadMem(conf.ICacheSize,UInt(26.W))
-    val valids = SyncReadMem(conf.ICacheSize,Bool()) 
+    val mem = SyncReadMem(conf.ICacheSize,UInt(conf.xlen.W)).suggestName("ysyx_24100012_icache_mem") 
+    val tags = SyncReadMem(conf.ICacheSize,UInt(26.W)).suggestName("ysyx_24100012_icache_tags") 
+    val valids = SyncReadMem(conf.ICacheSize,Bool()).suggestName("ysyx_24100012_icache_valids") 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
