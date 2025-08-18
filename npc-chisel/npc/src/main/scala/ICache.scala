@@ -33,7 +33,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // 1+ 26 +32 = 59
     val mem = SyncReadMem(conf.ICacheSize,UInt(conf.xlen.W))
     val tags = SyncReadMem(conf.ICacheSize,UInt(26.W))
-    val valids = SyncReadMem(conf.ICacheSize,UInt(1.W)) 
+    val valids = SyncReadMem(conf.ICacheSize,Bool()) 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
@@ -63,7 +63,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     when ( io.port.resp.valid){
         mem.write(io.pc(5,2),io.port.resp.bits.data)
         tags.write(io.pc(5,2),io.pc(31,6))
-        valids.write(io.pc(5,2),1.U)
+        valids.write(io.pc(5,2),true.B)
         ren := true.B
     } .otherwise {
         ren := false.B
