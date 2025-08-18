@@ -18,7 +18,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
-     setInline("ysyx_24100012_DebugPort.v",
+     setInline("DebugPort.v",
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
@@ -71,7 +71,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
         val ctl_port    = Flipped(new CtrlDebugPort())
      })
 
-     setInline("ysyx_24100012_PerfEventPort.v",
+     setInline("PerfEventPort.v",
      """
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
      import "DPI-C" function void perf_event_ifu(input int instFetchCount);
