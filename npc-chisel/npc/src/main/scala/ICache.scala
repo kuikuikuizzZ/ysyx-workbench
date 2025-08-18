@@ -52,17 +52,15 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren))
     val cache_valid = valids.read(io.pc(5,2),(io.req_valid || ren)) 
     val hit = cache_valid && (io.pc(31,6) === tags.read(io.pc(5,2),(io.req_valid || ren)))
-    
+        
     io.inst := Mux(hit,cache_data,BUBBLE)
     io.valid := Mux(hit,true.B,false.B)
-
-    // in mem
     io.port.req.valid := !hit && reg_req_valid 
     io.port.req.bits.addr   := io.pc
     io.port.req.bits.fcn    := M_XRD
     io.port.req.bits.typ    := MT_WU
     
-    when (in_mem && io.port.resp.valid){
+    when ( io.port.resp.valid){
         mem.write(io.pc(5,2),io.port.resp.bits.data)
         tags.write(io.pc(5,2),io.pc(31,6))
         valids.write(io.pc(5,2),1.U)
@@ -70,9 +68,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     } .otherwise {
         ren := false.B
     }
-    
-    io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
-    io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
 
 
     /////// DEBUG PORT
