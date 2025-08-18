@@ -100,7 +100,7 @@ class ysyx_24100012 extends Module
   perfEvent.io.clock    := clock
   perfEvent.io.reset    := reset
   perfEvent.io.finish   := c.io.finish
-  perfEvent.io.valid     := ifu.io.valid
+  perfEvent.io.valid    := inst_fetch.io.valid
   perfEvent.io.ifu_port := inst_fetch.io.debug
   perfEvent.io.ctl_port := c.io.debug
   perfEvent.io.lsu_port := lsu.io.debug
