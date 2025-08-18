@@ -7,4 +7,5 @@
 void uart_write(paddr_t addr, int len, word_t data);
 
 word_t clint_read(paddr_t addr, int len);
+
 #endif

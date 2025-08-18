@@ -182,7 +182,7 @@ word_t paddr_read(paddr_t addr, int len) {
     likely(in_sdram_pmem(addr))) return pmem_read(addr, len);
   else if (likely(in_uart_pmem(addr)))  return 0x20;
   else if (likely(in_clint_pmem(addr))) return clint_read(addr, len);
-    IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr); 
   return 0;
 }
@@ -195,9 +195,10 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     likely(in_psram_pmem(addr))   ||
     likely(in_sdram_pmem(addr))
   )  { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  if (likely(in_uart_pmem(addr))) uart_write(addr, len, data); 
+  if (likely(in_uart_pmem(addr))) return uart_write(addr, len, data); 
   if (likely(in_clint_pmem(addr))) return;
+
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
 
   out_of_bound(addr);
 }

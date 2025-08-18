@@ -151,4 +151,12 @@ config SDCARD_IMG_PATH
 endif # HAS_SDCARD
 endif
 
+menuconfig HAS_UART
+  bool "Enable uart"
+  default n
+
+menuconfig HAS_CLINT
+  bool "Enable clint"
+  default n
+
 endif # DEVICE
