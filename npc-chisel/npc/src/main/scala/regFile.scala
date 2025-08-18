@@ -23,7 +23,7 @@ class ysyx_24100012_RegFile(implicit val conf: ysyx_24100012_Config) extends Mod
   val wb_addr  = io.inst(RD_MSB, RD_LSB)
   
   // Register File
-  val regfile = Mem(16, UInt(conf.xlen.W))
+  val regfile = Mem(16, UInt(conf.xlen.W)).suggestName("ysyx_24100012_regfile_mem") 
 
   when (io.wb.rf_wen && (wb_addr =/= 0.U)) {
     regfile(wb_addr) := io.wb.data

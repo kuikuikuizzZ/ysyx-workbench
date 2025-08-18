@@ -18,7 +18,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
-     setInline("ysyx_24100012_DebugPort.v",
+     setInline("DebugPort.v",
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
@@ -65,13 +65,14 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
         val clock       = Input(Clock())
         val reset       = Input(Bool()) 
         val finish      = Input(Bool())
+        val ifu_valid   = Input(Bool())
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
         val ctl_port    = Flipped(new CtrlDebugPort())
      })
 
-     setInline("ysyx_24100012_PerfEventPort.v",
+     setInline("PerfEventPort.v",
      """
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
      import "DPI-C" function void perf_event_ifu(input int instFetchCount);
@@ -83,6 +84,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
         input clock,
         input reset,
         input finish,
+        input ifu_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
         input [31:0] lsu_port_wdata,
@@ -115,8 +117,9 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
                 perf_event_wbu(wbu_port_wbCount);
                 perf_event_ifu(ifu_port_instFetchCount);   
-                perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
             end 
+            if (ifu_valid)
+                perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
         end
 
      endmodule
