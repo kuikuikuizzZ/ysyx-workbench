@@ -31,18 +31,30 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // tag bits = 32-4-2 = 26 (16 = 2^4,4 = 2^2 bytes)
     // valid bits = 1, tag bits = 26, 32 (4bytes) 
     // 1+ 26 +32 = 59
-    val mem = SyncReadMem(conf.ICacheSize,UInt(conf.ICacheBlockBits.W))
+    val mem = SyncReadMem(conf.ICacheSize,UInt(conf.xlen.W))
+    val tags = SyncReadMem(conf.ICacheSize,UInt(26.W))
+    val valids = SyncReadMem(conf.ICacheSize,UInt(1.W)) 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
-    val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
-    val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
-    val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
-    val in_mem = in_sdram || in_flash || in_psram
+    // val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
+    // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
+    // val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
+    // val in_mem = in_sdram || in_flash || in_psram
 
-    val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
-    val cache_valid = cache_data(58) && in_mem
-    val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
+    // val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
+    // val cache_valid = cache_data(58) && in_mem
+    // val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
+    // io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
+    // io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
+
+
+    val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren))
+    val cache_valid = valids.read(io.pc(5,2),(io.req_valid || ren)) 
+    val hit = cache_valid && (io.pc(31,6) === tags.read(io.pc(5,2),(io.req_valid || ren)))
+    
+    io.inst := Mux(hit,cache_data,BUBBLE)
+    io.valid := Mux(hit,true.B,false.B)
 
     // in mem
     io.port.req.valid := !hit && reg_req_valid 
@@ -51,7 +63,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     io.port.req.bits.typ    := MT_WU
     
     when (in_mem && io.port.resp.valid){
-        mem.write(io.pc(5,2),Cat(1.U,io.pc(31,6),io.port.resp.bits.data))
+        mem.write(io.pc(5,2),io.port.resp.bits.data)
+        tags.write(io.pc(5,2),io.pc(31,6))
+        valids.write(io.pc(5,2),1.U)
         ren := true.B
     } .otherwise {
         ren := false.B
