@@ -37,14 +37,14 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val subBlocksPerLine    = 1 << b_bits
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    
     // tag bits = xprlen-s_bits-b_bits-2bits(4bytes)
-    //          = 32-4-2-1 = 25 (16 = 2^4,4 = 2^2 bytes)
+    //          = 32-4-1-2 = 25 (16 = 2^4,4 = 2^2 bytes)
     // valid bits = 1, tag bits = 25, b_bits = 1 
     // 1+ 25 +32 = 58
+    val tag_bits            = conf.xlen-s_bits-b_bits-2
     val cache_data_width = subBlocksPerLine * conf.xlen
     val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
-    val tags = SyncReadMem(size,UInt(25.W)).suggestName("ysyx_24100012_icache_tags") 
+    val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
