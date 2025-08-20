@@ -87,48 +87,6 @@ localparam CMD_LOAD_MODE     = 4'b0000;
   assign sdram_dq_2 = sdram_dout_en ? ( ba2 ? sdram_dout[15:0]  :16'bz) : 16'bz;
   assign sdram_dq_3 = sdram_dout_en ? ( ba2 ? sdram_dout[31:16] :16'bz) : 16'bz;
   assign sdram_dq   = ba2 ? {sdram_dq_3,sdram_dq_2} : {sdram_dq_1,sdram_dq_0}  ;
-  typedef enum [1:0] { ST_IDLE, ST_WAIT_ACCEPT, ST_WAIT_ACK } state_t;
-  reg [1:0] state;
-  reg arfired,awfired;
-  wire is_read  = ((in_arvalid && in_arready ) || (state == ST_WAIT_ACCEPT)) && arfired;
-  wire is_write = ((in_awvalid && in_awready) || (state == ST_WAIT_ACCEPT)) &&  awfired;
-  wire ack_r = in_rlast && is_read;
-  wire ack_w = in_bvalid && is_write;
-
-  always @(posedge clock) begin
-    if (reset) state <= ST_IDLE;
-    else
-      case (state)
-        ST_IDLE: state <= (in_arvalid || in_awvalid ? ((is_write||is_read) ? ST_WAIT_ACK : ST_WAIT_ACCEPT) : ST_IDLE);
-        ST_WAIT_ACCEPT: state <= (is_write||is_read) ? ST_WAIT_ACK : ST_WAIT_ACCEPT;
-        ST_WAIT_ACK: if (ack_r || ack_w) state <= ST_IDLE;
-        default: state <= state;
-      endcase
-  end
-
-  always @(posedge clock) begin
-    if (reset) begin 
-      arfired <= 1'b0;
-      awfired <= 1'b0;
-    end
-    case (state) 
-    ST_IDLE: begin 
-      arfired <= (in_arvalid && in_arready)? 1'b1 : arfired;
-      awfired <= (in_awvalid && in_awready)? 1'b1 : awfired;
-    end 
-    ST_WAIT_ACK: begin
-      if (ack_r || ack_w) begin
-        arfired <= 1'b0;
-        awfired <= 1'b0;
-      end
-
-    end
-    default: begin
-      arfired <= arfired;
-      awfired <= awfired;
-    end
-    endcase
-  end
 
   sdram_axi #(
     .SDRAM_MHZ(100),
