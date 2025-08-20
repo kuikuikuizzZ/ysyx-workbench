@@ -79,6 +79,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         // 状态迁移
     switch(state) {
         is(sIdle) {
+            ren := false.B
             when(!hit && reg_req_valid) {
                 state := sRequesting
                 offset := 0.U }}
@@ -95,7 +96,10 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 }
             }
         }
-        is(sComplete) { state := sIdle }
+        is(sComplete) { 
+            state   := sIdle
+            ren     := true.B
+        }
     }
 
     
