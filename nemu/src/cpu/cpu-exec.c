@@ -20,7 +20,12 @@
 #include <ringbuffer.h>
 #include <ftrace.h>
 
+#define INST_STREAM_SIZE 0x10000000
+
 extern FtraceMeta *ftrace_meta;
+extern char* inst_stream_file;
+static char inst_stream_buf[INST_STREAM_SIZE];
+static char* inst_stream_ptr = (char*)inst_stream_buf;
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -39,6 +44,19 @@ void device_update();
 extern bool wps_diff();
 
 extern RingBuffer *log_buff;
+
+void log_inst_stream(uint32_t addr, uint32_t inst, char *name){
+  if (inst_stream_ptr >= inst_stream_buf + INST_STREAM_SIZE) 
+    panic("inst stream buffer overflow");
+
+  inst_stream_ptr += snprintf(inst_stream_ptr, INST_STREAM_SIZE,"    " FMT_WORD "," FMT_WORD ",%s\n", addr,inst,name);
+}
+
+void dump_inst_stream(){
+    FILE* f = fopen(inst_stream_file, "w");
+    fwrite(inst_stream_buf, inst_stream_ptr - inst_stream_buf, 1, f);
+    fclose(f);
+}
 
 void itrace_once(Decode*s) {
   // 32 match inst name in capstone define
@@ -76,6 +94,7 @@ void itrace_once(Decode*s) {
   Assert(ITRACE_SIZE>(len+1),"length of itrace excceed\n");
   RingBuffer_put(log_buff,s->logbuf,ITRACE_SIZE);
   memset(s->logbuf,0,ITRACE_SIZE);
+  log_inst_stream(s->pc,s->isa.inst,inst_name);
   #endif
 
 #ifdef CONFIG_FTRACE
@@ -167,6 +186,9 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+      if (inst_stream_file) {
+        dump_inst_stream();
+      }
       // fall through
     case NEMU_QUIT: statistic();
   }

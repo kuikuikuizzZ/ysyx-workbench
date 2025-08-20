@@ -25,13 +25,10 @@ extern "C" {
     }
 
     void sdram_write(int32_t word,int32_t bit, int32_t row,int32_t col,int32_t ba,int32_t dqm, uint32_t data){
-        // printf("sdram_write: address %x x length %d, data %x \n", addr,length,data);
         uint16_t ret = npc_sdram[row][word][ba][col][bit];
         uint16_t mask = masks[dqm];
         npc_sdram[row][word][ba][col][bit] = (ret & ~mask) | (data & mask);
-        // uint32_t new_data =  host_read(guest_to_sdram(addr), 4);
-        // if (row == 1 &&  word == 0 && ba == 0 && col==34)
-            // printf("write [row][word][ba][col] %x %x %x %x data %x dqm %d mask %08x \n", row,word,ba,col, npc_sdram[row][word][ba][col][bit],dqm,mask );
+        // printf("write [row][word][ba][col] %x %x %x %x data %x dqm %d mask %08x \n", row,word,ba,col, npc_sdram[row][word][ba][col][bit],dqm,mask );
 
     }
 #endif
