@@ -12,6 +12,6 @@ case class ysyx_24100012_Config(
     val maskBits = xlen/8
     val perfCountBits = 32
 
-    val ICacheSizeBits = 4
+    val ICacheSizeBits = 3
     val ICacheBlockBits = 1
 }
