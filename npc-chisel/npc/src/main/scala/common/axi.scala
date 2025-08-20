@@ -135,10 +135,11 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
     val awvalid =   Mux(awfire || awfire || wstate === ws_wait_bvalid,false.B, is_write)
-    val wvalid =    Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
+    val awlen   =   0.U
 
     val rready  = (rstate === rs_wait_rlast) || (rstate === rs_wait_arready ) 
     val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready ) 
@@ -148,6 +149,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.ar.len    := arlen
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
+    io.axi_io.aw.len    := awlen
     switch(rstate){
         is(rs_idle)         { rstate := Mux(accept_read, Mux(io.axi_io.ar.valid && io.axi_io.ar.ready,rs_wait_rlast , rs_wait_arready), rs_idle)}
         is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}

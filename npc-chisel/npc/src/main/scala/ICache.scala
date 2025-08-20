@@ -28,12 +28,24 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     io := DontCare
     io.port := DontCare
 
-    // tag bits = 32-4-2 = 26 (16 = 2^4,4 = 2^2 bytes)
-    // valid bits = 1, tag bits = 26, 32 (4bytes) 
-    // 1+ 26 +32 = 59
-    val mem = SyncReadMem(conf.ICacheSize,UInt(conf.xlen.W)).suggestName("ysyx_24100012_icache_mem") 
-    val tags = SyncReadMem(conf.ICacheSize,UInt(26.W)).suggestName("ysyx_24100012_icache_tags") 
-    val valids = SyncReadMem(conf.ICacheSize,Bool()).suggestName("ysyx_24100012_icache_valids") 
+
+    val sIdle :: sRequesting :: sReceiving :: sComplete :: Nil = Enum(4)
+    val state               = RegInit(sIdle)
+    val s_bits              = conf.ICacheSizeBits
+    val b_bits              = conf.ICacheBlockBits
+    val size                = 1 << conf.ICacheSizeBits 
+    val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
+    val subBlocksPerLine    = 1 << b_bits
+    val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
+    
+    // tag bits = xprlen-s_bits-b_bits-2bits(4bytes)
+    //          = 32-4-2-1 = 25 (16 = 2^4,4 = 2^2 bytes)
+    // valid bits = 1, tag bits = 25, b_bits = 1 
+    // 1+ 25 +32 = 58
+    val cache_data_width = subBlocksPerLine * conf.xlen
+    val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
+    val tags = SyncReadMem(size,UInt(25.W)).suggestName("ysyx_24100012_icache_tags") 
+    val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
     
@@ -48,26 +60,57 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
     // io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
 
-
-    val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren))
-    val cache_valid = valids.read(io.pc(5,2),(io.req_valid || ren)) 
-    val tag = tags.read(io.pc(5,2),(io.req_valid || ren))
-    val hit = cache_valid && (io.pc(31,6) === tag)
+    val group_index = io.pc(b_bits+2-1,2)
+    val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
+    val cache_data = cache_block_vec(group_index)
+    val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
         
     io.inst := Mux(hit,cache_data,BUBBLE)
     io.valid := Mux(hit,true.B,false.B)
-    io.port.req.valid := !hit && reg_req_valid 
-    io.port.req.bits.addr   := io.pc
+    io.port.req.valid := (state === sRequesting)
+    io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
     io.port.req.bits.fcn    := M_XRD
     io.port.req.bits.typ    := MT_WU
     
-    when ( io.port.resp.valid){
-        mem.write(io.pc(5,2),io.port.resp.bits.data)
-        tags.write(io.pc(5,2),io.pc(31,6))
-        valids.write(io.pc(5,2),true.B)
-        ren := true.B
-    } .otherwise {
-        ren := false.B
+
+        // 状态迁移
+    switch(state) {
+        is(sIdle) {
+            ren := false.B
+            when(!hit && reg_req_valid) {
+                state := sRequesting
+                offset := 0.U }}
+        is(sRequesting) { state := sReceiving }
+        is(sReceiving) {
+            when(io.port.resp.valid) {
+                cacheLineBuffer(offset) := io.port.resp.bits.data // 存储子块
+                offset := offset + 1.U
+                // 检查是否完成
+                when(offset === (subBlocksPerLine-1).U) {
+                    state := sComplete
+                }.otherwise {
+                    state := sRequesting // 继续请求下一子块
+                }
+            }
+        }
+        is(sComplete) { 
+            state   := sIdle
+            ren     := true.B
+        }
+    }
+
+    
+    val fullCacheLine = cacheLineBuffer.asUInt
+
+    // 写入缓存（仅当完成整行加载）
+    when(state === sComplete) {
+        val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
+        mem.write(index, fullCacheLine) // 写入数据
+        tags.write(index, io.pc(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
+        valids.write(index, true.B) // 标记有效
     }
 
 
