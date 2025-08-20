@@ -44,7 +44,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // 1+ 25 +32 = 58
     val cache_data_width = subBlocksPerLine * conf.xlen
     val mem = SyncReadMem(size,UInt((subBlocksPerLine * cache_data_width).W)).suggestName("ysyx_24100012_icache_mem") 
-    val tags = SyncReadMem(size,UInt(26.W)).suggestName("ysyx_24100012_icache_tags") 
+    val tags = SyncReadMem(size,UInt(25.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
     val ren = RegInit(false.B)
     val reg_req_valid = RegNext(io.req_valid,false.B)
