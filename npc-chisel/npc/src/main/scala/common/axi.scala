@@ -9,12 +9,14 @@ import npc.devices.{ysyx_24100012_AXI4LiteMem,ysyx_24100012_AXI4LiteMemRandomDel
 
 class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) extends Bundle{
     val maskWidth = dataWidth/8
-    val raddr = Input(UInt(conf.xprlen.W))
-    val waddr = Input(UInt(conf.xprlen.W))
-    val data = Input(UInt(dataWidth.W))
-    val mask = Input(UInt(maskWidth.W))
-    val ren = Input (Bool())
-    val wen = Input (Bool())
+    val raddr   = Input(UInt(conf.xprlen.W))
+    val waddr   = Input(UInt(conf.xprlen.W))
+    val data    = Input(UInt(dataWidth.W))
+    val mask    = Input(UInt(maskWidth.W))
+    val ren     = Input (Bool())
+    val wen     = Input (Bool())
+    val burst   = Input(bool())
+    val burtlen = Input(conf.AXIBurstLenBits.W)
 }
 
 class AXI4Resp(val data_width: Int) extends Bundle
@@ -131,7 +133,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val maskWidth   = conf.xlen/8
     val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
-    val arlen  = 0.U
+    val arlen   = Mux(io.req.burst,io.req.burtlen,0.U)
+    val arburst = io.req.burst
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
     val awvalid =   Mux(awfire || awfire || wstate === ws_wait_bvalid,false.B, is_write)
@@ -139,35 +142,40 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
-    val awlen   =   0.U
+    val awlen   =   Mux(io.req.burst,io.req.burtlen,0.U)
+    val awburst =   io.req.burst
 
     val rready  = (rstate === rs_wait_rlast) || (rstate === rs_wait_arready ) 
     val bready  = (wstate === ws_wait_bvalid) || (wstate === ws_wait_ready ) 
     
     io.axi_io.ar.addr   := Mux(rstate===rs_idle, io.req.raddr,araddr)
     io.axi_io.ar.valid  := arvalid
+    io.axi_io.ar.burst  := arburst   
     io.axi_io.ar.len    := arlen
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
-    io.axi_io.aw.len    := awlen
     switch(rstate){
         is(rs_idle)         { rstate := Mux(accept_read, Mux(io.axi_io.ar.valid && io.axi_io.ar.ready,rs_wait_rlast , rs_wait_arready), rs_idle)}
         is (rs_wait_arready){ rstate := Mux(arfire, rs_wait_rlast, rs_wait_arready)}
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
-            rstate := Mux(io.axi_io.r.last || (rstate === rs_wait_rlast) && (rfire), rs_idle, rs_wait_rlast)
+            // rstate := Mux(io.axi_io.r.last || (rstate === rs_wait_rlast) && (rfire), rs_idle, rs_wait_rlast)
+            rstate := Mux(io.axi_io.r.last , rs_idle, rs_wait_rlast)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
     }
 
     
     //////  AXI4Lite write master
-    io.axi_io.aw.valid     :=  Mux(wstate===ws_idle, accept_write,awvalid)
-    io.axi_io.w.valid      :=  Mux(wstate===ws_idle, accept_write,wvalid)
-    io.axi_io.aw.addr      :=  awaddr
-    io.axi_io.w.data       :=  wdata
-    io.axi_io.w.strb       :=  wstrb
-    io.axi_io.w.last       :=  wlast
+    io.axi_io.aw.valid      :=  Mux(wstate===ws_idle, accept_write,awvalid)
+    io.axi_io.w.valid       :=  Mux(wstate===ws_idle, accept_write,wvalid)
+    io.axi_io.aw.addr       :=  awaddr
+    io.axi_io.w.data        :=  wdata
+    io.axi_io.w.strb        :=  wstrb
+    io.axi_io.w.last        :=  wlast
+    // write not support burst 
+    // io.axi_io.aw.burst      :=  awburst
+    io.axi_io.aw.len        :=  0.U
     
     switch(wstate){
         is(ws_idle)         { wstate := Mux(accept_write, ws_wait_ready, ws_idle)}

@@ -58,10 +58,12 @@ class MemPortIo(val data_width: Int)(implicit val conf: ysyx_24100012_Config) ex
 
 class MemReq(val data_width: Int)(implicit val conf: ysyx_24100012_Config) extends Bundle
 {
-   val addr = Output(UInt(conf.xprlen.W))
-   val data = Output(UInt(data_width.W))
-   val fcn  = Output(UInt(M_X.getWidth.W))  // memory function code
-   val typ  = Output(UInt(MT_X.getWidth.W)) // memory type
+   val addr    = Output(UInt(conf.xprlen.W))
+   val data    = Output(UInt(data_width.W))
+   val fcn     = Output(UInt(M_X.getWidth.W))  // memory function code
+   val typ     = Output(UInt(MT_X.getWidth.W)) // memory type
+   val burst   = Output(bool())
+   val burtlen = Output(conf.AXIBurstLenBits.W)
 }
 
 class MemResp(val data_width: Int) extends Bundle
@@ -286,7 +288,9 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.addr,0.U))
    req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
-   
+   // only instruction port support burst 
+   req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,false.B)
+   req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
    val axi_resp = axi4lite_mem.io.resp.bits.resp
    val resp_valid = axi_resp === 0.U
    val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
@@ -302,7 +306,8 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    axi4lite_mem.io.req.raddr := req_addri
    axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
    axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
-
+   axi4lite_mem.io.req.burst   := req_burst
+   axi4lite_mem.io.req.burtlen := burtlen
    // req_typi may invalid when req_valid is false
    val resp_datai = axi4lite_mem.io.resp.bits.data
    val dport_addri = io.ports(DPORT).req.bits.addr

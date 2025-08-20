@@ -29,25 +29,26 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     io.port := DontCare
 
 
-    val sIdle :: sRequesting :: sReceiving :: sComplete :: Nil = Enum(4)
+    val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)
     val state               = RegInit(sIdle)
     val s_bits              = conf.ICacheSizeBits
     val b_bits              = conf.ICacheBlockBits
     val size                = 1 << conf.ICacheSizeBits 
-    val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val subBlocksPerLine    = 1 << b_bits
-    val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
+    val cache_data_width = subBlocksPerLine * conf.xlen
+    val tag_bits            = conf.xlen-s_bits-b_bits-2
     // tag bits = xprlen-s_bits-b_bits-2bits(4bytes)
     //          = 32-4-1-2 = 25 (16 = 2^4,4 = 2^2 bytes)
     // valid bits = 1, tag bits = 25, b_bits = 1 
     // 1+ 25 +32 = 58
-    val tag_bits            = conf.xlen-s_bits-b_bits-2
-    val cache_data_width = subBlocksPerLine * conf.xlen
+    
+    val ren = RegInit(false.B)
+    val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
+    val reg_req_valid       = RegNext(io.req_valid,false.B)
+    val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
     val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
-    val ren = RegInit(false.B)
-    val reg_req_valid = RegNext(io.req_valid,false.B)
     
     // val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
     // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
@@ -70,10 +71,21 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         
     io.inst := Mux(hit,cache_data,BUBBLE)
     io.valid := Mux(hit,true.B,false.B)
-    io.port.req.valid := (state === sRequesting)
-    io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
-    io.port.req.bits.fcn    := M_XRD
-    io.port.req.bits.typ    := MT_WU
+    when (state === sRequesting){
+        io.port.req             := DontCare
+        io.port.req.valid       := state === sRequesting
+        io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
+        io.port.req.bits.fcn    := M_XRD
+        io.port.req.bits.typ    := MT_WU
+    }
+    when(state === sBurstRequesting) {
+        io.port.req.valid       := state === sBurstRequesting
+        io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
+        io.port.req.bits.fcn    := M_XRD
+        io.port.req.bits.typ    := MT_WU
+        io.port.req.bits.burst  := true.B
+        io.port.req.bits.burtlen    := conf.burstLength
+    }
     
 
         // 状态迁移
@@ -81,7 +93,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         is(sIdle) {
             ren := false.B
             when(!hit && reg_req_valid) {
-                state := sRequesting
+                state := Mux(conf.ICacheEnableBurst,sRequesting,sBurstRequesting)
                 offset := 0.U }}
         is(sRequesting) { state := sReceiving }
         is(sReceiving) {
@@ -91,6 +103,8 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 // 检查是否完成
                 when(offset === (subBlocksPerLine-1).U) {
                     state := sComplete
+                }.elsewhen(conf.enableBurst) { 
+                    state := sReceiving 
                 }.otherwise {
                     state := sRequesting // 继续请求下一子块
                 }
