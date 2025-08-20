@@ -62,8 +62,8 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
 
     val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
-    val cache_block_data = cache_block_data(((group_index+1)*cache_data_width)-1,group_index*cache_data_width)
-    val cache_data = cache_block_data(conf.xlen-1,0)
+    val cache_block_vec =  VecInit.tabulate(n) { i =>io.in((i + 1) * conf.xlen - 1, i * conf.xlen) }
+    val cache_data = cache_block_vec(group_index)
     val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
