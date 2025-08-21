@@ -79,12 +79,12 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.typ    := MT_WU
     }
     when(state === sBurstRequesting) {
-        io.port.req.valid       := state === sBurstRequesting
-        io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
-        io.port.req.bits.fcn    := M_XRD
-        io.port.req.bits.typ    := MT_WU
-        io.port.req.bits.burst  := true.B
-        io.port.req.bits.burtlen    := conf.burstLength
+        io.port.req.valid           := state === sBurstRequesting
+        io.port.req.bits.addr       := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
+        io.port.req.bits.fcn        := M_XRD
+        io.port.req.bits.typ        := MT_WU
+        io.port.req.bits.burst      := true.B
+        io.port.req.bits.burstlen   := conf.burstLength.U(conf.AXIBurstLenBits)
     }
     
 
