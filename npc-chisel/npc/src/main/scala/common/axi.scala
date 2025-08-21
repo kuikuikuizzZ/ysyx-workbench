@@ -7,6 +7,14 @@ import Constants._
 import npc.common._
 import npc.devices.{ysyx_24100012_AXI4LiteMem,ysyx_24100012_AXI4LiteMemRandomDelay}
 
+trait AXI4BurstTypes
+{
+   val BURST_FIXED  = 0.asUInt(2.W)
+   val BURST_INCR   = 1.asUInt(2.W)
+   val BURST_WRAP   = 2.asUInt(2.W)
+   val BURST_X      = 3.asUInt(2.W)
+}
+
 class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) extends Bundle{
     val maskWidth = dataWidth/8
     val raddr   = Input(UInt(conf.xprlen.W))
@@ -15,7 +23,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) ext
     val mask    = Input(UInt(maskWidth.W))
     val ren     = Input (Bool())
     val wen     = Input (Bool())
-    val burst   = Input(Bool())
+    val burst   = Input(BURST_X.getWidth.W)
     val burstlen = Input(UInt(conf.AXIBurstLenBits.W))
 }
 
@@ -49,7 +57,7 @@ class AXI4LiteAR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)
     val id      =   Output(UInt(conf.idBits.W))
     val len     =   Output(UInt(conf.lenBits.W))  // number of beats - 1
     val size    =   Output(UInt(conf.sizeBits.W)) // bytes in beat = 2^size
-    val burst   =   Output(UInt(conf.burstBits.W))
+    val burst   =   Output(UInt(BURST_X.getWidth.W))
 } 
 
 class AXI4LiteR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)extends Bundle{
@@ -68,7 +76,7 @@ class AXI4LiteAW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)
     val id      =   Output(UInt(conf.idBits.W))
     val len     =   Output(UInt(conf.lenBits.W))  // number of beats - 1
     val size    =   Output(UInt(conf.sizeBits.W)) // bytes in beat = 2^size
-    val burst   =   Output(UInt(conf.burstBits.W))
+    val burst   =   Output(UInt(BURST_X.getWidth.W))
 } 
 
 class AXI4LiteW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{

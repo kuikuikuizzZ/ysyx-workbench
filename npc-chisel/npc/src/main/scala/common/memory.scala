@@ -7,6 +7,7 @@ import chisel3.util._
 import npc.common.CSR._
 
 import Constants._
+
 trait MemoryOpConstants 
 {
    val MT_X  = 0.asUInt(3.W)
@@ -60,7 +61,7 @@ class MemReq(val data_width: Int)(implicit val conf: ysyx_24100012_Config) exten
    val data       = Output(UInt(data_width.W))
    val fcn        = Output(UInt(M_X.getWidth.W))  // memory function code
    val typ        = Output(UInt(MT_X.getWidth.W)) // memory type
-   val burst      = Output(Bool())
+   val burst      = Output(UInt(BURST_X.getWidth.W))
    val burstlen   = Output(UInt(conf.AXIBurstLenBits.W))
 }
 
