@@ -179,7 +179,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     
     switch(wstate){
         is(ws_idle)         { wstate := Mux(accept_write, ws_wait_ready, ws_idle)}
-        is (ws_wait_ready)  { wstate := Mux((awfire&&wfire), ws_wait_bvalid, ws_wait_ready)}
+        is (ws_wait_ready)  { wstate := Mux((awfire && wfire) || (io.axi_io.aw.valid && io.axi_io.aw.ready), ws_wait_bvalid, ws_wait_ready)}
         is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)}
     }
 
