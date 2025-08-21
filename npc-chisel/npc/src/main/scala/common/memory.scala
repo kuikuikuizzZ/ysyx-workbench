@@ -157,7 +157,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (axi4lite_mem.io.resp.valid) {
             req_valid := false.B    
             reg_burstlen := reg_burstlen - 1.U
-            when (reg_len === 0.U) {
+            when (reg_burstlen === 0.U) {
                state := s_idle
             }
          }
