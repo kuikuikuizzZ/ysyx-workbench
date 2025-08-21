@@ -16,7 +16,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) ext
     val ren     = Input (Bool())
     val wen     = Input (Bool())
     val burst   = Input(Bool())
-    val burstlen = Input(conf.AXIBurstLenBits.W)
+    val burstlen = Input(UInt(conf.AXIBurstLenBits.W))
 }
 
 class AXI4Resp(val data_width: Int) extends Bundle
