@@ -6,6 +6,7 @@ import chisel3.util._
 
 import npc.common._
 import npc.Constants._
+import Constants._
 
 class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle { 
     val hit_cnt = Output(UInt(conf.perfCountBits.W))
