@@ -16,5 +16,5 @@ case class ysyx_24100012_Config(
 
     val ICacheSizeBits = 2
     val ICacheBlockBits = 2
-    val ICacheEnableBurst = false
+    val ICacheEnableBurst = false.B
 }
