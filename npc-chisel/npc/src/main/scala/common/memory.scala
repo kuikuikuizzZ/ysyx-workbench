@@ -194,7 +194,8 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
    axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
    axi4lite_mem.io.req.burst     := req_burst
-   axi4lite_mem.io.req.burstlen  := burstlen
+   axi4lite_mem.io.req.burstlen  := req_burstlen
+   
    // req_typi may invalid when req_valid is false
    val resp_datai = axi4lite_mem.io.resp.bits.data
    val dport_addri = io.ports(DPORT).req.bits.addr
