@@ -184,7 +184,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     }
 
     io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) ,
-                     (io.axi_io.r.valid) || (rstate === rs_wait_rlast) && (rfire) )
+                     (io.axi_io.r.valid)  )
     io.resp.bits.resp :=  Mux(is_write ,io.axi_io.b.resp, io.axi_io.r.resp )
 }
 
