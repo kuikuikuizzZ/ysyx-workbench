@@ -142,7 +142,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val size    = Mux(io.req.burst =/= BURST_FIXED,2.U,0.U)
     val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
-    val arlen   = Mux(accept_read, io.req.burstlen,sRegEnable(io.req.burstlen,accept_read))
+    val arlen   = Mux(accept_read, io.req.burstlen,RegEnable(io.req.burstlen,accept_read))
     val arsize  = Mux(accept_read,size, RegEnable(size,accept_read))
     val arburst = Mux(accept_read,io.req.burst,RegEnable(io.req.burst,accept_read))
 
