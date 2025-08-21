@@ -137,7 +137,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val arburst = io.req.burst
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
-    val awvalid =   Mux(awfire || awfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, is_write)
     val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
