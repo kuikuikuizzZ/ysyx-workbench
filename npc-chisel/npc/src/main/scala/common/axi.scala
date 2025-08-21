@@ -143,6 +143,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
     val arlen   = Mux(conf.ICacheEnableBurst,io.req.burstlen,0.U)
     val arburst = io.req.burst
+    val arsize  = 2.U
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
     val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, is_write)
@@ -160,6 +161,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     io.axi_io.ar.valid  := arvalid
     io.axi_io.ar.burst  := arburst   
     io.axi_io.ar.len    := arlen
+    io.axi_io.ar.size   := arsize
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
     switch(rstate){
