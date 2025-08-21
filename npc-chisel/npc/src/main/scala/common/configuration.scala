@@ -1,6 +1,8 @@
 package npc
 package common
 
+import chisel3._
+import chisel3.util._
 
 case class ysyx_24100012_Config(
  xprlen: Int = 32) {
