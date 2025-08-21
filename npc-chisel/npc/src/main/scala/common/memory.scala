@@ -137,7 +137,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    val req_typi     = Wire(UInt(MT_X.getWidth.W))
    val req_valid    = Wire(Bool())
    val req_data     = Wire(UInt(conf.xlen.W))
-   val req_burst    = Wire(Bool())
+   val req_burst    = Wire(UInt(BURST_X.getWidth.W))
    val req_burstlen = Wire(UInt(conf.AXIBurstLenBits.W))
    // val resp_valid   = Wire(Bool())
    val resp_data    = Wire(UInt(conf.xlen.W))
@@ -147,11 +147,11 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (io.ports(IPORT).req.valid) {
             state := s_ifu_active
             req_typi := io.ports(IPORT).req.bits.typ
-            reg_burstlen := Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
+            reg_burstlen := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
          } .elsewhen (io.ports(DPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
-            reg_burstlen := Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
+            reg_burstlen := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
          }
       }
       is (s_ifu_active){
@@ -182,7 +182,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
                   Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
    // only instruction port support burst 
-   req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,false.B)
+   req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,0.U)
    req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
    val axi_resp = axi4lite_mem.io.resp.bits.resp
    val resp_valid = axi_resp === 0.U
