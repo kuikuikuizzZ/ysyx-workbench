@@ -127,7 +127,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    io := DontCare
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
    val state = RegInit(s_idle)
-   val reg_burstlen = RegInit(0.U(conf.AXIBurstLenBits.W))
+   val burstlen_reg = RegInit(0.U(conf.AXIBurstLenBits.W))
    val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
    axi4lite_mem.io := DontCare
    
@@ -147,18 +147,18 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (io.ports(IPORT).req.valid) {
             state := s_ifu_active
             req_typi := io.ports(IPORT).req.bits.typ
-            reg_burstlen := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
+            burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
          } .elsewhen (io.ports(DPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
-            reg_burstlen := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
+            burstlen_reg := 0.U  
          }
       }
       is (s_ifu_active){
          when (axi4lite_mem.io.resp.valid) {
             req_valid := false.B    
-            reg_burstlen := reg_burstlen - 1.U
-            when (reg_burstlen === 0.U) {
+            burstlen_reg := burstlen_reg - 1.U
+            when (burstlen_reg === 0.U) {
                state := s_idle
             }
          }
