@@ -84,7 +84,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.fcn        := M_XRD
         io.port.req.bits.typ        := MT_WU
         io.port.req.bits.burst      := true.B
-        io.port.req.bits.burstlen   := conf.burstLength.U(conf.AXIBurstLenBits)
+        io.port.req.bits.burstlen   := conf.burstLength
     }
     
 

@@ -61,7 +61,7 @@ class MemReq(val data_width: Int)(implicit val conf: ysyx_24100012_Config) exten
    val fcn        = Output(UInt(M_X.getWidth.W))  // memory function code
    val typ        = Output(UInt(MT_X.getWidth.W)) // memory type
    val burst      = Output(Bool())
-   val burstlen   = Output(conf.AXIBurstLenBits.W)
+   val burstlen   = Output(UInt(conf.AXIBurstLenBits.W))
 }
 
 class MemResp(val data_width: Int) extends Bundle
@@ -137,7 +137,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    val req_valid    = Wire(Bool())
    val req_data     = Wire(UInt(conf.xlen.W))
    val req_burst    = Wire(Bool())
-   val req_burstlen = Wire(conf.AXIBurstLenBits.W)
+   val req_burstlen = Wire(UInt(conf.AXIBurstLenBits.W))
    // val resp_valid   = Wire(Bool())
    val resp_data    = Wire(UInt(conf.xlen.W))
    switch(state) {
