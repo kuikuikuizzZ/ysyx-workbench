@@ -16,7 +16,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) ext
     val ren     = Input (Bool())
     val wen     = Input (Bool())
     val burst   = Input(bool())
-    val burtlen = Input(conf.AXIBurstLenBits.W)
+    val burstlen = Input(conf.AXIBurstLenBits.W)
 }
 
 class AXI4Resp(val data_width: Int) extends Bundle
@@ -133,7 +133,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val maskWidth   = conf.xlen/8
     val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
-    val arlen   = Mux(io.req.burst,io.req.burtlen,0.U)
+    val arlen   = Mux(io.req.burst,io.req.burstlen,0.U)
     val arburst = io.req.burst
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
@@ -142,7 +142,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
-    val awlen   =   Mux(io.req.burst,io.req.burtlen,0.U)
+    val awlen   =   Mux(io.req.burst,io.req.burstlen,0.U)
     val awburst =   io.req.burst
 
     val rready  = (rstate === rs_wait_rlast) || (rstate === rs_wait_arready ) 
