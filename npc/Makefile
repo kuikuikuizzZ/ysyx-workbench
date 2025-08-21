@@ -4,6 +4,7 @@ BUILD_DIR_BASE = $(WORK_DIR)/build
 PERF_DIR  = $(WORK_DIR)/perf
 
 COMMIT_ID = $(shell git rev-parse --short HEAD)
+SOC_COMMIT_ID = $(shell git -C $(SOC_HOME) rev-parse --short HEAD)
 DATE_ID = $(shell date +%Y%m%d-%H%M%S)
 
 # 包含配置文件(包括 menuconfig生成的配置)
@@ -74,7 +75,7 @@ else
 	IMG_NAME ?= npc_default
 endif
 
-PERF_FILE_PATH = $(PERF_DIR)/$(IMG_NAME)_$(DATE_ID)_$(COMMIT_ID).txt
+PERF_FILE_PATH = $(PERF_DIR)/$(IMG_NAME)_$(DATE_ID)_$(COMMIT_ID)_$(SOC_COMMIT_ID).txt
 PERF_ARGS ?= $(ARGS)
 PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
