@@ -15,7 +15,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) ext
     val mask    = Input(UInt(maskWidth.W))
     val ren     = Input (Bool())
     val wen     = Input (Bool())
-    val burst   = Input(bool())
+    val burst   = Input(Bool())
     val burstlen = Input(conf.AXIBurstLenBits.W)
 }
 

@@ -103,7 +103,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 // 检查是否完成
                 when(offset === (subBlocksPerLine-1).U) {
                     state := sComplete
-                }.elsewhen(conf.enableBurst) { 
+                }.elsewhen(conf.ICacheEnableBurst) { 
                     state := sReceiving 
                 }.otherwise {
                     state := sRequesting // 继续请求下一子块

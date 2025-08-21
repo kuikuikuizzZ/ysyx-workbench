@@ -11,10 +11,10 @@ case class ysyx_24100012_Config(
     val burstBits = 2
     val maskBits = xlen/8
     val perfCountBits = 32
-    val burstLength = 2.U(8.W)
+    val burstLength = 2
     val AXIBurstLenBits = 8.U
 
     val ICacheSizeBits = 2
     val ICacheBlockBits = 2
-    val ICacheEnableBurst = false.B
+    val ICacheEnableBurst = false
 }
