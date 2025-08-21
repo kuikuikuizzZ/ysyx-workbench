@@ -9,6 +9,7 @@ object Constants extends
    npc.common.MemoryOpConstants with
    NPCProcConstants with
    npc.common.PrivilegedConstants with
-   RISCVConstants 
+   RISCVConstants with
+   npc.common.AXI4BurstTypes
 {
 }

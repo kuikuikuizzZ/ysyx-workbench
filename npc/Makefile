@@ -74,7 +74,7 @@ else
 	IMG_NAME ?= npc_default
 endif
 
-PERF_FILE_PATH = $(PERF_DIR)/$(IMG_NAME)_$(COMMIT_ID)_$(DATE_ID).txt
+PERF_FILE_PATH = $(PERF_DIR)/$(IMG_NAME)_$(DATE_ID)_$(COMMIT_ID).txt
 PERF_ARGS ?= $(ARGS)
 PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
