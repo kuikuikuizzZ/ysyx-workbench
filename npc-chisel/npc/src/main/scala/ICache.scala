@@ -96,6 +96,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
                 offset := 0.U }}
         is(sRequesting) { state := sReceiving }
+        is(sBurstRequesting) { state := sReceiving }
         is(sReceiving) {
             when(io.port.resp.valid) {
                 cacheLineBuffer(offset) := io.port.resp.bits.data // 存储子块
