@@ -146,11 +146,11 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          when (io.ports(IPORT).req.valid) {
             state := s_ifu_active
             req_typi := io.ports(IPORT).req.bits.typ
-            reg_burstlen = Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
+            reg_burstlen := Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
          } .elsewhen (io.ports(DPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
-            reg_burstlen = Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
+            reg_burstlen := Mux(conf.ICacheEnableBurst,req_burstlen,0.U) 
          }
       }
       is (s_ifu_active){
