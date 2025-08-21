@@ -93,7 +93,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         is(sIdle) {
             ren := false.B
             when(!hit && reg_req_valid) {
-                state := Mux(conf.ICacheEnableBurst,sRequesting,sBurstRequesting)
+                state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
                 offset := 0.U }}
         is(sRequesting) { state := sReceiving }
         is(sReceiving) {
