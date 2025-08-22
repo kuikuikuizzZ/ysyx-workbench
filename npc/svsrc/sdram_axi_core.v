@@ -286,7 +286,7 @@ begin
     begin
         next_state_r = STATE_IDLE;
 
-        //Another pending write request (with no refresh pending)
+        // Another pending write request (with no refresh pending)
         // if (!refresh_q && ram_req_w && (ram_wr_w != 4'b0))
         // begin
         //     // Open row hit

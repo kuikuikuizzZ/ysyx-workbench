@@ -170,7 +170,7 @@ begin
         if (axi_wvalid_i && axi_wready_o)
         begin
             req_wr_q      <= !axi_wlast_i;
-            req_len_q     <= axi_awlen_i == 8'd0 ? 8'd0 : axi_awlen_i  - 8'd1 ;
+            req_len_q     <= axi_awlen_i - 8'd1;
             req_id_q      <= axi_awid_i;
             req_axburst_q <= axi_awburst_i;
             req_axlen_q   <= axi_awlen_i;
