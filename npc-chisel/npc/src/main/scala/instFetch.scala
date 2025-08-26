@@ -81,7 +81,5 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   }
   io.debug.valid := cache.io.valid
   io.debug.instFetchCount := instFetchCount
-  io.debug.inst := cache.io.inst
-  io.debug.pc := pc_reg
   ////////// end of debug 
 }
