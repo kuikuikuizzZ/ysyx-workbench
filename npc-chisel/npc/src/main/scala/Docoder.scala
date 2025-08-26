@@ -195,11 +195,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // Operand 2 Mux
    val alu_op2 = MuxCase(0.U, Array(
                (cs_op2_sel === OP2_RS2)    -> rf_rs2_data,
-               (cs_op2_sel === OP2_ITYPE)  -> imm_itype_sext,
-               (cs_op2_sel === OP2_STYPE)  -> imm_stype_sext,
-               (cs_op2_sel === OP2_SBTYPE) -> imm_sbtype_sext,
-               (cs_op2_sel === OP2_UTYPE)  -> imm_utype_sext,
-               (cs_op2_sel === OP2_UJTYPE) -> imm_ujtype_sext
+               (cs_op2_sel === OP2_ITYPE)  -> imm_i_sext,
+               (cs_op2_sel === OP2_STYPE)  -> imm_s_sext,
+               (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
+               (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
+               (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
                )).asUInt()
 
    if (USE_FULL_BYPASSING){
