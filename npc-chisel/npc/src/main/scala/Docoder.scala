@@ -124,7 +124,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                   ))
 
    // Put these control signals in variables
-   val (cs_val_inst: Bool) :: (cs_br_type:UInt) :: cs_op1_sel :: cs_op2_sel :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: cs0 = csignals
+   val (cs_val_inst: Bool) :: (cs_br_type:UInt) :: (cs_op1_sel:UInt) :: (cs_op2_sel:UInt) :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: cs0 = csignals
    val cs_alu_fun :: cs_wb_sel :: (cs_rf_wen: Bool) :: (cs_mem_en: Bool) :: cs_mem_fcn :: cs_msk_sel :: cs_csr_cmd :: (cs_fencei: Bool) :: Nil = cs0
 
               
