@@ -202,6 +202,12 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
                (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
                )).asUInt()
+   // val exe_alu_out  = Wire(UInt(conf.xprlen.W))
+   // val mem_wbdata   = Wire(UInt(conf.xprlen.W))
+
+   val op1_data = Wire(UInt(conf.xprlen.W))
+   val op2_data = Wire(UInt(conf.xprlen.W))
+   val rs2_data = Wire(UInt(conf.xprlen.W))
 
    if (conf.USE_FULL_BYPASSING){
       // Rely only on control interlocking to resolve hazards
