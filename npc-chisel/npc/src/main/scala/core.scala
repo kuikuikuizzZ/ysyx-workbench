@@ -7,12 +7,7 @@ import npc.common._
 import npc.Constants._
 import npc.devices.{ysyx_24100012_CLINT}
 
-def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
-  thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
-    prevOut.ready := thisIn.ready
-    thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
-    thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
-  }
+  
 
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
@@ -23,10 +18,14 @@ class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle
 
 class ysyx_24100012 extends Module
 {
+  def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
+  thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+    prevOut.ready := thisIn.ready
+    thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
+    thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
+  }
   implicit val conf = ysyx_24100012_Config()
-
   val io = IO(new CoreIo())
-
 
   val inst_fetch  = Module(new ysyx_24100012_InstFetch())
   val arbiter     = Module(new ysyx_24100012_AXI4LiteArbiter(2))
