@@ -201,7 +201,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
                (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
                (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
-               )).asUInt()
+               )).asUInt
    // val exe_alu_out  = Wire(UInt(conf.xprlen.W))
    // val mem_wbdata   = Wire(UInt(conf.xprlen.W))
 
