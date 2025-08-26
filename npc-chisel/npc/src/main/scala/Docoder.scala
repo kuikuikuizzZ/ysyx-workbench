@@ -43,8 +43,8 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
-   val ifu_pipe   =  Flipped(new DecoupledIO(IFUPipeIO))
-   val dec_exe    =  new DecoupledIO(DecPipeIO)
+   val ifu_pipe   =  Flipped( DecoupledIO(new IFUPipeIO))
+   val dec_exe    =   DecoupledIO(new DecPipeIO)
    val dec_reg    =  Flipped(new RegFilePipeIn())
    val reg_in     =  Flipped(new RegFileOut())
    val ifu_out    =  Flipped(new InstFetchIn)
