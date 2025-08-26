@@ -34,8 +34,8 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 
 class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
-   val dec_exe = Flipped(new DecoupledIO(DecPipeIO()))
-   val exe_mem = new DecoupledIO(EXEPipeIO())
+   val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))
+   val exe_mem = new DecoupledIO(new EXEPipeIO())
    val ifu_out = new EXUToIFUOut()
 }
 

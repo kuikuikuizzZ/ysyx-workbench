@@ -17,8 +17,8 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
 
 
 class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
-    val exe_mem             = Flipped(new DecoupledIO(EXEPipeIO()))
-    val mem_wb              = new DecoupledIO(LSUPipeIO)
+    val exe_mem             = Flipped(new DecoupledIO(new EXEPipeIO()))
+    val mem_wb              = new DecoupledIO(new LSUPipeIO)
     val port                = new MemPortIo(conf.xprlen)
     val debug               = new LSUDebugPort
     val exception_target    = Output(UInt(conf.xprlen.W))

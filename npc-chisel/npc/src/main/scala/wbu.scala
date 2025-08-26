@@ -18,8 +18,8 @@ class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
-        val lsu = Flipped(new DecoupledIO (LSUPipeIO()))
-        val reg = new DecoupledIO(WBToRegIo())
+        val lsu = Flipped(new DecoupledIO (new LSUPipeIO()))
+        val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
         val ebreak = Output(Bool())
     })
