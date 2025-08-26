@@ -13,32 +13,26 @@ class WBUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val rf_wen = Output(Bool())
     val data = Output(UInt(conf.xprlen.W))
+    val wbaddr = Output(UInt(5.W))
 }
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
-        val ctl = Flipped(new CtlToWBIo())
-        val exe = Flipped(new exeToWBUIo())
-        val lsu = Flipped(new LsuToWBIo())
-        val reg = new WBToRegIo()
+        val lsu = Flipped(new DecoupledIO (LSUPipeIO()))
+        val reg = new DecoupledIO(WBToRegIo())
         val debug = new WBUDebugPort()
+        val ebreak = Output(Bool())
     })
 
     io := DontCare
-
-
-    io.reg.data := MuxCase( io.exe.alu_out, Seq(
-                  (io.ctl.wb_sel === WB_ALU) -> io.exe.alu_out,
-                  (io.ctl.wb_sel === WB_MEM) -> io.lsu.data,         //
-                  (io.ctl.wb_sel === WB_PC4) -> io.exe.pc_plus4,
-                  (io.ctl.wb_sel === WB_CSR) -> io.exe.csr_data
-                ))
-
-    io.reg.rf_wen :=  io.ctl.rf_wen
-
+    io.reg.data     := io.lsu.bits.data
+    io.reg.wbaddr   := io.lsu.bits.wbaddr
+    io.reg.rf_wen   := io.lsu.bits.ctrl_rf_wen
+    io.reg.valid    := io.lsu.valid
+    io.ebreak       := io.lsu.bits.ebreak
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
-    when(io.ctl.rf_wen === WB_MEM) {
+    when(io.lsu.bits.rf_wen === WB_MEM) {
         wbCount := wbCount + 1.U
     }
     io.debug.wbCount := wbCount

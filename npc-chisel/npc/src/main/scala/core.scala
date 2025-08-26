@@ -7,6 +7,13 @@ import npc.common._
 import npc.Constants._
 import npc.devices.{ysyx_24100012_CLINT}
 
+def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
+  thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+    prevOut.ready := thisIn.ready
+    thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
+    thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
+  }
+
 class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
 {
   val interrupt = Input(Bool())
@@ -21,59 +28,45 @@ class ysyx_24100012 extends Module
   val io = IO(new CoreIo())
 
 
-  val inst_fetch = Module(new ysyx_24100012_InstFetch())
-  val arbiter = Module(new ysyx_24100012_AXI4LiteArbiter(2))
-  val c  = Module(new ysyx_24100012_Decoder())
-  val d  = Module(new ysyx_24100012_EXU())
-  val reg_file = Module(new ysyx_24100012_RegFile())
-  val lsu = Module(new ysyx_24100012_LSU())
-  val wbu = Module(new ysyx_24100012_WBU())
-  val clint = Module(new ysyx_24100012_CLINT())
+  val inst_fetch  = Module(new ysyx_24100012_InstFetch())
+  val arbiter     = Module(new ysyx_24100012_AXI4LiteArbiter(2))
+  val docoder     = Module(new ysyx_24100012_Decoder())
+  val reg_file    = Module(new ysyx_24100012_RegFile())
+  val exu         = Module(new ysyx_24100012_EXU())
+  val lsu         = Module(new ysyx_24100012_LSU())
+  val wbu         = Module(new ysyx_24100012_WBU())
+  val clint       = Module(new ysyx_24100012_CLINT())
 
   clint.io.clock := clock
   clint.io.reset := reset
-  clint.io.in <> lsu.io.clintIO
+  clint.io.in <> lsu.io.clintIO  
 
   arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
-  arbiter.io.ifu_valid := inst_fetch.io.valid
-  arbiter.io.mem_en := lsu.io.ctl.mem_en
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
 
   inst_fetch.io.clock := clock
   inst_fetch.io.reset := reset
-  inst_fetch.io.in <> d.io.targets
-  inst_fetch.io.pipeline_kill := c.io.pipeline_kill
-  inst_fetch.io.finish  := c.io.finish
-  inst_fetch.io.halt    := d.io.ebreak
+  inst_fetch.io.in <> decoder.io.ifu_out
+  inst_fetch.io.exception_target := lsu.io.exception_target
+  inst_fetch.io.exe_in <>  exu.io.ifu_out
 
-  c.io := DontCare
-  c.io.ctl  <> d.io.ctl
-  c.io.inst := inst_fetch.io.inst
-  c.io.ifu_valid := inst_fetch.io.valid 
-  c.io.ls_valid := lsu.io.ls_valid
-  c.io.pc_io <> inst_fetch.io.pc_io
+  docoder.io := DontCare
+  docoder.io.reg_in <> reg_file.io.out
+  docoder.io.dec_reg <> reg_file.io.dec
 
-  reg_file.io.inst := inst_fetch.io.inst
-  reg_file.io.wb <> wbu.io.reg
+  exu.io := DontCare
+  lsu.io := DontCare
+  wbu.io.reg <> reg_file.io.wb
 
-  d.io.reg_in <> reg_file.io.out
-  d.io.pc_io <> inst_fetch.io.pc_io
-  d.io.inst := inst_fetch.io.inst
-  d.io.ifu_valid := inst_fetch.io.valid
+  pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
+  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
+  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
+  pipelineConnect(lsu.io.mem_wb, wbu.io.exe_mem, wbu.io.reg)
 
-  lsu.io.exe <> d.io.exe_lsu  
-  lsu.io.ctl <> c.io.ctl_lsu
-  lsu.io.pc_io <> inst_fetch.io.pc_io
-  
-  
-  wbu.io.ctl <> c.io.ctl_wb
-  wbu.io.exe <> d.io.exe_wbu
-  wbu.io.lsu <> lsu.io.wb
-
-  // io.halt :=  d.io.ebreak would lead to conflicts in same cycle
-  val halt = Mux(d.io.ebreak, true.B, false.B)
+  // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
+  val halt = Mux(wbu.io.ebreak, true.B, false.B)
 
   io.slave.ar.ready := false.B
   io.slave.r.data := 0.U
@@ -99,10 +92,8 @@ class ysyx_24100012 extends Module
   
   perfEvent.io.clock      := clock
   perfEvent.io.reset      := reset
-  perfEvent.io.finish     := c.io.finish
-  perfEvent.io.ifu_valid  := inst_fetch.io.valid
   perfEvent.io.ifu_port   := inst_fetch.io.debug
-  perfEvent.io.ctl_port   := c.io.debug
+  perfEvent.io.ctl_port   := decoder.io.debug
   perfEvent.io.lsu_port   := lsu.io.debug
   perfEvent.io.wbu_port   := wbu.io.debug
 }

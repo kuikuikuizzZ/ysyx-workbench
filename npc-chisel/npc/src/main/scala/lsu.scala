@@ -8,10 +8,24 @@ import npc.common._
 import npc.Constants._
 import javax.xml.transform.OutputKeys
 
+class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val wbaddr     = Output(UInt(conf.xprlen.W))
+    val data       = Output(UInt(conf.xprlen.W))
+    val rf_wen     = Output(Bool())
+    val ebreak     = Output(Bool())
+}
 
 
-class LsuToWBIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
-    val data = Output(UInt(conf.xprlen.W))
+class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
+    val exe_mem             = Flipped(new DecoupledIO(EXEPipeIO()))
+    val mem_wb              = new DecoupledIO(LSUPipeIO)
+    val port                = new MemPortIo(conf.xprlen)
+    val debug               = new LSUDebugPort
+    val exception_target    = Output(UInt(conf.xprlen.W))
+    val clintIO = Flipped(  new Bundle{
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+        })
 }
 
 class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
@@ -21,34 +35,58 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val rdata       = Output(UInt(conf.xprlen.W))
     val wdata       = Output(UInt(conf.xprlen.W))
     val valid       = Output(Bool())
-    val typ        = Output(UInt(2.W))
-    val storeCount = Output(UInt(conf.perfCountBits.W))
-    val loadCount  = Output(UInt(conf.perfCountBits.W))
+    val typ         = Output(UInt(2.W))
+    val storeCount  = Output(UInt(conf.perfCountBits.W))
+    val loadCount   = Output(UInt(conf.perfCountBits.W))
+}
+
+class ysyx_24100012_CSRModule(implicit val conf: ysyx_24100012_Config) extends Bundle {
+    val io = IO(new Bundle{
+        val inst                = Input(UInt(conf.xlen.W))
+        val csr_cmd             = Input(UInt(CSR.N.getWidth.W))
+        val pc                  = Input(UInt(conf.xprlen.W))
+        val exception_target    = Output(UInt(conf.xprlen.W))
+        val rdata              = Output(UInt(conf.xlen.W))
+        val ebreak              = Output(Bool())
+    }) 
+    // Control Status Registers
+    val csr = Module(new ysyx_24100012_CSRFile())
+    csr.io := DontCare
+    csr.io.decode.csr   := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
+    csr.io.rw.cmd       := io.csr_cmd
+    csr.io.rw.wdata     := io.alu_out
+    // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
+    // csr.io.exception := io.ctl.exception
+    csr.io.pc           := io.pc
+    io.exception_target := csr.io.evec
+    io.rdata            := csr.io.rw.rdata    
+
+    // io.dat.csr_eret := csr.io.eret
+    io.ebreak := csr.io.insn_break
+    // Add your own uarch counters here!
+    // csr.io.counters.foreach(_.inc := false.B)
 }
 
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
-    val io = IO(new Bundle {
-        val ctl = Flipped(new CtlToLSUIo())
-        val port = new MemPortIo(conf.xprlen)
-        val exe = Flipped(new exeToLSUIo())
-        val pc_io = Flipped(new PCOut())
-        val wb = new LsuToWBIo()
-        val ls_valid = Output(Bool())
-        val debug = new LSUDebugPort
-        val clintIO = Flipped(new Bundle{
-            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
-        })
-    })
+    val io = IO(new LSUIO())
     io := DontCare
     val valid = WireInit(false.B)
+    val mem_data = WireInit(0.U(conf.xlen.W))
+
+    val csr_files = Module(new ysyx_24100012_CSRModule)
+    csr_files.io.pc         := io.exe_mem.bits.pc   
+    csr_files.io.inst       := io.exe_mem.bits.inst
+    csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
+    csr_files.io.alu_out    := io.exe_mem.bits.alu_out
+    io.exception_target     := csr_files.io.exception_target    
+    io.mem_wb.bits.ebreak   := csr_files.io.ebreak
 
     when (io.ctl.mem_en && io.exe.addr >= CLINT_BASE && io.exe.addr < (CLINT_BASE + CLINT_SIZE)){
         io.port.req.valid    := false.B
         when (io.ctl.mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := io.exe.addr
-            io.wb.data := io.clintIO.dr.data
+            mem_data := io.clintIO.dr.data
             valid := io.clintIO.dr.ready
         } .otherwise{
             io.clintIO.dr.en := false.B
@@ -60,11 +98,22 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         io.port.req.bits.addr := io.exe.addr
         io.port.req.bits.data := io.exe.data
         //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
-        io.wb.data :=  io.port.resp.bits.data
+        mem_data :=  io.port.resp.bits.data
         valid := io.port.resp.valid
     }
+    // WB Mux
+    val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_ALU) -> io.exe_mem.bits.alu_out,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_PC4) -> io.exe_mem.bits.alu_out,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
+                  ))
+
+    io.mem_wb.valid         := valid
+    io.mem_wb.bits.data     := wbdata
+    io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
+    io.mem_wb.bits.rf_wen   := io.exe_mem.bits.ctrl_rf_wen
     
-    io.ls_valid := valid
 
     /* Debug */
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
@@ -86,3 +135,4 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.loadCount  := loadCnt
     io.debug.storeCount := storeCnt
 }
+

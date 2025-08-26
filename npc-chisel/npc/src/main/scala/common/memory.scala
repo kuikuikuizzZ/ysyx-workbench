@@ -120,9 +120,6 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
       val axi_port = new AXI4LiteIo()
-      val ifu_valid = Input(Bool())
-      val finish = Input(Bool())
-      val mem_en = Input(Bool())
    }) 
    io := DontCare
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
