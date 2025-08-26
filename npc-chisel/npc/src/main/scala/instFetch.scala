@@ -28,7 +28,7 @@ class InstFetchIn(implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val clock             = Input(Clock())
   val reset             = Input(Bool())
-  val in                = new InstFetchIn
+  val ctl                = new InstFetchIn
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
   val ifu_pipe          = new DecoupledIO(new IFUPipeIO())
@@ -46,18 +46,19 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
-  // PC Register
-  pc_next :=  Mux(io.in.pc_sel === PC_4,         pc_plus4,
-                 Mux(io.in.pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
-                 Mux(io.in.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
-                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
-
   val pc_reg = RegInit(START_ADDR)
   
   when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
       pc_reg := pc_next
   }
-    
+  val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
+
+  // PC Register
+  pc_next :=  Mux(io.ctl.pc_sel === PC_4,         pc_plus4,
+                 Mux(io.ctl.pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+                 Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
+                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
+
   val cache       = Module(new ysyx_24100012_ICache)
   val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   val valid       = RegNext(cache.io.valid,false.B)

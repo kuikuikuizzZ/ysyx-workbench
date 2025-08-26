@@ -47,9 +47,9 @@ class ysyx_24100012 extends Module
 
   inst_fetch.io.clock := clock
   inst_fetch.io.reset := reset
-  inst_fetch.io.in <> decoder.io.ifu_out
+  inst_fetch.io.ctl <> decoder.io.ifu_out
   inst_fetch.io.exception_target := lsu.io.exception_target
-  inst_fetch.io.exe_in <>  exu.io.ifu_out
+  inst_fetch.io.exu_in <>  exu.io.ifu_out
 
   decoder.io := DontCare
   decoder.io.reg_in <> reg_file.io.out
@@ -85,8 +85,8 @@ class ysyx_24100012 extends Module
   debug.io.clock := clock
   debug.io.reset := reset
   debug.io.halt := halt
-  debug.io.pc := inst_fetch.io.ifu_pipe.pc
-  debug.io.inst := inst_fetch.io.ifu_pipe.inst
+  debug.io.pc := inst_fetch.io.ifu_pipe.bits.pc
+  debug.io.inst := inst_fetch.io.ifu_pipe.bits.inst
   debug.io.lsu_port := lsu.io.debug
   
   perfEvent.io.clock      := clock
