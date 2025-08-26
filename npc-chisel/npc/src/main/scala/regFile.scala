@@ -6,7 +6,7 @@ import npc.Constants._
 
 class RegFileIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val out = new RegFileOut()
-  val wb = Flipped(new WBToRegIo())
+  val wb = Flipped(new DecoupledIO(new WBToRegIo()))
   val dec = new RegFilePipeIn()
 }
 
@@ -28,13 +28,13 @@ class ysyx_24100012_RegFile(implicit val conf: ysyx_24100012_Config) extends Mod
   io := DontCare
   val rs1_addr = io.dec.rs1_addr
   val rs2_addr = io.dec.rs2_addr
-  val wb_addr  = io.wb.wbaddr
+  val wb_addr  = io.wb.bits.wbaddr
   
   // Register File
   val regfile = Mem(16, UInt(conf.xlen.W)).suggestName("ysyx_24100012_regfile_mem") 
 
-  when (io.wb.rf_wen && (wb_addr =/= 0.U)) {
-    regfile(wb_addr) := io.wb.data
+  when (io.wb.bits.rf_wen && (wb_addr =/= 0.U)) {
+    regfile(wb_addr) := io.wb.bits.data
   }
 
   io.out.rs1_data := Mux((rs1_addr =/= 0.U), regfile(rs1_addr), 0.asUInt(conf.xlen.W))
