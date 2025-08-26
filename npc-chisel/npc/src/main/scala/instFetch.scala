@@ -11,7 +11,7 @@ class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
   val icache     = new ICacheDebugPort
 }
 
-class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val pc        = Output(UInt(conf.xprlen.W))
   val inst      = Output(UInt(conf.xprlen.W))
 }
