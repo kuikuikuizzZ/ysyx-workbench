@@ -52,17 +52,17 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val adder_out = (alu_op1 + alu_op2)(conf.xprlen-1,0)
 
    alu_out := MuxCase(0.U, Seq(
-                  (io.dec_exe.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
-                  (io.dec_exe.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
-                  (io.dec_exe.alu_fun === ALU_COPY1)-> alu_op1
+                  (io.dec_exe.bits.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_COPY1)-> alu_op1
                   ))
 
    // Branch/Jump Target Calculation
