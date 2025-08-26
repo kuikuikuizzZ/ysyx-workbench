@@ -6,7 +6,6 @@ import chisel3.util._
 import npc.common.Instructions._
 import npc.common._
 import npc.Constants._
-import npc._
 
 class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
@@ -44,9 +43,9 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
+   val dec_reg    =  Flipped(new RegFilePipeIn())
    val ifu_pipe   =  Flipped(new DecoupledIO(IFUPipeIO))
    val dec_exe    =  new DecoupledIO(DecPipeIO)
-   val dec_reg    =  Flipped(new RegFilePipeIn())
    val reg_in     =  Flipped(new RegFileOut())
    val ifu_out    =  Flipped(new InstFetchIn)
    val debug      =  new CtrlDebugPort
