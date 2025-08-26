@@ -227,24 +227,24 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
-
-   io.dec_exe.inst         := if_inst         
-   io.dec_exe.pc           := if_pc
-   io.dec_exe.wbaddr       := wbaddr
-   io.dec_exe.rs1_addr     := rs1_addr
-   io.dec_exe.rs2_addr     := rs2_addr
-   io.dec_exe.op1_data     := op1_data
-   io.dec_exe.op2_data     := op2_data
-   io.dec_exe.rs2_data     := rf_rs2_data
-   io.dec_exe.op2_sel      := cs_op2_sel
-   io.dec_exe.alu_fun      := cs_alu_fun
-   io.dec_exe.ctrl_wb_sel       := cs_wb_sel
-   io.dec_exe.ctrl_rf_wen       := cs_rf_wen
-   io.dec_exe.ctrl_mem_val      := cs_mem_en
-   io.dec_exe.ctrl_mem_fcn      := cs_mem_fcn
-   io.dec_exe.ctrl_mem_typ      := cs_msk_sel 
-   io.dec_exe.ctrl_csr_cmd      := cs_csr_cmd
-   io.dec_exe.br_type      := cs_br_type
+   io.dec_exe.valid              := io.ifu_pipe.valid
+   io.dec_exe.bits.inst          := if_inst         
+   io.dec_exe.bits.pc            := if_pc
+   io.dec_exe.bits.wbaddr        := wbaddr
+   io.dec_exe.bits.rs1_addr      := rs1_addr
+   io.dec_exe.bits.rs2_addr      := rs2_addr
+   io.dec_exe.bits.op1_data      := op1_data
+   io.dec_exe.bits.op2_data      := op2_data
+   io.dec_exe.bits.rs2_data      := rf_rs2_data
+   io.dec_exe.bits.op2_sel       := cs_op2_sel
+   io.dec_exe.bits.alu_fun       := cs_alu_fun
+   io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
+   io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
+   io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
+   io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
+   io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel 
+   io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
+   io.dec_exe.bits.br_type       := cs_br_type
 
    // // Set the data-path control signals
    // cs_op1_sel       :=      cs_op1_sel
