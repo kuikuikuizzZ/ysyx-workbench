@@ -62,7 +62,7 @@ class ysyx_24100012 extends Module
   pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
   pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
   pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
-  pipelineConnect(lsu.io.mem_wb, wbu.io.exe_mem, wbu.io.reg)
+  pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)
