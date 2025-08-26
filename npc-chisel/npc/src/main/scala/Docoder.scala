@@ -43,7 +43,7 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
-   val ifu_pipe   =  Flipped(new DecoupledIO(IFUPipeIO()))
+   val ifu_pipe   =  Flipped(new DecoupledIO(IFUPipeIO))
    val dec_exe    =  new DecoupledIO(DecPipeIO)
    val dec_reg    =  Flipped(new RegFilePipeIn())
    val reg_in     =  Flipped(new RegFileOut())
@@ -56,6 +56,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val io = IO(new CpathIo())
    io := DontCare
    val if_inst = io.ifu_pipe.bits.inst
+   val if_pc = io.ifu_pipe.bits.pc
    // Control Signals
    val csignals =
       ListLookup(if_inst,
@@ -186,11 +187,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val imm_j_sext = Cat(Fill(11,imm_j(19)), imm_j, 0.U)
 
 
-   val alu_op1 = MuxCase(0.U, Seq(
-               (cs_op1_sel === OP1_RS1) -> rf_rs1_data,
-               (cs_op1_sel === OP1_IMU) -> imm_u_sext,
-               (cs_op1_sel === OP1_IMZ) -> imm_z
-               )).asUInt
+   // val alu_op1 = MuxCase(0.U, Seq(
+   //             (cs_op1_sel === OP1_RS1) -> rf_rs1_data,
+   //             (cs_op1_sel === OP1_IMU) -> imm_u_sext,
+   //             (cs_op1_sel === OP1_IMZ) -> imm_z
+   //             )).asUInt
 
    // Operand 2 Mux
    val alu_op2 = MuxCase(0.U, Array(
@@ -202,11 +203,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
                )).asUInt()
 
-   if (USE_FULL_BYPASSING){
+   if (conf.USE_FULL_BYPASSING){
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
+                          ((cs_op1_sel === OP1_PC))  -> if_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
@@ -214,7 +215,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> reg_pc
+                          ((cs_op1_sel === OP1_PC))  -> if_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
