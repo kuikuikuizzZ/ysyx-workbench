@@ -25,11 +25,11 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
     })
 
     io := DontCare
-    io.reg.data     := io.mem_wb.bits.data
-    io.reg.wbaddr   := io.mem_wb.bits.wbaddr
-    io.reg.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
-    io.reg.valid    := io.mem_wb.valid
-    io.ebreak       := io.mem_wb.bits.ebreak
+    io.reg.bits.data     := io.mem_wb.bits.data
+    io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
+    io.reg.bits.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
+    io.reg.valid         := io.mem_wb.valid
+    io.ebreak            := io.mem_wb.bits.ebreak
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
     when(io.mem_wb.bits.rf_wen === WB_MEM) {

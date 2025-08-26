@@ -11,7 +11,7 @@ import javax.xml.transform.OutputKeys
 class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val wbaddr     = Output(UInt(conf.xprlen.W))
     val data       = Output(UInt(conf.xprlen.W))
-    val rf_wen     = Output(Bool())
+    val ctrl_rf_wen     = Output(Bool())
     val ebreak     = Output(Bool())
 }
 
@@ -86,7 +86,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
 
     when (mem_en && addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)){
         io.port.req.valid    := false.B
-        when (io.exe_mem.bits.mem_fcn === M_XRD){
+        when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := addr
             mem_data := io.clintIO.dr.data
@@ -99,7 +99,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
         io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
         io.port.req.bits.addr := addr
-        io.port.req.bits.data := io.exe.data
+        io.port.req.bits.data := io.exe_mem.bits.rs2_data 
         //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
         mem_data :=  io.port.resp.bits.data
         valid := io.port.resp.valid
@@ -115,7 +115,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.valid         := valid
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
-    io.mem_wb.bits.rf_wen   := io.exe_mem.bits.ctrl_rf_wen
+    io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
     
 
     /* Debug */
@@ -123,13 +123,13 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
     io.debug.mem_en     := mem_en
     io.debug.addr       := addr
-    io.debug.fcn        := io.exe_mem.bits.mem_fcn
-    io.debug.wdata      := io.exe.data
+    io.debug.fcn        := io.exe_mem.bits.ctrl_mem_fcn
+    io.debug.wdata      := io.exe_mem.bits.rs2_data 
     io.debug.rdata      := io.port.resp.bits.data
     io.debug.valid      := io.port.resp.valid
     io.debug.typ        := io.exe_mem.bits.msk_sel
     when(io.port.req.valid) {
-      when(io.exe_mem.bits.mem_fcn === M_XWR) {
+      when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {
         storeCnt := storeCnt + 1.U
       }.otherwise {
         loadCnt := loadCnt + 1.U
