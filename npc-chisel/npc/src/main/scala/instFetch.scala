@@ -8,7 +8,7 @@ import npc.Constants._
 class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
   val valid           = Output(Bool())
   val instFetchCount  = Output(UInt(conf.perfCountBits.W))
-  val icache     = new ICacheDebugPort
+  val icache          = new ICacheDebugPort
 }
 
 class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
@@ -47,10 +47,10 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_next = Wire(UInt(conf.xprlen.W))
 
   // PC Register
-  pc_next :=  Mux(io.ctl.exe_pc_sel === PC_4,         pc_plus4,
-                 Mux(io.ctl.exe_pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
-                 Mux(io.ctl.exe_pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
-                 /*Mux(io.ctl.exe_pc_sel === PC_EXC*/ io.exception_target)))
+  pc_next :=  Mux(io.in.pc_sel === PC_4,         pc_plus4,
+                 Mux(io.in.pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+                 Mux(io.in.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
+                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
   val pc_reg = RegInit(START_ADDR)
   
@@ -81,5 +81,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   }
   io.debug.valid := cache.io.valid
   io.debug.instFetchCount := instFetchCount
+  io.debug.inst := cache.io.inst
+  io.debug.pc := pc_reg
   ////////// end of debug 
 }

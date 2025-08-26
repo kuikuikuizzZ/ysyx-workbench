@@ -43,8 +43,8 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
-   val alu_op1 = io.dec_exe.bits.op1_data.asUInt()
-   val alu_op2 = io.dec_exe.bits.op2_data.asUInt()
+   val alu_op1 = io.dec_exe.bits.op1_data.asUInt
+   val alu_op2 = io.dec_exe.bits.op2_data.asUInt
 
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
@@ -62,7 +62,8 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
                   (io.dec_exe.bits.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
                   (io.dec_exe.bits.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
                   (io.dec_exe.bits.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_COPY1)-> alu_op1
+                  (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
+                  (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
 
    // Branch/Jump Target Calculation
