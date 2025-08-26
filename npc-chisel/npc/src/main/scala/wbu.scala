@@ -32,7 +32,7 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.ebreak            := io.mem_wb.bits.ebreak
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
-    when(io.mem_wb.bits.rf_wen === WB_MEM) {
+    when(io.mem_wb.bits.ctrl_rf_wen === WB_MEM) {
         wbCount := wbCount + 1.U
     }
     io.debug.wbCount := wbCount
