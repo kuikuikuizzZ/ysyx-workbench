@@ -49,8 +49,6 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val reg_in     =  Flipped(new RegFileOut())
    val ifu_out    =  Flipped(new InstFetchIn)
    val debug      =  new CtrlDebugPort
-   val clock        = Input(Clock())
-   val reset        = Input(Bool())
 }
 
 class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module

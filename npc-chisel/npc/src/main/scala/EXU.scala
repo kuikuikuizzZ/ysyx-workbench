@@ -92,22 +92,22 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 
 
 
-   // Control Status Registers
-   val csr = Module(new ysyx_24100012_CSRFile())
-   csr.io := DontCare
-   csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
-   csr.io.rw.cmd   := Mux(io.ifu_valid, io.ctl.csr_cmd,CSR.N)
-   csr.io.rw.wdata := alu_out
+   // // Control Status Registers
+   // val csr = Module(new ysyx_24100012_CSRFile())
+   // csr.io := DontCare
+   // csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
+   // csr.io.rw.cmd   := Mux(io.ifu_valid, io.ctl.csr_cmd,CSR.N)
+   // csr.io.rw.wdata := alu_out
 
-   // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
-   csr.io.exception := io.ctl.exception
-   csr.io.pc        := io.pc_io.pc
-   io.targets.exception_target := csr.io.evec
+   // // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
+   // csr.io.exception := io.ctl.exception
+   // csr.io.pc        := io.pc_io.pc
+   // io.targets.exception_target := csr.io.evec
 
-   // io.dat.csr_eret := csr.io.eret
-   io.ebreak := csr.io.insn_break
-   // Add your own uarch counters here!
-   // csr.io.counters.foreach(_.inc := false.B)
+   // // io.dat.csr_eret := csr.io.eret
+   // io.ebreak := csr.io.insn_break
+   // // Add your own uarch counters here!
+   // // csr.io.counters.foreach(_.inc := false.B)
 
 }
 
