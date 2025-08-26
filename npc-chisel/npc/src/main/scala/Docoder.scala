@@ -43,10 +43,10 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
-   val ifu_pipe   =  Flipped(new IFUPipeIO())
-   val dec_exe    =  new DecoupledIO(DecPipeIO())
+   val ifu_pipe   =  Flipped(new DecoupledIO(IFUPipeIO()))
+   val dec_exe    =  new DecoupledIO(DecPipeIO)
    val dec_reg    =  Flipped(new RegFilePipeIn())
-   val reg_in     =  Flipped(new RegFilePipeOut())
+   val reg_in     =  Flipped(new RegFileOut())
    val ifu_out    =  Flipped(new InstFetchIn)
    val debug      =  new CtrlDebugPort
 }
@@ -124,7 +124,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                   ))
 
    // Put these control signals in variables
-   val (cs_val_inst: Bool) :: cs_br_type :: cs_op1_sel :: cs_op2_sel :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: cs0 = csignals
+   val (cs_val_inst: Bool) :: (cs_br_type:UInt) :: cs_op1_sel :: cs_op2_sel :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: cs0 = csignals
    val cs_alu_fun :: cs_wb_sel :: (cs_rf_wen: Bool) :: (cs_mem_en: Bool) :: cs_mem_fcn :: cs_msk_sel :: cs_csr_cmd :: (cs_fencei: Bool) :: Nil = cs0
 
               
