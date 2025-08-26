@@ -158,8 +158,10 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                          Mux(cs_br_type === BR_JR , PC_JALR,
                                                             PC_4
                      ))))))))))
-   val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.imem.resp.valid || cs_fencei || RegNext(cs_fencei)
-   val deckill = (ctrl_exe_pc_sel =/= PC_4)    
+   // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.imem.resp.valid || cs_fencei || RegNext(cs_fencei)
+   // val deckill = (ctrl_exe_pc_sel =/= PC_4)    
+   val ifkill  = false.B
+   val deckill = false.B
    
    io.ifu_out.pc_sel := ctrl_exe_pc_sel
    io.ifu_out.if_kill := ifkill
@@ -185,34 +187,34 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
 
    val alu_op1 = MuxCase(0.U, Seq(
-               (io.ctl.op1_sel === OP1_RS1) -> rf_rs1_data,
-               (io.ctl.op1_sel === OP1_IMU) -> imm_u_sext,
-               (io.ctl.op1_sel === OP1_IMZ) -> imm_z
+               (cs_op1_sel === OP1_RS1) -> rf_rs1_data,
+               (cs_op1_sel === OP1_IMU) -> imm_u_sext,
+               (cs_op1_sel === OP1_IMZ) -> imm_z
                )).asUInt
 
    // Operand 2 Mux
    val alu_op2 = MuxCase(0.U, Array(
-               (io.ctl.op2_sel === OP2_RS2)    -> rf_rs2_data,
-               (io.ctl.op2_sel === OP2_ITYPE)  -> imm_itype_sext,
-               (io.ctl.op2_sel === OP2_STYPE)  -> imm_stype_sext,
-               (io.ctl.op2_sel === OP2_SBTYPE) -> imm_sbtype_sext,
-               (io.ctl.op2_sel === OP2_UTYPE)  -> imm_utype_sext,
-               (io.ctl.op2_sel === OP2_UJTYPE) -> imm_ujtype_sext
+               (cs_op2_sel === OP2_RS2)    -> rf_rs2_data,
+               (cs_op2_sel === OP2_ITYPE)  -> imm_itype_sext,
+               (cs_op2_sel === OP2_STYPE)  -> imm_stype_sext,
+               (cs_op2_sel === OP2_SBTYPE) -> imm_sbtype_sext,
+               (cs_op2_sel === OP2_UTYPE)  -> imm_utype_sext,
+               (cs_op2_sel === OP2_UJTYPE) -> imm_ujtype_sext
                )).asUInt()
 
    if (USE_FULL_BYPASSING){
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
-                          ((io.ctl.op1_sel === OP1_IMZ)) -> imm_z,
-                          ((io.ctl.op1_sel === OP1_PC))  -> dec_reg_pc
+                          ((cs_op1_sel === OP1_IMZ)) -> imm_z,
+                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
    } else{
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
-                          ((io.ctl.op1_sel === OP1_IMZ)) -> imm_z,
-                          ((io.ctl.op1_sel === OP1_PC))  -> reg_pc
+                          ((cs_op1_sel === OP1_IMZ)) -> imm_z,
+                          ((cs_op1_sel === OP1_PC))  -> reg_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
@@ -238,8 +240,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.dec_exe.br_type      := cs_br_type
 
    // // Set the data-path control signals
-   // io.ctl.op1_sel       :=      cs_op1_sel
-   // io.ctl.op2_sel       :=      cs_op2_sel
+   // cs_op1_sel       :=      cs_op1_sel
+   // cs_op2_sel       :=      cs_op2_sel
    // io.ctl.alu_fun       :=      cs_alu_fun
    // io.ctl.br_type       :=      cs_br_type
 
