@@ -29,7 +29,7 @@ class ysyx_24100012 extends Module
 
   val inst_fetch  = Module(new ysyx_24100012_InstFetch())
   val arbiter     = Module(new ysyx_24100012_AXI4LiteArbiter(2))
-  val docoder     = Module(new ysyx_24100012_Decoder())
+  val decoder     = Module(new ysyx_24100012_Decoder())
   val reg_file    = Module(new ysyx_24100012_RegFile())
   val exu         = Module(new ysyx_24100012_EXU())
   val lsu         = Module(new ysyx_24100012_LSU())
@@ -51,9 +51,9 @@ class ysyx_24100012 extends Module
   inst_fetch.io.exception_target := lsu.io.exception_target
   inst_fetch.io.exe_in <>  exu.io.ifu_out
 
-  docoder.io := DontCare
-  docoder.io.reg_in <> reg_file.io.out
-  docoder.io.dec_reg <> reg_file.io.dec
+  decoder.io := DontCare
+  decoder.io.reg_in <> reg_file.io.out
+  decoder.io.dec_reg <> reg_file.io.dec
 
   exu.io := DontCare
   lsu.io := DontCare

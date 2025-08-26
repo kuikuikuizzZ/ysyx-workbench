@@ -68,8 +68,8 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
    val brjmp_offset                 = io.dec_exe.bits.op2_data
-   io.ifu_out.exe_brjmp_target      = io.dec_exe.bits.pc + brjmp_offset
-   io.ifu_out.exe_jump_reg_target   = adder_out
+   io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
+   io.ifu_out.exe_jump_reg_target   := adder_out
    
    
 
