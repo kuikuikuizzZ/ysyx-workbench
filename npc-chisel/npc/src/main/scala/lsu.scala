@@ -30,7 +30,7 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val loadCount   = Output(UInt(conf.perfCountBits.W))
 }
 
-class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle{
         val inst                = Input(UInt(conf.xlen.W))
         val csr_cmd             = Input(UInt(CSR.N.getWidth.W))

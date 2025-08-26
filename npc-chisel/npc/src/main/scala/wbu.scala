@@ -18,21 +18,21 @@ class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
-        val lsu = Flipped(new DecoupledIO (new LSUPipeIO()))
+        val mem_wb = Flipped(new DecoupledIO (new LSUPipeIO()))
         val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
         val ebreak = Output(Bool())
     })
 
     io := DontCare
-    io.reg.data     := io.lsu.bits.data
-    io.reg.wbaddr   := io.lsu.bits.wbaddr
-    io.reg.rf_wen   := io.lsu.bits.ctrl_rf_wen
-    io.reg.valid    := io.lsu.valid
-    io.ebreak       := io.lsu.bits.ebreak
+    io.reg.data     := io.mem_wb.bits.data
+    io.reg.wbaddr   := io.mem_wb.bits.wbaddr
+    io.reg.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
+    io.reg.valid    := io.mem_wb.valid
+    io.ebreak       := io.mem_wb.bits.ebreak
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
-    when(io.lsu.bits.rf_wen === WB_MEM) {
+    when(io.mem_wb.bits.rf_wen === WB_MEM) {
         wbCount := wbCount + 1.U
     }
     io.debug.wbCount := wbCount
