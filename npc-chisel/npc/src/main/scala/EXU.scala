@@ -32,16 +32,12 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
 }
 
-class EXUToCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val wb_reg_wbaddr = Output(UInt(5.W))
-    val wb_reg_ctrl_rf_wen = Output(Bool())
-}
-
 
 class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
    val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))
    val exe_mem = new DecoupledIO(new EXEPipeIO())
+   val ctl = new CtrlSignalIO()
    val ifu_out = new EXUToIFUOut()
 }
 
@@ -98,23 +94,33 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
 
 
-
-   // // Control Status Registers
-   // val csr = Module(new ysyx_24100012_CSRFile())
-   // csr.io := DontCare
-   // csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
-   // csr.io.rw.cmd   := Mux(io.ifu_valid, io.ctl.csr_cmd,CSR.N)
-   // csr.io.rw.wdata := alu_out
-
-   // // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
-   // csr.io.exception := io.ctl.exception
-   // csr.io.pc        := io.pc_io.pc
-   // io.targets.exception_target := csr.io.evec
-
-   // // io.dat.csr_eret := csr.io.eret
-   // io.ebreak := csr.io.insn_break
-   // // Add your own uarch counters here!
-   // // csr.io.counters.foreach(_.inc := false.B)
+   when (io.ctl.pipeline_kill)
+   {
+      io.exe_mem.valid              := false.B
+      io.exe_mem.bits.inst          := BUBBLE
+      io.exe_mem.bits.ctrl_rf_wen   := false.B
+      io.exe_mem.bits.ctrl_mem_val  := false.B
+      io.exe_mem.bits.ctrl_csr_cmd  := false.B
+   }
+   .elsewhen (!io.ctl.full_stall)
+   {
+      io.exe_mem.valid              := io.dec_exe.valid
+      io.exe_mem.bits.pc            := io.dec_exe.bits.pc
+      io.exe_mem.bits.inst          := io.dec_exe.bits.inst
+      io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
+      io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
+      io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
+      io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
+      io.exe_mem.bits.op1_data      := io.dec_exe.bits.op1_data
+      io.exe_mem.bits.op2_data      := io.dec_exe.bits.op2_data
+      io.exe_mem.bits.rs2_data      := io.dec_exe.bits.rs2_data
+      io.exe_mem.bits.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
+      io.exe_mem.bits.ctrl_mem_val  := io.dec_exe.bits.ctrl_mem_val
+      io.exe_mem.bits.ctrl_mem_fcn  := io.dec_exe.bits.ctrl_mem_fcn
+      io.exe_mem.bits.ctrl_mem_typ  := io.dec_exe.bits.ctrl_mem_typ
+      io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
+      io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
+   }
 
 }
 

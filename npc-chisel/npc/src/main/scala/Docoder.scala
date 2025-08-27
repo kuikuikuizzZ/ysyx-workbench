@@ -29,6 +29,15 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 }
 
 
+class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+  val pc_sel              =   Input(UInt(PC_4.getWidth.W))
+  val dec_stall           =   Input(Bool())
+  val full_stall          =   Input(Bool())
+  val pipeline_kill       =   Input(Bool())
+  val if_kill              =   Input(Bool())
+  val dec_kill            =   Input(Bool())
+}
+
 class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 { 
    val csrCount      = Output(UInt(conf.perfCountBits.W))   
@@ -48,7 +57,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ifu_pipe      =  Flipped(new DecoupledIO(new IFUPipeIO))
    val dec_exe       =  new DecoupledIO( new DecPipeIO)
    val reg_in        =  Flipped(new RegFileOut())
-   val ifu_out       =  Flipped(new InstFetchIn)
+   val ctl_sign       =  Flipped(new CtrlSignalIO)
    val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
    val debug         =  new CtrlDebugPort
@@ -254,12 +263,12 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val dmem_val   = io.lsu_ctl.ctrl_mem_val
    full_stall    := !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
 
-   io.ifu_out.pc_sel := ctrl_exe_pc_sel
-   io.ifu_out.if_kill := ifkill
-   io.ifu_out.dec_kill := deckill
-   io.ifu_out.dec_stall := stall
-   io.ifu_out.full_stall := full_stall
-   io.ifu_out.pipeline_kill := pipeline_kill
+   io.ctl_sign.pc_sel := ctrl_exe_pc_sel
+   io.ctl_sign.if_kill := ifkill
+   io.ctl_sign.dec_kill := deckill
+   io.ctl_sign.dec_stall := stall
+   io.ctl_sign.full_stall := full_stall
+   io.ctl_sign.pipeline_kill := pipeline_kill
 
    // immediates
    val imm_i = dec_reg_inst(31, 20) 
@@ -310,25 +319,56 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
-   io.dec_exe.valid              := io.ifu_pipe.valid
-   io.dec_exe.bits.inst          := dec_reg_inst         
-   io.dec_exe.bits.pc            := dec_reg_pc
-   io.dec_exe.bits.wbaddr        := dec_wbaddr
-   io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-   io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-   io.dec_exe.bits.op1_data      := op1_data
-   io.dec_exe.bits.op2_data      := op2_data
-   io.dec_exe.bits.rs2_data      := rf_rs2_data
-   io.dec_exe.bits.op2_sel       := cs_op2_sel
-   io.dec_exe.bits.alu_fun       := cs_alu_fun
-   io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
-   io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
-   io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
-   io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
-   io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel 
-   io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
-   io.dec_exe.bits.br_type       := cs_br_type
+   when ((stall && !full_stall) || pipeline_kill)
+   {
+      // (kill exe stage)
+      // insert NOP (bubble) into Execute stage on front-end stall (e.g., hazard clearing)
+      io.dec_exe.valid         := false.B
+      io.dec_exe.bits.inst          := BUBBLE
+      io.dec_exe.bits.wbaddr        := 0.U
+      io.dec_exe.bits.ctrl_rf_wen   := false.B
+      io.dec_exe.bits.ctrl_mem_val  := false.B
+      io.dec_exe.bits.ctrl_mem_fcn  := M_X
+      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
+      io.dec_exe.bits.ctrl_br_type  := BR_N
+   }
+   .elsewhen(!stall && !full_stall)
+   {
+      // no stalling...
+      io.dec_exe.bits.pc            := dec_reg_pc
+      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
+      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
+      io.dec_exe.bits.op1_data      := op1_data
+      io.dec_exe.bits.op2_data      := op2_data
+      io.dec_exe.bits.rs2_data      := rs2_data
+      io.dec_exe.bits.ctrl_op2_sel  := cs_op2_sel
+      io.dec_exe.bits.ctrl_alu_fun  := cs_alu_fun
+      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
 
+      when (io.ctl.dec_kill)
+      {
+         exe_reg_valid         := false.B
+         exe_reg_inst          := BUBBLE
+         exe_reg_wbaddr        := 0.U
+         exe_reg_ctrl_rf_wen   := false.B
+         exe_reg_ctrl_mem_val  := false.B
+         exe_reg_ctrl_mem_fcn  := M_X
+         exe_reg_ctrl_csr_cmd  := CSR.N
+         exe_reg_ctrl_br_type  := BR_N
+      }
+      .otherwise
+      {
+         io.dec_exe.valid              := io.ifu_pipe.valid
+         io.dec_exe.bits.inst          := dec_reg_inst
+         io.dec_exe.bits.wbaddr        := dec_wbaddr
+         io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
+         io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
+         io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
+         io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
+         io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
+         io.dec_exe.bits.ctrl_br_type  := cs_br_type
+      }
+   }
 
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))

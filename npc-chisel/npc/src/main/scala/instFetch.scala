@@ -16,19 +16,10 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val inst      = Output(UInt(conf.xprlen.W))
 }
 
-class InstFetchIn(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val pc_sel              =   Input(UInt(PC_4.getWidth.W))
-  val dec_stall           =   Input(Bool())
-  val full_stall          =   Input(Bool())
-  val pipeline_kill       =   Input(Bool())
-  val if_kill              =   Input(Bool())
-  val dec_kill            =   Input(Bool())
-}
-
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val clock             = Input(Clock())
   val reset             = Input(Bool())
-  val ctl               = new InstFetchIn
+  val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
   val ifu_pipe          = new DecoupledIO(new IFUPipeIO())
