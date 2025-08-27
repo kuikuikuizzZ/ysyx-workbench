@@ -270,7 +270,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ctl_sign.dec_stall := stall
    io.ctl_sign.full_stall := full_stall
    io.ctl_sign.pipeline_kill := pipeline_kill
-   io.ctl_sign.exception := mem_exception
+   io.ctl_sign.mem_exception := mem_exception
 
    // immediates
    val imm_i = dec_reg_inst(31, 20) 
