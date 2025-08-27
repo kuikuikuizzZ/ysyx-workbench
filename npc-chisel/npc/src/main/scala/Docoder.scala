@@ -34,8 +34,9 @@ class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val dec_stall           =   Input(Bool())
   val full_stall          =   Input(Bool())
   val pipeline_kill       =   Input(Bool())
-  val if_kill              =   Input(Bool())
+  val if_kill             =   Input(Bool())
   val dec_kill            =   Input(Bool())
+  val mem_exception       =   Input(Bool())
 }
 
 class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
@@ -181,7 +182,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val mem_exception = RegNext(exe_reg_exception)
    io.ctl_lsu.mem_exception := mem_exception
    pipeline_kill := mem_exception 
-
+   
    // Stall Signal Logic --------------------
    
    val stall   = Wire(Bool())
@@ -269,6 +270,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ctl_sign.dec_stall := stall
    io.ctl_sign.full_stall := full_stall
    io.ctl_sign.pipeline_kill := pipeline_kill
+   io.ctl_sign.exception := mem_exception
 
    // immediates
    val imm_i = dec_reg_inst(31, 20) 

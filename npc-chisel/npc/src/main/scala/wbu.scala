@@ -22,7 +22,6 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
         val mem_wb = Flipped(new DecoupledIO (new LSUPipeIO()))
         val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
-        val to_ctl = new WBToCtlIO()
         val ctl = new CtrlSignalIO()
         val ebreak = Output(Bool())
     })
