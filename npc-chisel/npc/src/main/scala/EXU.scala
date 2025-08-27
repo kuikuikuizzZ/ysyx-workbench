@@ -32,6 +32,12 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
 }
 
+class EXUToCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val wb_reg_wbaddr = Output(UInt(5.W))
+    val wb_reg_ctrl_rf_wen = Output(Bool())
+}
+
+
 class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
    val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))

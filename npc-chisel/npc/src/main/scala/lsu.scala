@@ -15,7 +15,14 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val ebreak     = Output(Bool())
 }
 
+class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val mem_exception = Output(Bool())
+}
 
+class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val resp_valid   = Output(Bool())
+    val ctrl_mem_val = Output(Bool())
+}
 
 
 class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
@@ -63,6 +70,9 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val port                = new MemPortIo(conf.xprlen)
     val debug               = new LSUDebugPort
     val exception_target    = Output(UInt(conf.xprlen.W))
+    val ctl                 = Flipped(new CtrToLSUlIO)
+    val to_ctl             = new LSUTOCtlIO
+    
     val clintIO = Flipped(  new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
@@ -104,6 +114,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         mem_data :=  io.port.resp.bits.data
         valid := io.port.resp.valid
     }
+
+    io.to_ctl.resp_valid    := valid
+    io.to_ctl.ctrl_mem_val  := mem_en
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
                   (io.exe_mem.bits.ctrl_wb_sel === WB_ALU) -> io.exe_mem.bits.alu_out,
@@ -112,11 +125,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    io.mem_wb.valid         := valid
+    io.mem_wb.valid         := io.exe_mem.valid  && !io.ctl.mem_exception
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
-    
 
     /* Debug */
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))

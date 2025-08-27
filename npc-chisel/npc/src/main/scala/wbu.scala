@@ -16,11 +16,18 @@ class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val wbaddr = Output(UInt(5.W))
 }
 
+class WBToCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val wb_reg_wbaddr = Output(UInt(5.W))
+    val wb_reg_ctrl_rf_wen = Output(Bool())
+}
+
+
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
         val mem_wb = Flipped(new DecoupledIO (new LSUPipeIO()))
         val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
+        val to_ctl = new WBToCtlIO()
         val ebreak = Output(Bool())
     })
 

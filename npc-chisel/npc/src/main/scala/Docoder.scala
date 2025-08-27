@@ -43,12 +43,15 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
-   val dec_reg    =  Flipped(new RegFilePipeIn())
-   val ifu_pipe   =  Flipped(new DecoupledIO(new IFUPipeIO))
-   val dec_exe    =  new DecoupledIO( new DecPipeIO)
-   val reg_in     =  Flipped(new RegFileOut())
-   val ifu_out    =  Flipped(new InstFetchIn)
-   val debug      =  new CtrlDebugPort
+   val icache_valid  =  Input(Bool())
+   val dec_reg       =  Flipped(new RegFilePipeIn())
+   val ifu_pipe      =  Flipped(new DecoupledIO(new IFUPipeIO))
+   val dec_exe       =  new DecoupledIO( new DecPipeIO)
+   val reg_in        =  Flipped(new RegFileOut())
+   val ifu_out       =  Flipped(new InstFetchIn)
+   val ctl_lsu       =  new CtlToLSUlIO
+   val lsu_ctl       =  Flipped(new LSUTOCtlIO)
+   val debug         =  new CtrlDebugPort
 }
 
 class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
@@ -131,22 +134,20 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
               
    
    /////// Register File Interface //////
-   val rs1_addr = if_inst(RS1_MSB, RS1_LSB)
-   val rs2_addr = if_inst(RS2_MSB, RS2_LSB)
-   val wbaddr   = if_inst(RD_MSB, RD_LSB)
+   val dec_rs1_addr = if_inst(RS1_MSB, RS1_LSB)
+   val dec_rs2_addr = if_inst(RS2_MSB, RS2_LSB)
+   val dec_wbaddr   = if_inst(RD_MSB, RD_LSB)
    val rf_rs1_data = io.reg_in.rs1_data
    val rf_rs2_data = io.reg_in.rs2_data
-   io.dec_reg.rs1_addr := rs1_addr
+   io.dec_reg.rs1_addr := dec_rs1_addr
    io.dec_reg.rs2_addr := rs2_addr
    
    ////// Branch Logic
    val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
    val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
    val br_ltu = (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
-   val pipeline_kill = false.B
-   val full_stall    = false.B
-   val dec_stall     = false.B
-   
+   val pipeline_kill = Wire(Bool())
+
    val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
                          Mux(cs_br_type === BR_N  , PC_4,
                          Mux(cs_br_type === BR_NE , Mux(!br_eq,  PC_BRJMP, PC_4),
@@ -158,16 +159,104 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                          Mux(cs_br_type === BR_J  , PC_BRJMP,
                          Mux(cs_br_type === BR_JR , PC_JALR,
                                                             PC_4
-                     ))))))))))
-   // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.imem.resp.valid || cs_fencei || RegNext(cs_fencei)
-   // val deckill = (ctrl_exe_pc_sel =/= PC_4)    
-   val ifkill  = false.B
-   val deckill = false.B
+                     ))))))))))   
+
+   val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
+   val deckill = (ctrl_exe_pc_sel =/= PC_4)
+
+   // Exception Handling ---------------------
+
+   // io.ctl.pipeline_kill := (io.dat.csr_eret || io.ctl.mem_exception)
+   val dec_exception = (!cs_val_inst && io.icache_valid)
+   val exe_reg_exception   = RegInit(false.B)
+   val mem_exception = RegNext(exe_reg_exception)
+
+   pipeline_kill := mem_exception 
+
+   // Stall Signal Logic --------------------
    
+   val stall   = Wire(Bool())
+
+   val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
+   val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
+   val exe_reg_wbaddr      = Reg(UInt())
+   val mem_reg_wbaddr      = Reg(UInt())
+   val wb_reg_wbaddr       = Reg(UInt())
+   val exe_reg_ctrl_rf_wen = RegInit(false.B)
+   val mem_reg_ctrl_rf_wen = RegInit(false.B)
+   val wb_reg_ctrl_rf_wen  = RegInit(false.B)
+
+   val exe_reg_is_csr = RegInit(false.B)
+
+   // TODO rename stall==hazard_stall full_stall == cmiss_stall
+   val full_stall = Wire(Bool())
+   when (!stall && !full_stall)
+   {
+      when (deckill)
+      {
+         exe_reg_wbaddr      := 0.U
+         exe_reg_ctrl_rf_wen := false.B
+         exe_reg_is_csr      := false.B
+         exe_reg_exception   := false.B
+      }
+      .otherwise
+      {
+         exe_reg_wbaddr      := dec_wbaddr
+         exe_reg_ctrl_rf_wen := cs_rf_wen
+         exe_reg_is_csr      := cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I
+         exe_reg_exception   := dec_exception
+      }
+   }
+   .elsewhen (stall && !full_stall)
+   {
+      // kill exe stage
+      exe_reg_wbaddr      := 0.U
+      exe_reg_ctrl_rf_wen := false.B
+      exe_reg_is_csr      := false.B
+      exe_reg_exception   := false.B
+   }
+
+   mem_reg_wbaddr      := exe_reg_wbaddr
+   wb_reg_wbaddr       := mem_reg_wbaddr
+   mem_reg_ctrl_rf_wen := exe_reg_ctrl_rf_wen
+   wb_reg_ctrl_rf_wen  := mem_reg_ctrl_rf_wen
+
+   val exe_inst_is_load = RegInit(false.B)
+
+   when (!full_stall)
+   {
+      exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
+   }
+
+   
+   if (conf.USE_FULL_BYPASSING)
+   {
+      // stall for load-use hazard
+      stall := ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs1_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs1_oen) ||
+               ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs2_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs2_oen) ||
+               (exe_reg_is_csr)
+   }
+   else
+   {
+      // stall for all hazards
+      stall := ((exe_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && exe_reg_ctrl_rf_wen && dec_rs1_oen) ||
+               ((mem_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && mem_reg_ctrl_rf_wen && dec_rs1_oen) ||
+               ((wb_reg_wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && dec_rs1_oen) ||
+               ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen && dec_rs2_oen) ||
+               ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen && dec_rs2_oen) ||
+               ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && dec_rs2_oen) ||
+               ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs1_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs1_oen) ||
+               ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs2_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs2_oen) ||
+               ((exe_reg_is_csr))
+   }
+   // stall full pipeline on D$ miss
+   val dmem_val = io.lsu_ctl.ctrl_mem_val
+   val full_stall    = !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
+
    io.ifu_out.pc_sel := ctrl_exe_pc_sel
    io.ifu_out.if_kill := ifkill
    io.ifu_out.dec_kill := deckill
-   io.ifu_out.dec_stall := dec_stall
+   io.ifu_out.dec_stall := stall
    io.ifu_out.full_stall := full_stall
    io.ifu_out.pipeline_kill := pipeline_kill
 
@@ -185,13 +274,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val imm_b_sext = Cat(Fill(19,imm_b(11)), imm_b, 0.U)
    val imm_u_sext = Cat(imm_u, Fill(12,0.U))
    val imm_j_sext = Cat(Fill(11,imm_j(19)), imm_j, 0.U)
-
-
-   // val alu_op1 = MuxCase(0.U, Seq(
-   //             (cs_op1_sel === OP1_RS1) -> rf_rs1_data,
-   //             (cs_op1_sel === OP1_IMU) -> imm_u_sext,
-   //             (cs_op1_sel === OP1_IMZ) -> imm_z
-   //             )).asUInt
 
    // Operand 2 Mux
    val alu_op2 = MuxCase(0.U, Array(
@@ -231,8 +313,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.dec_exe.bits.inst          := if_inst         
    io.dec_exe.bits.pc            := if_pc
    io.dec_exe.bits.wbaddr        := wbaddr
-   io.dec_exe.bits.rs1_addr      := rs1_addr
-   io.dec_exe.bits.rs2_addr      := rs2_addr
+   io.dec_exe.bits.rs1_addr      := dec_rs1_addr
+   io.dec_exe.bits.rs2_addr      := dec_rs2_addr
    io.dec_exe.bits.op1_data      := op1_data
    io.dec_exe.bits.op2_data      := op2_data
    io.dec_exe.bits.rs2_data      := rf_rs2_data
@@ -245,43 +327,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel 
    io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
    io.dec_exe.bits.br_type       := cs_br_type
-
-   // // Set the data-path control signals
-   // cs_op1_sel       :=      cs_op1_sel
-   // cs_op2_sel       :=      cs_op2_sel
-   // io.ctl.alu_fun       :=      cs_alu_fun
-   // io.ctl.br_type       :=      cs_br_type
-
-   // val mem_en            =       Mux(io.ifu_valid, cs_mem_en, MEN_0)  
-   // io.ctl_lsu.mem_en    :=       mem_en
-   // io.ctl_lsu.mem_fcn   :=       cs_mem_fcn
-   // io.ctl_lsu.msk_sel   :=       cs_msk_sel
-   // io.ctl_wb.exception  :=       io.ctl.exception
-   
-   // io.finish := Mux(cs_mem_en, io.ls_valid, io.ifu_valid) 
-
-   // io.ctl_wb.rf_wen     := Mux(cs_mem_en, 
-   //                            Mux( io.ls_valid  , cs_rf_wen, REN_0),
-   //                            Mux( io.ifu_valid , cs_rf_wen, REN_0))  
-   // io.ctl_wb.wb_sel     :=       cs_wb_sel
-   
-   // // convert CSR instructions with raddr1 == 0 to read-only CSR commands
-   // val csr_ren = (cs_csr_cmd === CSR.S || cs_csr_cmd === CSR.C) && rs1_addr === 0.U
-   // val csr_cmd = Mux(csr_ren, CSR.R, cs_csr_cmd)
-
-   // // io.ctl.csr_cmd  := Mux(stall, CSR.N, csr_cmd)
-   // io.ctl.csr_cmd := csr_cmd
-
-
-   
-   // Exception Handling ---------------------
-   // We only need to check if the instruction is illegal (or unsupported)
-   // or if the CSR file wants us to be interrupted.
-   // Other exceptions are detected later in the pipeline by passing the
-   // instruction to the CSR File and letting it redirect the PC as it sees
-   // fit.
-   // io.ctl.exception := (!cs_val_inst && io.ifu_valid) 
-   // io.pipeline_kill :=  (!cs_val_inst ) 
 
 
    /////////   Debug Signals

@@ -139,11 +139,11 @@ uint32_t top_csr(int i) {
         printf("csr index %d out of range\n", i);
         return 0;
     }
-    uint32_t mstatus    = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mstatus;
-    uint32_t mtvec      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mtvec;
-    uint32_t mepc       = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mepc;
-    uint32_t mcause     = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mcause;
-    uint32_t mtval      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__csr__DOT__reg_mtval;
+    uint32_t mstatus    = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mstatus;
+    uint32_t mtvec      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtvec;
+    uint32_t mepc       = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mepc;
+    uint32_t mcause     = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mcause;
+    uint32_t mtval      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtval;
     uint32_t csrs[5] = {0,mstatus,mtvec,mepc, mcause};  
     return csrs[i]; 
 }
@@ -193,16 +193,16 @@ void delete_top() {
 }
 uint32_t top_op1() {
     if (!_rootp) return 0;
-    uint32_t op1;
-    IFDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__casez_tmp_0);
+    uint32_t op1=0;
+    // IFDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__casez_tmp_0);
     IFNDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__d__DOT__casez_tmp_0);
     return op1;
 }
 
 uint32_t top_op2() {
     if (!_rootp) return 0;
-    uint32_t op2;
-    IFDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__casez_tmp_1);
+    uint32_t op2 =0;
+    // IFDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__d__DOT__casez_tmp_1);
     IFNDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__d__DOT__casez_tmp_1);
     return op2;
 }

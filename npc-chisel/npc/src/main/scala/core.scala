@@ -50,13 +50,16 @@ class ysyx_24100012 extends Module
   inst_fetch.io.ctl <> decoder.io.ifu_out
   inst_fetch.io.exception_target := lsu.io.exception_target
   inst_fetch.io.exu_in <>  exu.io.ifu_out
-
   decoder.io := DontCare
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
+  decoder.io.icache_valid := inst_fetch.io.icache_valid 
 
   exu.io := DontCare
   lsu.io := DontCare
+  lsu.io.ctl <> decoder.io.ctl_lsu
+  lsu.io.to_ctl <> decoder.io.lsu_ctl
+
   wbu.io.reg <> reg_file.io.wb
 
   pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)

@@ -28,12 +28,13 @@ class InstFetchIn(implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val clock             = Input(Clock())
   val reset             = Input(Bool())
-  val ctl                = new InstFetchIn
+  val ctl               = new InstFetchIn
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
   val ifu_pipe          = new DecoupledIO(new IFUPipeIO())
   val exception_target  = Input(UInt(conf.xprlen.W))
   val debug             = Output(new IFUDebugPort)
+  val icache_valid      = Output(Bool())
 }
 
 
@@ -60,8 +61,8 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
   val cache       = Module(new ysyx_24100012_ICache)
-  val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
-  val valid       = RegNext(cache.io.valid,false.B)
+  // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
+  // val valid       = RegNext(cache.io.valid,false.B)
   cache.io.clock := clock
   cache.io.reset := reset
   cache.io.port <> io.port
@@ -70,9 +71,30 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
-  io.ifu_pipe.valid      := cache.io.valid
+  io.icache_valid = cache.io.valid
   io.ifu_pipe.bits.pc    := pc_reg
   io.ifu_pipe.bits.inst  := cache.io.inst
+   when (io.ctl.pipeline_kill)
+   {
+      io.ifu_pipe.valid := false.B
+      dec_reg_inst := BUBBLE
+   }
+   .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
+   {
+      when (io.ctl.if_kill)
+      {
+         io.ifu_pipe.valid := false.B
+         dec_reg_inst := BUBBLE
+      }
+      .otherwise
+      {
+         io.ifu_pipe.valid := true.B
+         dec_reg_inst := if_inst
+      }
+
+      dec_reg_pc := if_reg_pc
+   }
+
 
 
   ////////// debug
