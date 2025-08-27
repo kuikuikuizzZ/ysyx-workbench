@@ -16,11 +16,6 @@ class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val wbaddr = Output(UInt(5.W))
 }
 
-class WBToCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val wb_reg_wbaddr = Output(UInt(5.W))
-    val wb_reg_ctrl_rf_wen = Output(Bool())
-}
-
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new Bundle {
@@ -28,15 +23,26 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
         val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
         val to_ctl = new WBToCtlIO()
+        val ctl = new CtrlSignalIO()
         val ebreak = Output(Bool())
     })
 
     io := DontCare
-    io.reg.bits.data     := io.mem_wb.bits.data
-    io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
-    io.reg.bits.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
-    io.reg.valid         := io.mem_wb.valid
     io.ebreak            := io.mem_wb.bits.ebreak
+
+    when (!io.ctl.full_stall)
+    {
+        io.reg.valid         := io.mem_wb.valid && !io.ctl.mem_exception 
+        io.reg.bits.data     := io.mem_wb.bits.data
+        io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
+        io.reg.bits.rf_wen   := Mux(io.ctl.mem_exception, false.B,io.mem_wb.bits.ctrl_rf_wen)
+    }
+    .otherwise
+    {
+        io.reg.valid         := false.B
+        io.reg.bits.rf_wen   := false.B
+    }
+    
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
     when(io.mem_wb.bits.ctrl_rf_wen === WB_MEM) {
