@@ -72,7 +72,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   
   // Pipeline Interface
   val if_inst = cache.io.inst
-  io.icache_valid = cache.io.valid
+  io.icache_valid := cache.io.valid
   when (io.ctl.pipeline_kill)
   {
     io.ifu_pipe.valid := false.B
@@ -91,7 +91,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
         io.ifu_pipe.bits.inst := if_inst
     }
 
-    io.ifu_pipe.bits.pc := if_reg_pc
+    io.ifu_pipe.bits.pc := pc_reg
   }
 
 
