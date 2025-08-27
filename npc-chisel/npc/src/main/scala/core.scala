@@ -19,10 +19,10 @@ class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle
 class ysyx_24100012 extends Module
 {
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
-  thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
-    prevOut.ready := thisIn.ready
-    thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
-    thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
+    thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+      prevOut.ready := thisIn.ready
+      thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
+      thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
   }
   implicit val conf = ysyx_24100012_Config()
   val io = IO(new CoreIo())
@@ -66,10 +66,17 @@ class ysyx_24100012 extends Module
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
 
-  pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
-  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
-  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
-  pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
+
+  docoder.io.ifu_pipe <> inst_fetch.io.ifu_pipe
+  docoder.io.dec_exe <> exu.io.dec_exe
+  exu.io.exe_mem <> lsu.io.exe_mem
+  lsu.io.mem_wb <> wbu.io.mem_wb
+  reg_file.io.wb <> wbu.io.reg
+
+  // pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
+  // pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
+  // pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
+  // pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)
