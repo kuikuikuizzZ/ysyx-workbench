@@ -330,7 +330,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.ctrl_mem_val  := false.B
       io.dec_exe.bits.ctrl_mem_fcn  := M_X
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-      io.dec_exe.bits.ctrl_br_type  := BR_N
+      io.dec_exe.bits.br_type       := BR_N
    }
    .elsewhen(!stall && !full_stall)
    {
@@ -345,7 +345,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.alu_fun       := cs_alu_fun
       io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
 
-      when (dec_kill)
+      when (deckill)
       {
          io.dec_exe.valid         := false.B
          io.dec_exe.bits.inst          := BUBBLE
