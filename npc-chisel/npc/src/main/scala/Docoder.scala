@@ -341,20 +341,20 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.op1_data      := op1_data
       io.dec_exe.bits.op2_data      := op2_data
       io.dec_exe.bits.rs2_data      := rs2_data
-      io.dec_exe.bits.ctrl_op2_sel  := cs_op2_sel
-      io.dec_exe.bits.ctrl_alu_fun  := cs_alu_fun
+      io.dec_exe.bits.op2_sel       := cs_op2_sel
+      io.dec_exe.bits.alu_fun       := cs_alu_fun
       io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
 
       when (io.ctl.dec_kill)
       {
-         exe_reg_valid         := false.B
-         exe_reg_inst          := BUBBLE
-         exe_reg_wbaddr        := 0.U
-         exe_reg_ctrl_rf_wen   := false.B
-         exe_reg_ctrl_mem_val  := false.B
-         exe_reg_ctrl_mem_fcn  := M_X
-         exe_reg_ctrl_csr_cmd  := CSR.N
-         exe_reg_ctrl_br_type  := BR_N
+         io.dec_exe.valid         := false.B
+         io.dec_exe.bits.inst          := BUBBLE
+         io.dec_exe.bits.wbaddr        := 0.U
+         io.dec_exe.bits.ctrl_rf_wen   := false.B
+         io.dec_exe.bits.ctrl_mem_val  := false.B
+         io.dec_exe.bits.ctrl_mem_fcn  := M_X
+         io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
+         io.dec_exe.bits.ctrl_br_type  := BR_N
       }
       .otherwise
       {
