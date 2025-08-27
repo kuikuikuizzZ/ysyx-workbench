@@ -58,11 +58,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 {
    val io = IO(new CpathIo())
    io := DontCare
-   val if_inst = io.ifu_pipe.bits.inst
-   val if_pc = io.ifu_pipe.bits.pc
+   val dec_reg_inst = io.ifu_pipe.bits.inst
+   val dec_reg_pc = io.ifu_pipe.bits.pc
    // Control Signals
    val csignals =
-      ListLookup(if_inst,
+      ListLookup(dec_reg_inst,
                              List(N, BR_N  , OP1_X , OP2_X    , OEN_0, OEN_0, ALU_X   , WB_X  ,  REN_0, MEN_0, M_X  , MT_X, CSR.N, N),
                Array(       /* val  |  BR  |  op1  |   op2     |  R1  |  R2  |  ALU    |  wb   | rf   | mem  | mem  | mask | csr | fence.i */
                             /* inst | type |   sel |    sel    |  oen |  oen |   fcn   |  sel  | wen  |  en  |  wr  | type | cmd |         */
@@ -134,13 +134,13 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
               
    
    /////// Register File Interface //////
-   val dec_rs1_addr = if_inst(RS1_MSB, RS1_LSB)
-   val dec_rs2_addr = if_inst(RS2_MSB, RS2_LSB)
-   val dec_wbaddr   = if_inst(RD_MSB, RD_LSB)
+   val dec_rs1_addr = dec_reg_inst(RS1_MSB, RS1_LSB)
+   val dec_rs2_addr = dec_reg_inst(RS2_MSB, RS2_LSB)
+   val dec_wbaddr   = dec_reg_inst(RD_MSB, RD_LSB)
    val rf_rs1_data = io.reg_in.rs1_data
    val rf_rs2_data = io.reg_in.rs2_data
    io.dec_reg.rs1_addr := dec_rs1_addr
-   io.dec_reg.rs2_addr := rs2_addr
+   io.dec_reg.rs2_addr := dec_rs2_addr
    
    ////// Branch Logic
    val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
@@ -179,6 +179,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
+
    val exe_reg_wbaddr      = Reg(UInt())
    val mem_reg_wbaddr      = Reg(UInt())
    val wb_reg_wbaddr       = Reg(UInt())
@@ -250,8 +251,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                ((exe_reg_is_csr))
    }
    // stall full pipeline on D$ miss
-   val dmem_val = io.lsu_ctl.ctrl_mem_val
-   val full_stall    = !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
+   val dmem_val   = io.lsu_ctl.ctrl_mem_val
+   full_stall    := !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
 
    io.ifu_out.pc_sel := ctrl_exe_pc_sel
    io.ifu_out.if_kill := ifkill
@@ -261,12 +262,12 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ifu_out.pipeline_kill := pipeline_kill
 
    // immediates
-   val imm_i = if_inst(31, 20) 
-   val imm_s = Cat(if_inst(31, 25), if_inst(11,7))
-   val imm_b = Cat(if_inst(31), if_inst(7), if_inst(30,25), if_inst(11,8))
-   val imm_u = if_inst(31, 12)
-   val imm_j = Cat(if_inst(31), if_inst(19,12), if_inst(20), if_inst(30,21))
-   val imm_z = Cat(Fill(27,0.U), if_inst(19,15))
+   val imm_i = dec_reg_inst(31, 20) 
+   val imm_s = Cat(dec_reg_inst(31, 25), dec_reg_inst(11,7))
+   val imm_b = Cat(dec_reg_inst(31), dec_reg_inst(7), dec_reg_inst(30,25), dec_reg_inst(11,8))
+   val imm_u = dec_reg_inst(31, 12)
+   val imm_j = Cat(dec_reg_inst(31), dec_reg_inst(19,12), dec_reg_inst(20), dec_reg_inst(30,21))
+   val imm_z = Cat(Fill(27,0.U), dec_reg_inst(19,15))
 
    // sign-extend immediates
    val imm_i_sext = Cat(Fill(20,imm_i(11)), imm_i)
@@ -295,7 +296,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> if_pc
+                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
@@ -303,16 +304,16 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> if_pc
+                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
                           ))
       rs2_data := rf_rs2_data
       op2_data := alu_op2
    }
 
    io.dec_exe.valid              := io.ifu_pipe.valid
-   io.dec_exe.bits.inst          := if_inst         
-   io.dec_exe.bits.pc            := if_pc
-   io.dec_exe.bits.wbaddr        := wbaddr
+   io.dec_exe.bits.inst          := dec_reg_inst         
+   io.dec_exe.bits.pc            := dec_reg_pc
+   io.dec_exe.bits.wbaddr        := dec_wbaddr
    io.dec_exe.bits.rs1_addr      := dec_rs1_addr
    io.dec_exe.bits.rs2_addr      := dec_rs2_addr
    io.dec_exe.bits.op1_data      := op1_data
@@ -334,37 +335,37 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
             rtypeCount, csrCount, otherCount ) = perfCounters
   // 加载指令检测
-   val isLoad = if_inst === LB || if_inst === LH || if_inst === LW || 
-                  if_inst === LBU || if_inst === LHU
+   val isLoad = dec_reg_inst === LB || dec_reg_inst === LH || dec_reg_inst === LW || 
+                  dec_reg_inst === LBU || dec_reg_inst === LHU
    
    // 存储指令检测
-   val isStore = if_inst === SB || if_inst === SH || if_inst === SW
+   val isStore = dec_reg_inst === SB || dec_reg_inst === SH || dec_reg_inst === SW
    
    // 分支指令检测
-   val isBranch = if_inst === BEQ || if_inst === BNE || 
-                  if_inst === BLT || if_inst === BGE || 
-                  if_inst === BLTU || if_inst === BGEU
+   val isBranch = dec_reg_inst === BEQ || dec_reg_inst === BNE || 
+                  dec_reg_inst === BLT || dec_reg_inst === BGE || 
+                  dec_reg_inst === BLTU || dec_reg_inst === BGEU
    
    // 跳转指令检测
-   val isJump = if_inst === JAL || if_inst === JALR
+   val isJump = dec_reg_inst === JAL || dec_reg_inst === JALR
    
    // I型指令检测
-   val isIType = if_inst === ADDI || if_inst === ANDI || if_inst === ORI || 
-                  if_inst === XORI || if_inst === SLTI || if_inst === SLTIU || 
-                  if_inst === SLLI || if_inst === SRAI || if_inst === SRLI
+   val isIType = dec_reg_inst === ADDI || dec_reg_inst === ANDI || dec_reg_inst === ORI || 
+                  dec_reg_inst === XORI || dec_reg_inst === SLTI || dec_reg_inst === SLTIU || 
+                  dec_reg_inst === SLLI || dec_reg_inst === SRAI || dec_reg_inst === SRLI
    
    // R型指令检测
-   val isRType = if_inst === ADD || if_inst === SUB || if_inst === SLL || 
-                  if_inst === SLT || if_inst === SLTU || if_inst === XOR || 
-                  if_inst === SRL || if_inst === SRA || if_inst === OR || 
-                  if_inst === AND
+   val isRType = dec_reg_inst === ADD || dec_reg_inst === SUB || dec_reg_inst === SLL || 
+                  dec_reg_inst === SLT || dec_reg_inst === SLTU || dec_reg_inst === XOR || 
+                  dec_reg_inst === SRL || dec_reg_inst === SRA || dec_reg_inst === OR || 
+                  dec_reg_inst === AND
    
    // CSR指令检测
-   val isCSR = if_inst === CSRRSI ||if_inst === CSRRCI ||if_inst === CSRRW || if_inst === CSRRS || 
-         if_inst === CSRRC || if_inst === ECALL || if_inst === MRET ||   if_inst === DRET || 
-         if_inst === EBREAK ||if_inst === WFI  || if_inst === FENCE_I || if_inst === FENCE  
+   val isCSR = dec_reg_inst === CSRRSI ||dec_reg_inst === CSRRCI ||dec_reg_inst === CSRRW || dec_reg_inst === CSRRS || 
+         dec_reg_inst === CSRRC || dec_reg_inst === ECALL || dec_reg_inst === MRET ||   dec_reg_inst === DRET || 
+         dec_reg_inst === EBREAK ||dec_reg_inst === WFI  || dec_reg_inst === FENCE_I || dec_reg_inst === FENCE  
 
-   val isUtype = if_inst === LUI || if_inst === AUIPC
+   val isUtype = dec_reg_inst === LUI || dec_reg_inst === AUIPC
    when(io.ifu_pipe.valid){
       when(isLoad) {
          loadCount := loadCount + 1.U

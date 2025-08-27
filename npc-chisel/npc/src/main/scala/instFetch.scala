@@ -71,29 +71,28 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
+  val if_inst = cache.io.inst
   io.icache_valid = cache.io.valid
-  io.ifu_pipe.bits.pc    := pc_reg
-  io.ifu_pipe.bits.inst  := cache.io.inst
-   when (io.ctl.pipeline_kill)
-   {
-      io.ifu_pipe.valid := false.B
-      dec_reg_inst := BUBBLE
-   }
-   .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
-   {
-      when (io.ctl.if_kill)
-      {
-         io.ifu_pipe.valid := false.B
-         dec_reg_inst := BUBBLE
-      }
-      .otherwise
-      {
-         io.ifu_pipe.valid := true.B
-         dec_reg_inst := if_inst
-      }
+  when (io.ctl.pipeline_kill)
+  {
+    io.ifu_pipe.valid := false.B
+    io.ifu_pipe.bits.inst := BUBBLE
+  }
+  .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
+  {
+    when (io.ctl.if_kill)
+    {
+        io.ifu_pipe.valid := false.B
+        io.ifu_pipe.bits.inst := BUBBLE
+    }
+    .otherwise
+    {
+        io.ifu_pipe.valid := true.B
+        io.ifu_pipe.bits.inst := if_inst
+    }
 
-      dec_reg_pc := if_reg_pc
-   }
+    io.ifu_pipe.bits.pc := if_reg_pc
+  }
 
 
 
