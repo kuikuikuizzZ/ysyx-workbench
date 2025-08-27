@@ -67,8 +67,8 @@ class ysyx_24100012 extends Module
   wbu.io.reg <> reg_file.io.wb
 
 
-  docoder.io.ifu_pipe <> inst_fetch.io.ifu_pipe
-  docoder.io.dec_exe <> exu.io.dec_exe
+  decoder.io.ifu_pipe <> inst_fetch.io.ifu_pipe
+  decoder.io.dec_exe <> exu.io.dec_exe
   exu.io.exe_mem <> lsu.io.exe_mem
   lsu.io.mem_wb <> wbu.io.mem_wb
   reg_file.io.wb <> wbu.io.reg
