@@ -67,16 +67,16 @@ class ysyx_24100012 extends Module
   wbu.io.reg <> reg_file.io.wb
 
 
-  decoder.io.ifu_pipe <> inst_fetch.io.ifu_pipe
-  decoder.io.dec_exe <> exu.io.dec_exe
-  exu.io.exe_mem <> lsu.io.exe_mem
-  lsu.io.mem_wb <> wbu.io.mem_wb
-  reg_file.io.wb <> wbu.io.reg
+  // decoder.io.ifu_pipe <> inst_fetch.io.ifu_pipe
+  // decoder.io.dec_exe <> exu.io.dec_exe
+  // exu.io.exe_mem <> lsu.io.exe_mem
+  // lsu.io.mem_wb <> wbu.io.mem_wb
+  // reg_file.io.wb <> wbu.io.reg
 
-  // pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
-  // pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
-  // pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
-  // pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
+  pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
+  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
+  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
+  pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)
