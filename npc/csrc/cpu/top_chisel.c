@@ -159,7 +159,7 @@ uint32_t top_pc() {
 uint32_t top_decode_pc() {
     if (!_rootp) return 0;
     uint32_t pc ;
-    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_pipe_bits_rpc);
+    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_rpc);
     IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
     return pc;
 }
