@@ -87,7 +87,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val mem_data = WireInit(0.U(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
-
+    val in_clint = (addr >= CLINT_MMIO_START.U && addr <= CLINT_MMIO_END.U)
     val csr_files = Module(new ysyx_24100012_CSRFiles)
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst
@@ -96,7 +96,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.exception_target     := csr_files.io.exception_target    
     io.mem_wb.bits.ebreak   := csr_files.io.ebreak
 
-    when (mem_en && addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)){
+    when (mem_en && in_clint ){
         io.port.req.valid    := false.B
         when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
@@ -105,19 +105,16 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         } .otherwise{
             io.clintIO.dr.en := false.B
         }
-        io.to_ctl.resp_valid  := io.clintIO.dr.ready
     } .otherwise {
         io.port.req.valid    := mem_en
         io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
         io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
         io.port.req.bits.addr := addr
         io.port.req.bits.data := io.exe_mem.bits.rs2_data 
-        //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
         mem_data :=  io.port.resp.bits.data
-        io.to_ctl.resp_valid  := io.port.resp.valid
     }
 
-    // io.to_ctl.resp_valid    := valid
+    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
