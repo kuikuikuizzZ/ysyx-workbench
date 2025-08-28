@@ -22,7 +22,7 @@ class ysyx_24100012 extends Module
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
       prevOut.ready := thisIn.ready
       thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
-      thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
+      thisIn.valid := prevOut.valid && thisIn.ready
   }
   implicit val conf = ysyx_24100012_Config()
   val io = IO(new CoreIo())
