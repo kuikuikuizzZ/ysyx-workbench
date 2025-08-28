@@ -58,7 +58,7 @@ class ysyx_24100012 extends Module
   decoder.io.icache_valid := inst_fetch.io.icache_valid 
   decoder.io.exe_ctl <> exu.io.to_ctl
   decoder.io.mem_wbdata := lsu.io.mem_wb.bits.data
-  decoder.io.wb_wbdata := lsu.io.reg.bits.data
+  decoder.io.wb_wbdata := wbu.io.reg.bits.data
 
   exu.io := DontCare
   exu.io.ctl <> decoder.io.ctl_sign
