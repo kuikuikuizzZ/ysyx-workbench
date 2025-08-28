@@ -56,6 +56,7 @@ class ysyx_24100012 extends Module
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
   decoder.io.icache_valid := inst_fetch.io.icache_valid 
+  decoder.io.exe_ctl <> exu.io.to_ctl
 
   exu.io := DontCare
   exu.io.ctl <> decoder.io.ctl_sign

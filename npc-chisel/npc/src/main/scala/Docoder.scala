@@ -61,6 +61,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ctl_sign       =  Flipped(new CtrlSignalIO)
    val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
+   val exe_ctl       = Flipped(new ToCTLIO())
    val debug         =  new CtrlDebugPort
 }
 
@@ -306,13 +307,26 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val rs2_data = Wire(UInt(conf.xprlen.W))
 
    if (conf.USE_FULL_BYPASSING){
-      // Rely only on control interlocking to resolve hazards
+      // roll the OP1 mux into the bypass mux logic
       op1_data := MuxCase(rf_rs1_data, Array(
-                          ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
-                          ))
-      rs2_data := rf_rs2_data
-      op2_data := alu_op2
+                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
+                           ((cs_op1_sel === OP1_PC)) -> dec_reg_pc,
+                           ((exe_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && exe_reg_ctrl_rf_wen) -> io.exe_ctl.alu_out,
+                           ((mem_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && mem_reg_ctrl_rf_wen) -> mem_wbdata,
+                           ((wb_reg_wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen) -> wb_reg_wbdata
+                           ))
+
+      op2_data := MuxCase(dec_alu_op2, Array(
+                           ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> exe_alu_out,
+                           ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> mem_wbdata,
+                           ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> wb_reg_wbdata
+                           ))
+
+      rs2_data := MuxCase(rf_rs2_data, Array(
+                           ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen) -> io.exe_ctl.alu_out,
+                           ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen) -> mem_wbdata,
+                           ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen) -> wb_reg_wbdata
+                           ))
    } else{
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
