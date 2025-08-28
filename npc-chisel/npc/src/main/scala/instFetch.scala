@@ -42,6 +42,9 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   
   when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
       pc_reg := pc_next
+      pc_valid := true.B
+  } .otherwise {
+      pc_valid := false.B
   }
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
@@ -58,7 +61,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.reset := reset
   cache.io.port <> io.port
   cache.io.pc := pc_reg
-  cache.io.req_valid := !io.reset
+  cache.io.req_valid := !io.reset && pc_valid
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
