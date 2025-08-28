@@ -62,6 +62,8 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
    val exe_ctl       = Flipped(new ToCTLIO())
+   val mem_wbdata    =  Input(UInt(conf.xlen.W))
+   val wb_wbdata     =  Input(UInt(conf.xlen.W))
    val debug         =  new CtrlDebugPort
 }
 
