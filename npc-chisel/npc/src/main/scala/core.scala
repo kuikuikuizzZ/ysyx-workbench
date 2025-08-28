@@ -97,8 +97,8 @@ class ysyx_24100012 extends Module
   debug.io.clock := clock
   debug.io.reset := reset
   debug.io.halt := halt
-  debug.io.pc := inst_fetch.io.ifu_pipe.bits.pc
-  debug.io.inst := inst_fetch.io.ifu_pipe.bits.inst
+  debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
+  debug.io.inst := inst_fetch.io.ifu_dec.bits.inst
   debug.io.lsu_port := lsu.io.debug
   
   perfEvent.io.clock      := clock

@@ -70,23 +70,23 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   io.icache_valid := cache.io.valid
   when (io.ctl.pipeline_kill)
   {
-    io.ifu_pipe.valid := false.B
-    io.ifu_pipe.bits.inst := BUBBLE
+    io.ifu_dec.valid := false.B
+    io.ifu_dec.bits.inst := BUBBLE
   }
   .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
   {
     when (io.ctl.if_kill)
     {
-        io.ifu_pipe.valid := false.B
-        io.ifu_pipe.bits.inst := BUBBLE
+        io.ifu_dec.valid := false.B
+        io.ifu_dec.bits.inst := BUBBLE
     }
     .otherwise
     {
-        io.ifu_pipe.valid := cache.io.valid
-        io.ifu_pipe.bits.inst := if_inst
+        io.ifu_dec.valid := cache.io.valid
+        io.ifu_dec.bits.inst := if_inst
     }
 
-    io.ifu_pipe.bits.pc := pc_reg
+    io.ifu_dec.bits.pc := pc_reg
   }
 
 
