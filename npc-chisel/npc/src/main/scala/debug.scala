@@ -64,8 +64,6 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      val io = IO(new Bundle {
         val clock       = Input(Clock())
         val reset       = Input(Bool()) 
-        val finish      = Input(Bool())
-        val ifu_valid   = Input(Bool())
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
@@ -83,8 +81,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      module ysyx_24100012_PerfEventPort(
         input clock,
         input reset,
-        input finish,
-        input ifu_valid,
+        input ifu_port_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
         input [31:0] lsu_port_wdata,
@@ -110,16 +107,16 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
 
 
         always @(posedge clock) begin
-            if (finish) begin
-                perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
-                    ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
-                    ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
+            perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
+                ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
+                ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
+            perf_event_wbu(wbu_port_wbCount);
+            if (lsu_port_valid)
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
-                perf_event_wbu(wbu_port_wbCount);
+            if (ifu_port_valid) begin
                 perf_event_ifu(ifu_port_instFetchCount);   
-            end 
-            if (ifu_valid)
                 perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
+            end
         end
 
      endmodule
