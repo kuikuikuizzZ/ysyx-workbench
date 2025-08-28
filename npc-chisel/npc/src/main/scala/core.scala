@@ -71,7 +71,7 @@ class ysyx_24100012 extends Module
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
 
-  pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
+  pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec, decoder.io.dec_exe)
   pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
   pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
   pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
@@ -97,8 +97,8 @@ class ysyx_24100012 extends Module
   debug.io.clock := clock
   debug.io.reset := reset
   debug.io.halt := halt
-  debug.io.pc := inst_fetch.io.ifu_pipe.bits.pc
-  debug.io.inst := inst_fetch.io.ifu_pipe.bits.inst
+  debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
+  debug.io.inst := inst_fetch.io.ifu_dec.bits.inst
   debug.io.lsu_port := lsu.io.debug
   
   perfEvent.io.clock      := clock

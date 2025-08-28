@@ -55,7 +55,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val icache_valid  =  Input(Bool())
    val dec_reg       =  Flipped(new RegFilePipeIn())
-   val ifu_pipe      =  Flipped(new DecoupledIO(new IFUPipeIO))
+   val ifu_dec       =  Flipped(new DecoupledIO(new IFUPipeIO))
    val dec_exe       =  new DecoupledIO( new DecPipeIO)
    val reg_in        =  Flipped(new RegFileOut())
    val ctl_sign       =  Flipped(new CtrlSignalIO)
@@ -71,9 +71,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 {
    val io = IO(new CpathIo())
    io := DontCare
-   val dec_reg_inst = io.ifu_pipe.bits.inst
-   val dec_reg_pc = io.ifu_pipe.bits.pc
-   io.ifu_pipe.ready := true.B
+   val dec_reg_inst = io.ifu_dec.bits.inst
+   val dec_reg_pc = io.ifu_dec.bits.pc
+   io.ifu_dec.ready := true.B
    // Control Signals
    val csignals =
       ListLookup(dec_reg_inst,
@@ -378,7 +378,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       }
       .otherwise
       {
-         io.dec_exe.valid              := io.ifu_pipe.valid
+         io.dec_exe.valid              := io.ifu_dec.valid
          io.dec_exe.bits.inst          := dec_reg_inst
          io.dec_exe.bits.wbaddr        := dec_wbaddr
          io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
@@ -426,7 +426,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          dec_reg_inst === EBREAK ||dec_reg_inst === WFI  || dec_reg_inst === FENCE_I || dec_reg_inst === FENCE  
 
    val isUtype = dec_reg_inst === LUI || dec_reg_inst === AUIPC
-   when(io.ifu_pipe.valid){
+   when(io.ifu_dec.valid){
       when(isLoad) {
          loadCount := loadCount + 1.U
       }.elsewhen(isStore) {
