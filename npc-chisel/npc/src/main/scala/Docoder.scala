@@ -372,7 +372,15 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.dec_exe.bits.br_type  := cs_br_type
       }
    }
-
+      io.dec_exe.bits.pc            := dec_reg_pc
+      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
+      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
+      io.dec_exe.bits.op1_data      := op1_data
+      io.dec_exe.bits.op2_data      := op2_data
+      io.dec_exe.bits.rs2_data      := rs2_data
+      io.dec_exe.bits.op2_sel       := cs_op2_sel
+      io.dec_exe.bits.alu_fun       := cs_alu_fun
+      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
