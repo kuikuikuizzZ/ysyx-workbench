@@ -318,7 +318,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                            ((wb_reg_wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen) -> io.wb_wbdata
                            ))
 
-      op2_data := MuxCase(dec_alu_op2, Array(
+      op2_data := MuxCase(alu_op2, Array(
                            ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.exe_ctl.alu_out,
                            ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.mem_wbdata,
                            ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.wb_wbdata
