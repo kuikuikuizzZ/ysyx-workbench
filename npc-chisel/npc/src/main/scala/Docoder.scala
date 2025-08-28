@@ -305,7 +305,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val pc            = dec_reg_pc
    val rs1_addr      = dec_rs1_addr
    val rs2_addr      = dec_rs2_addr
-   val rs2_data      = rs2_data
    val op2_sel       = cs_op2_sel
    val alu_fun       = cs_alu_fun
    val ctrl_wb_sel   = cs_wb_sel
