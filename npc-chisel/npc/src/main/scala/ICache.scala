@@ -43,6 +43,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     // 1+ 25 +32 = 58
     
     val ren = RegInit(false.B)
+    val reg_pc              = RegNext(io.pc,0.U)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
@@ -74,13 +75,13 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting
-        io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
+        io.port.req.bits.addr   := Cat(reg_pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
         io.port.req.bits.fcn    := M_XRD
         io.port.req.bits.typ    := MT_WU
     }
     when(state === sBurstRequesting) {
         io.port.req.valid           := state === sBurstRequesting
-        io.port.req.bits.addr       := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
+        io.port.req.bits.addr       := Cat(reg_pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
         io.port.req.bits.fcn        := M_XRD
         io.port.req.bits.typ        := MT_WU
         io.port.req.bits.burst      := BURST_INCR
