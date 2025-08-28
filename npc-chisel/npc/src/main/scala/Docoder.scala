@@ -360,7 +360,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       }
       .otherwise
       {
-         io.dec_exe.valid              := io.ifu_pipe.valid
+         io.dec_exe.valid              := true.B
          io.dec_exe.bits.inst          := dec_reg_inst
          io.dec_exe.bits.wbaddr        := dec_wbaddr
          io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
