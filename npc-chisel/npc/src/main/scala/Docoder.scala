@@ -70,6 +70,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io := DontCare
    val dec_reg_inst = io.ifu_pipe.bits.inst
    val dec_reg_pc = io.ifu_pipe.bits.pc
+   io.ifu_pipe.ready := true.B
    // Control Signals
    val csignals =
       ListLookup(dec_reg_inst,
