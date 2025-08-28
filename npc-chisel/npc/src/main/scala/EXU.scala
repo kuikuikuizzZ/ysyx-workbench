@@ -83,8 +83,8 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
       io.exe_mem.bits.ctrl_mem_val  := false.B
       io.exe_mem.bits.ctrl_csr_cmd  := false.B
    }
-   .elsewhen (!io.ctl.full_stall)
-   {
+   // .elsewhen (!io.ctl.full_stall)
+   // {
       io.exe_mem.valid              := io.dec_exe.valid
       io.exe_mem.bits.pc            := io.dec_exe.bits.pc
       io.exe_mem.bits.inst          := io.dec_exe.bits.inst
@@ -101,7 +101,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
       io.exe_mem.bits.ctrl_mem_typ  := io.dec_exe.bits.ctrl_mem_typ
       io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
       io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
-   }
+   // }
 
 }
 
