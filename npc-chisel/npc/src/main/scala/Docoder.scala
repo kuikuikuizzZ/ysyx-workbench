@@ -341,7 +341,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
       io.dec_exe.bits.br_type       := BR_N
    }
-   .elsewhen(!stall && !full_stall)
+   .elsewhen( !full_stall)
    {
       // no stalling...
       io.dec_exe.bits.pc            := pc         
