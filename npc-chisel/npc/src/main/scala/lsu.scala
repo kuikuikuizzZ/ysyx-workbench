@@ -87,7 +87,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val mem_data = WireInit(0.U(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
-    val in_clint = (addr >= CLINT_MMIO_START.U && addr <= CLINT_MMIO_END.U)
+    val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
     val csr_files = Module(new ysyx_24100012_CSRFiles)
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst
