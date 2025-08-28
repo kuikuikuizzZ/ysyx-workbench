@@ -81,6 +81,8 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new LSUIO())
     io := DontCare
+    io.exe_mem.ready := true.B
+
     val valid = WireInit(false.B)
     val mem_data = WireInit(0.U(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out

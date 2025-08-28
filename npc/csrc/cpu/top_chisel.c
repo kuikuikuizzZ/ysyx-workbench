@@ -156,6 +156,14 @@ uint32_t top_pc() {
     return pc;
 }
 
+uint32_t top_decode_pc() {
+    if (!_rootp) return 0;
+    uint32_t pc ;
+    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_pipe_bits_REG_pc);
+    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
+    return pc;
+}
+
 uint32_t top_halt(){
     if (!_rootp) return 0;
     return halt;
@@ -227,9 +235,10 @@ void watch_top(){
     if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
     else {
         // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-        printf(" io_halt %d ,pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
+        printf(" io_halt %d ,pc %.8x,dec_pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
             top_halt(),
             top_pc(),
+            top_decode_pc(),
             top_dnpc(),
             top_inst(),
             top_gpr(10),

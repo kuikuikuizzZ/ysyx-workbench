@@ -45,6 +45,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
+   io.dec_exe.ready := true.B
    val alu_op1 = io.dec_exe.bits.op1_data.asUInt
    val alu_op2 = io.dec_exe.bits.op2_data.asUInt
 

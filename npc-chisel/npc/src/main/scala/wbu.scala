@@ -28,6 +28,7 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
 
     io := DontCare
     io.ebreak            := io.mem_wb.bits.ebreak
+    io.mem_wb.ready := true.B
 
     when (!io.ctl.full_stall)
     {
