@@ -83,7 +83,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io := DontCare
     io.exe_mem.ready := true.B
 
-    val valid = WireInit(false.B)
+    val valid = Wire(Bool())
     val mem_data = WireInit(0.U(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
