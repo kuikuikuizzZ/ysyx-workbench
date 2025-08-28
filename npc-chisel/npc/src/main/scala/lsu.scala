@@ -82,8 +82,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val io = IO(new LSUIO())
     io := DontCare
     io.exe_mem.ready := true.B
-
-    val valid = Wire(Bool())
+    
+    // val valid = Wire(Bool())
     val mem_data = WireInit(0.U(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
@@ -102,7 +102,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := addr
             mem_data := io.clintIO.dr.data
-            valid := io.clintIO.dr.ready
+            io.to_ctl.resp_valid  := io.clintIO.dr.ready
         } .otherwise{
             io.clintIO.dr.en := false.B
         }
@@ -114,10 +114,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         io.port.req.bits.data := io.exe_mem.bits.rs2_data 
         //io.stall := !io.imem.resp.valid || !((dmem_val && io.dmem.resp.valid) || !dmem_val)
         mem_data :=  io.port.resp.bits.data
-        valid := io.port.resp.valid
+        io.to_ctl.resp_valid  := io.port.resp.valid
     }
 
-    io.to_ctl.resp_valid    := valid
+    // io.to_ctl.resp_valid    := valid
     io.to_ctl.ctrl_mem_val  := mem_en
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
