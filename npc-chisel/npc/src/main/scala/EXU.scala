@@ -69,11 +69,10 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
                   ))
 
    // Branch/Jump Target Calculation
-   val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
+   val exe_pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
    val brjmp_offset                 = io.dec_exe.bits.op2_data
    io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
    io.ifu_out.exe_jump_reg_target   := adder_out
-   io.dec_exe.ready := true.B
 
    when (io.ctl.pipeline_kill)
    {
@@ -83,12 +82,12 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
       io.exe_mem.bits.ctrl_mem_val  := false.B
       io.exe_mem.bits.ctrl_csr_cmd  := false.B
    }
-   // .elsewhen (!io.ctl.full_stall)
-   // {
+   .elsewhen (!io.ctl.full_stall)
+   {
       io.exe_mem.valid              := io.dec_exe.valid
       io.exe_mem.bits.pc            := io.dec_exe.bits.pc
       io.exe_mem.bits.inst          := io.dec_exe.bits.inst
-      io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
+      io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), exe_pc_plus4, alu_out)
       io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
       io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
       io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
@@ -101,7 +100,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
       io.exe_mem.bits.ctrl_mem_typ  := io.dec_exe.bits.ctrl_mem_typ
       io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
       io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
-   // }
+   }
 
 }
 

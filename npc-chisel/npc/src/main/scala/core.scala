@@ -72,11 +72,11 @@ class ysyx_24100012 extends Module
   // exu.io.exe_mem <> lsu.io.exe_mem
   // lsu.io.mem_wb <> wbu.io.mem_wb
   // reg_file.io.wb <> wbu.io.reg
-  decoder.io.dec_exe.ready := exu.io.dec_exe.ready
-  exu.io.dec_exe.bits := RegEnable(decoder.io.dec_exe.bits, decoder.io.dec_exe.valid && exu.io.dec_exe.ready)
-  exu.io.dec_exe.valid := decoder.io.dec_exe.valid && exu.io.dec_exe.ready
+  // decoder.io.dec_exe.ready := exu.io.dec_exe.ready
+  // exu.io.dec_exe.bits := RegEnable(decoder.io.dec_exe.bits, decoder.io.dec_exe.valid && exu.io.dec_exe.ready)
+  // exu.io.dec_exe.valid := decoder.io.dec_exe.valid && exu.io.dec_exe.ready
   pipelineConnect(inst_fetch.io.ifu_pipe, decoder.io.ifu_pipe, decoder.io.dec_exe)
-  // pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
+  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
   pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
   pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
 

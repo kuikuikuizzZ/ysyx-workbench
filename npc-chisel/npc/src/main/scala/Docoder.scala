@@ -70,7 +70,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io := DontCare
    val dec_reg_inst = io.ifu_pipe.bits.inst
    val dec_reg_pc = io.ifu_pipe.bits.pc
-   io.ifu_pipe.ready := true.B
    // Control Signals
    val csignals =
       ListLookup(dec_reg_inst,
@@ -300,10 +299,17 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // val exe_alu_out  = Wire(UInt(conf.xprlen.W))
    // val mem_wbdata   = Wire(UInt(conf.xprlen.W))
 
-   val op1_data = Wire(UInt(conf.xprlen.W))
-   val op2_data = Wire(UInt(conf.xprlen.W))
-   val rs2_data = Wire(UInt(conf.xprlen.W))
-
+   val op1_data      = Wire(UInt(conf.xprlen.W))
+   val op2_data      = Wire(UInt(conf.xprlen.W))
+   val rs2_data      = Wire(UInt(conf.xprlen.W))
+   val pc            = dec_reg_pc
+   val rs1_addr      = dec_rs1_addr
+   val rs2_addr      = dec_rs2_addr
+   val rs2_data      = rs2_data
+   val op2_sel       = cs_op2_sel
+   val alu_fun       = cs_alu_fun
+   val ctrl_wb_sel   = cs_wb_sel
+   
    if (conf.USE_FULL_BYPASSING){
       // Rely only on control interlocking to resolve hazards
       op1_data := MuxCase(rf_rs1_data, Array(
@@ -322,6 +328,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
+
    when ((stall && !full_stall) || pipeline_kill)
    {
       // (kill exe stage)
@@ -338,15 +345,15 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    .elsewhen(!stall && !full_stall)
    {
       // no stalling...
-      io.dec_exe.bits.pc            := dec_reg_pc
-      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-      io.dec_exe.bits.op1_data      := op1_data
-      io.dec_exe.bits.op2_data      := op2_data
-      io.dec_exe.bits.rs2_data      := rs2_data
-      io.dec_exe.bits.op2_sel       := cs_op2_sel
-      io.dec_exe.bits.alu_fun       := cs_alu_fun
-      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
+      io.dec_exe.bits.pc            := pc         
+      io.dec_exe.bits.rs1_addr      := rs1_addr   
+      io.dec_exe.bits.rs2_addr      := rs2_addr   
+      io.dec_exe.bits.op1_data      := op1_data   
+      io.dec_exe.bits.op2_data      := op2_data   
+      io.dec_exe.bits.rs2_data      := rs2_data   
+      io.dec_exe.bits.op2_sel       := op2_sel    
+      io.dec_exe.bits.alu_fun       := alu_fun    
+      io.dec_exe.bits.ctrl_wb_sel   := ctrl_wb_sel
 
       when (deckill)
       {
@@ -372,15 +379,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.dec_exe.bits.br_type  := cs_br_type
       }
    }
-      io.dec_exe.bits.pc            := dec_reg_pc
-      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-      io.dec_exe.bits.op1_data      := op1_data
-      io.dec_exe.bits.op2_data      := op2_data
-      io.dec_exe.bits.rs2_data      := rs2_data
-      io.dec_exe.bits.op2_sel       := cs_op2_sel
-      io.dec_exe.bits.alu_fun       := cs_alu_fun
-      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
+
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
