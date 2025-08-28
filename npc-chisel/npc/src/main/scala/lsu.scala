@@ -102,10 +102,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := addr
             mem_data := io.clintIO.dr.data
-            io.to_ctl.resp_valid  := io.clintIO.dr.ready
         } .otherwise{
             io.clintIO.dr.en := false.B
         }
+        io.to_ctl.resp_valid  := io.clintIO.dr.ready
     } .otherwise {
         io.port.req.valid    := mem_en
         io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
