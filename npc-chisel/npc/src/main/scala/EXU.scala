@@ -73,6 +73,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val brjmp_offset                 = io.dec_exe.bits.op2_data
    io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
    io.ifu_out.exe_jump_reg_target   := adder_out
+   io.dec_exe.ready := true.B
 
    when (io.ctl.pipeline_kill)
    {

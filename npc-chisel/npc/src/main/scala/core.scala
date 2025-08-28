@@ -72,7 +72,6 @@ class ysyx_24100012 extends Module
   // exu.io.exe_mem <> lsu.io.exe_mem
   // lsu.io.mem_wb <> wbu.io.mem_wb
   // reg_file.io.wb <> wbu.io.reg
-   exu.io.dec_exe.ready := true.B
   decoder.io.dec_exe.ready := exu.io.dec_exe.ready
   exu.io.dec_exe.bits := RegEnable(decoder.io.dec_exe.bits, decoder.io.dec_exe.valid && exu.io.dec_exe.ready)
   exu.io.dec_exe.valid := decoder.io.dec_exe.valid && exu.io.dec_exe.ready
