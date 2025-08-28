@@ -78,7 +78,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
     }
     .otherwise
     {
-        io.ifu_pipe.valid := true.B
+        io.ifu_pipe.valid := cache.io.valid
         io.ifu_pipe.bits.inst := if_inst
     }
 
