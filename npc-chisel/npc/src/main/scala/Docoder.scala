@@ -172,13 +172,13 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                                                             PC_4
                      ))))))))))   
 
-   val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.ifu_pipe.valid || cs_fencei || RegNext(cs_fencei)
+   val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
    val deckill = (ctrl_exe_pc_sel =/= PC_4)
 
    // Exception Handling ---------------------
 
    // io.ctl.pipeline_kill := (io.dat.csr_eret || io.ctl.mem_exception)
-   // val dec_exception = (!cs_val_inst && io.ifu_pipe.valid)
+   // val dec_exception = (!cs_val_inst && io.icache_valid)
    val dec_exception = false.B
    val exe_reg_exception   = RegInit(false.B)
    val mem_exception = RegNext(exe_reg_exception)
