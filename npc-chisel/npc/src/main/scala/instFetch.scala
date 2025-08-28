@@ -39,7 +39,8 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_next = Wire(UInt(conf.xprlen.W))
 
   val pc_reg = RegInit(START_ADDR)
-  
+  val pc_valid = RegInit(true.B)
+
   when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
       pc_reg := pc_next
       pc_valid := true.B
