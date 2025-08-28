@@ -55,7 +55,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val icache_valid  =  Input(Bool())
    val dec_reg       =  Flipped(new RegFilePipeIn())
-   val ifu_pipe      =  Flipped(new DecoupledIO(new IFUPipeIO))
+   val ifu_dec       =  Flipped(new DecoupledIO(new IFUPipeIO))
    val dec_exe       =  new DecoupledIO( new DecPipeIO)
    val reg_in        =  Flipped(new RegFileOut())
    val ctl_sign       =  Flipped(new CtrlSignalIO)

@@ -22,7 +22,7 @@ class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
-  val ifu_pipe          = new DecoupledIO(new IFUPipeIO())
+  val ifu_dec          = new DecoupledIO(new IFUPipeIO())
   val exception_target  = Input(UInt(conf.xprlen.W))
   val debug             = Output(new IFUDebugPort)
   val icache_valid      = Output(Bool())
