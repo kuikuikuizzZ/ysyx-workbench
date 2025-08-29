@@ -241,7 +241,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    when (!full_stall)
    {
-      exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
+      // exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
+      exe_inst_is_load := cs_mem_en
+
    }
 
    
