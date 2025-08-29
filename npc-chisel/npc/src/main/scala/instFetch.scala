@@ -40,6 +40,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
+  val full_stall = RegNext(io.ctl.full_stall, false.B)
 
   when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
       pc_reg := pc_next
@@ -73,7 +74,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
     io.ifu_dec.valid := false.B
     io.ifu_dec.bits.inst := BUBBLE
   }
-  .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
+  .elsewhen (!io.ctl.dec_stall && !full_stall)
   {
     when (io.ctl.if_kill)
     {
