@@ -8,139 +8,106 @@ import npc.common._
 import npc.Constants._
 
 
+class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   // Memory State
+   val inst          = Output(UInt(conf.xlen.W))
+   val pc            = Output(UInt(conf.xprlen.W))
+   val wbaddr        = Output(UInt(5.W))
+   val rs1_addr      = Output(UInt(5.W))
+   val rs2_addr      = Output(UInt(5.W))
+   val op1_data      = Output(UInt(conf.xprlen.W))
+   val op2_data      = Output(UInt(conf.xprlen.W))
+   val rs2_data      = Output(UInt(conf.xprlen.W))
+   val alu_out       = Output(UInt(conf.xlen.W))
+   val ctrl_wb_sel        = Output(UInt())
+   val ctrl_rf_wen        = Output(Bool())
+   val ctrl_mem_val       = Output(Bool())
+   val ctrl_mem_fcn       = Output(UInt(M_X.getWidth.W)) 
+   val ctrl_mem_typ       = Output(UInt(MT_X.getWidth.W))
+   val ctrl_csr_cmd       = Output(UInt(CSR.N.getWidth.W))
+}
+
+class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val exe_brjmp_target    =   Output(UInt(conf.xprlen.W))
+   val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
+}
+class ToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val alu_out = Output(UInt(conf.xlen.W))
+}
+
+
 class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
 {
-   val inst = Input(UInt(conf.xprlen.W))
-   val ctl  = Flipped(new CtlToDatIo())
-   val ebreak = Output(Bool())
-   val targets = new PCTargets()
-   val pc_io = Flipped(new PCOut())
-   val reg_in = Flipped(new RegFileOut())
-   val exe_lsu = new exeToLSUIo()
-   val exe_wbu = new exeToWBUIo()
-   val ifu_valid = Input(Bool())
-}
-
-class exeToLSUIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val addr = Output(UInt(conf.xprlen.W))
-  val data = Output(UInt(conf.xprlen.W))
-}
-
-class exeToWBUIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
-   val alu_out = Output(UInt(conf.xprlen.W))
-   val csr_data = Output(UInt(conf.xprlen.W))
-   val pc_plus4 = Output(UInt(conf.xprlen.W))
-}
-
-class PCTargets(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-   val pc_sel           =  Output(UInt(PC_4.getWidth.W))
-   val br_target        =  Output(UInt(conf.xprlen.W))
-   val jmp_target       =  Output(UInt(conf.xprlen.W))
-   val jump_reg_target  =  Output(UInt(conf.xprlen.W))
-   val exception_target =  Output(UInt(conf.xprlen.W))
+   val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))
+   val exe_mem = new DecoupledIO(new EXEPipeIO())
+   val ctl = new CtrlSignalIO()
+   val ifu_out = new EXUToIFUOut()
+   val to_ctl = new ToCTLIO()
 }
 
 class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare
-   io.pc_io := DontCare
-   // immediates
-   val imm_i = io.inst(31, 20) 
-   val imm_s = Cat(io.inst(31, 25), io.inst(11,7))
-   val imm_b = Cat(io.inst(31), io.inst(7), io.inst(30,25), io.inst(11,8))
-   val imm_u = io.inst(31, 12)
-   val imm_j = Cat(io.inst(31), io.inst(19,12), io.inst(20), io.inst(30,21))
-   val imm_z = Cat(Fill(27,0.U), io.inst(19,15))
-
-   // sign-extend immediates
-   val imm_i_sext = Cat(Fill(20,imm_i(11)), imm_i)
-   val imm_s_sext = Cat(Fill(20,imm_s(11)), imm_s)
-   val imm_b_sext = Cat(Fill(19,imm_b(11)), imm_b, 0.U)
-   val imm_u_sext = Cat(imm_u, Fill(12,0.U))
-   val imm_j_sext = Cat(Fill(11,imm_j(19)), imm_j, 0.U)
-
-   val alu_op1 = MuxCase(0.U, Seq(
-               (io.ctl.op1_sel === OP1_RS1) -> io.reg_in.rs1_data,
-               (io.ctl.op1_sel === OP1_IMU) -> imm_u_sext,
-               (io.ctl.op1_sel === OP1_IMZ) -> imm_z
-               )).asUInt
-
-   val alu_op2 = MuxCase(0.U, Seq(
-               (io.ctl.op2_sel === OP2_RS2) -> io.reg_in.rs2_data,
-               (io.ctl.op2_sel === OP2_PC)  -> io.pc_io.pc,
-               (io.ctl.op2_sel === OP2_IMI) -> imm_i_sext,
-               (io.ctl.op2_sel === OP2_IMS) -> imm_s_sext
-               )).asUInt
-
+   io.dec_exe.ready := true.B
+   val alu_op1 = io.dec_exe.bits.op1_data.asUInt
+   val alu_op2 = io.dec_exe.bits.op2_data.asUInt
 
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
-
    val alu_shamt = alu_op2(4,0).asUInt
+   val adder_out = (alu_op1 + alu_op2)(conf.xprlen-1,0)
 
    alu_out := MuxCase(0.U, Seq(
-                  (io.ctl.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
-                  (io.ctl.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
-                  (io.ctl.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
-                  (io.ctl.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
-                  (io.ctl.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
-                  (io.ctl.alu_fun === ALU_COPY1)-> alu_op1
+                  (io.dec_exe.bits.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
+                  (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
+                  (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
+   io.to_ctl.alu_out := alu_out
 
    // Branch/Jump Target Calculation
-   io.targets.br_target       := io.pc_io.pc + imm_b_sext
-   io.targets.jmp_target      := io.pc_io.pc + imm_j_sext
-   io.targets.jump_reg_target := Cat(alu_out(31,1), 0.U(1.W)) 
+   val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
+   val brjmp_offset                 = io.dec_exe.bits.op2_data
+   io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
+   io.ifu_out.exe_jump_reg_target   := adder_out
 
-   // Control Status Registers
-   val csr = Module(new ysyx_24100012_CSRFile())
-   csr.io := DontCare
-   csr.io.decode.csr := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
-   csr.io.rw.cmd   := Mux(io.ifu_valid, io.ctl.csr_cmd,CSR.N)
-   csr.io.rw.wdata := alu_out
+   when (io.ctl.pipeline_kill)
+   {
+      io.exe_mem.valid              := false.B
+      io.exe_mem.bits.inst          := BUBBLE
+      io.exe_mem.bits.ctrl_rf_wen   := false.B
+      io.exe_mem.bits.ctrl_mem_val  := false.B
+      io.exe_mem.bits.ctrl_csr_cmd  := false.B
+   }
+   .elsewhen (!io.ctl.full_stall)
+   {
+      io.exe_mem.valid              := io.dec_exe.valid
+      io.exe_mem.bits.pc            := io.dec_exe.bits.pc
+      io.exe_mem.bits.inst          := io.dec_exe.bits.inst
+      io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
+      io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
+      io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
+      io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
+      io.exe_mem.bits.op1_data      := io.dec_exe.bits.op1_data
+      io.exe_mem.bits.op2_data      := io.dec_exe.bits.op2_data
+      io.exe_mem.bits.rs2_data      := io.dec_exe.bits.rs2_data
+      io.exe_mem.bits.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
+      io.exe_mem.bits.ctrl_mem_val  := io.dec_exe.bits.ctrl_mem_val
+      io.exe_mem.bits.ctrl_mem_fcn  := io.dec_exe.bits.ctrl_mem_fcn
+      io.exe_mem.bits.ctrl_mem_typ  := io.dec_exe.bits.ctrl_mem_typ
+      io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
+      io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
+   }
 
-   // csr.io.retire    := !(io.ctl.stall || io.ctl.exception)
-   csr.io.exception := io.ctl.exception
-   csr.io.pc        := io.pc_io.pc
-   io.targets.exception_target := csr.io.evec
-
-   // io.dat.csr_eret := csr.io.eret
-   io.ebreak := csr.io.insn_break
-   // Add your own uarch counters here!
-   // csr.io.counters.foreach(_.inc := false.B)
-                                  
-   // datapath to controlpath outputs
-   val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
-   val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
-   val br_ltu = (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
-   
-
-   // Branch Logic   
-   io.targets.pc_sel := Mux( csr.io.eret  ||
-                         io.ctl.exception      ,  PC_EXC,
-                     Mux(io.ctl.br_type === BR_N  ,  PC_4,
-                     Mux(io.ctl.br_type === BR_NE ,  Mux(!br_eq,  PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_EQ ,  Mux( br_eq,  PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_GE ,  Mux(!br_lt,  PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_GEU,  Mux(!br_ltu, PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_LT ,  Mux( br_lt,  PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_LTU,  Mux( br_ltu, PC_BR, PC_4),
-                     Mux(io.ctl.br_type === BR_J  ,  PC_J,
-                     Mux(io.ctl.br_type === BR_JR ,  PC_JR,
-                                                 PC_4))))))))))
-
-   // datapath to data memory outputs
-   io.exe_lsu.addr  := alu_out
-   io.exe_lsu.data := io.reg_in.rs2_data.asUInt 
-   io.exe_wbu.alu_out := alu_out
-   io.exe_wbu.csr_data := csr.io.rw.rdata
-   io.exe_wbu.pc_plus4 := io.pc_io.pc_plus4
 }
 
  
