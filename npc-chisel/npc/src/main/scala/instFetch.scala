@@ -48,8 +48,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   } .elsewhen (io.ctl.full_stall) {
       pc_valid := pc_valid
       pc_reg := pc_reg
-  }
-  .otherwise {
+  } .otherwise {
       pc_valid := false.B
   }
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
