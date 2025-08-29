@@ -96,24 +96,30 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.exception_target     := csr_files.io.exception_target    
     io.mem_wb.bits.ebreak   := csr_files.io.ebreak
 
-    when (mem_en && in_clint ){
-        io.port.req.valid    := false.B
-        when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
-            io.clintIO.dr.en := true.B
-            io.clintIO.dr.addr := addr
-            mem_data := io.clintIO.dr.data
-        } .otherwise{
-            io.clintIO.dr.en := false.B
-        }
-    } .otherwise {
-        io.port.req.valid    := mem_en
-        io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
-        io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
-        io.port.req.bits.addr := addr
-        io.port.req.bits.data := io.exe_mem.bits.rs2_data 
-        mem_data :=  io.port.resp.bits.data
-    }
-
+    // when (mem_en && in_clint ){
+    //     io.port.req.valid    := false.B
+    //     when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
+    //         io.clintIO.dr.en := true.B
+    //         io.clintIO.dr.addr := addr
+    //         mem_data := io.clintIO.dr.data
+    //     } .otherwise{
+    //         io.clintIO.dr.en := false.B
+    //     }
+    // } .otherwise {
+    //     io.port.req.valid    := mem_en
+    //     io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
+    //     io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
+    //     io.port.req.bits.addr := addr
+    //     io.port.req.bits.data := io.exe_mem.bits.rs2_data 
+    //     mem_data :=  io.port.resp.bits.data
+    // }
+    
+    io.port.req.valid    := mem_en
+    io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
+    io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
+    io.port.req.bits.addr := addr
+    io.port.req.bits.data := io.exe_mem.bits.rs2_data 
+    mem_data :=  io.port.resp.bits.data
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
     // WB Mux
