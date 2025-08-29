@@ -112,8 +112,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
         io.port.req.bits.data := io.exe_mem.bits.rs2_data 
     }
     
-    mem_data :=  Mux(in_clint,io.clintIO.dr.data,io.port.resp.bits.data)
-    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    // mem_data :=  Mux(in_clint,io.clintIO.dr.data,io.port.resp.bits.data)
+    // io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    mem_data := io.port.resp.bits.data
+    io.to_ctl.resp_valid    := io.port.resp.valid
     io.to_ctl.ctrl_mem_val  := mem_en
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
