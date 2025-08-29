@@ -61,7 +61,6 @@ class ysyx_24100012 extends Module
   decoder.io.mem_wbdata := lsu.io.mem_wb.bits.data
   decoder.io.wb_wbdata := wbu.io.reg.bits.data
 
-  exu.io := DontCare
   exu.io.ctl <> decoder.io.ctl_sign
 
   lsu.io.ctl <> decoder.io.ctl_lsu
