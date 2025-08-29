@@ -17,7 +17,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val clock     = Input(Clock())
   val reset     = Input(Bool())
   val port      = new MemPortIo(conf.xlen)
-  val req       = Decoupled((UInt(conf.xprlen.W)))
+  val req       = Flipped(Decoupled((UInt(conf.xprlen.W))))
 //   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
