@@ -42,7 +42,6 @@ class ysyx_24100012 extends Module
   clint.io.reset := reset
   clint.io.in <> lsu.io.clintIO  
 
-  arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
@@ -53,7 +52,6 @@ class ysyx_24100012 extends Module
   inst_fetch.io.exception_target := lsu.io.exception_target
   inst_fetch.io.exu_in <>  exu.io.ifu_out
   
-  decoder.io := DontCare
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
   decoder.io.icache_valid := inst_fetch.io.icache_valid 
@@ -61,14 +59,11 @@ class ysyx_24100012 extends Module
   decoder.io.mem_wbdata := lsu.io.mem_wb.bits.data
   decoder.io.wb_wbdata := wbu.io.reg.bits.data
 
-  exu.io := DontCare
   exu.io.ctl <> decoder.io.ctl_sign
 
-  lsu.io := DontCare
   lsu.io.ctl <> decoder.io.ctl_lsu
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
-  wbu.io := DontCare
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
 
