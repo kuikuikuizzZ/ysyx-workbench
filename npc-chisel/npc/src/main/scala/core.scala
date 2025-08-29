@@ -66,7 +66,6 @@ class ysyx_24100012 extends Module
   lsu.io.ctl <> decoder.io.ctl_lsu
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
-  wbu.io := DontCare
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
 
