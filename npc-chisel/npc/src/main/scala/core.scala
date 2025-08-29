@@ -42,7 +42,6 @@ class ysyx_24100012 extends Module
   clint.io.reset := reset
   clint.io.in <> lsu.io.clintIO  
 
-  arbiter.io := DontCare
   arbiter.io.axi_port <> io.master
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
