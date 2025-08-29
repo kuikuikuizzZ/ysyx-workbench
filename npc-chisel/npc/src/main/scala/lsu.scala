@@ -84,7 +84,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.exe_mem.ready := true.B
     
     // val valid = Wire(Bool())
-    val mem_data = WireInit(0.U(conf.xlen.W))
+    val mem_data = Wire(UInt(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
@@ -124,7 +124,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    io.mem_wb.valid         := io.exe_mem.valid && io.to_ctl.resp_valid 
+    io.mem_wb.valid         := io.exe_mem.valid  && !io.ctl.mem_exception
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
