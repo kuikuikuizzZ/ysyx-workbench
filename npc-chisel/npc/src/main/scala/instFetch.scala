@@ -59,7 +59,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
-  val pc_ready = Wire(Bool())      
+  // val pc_ready = Wire(Bool())      
 
   when(io.finish && !io.halt) {
       pc_reg := pc_next
