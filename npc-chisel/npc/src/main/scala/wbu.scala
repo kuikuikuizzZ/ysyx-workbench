@@ -31,7 +31,7 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.ready := true.B
 
     // full stall to valid
-    when (io.ctl.full_stall) 
+    when (!io.ctl.full_stall) 
     // when (io.mem_wb.valid)
     {
         io.reg.valid         := io.mem_wb.valid && !io.ctl.mem_exception 
