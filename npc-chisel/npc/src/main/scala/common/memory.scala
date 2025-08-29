@@ -184,13 +184,15 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
             burstlen_reg := burstlen_reg - 1.U
             when (burstlen_reg === 0.U) {
                state := s_idle
+               currentMaster := nextMaster 
             }
          }
       }
       is (s_lsu_active)  { 
          when (axi4lite_mem.io.resp.valid) {
             state := s_idle
-            req_valid := false.B        
+            req_valid := false.B      
+            currentMaster := nextMaster   
          }
       } 
    }
