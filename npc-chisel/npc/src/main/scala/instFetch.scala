@@ -40,7 +40,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
-  val reg_reset = RegNext(io.reset,true.B)
 
   when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
       pc_reg := pc_next
@@ -48,6 +47,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   } .otherwise {
       pc_valid := false.B
   }
+  
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
   // PC Register
@@ -56,14 +56,14 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
-  val cache       = Module(new ysyx_24100012_ICache)
+  val cache = Module(new ysyx_24100012_ICache)
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
   cache.io.clock := clock
   cache.io.reset := reset
   cache.io.port <> io.port
   cache.io.pc := pc_reg
-  cache.io.req_valid := !io.reset && pc_valid && (!io.ctl.full_stall || reg_reset)
+  cache.io.req_valid := !io.reset && pc_valid 
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
