@@ -132,7 +132,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    io.mem_wb.valid         := io.exe_mem.valid  && !io.ctl.mem_exception
+    // io.mem_wb.valid         := io.exe_mem.valid  && !io.ctl.mem_exception
+    io.mem_wb.valid         := io.exe_mem.valid && io.port.resp.valid
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
