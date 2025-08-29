@@ -217,7 +217,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
                   Mux(io.ports(nextMaster).req.valid,io.ports(nextMaster).req.bits.fcn,M_X))
    req_typi    := Mux(io.ports(currentMaster).req.valid,io.ports(currentMaster).req.bits.typ,
                   Mux(io.ports(nextMaster).req.valid,io.ports(nextMaster).req.bits.typ,MT_X))
-   req_addri   := Mux(io.ports(currentMaster).req.valid,io.ports(currentMaster).req.bits.addr(31,2),
+   req_addri   := Mux(io.ports(currentMaster).req.valid,io.ports(currentMaster).req.bits.addr,
                   Mux(io.ports(nextMaster).req.valid,io.ports(nextMaster).req.bits.addr,0.U))
    req_data    := Mux(io.ports(currentMaster).req.valid,io.ports(currentMaster).req.bits.data,
                   Mux(io.ports(nextMaster).req.valid,io.ports(nextMaster).req.bits.data,0.U))
