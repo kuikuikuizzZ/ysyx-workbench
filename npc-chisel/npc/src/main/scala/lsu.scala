@@ -125,7 +125,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
                   (io.exe_mem.bits.ctrl_wb_sel === WB_ALU) -> io.exe_mem.bits.alu_out,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_PC4) -> io.exe_mem.bits.alu_out,
-                  (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> io.port.resp.bits.data,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
