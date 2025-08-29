@@ -131,6 +131,10 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
    axi4lite_mem.io := DontCare
    
+   val currentMaster = RegInit(0.U(1.W)) 
+   val nextMaster = Mux(currentMaster === 0.U, 1.U, 0.U) // 计算下一个主设备
+   val selectedPort = currentMaster // 当前选中的端口
+
 
    val req_addri    = Wire(UInt(conf.xprlen.W))
    val req_fcn      = Wire(UInt(M_X.getWidth.W))
@@ -143,15 +147,38 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    val resp_data    = Wire(UInt(conf.xlen.W))
    switch(state) {
       is(s_idle) {
-         // IFU优先级高于LSU
-         when (io.ports(IPORT).req.valid) {
-            state := s_ifu_active
-            req_typi := io.ports(IPORT).req.bits.typ
-            burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
-         } .elsewhen (io.ports(DPORT).req.valid) {
-            state := s_lsu_active
-            req_typi := io.ports(DPORT).req.bits.typ
-            burstlen_reg := 0.U  
+         // // IFU优先级高于LSU
+         // when (io.ports(IPORT).req.valid) {
+         //    state := s_ifu_active
+         //    req_typi := io.ports(IPORT).req.bits.typ
+         //    burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
+         // } .elsewhen (io.ports(DPORT).req.valid) {
+         //    state := s_lsu_active
+         //    req_typi := io.ports(DPORT).req.bits.typ
+         //    burstlen_reg := 0.U  
+         // }
+         when(io.ports(currentMaster).req.valid) {
+            // 锁存请求信息
+            req_valid      := io.ports(currentMaster).req.valid 
+            req_addri      := io.ports(currentMaster).req.bits.addr      
+            req_fcn        := io.ports(currentMaster).req.bits.fcn     
+            req_typi       := io.ports(currentMaster).req.bits.typ      
+            req_data       := io.ports(currentMaster).req.bits.data
+            req_burst      := io.ports(currentMaster).req.bits.burst
+            req_burstlen   := io.ports(currentMaster).req.bits.burstlen
+            state := Mux(io.ports(currentMaster) === io.ports(IPORT),s_ifu_active,s_lsu_active)
+         }.elsewhen(io.ports(nextMaster).req.valid) {
+            // 如果当前主设备无请求，但下一个有，则切换并处理
+            currentMaster := nextMaster
+            // 锁存请求信息
+            req_valid      := io.ports(nextMaster).req.valid 
+            req_addri      := io.ports(nextMaster).req.bits.addr      
+            req_fcn        := io.ports(nextMaster).req.bits.fcn     
+            req_typi       := io.ports(nextMaster).req.bits.typ      
+            req_data       := io.ports(nextMaster).req.bits.data
+            req_burst      := io.ports(nextMaster).req.bits.burst
+            req_burstlen   := io.ports(nextMaster).req.bits.burstlen
+            state := Mux(io.ports(nextMaster) === io.ports(IPORT),s_ifu_active,s_lsu_active)
          }
       }
       is (s_ifu_active){
@@ -171,22 +198,24 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
       } 
    }
 
-   req_valid := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.valid,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.valid,false.B))
-   req_fcn := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.fcn,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.fcn,M_X))
-   req_typi := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.typ,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.typ,MT_X))
-   req_addri := Mux(io.ports(IPORT).req.valid,Cat(io.ports(IPORT).req.bits.addr(31,2),0.asUInt(2.W)),
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.addr,0.U))
-   req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
-   // only instruction port support burst 
-   req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,0.U)
-   req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
+
+
+   // req_valid   := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.valid,
+   //                Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.valid,false.B))
+   // req_fcn     := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.fcn,
+   //                Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.fcn,M_X))
+   // req_typi    := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.typ,
+   //                Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.typ,MT_X))
+   // req_addri   := Mux(io.ports(IPORT).req.valid,Cat(io.ports(IPORT).req.bits.addr(31,2),0.asUInt(2.W)),
+   //                Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.addr,0.U))
+   // req_data    := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
+   //                Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
+   // // only instruction port support burst 
+   // req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,0.U)
+   // req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
+   
    val axi_resp = axi4lite_mem.io.resp.bits.resp
    val resp_valid = axi_resp === 0.U
-   val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
    io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
@@ -222,7 +251,6 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    /////////// Write Port
    when (req_valid && (req_fcn === M_XWR)){
       axi4lite_mem.io.req.waddr := req_addri
-      // axi4lite_mem.io.req.waddr := aligned_req_addri
       axi4lite_mem.io.req.data := req_data << (req_addri(1,0) << 3)
       axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
                               Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
