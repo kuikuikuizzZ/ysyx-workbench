@@ -159,7 +159,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          // }
          when(io.ports(currentMaster).req.valid) {
             state := Mux(currentMaster === IPORT,s_ifu_active,s_lsu_active)
-            burstlen_reg := Mux(currentMaster === IPORT,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U)) 
+            burstlen_reg := Mux(currentMaster === IPORT,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U) 
             // req_valid      := io.ports(currentMaster).req.valid 
             // req_addri      := io.ports(currentMaster).req.bits.addr      
             // req_fcn        := io.ports(currentMaster).req.bits.fcn     
@@ -171,7 +171,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
          }.elsewhen(io.ports(nextMaster).req.valid) {
             currentMaster := nextMaster
             state := Mux(nextMaster === IPORT,s_ifu_active,s_lsu_active)
-            burstlen_reg := Mux(nextMaster === IPORT,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U)) 
+            burstlen_reg := Mux(nextMaster === IPORT,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U) 
             // req_valid      := io.ports(nextMaster).req.valid 
             // req_addri      := io.ports(nextMaster).req.bits.addr      
             // req_fcn        := io.ports(nextMaster).req.bits.fcn     
