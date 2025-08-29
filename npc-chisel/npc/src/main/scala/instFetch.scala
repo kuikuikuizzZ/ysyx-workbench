@@ -66,7 +66,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
-  val if_inst = cache.io.inst
+  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid ))
   io.icache_valid := cache.io.valid 
   when (io.ctl.pipeline_kill)
   {
