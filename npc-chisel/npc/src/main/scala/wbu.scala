@@ -30,7 +30,9 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.ebreak            := io.mem_wb.bits.ebreak
     io.mem_wb.ready := true.B
 
-    when (!io.ctl.full_stall)
+    // full stall to valid
+    when (!io.ctl.full_stall) 
+    // when (io.mem_wb.valid)
     {
         io.reg.valid         := io.mem_wb.valid && !io.ctl.mem_exception 
         io.reg.bits.data     := io.mem_wb.bits.data

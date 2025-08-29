@@ -18,10 +18,11 @@ class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle
 
 class ysyx_24100012 extends Module
 {
+  val full_stall = Wire(Bool())
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
       prevOut.ready := thisIn.ready
-      thisIn.bits := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
+      thisIn.bits := RegEnable(prevOut.bits,!full_stall )
       // thisIn.bits := RegNext(prevOut.bits)
       thisIn.valid := RegNext(prevOut.valid && thisIn.ready)
   }
@@ -78,7 +79,7 @@ class ysyx_24100012 extends Module
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)
-
+  full_stall := decoder.io.ctl_sign.full_stall
   io.slave.ar.ready := false.B
   io.slave.r.data := 0.U
   io.slave.r.resp := 0.U
