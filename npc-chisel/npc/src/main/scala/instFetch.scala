@@ -62,7 +62,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val cache       = Module(new ysyx_24100012_ICache)
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
-  cache.io := DontCare
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
