@@ -353,14 +353,14 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
       io.dec_exe.bits.br_type       := cs_br_type
    } .otherwise{
-      io.dec_exe.bits.valid         := true.B
+      io.dec_exe.valid              := true.B
       io.dec_exe.bits.inst          := BUBBLE
       io.dec_exe.bits.wbaddr        := 0.U
       io.dec_exe.bits.ctrl_rf_wen   := false.B
       io.dec_exe.bits.ctrl_mem_val  := false.B
       io.dec_exe.bits.ctrl_mem_fcn  := M_X
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-      io.dec_exe.bits.ctrl_br_type  := BR_N
+      io.dec_exe.bits.br_type       := BR_N
    }
 
    
