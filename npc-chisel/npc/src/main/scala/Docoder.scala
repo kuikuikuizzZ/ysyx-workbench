@@ -196,7 +196,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
 
 
-   val io.exe_ctl.is_csr = RegInit(false.B)
 
    // TODO rename stall==hazard_stall full_stall == cmiss_stall
    // val full_stall = Wire(Bool())
@@ -307,8 +306,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                            ((cs_op1_sel === OP1_IMZ)) -> imm_z,
                            ((cs_op1_sel === OP1_PC)) -> dec_reg_pc,
                            ((io.exe_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.mem_wbdata,
-                           ((io.wb_ctl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_wbdata
+                           ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
+                           ((io.wb_ctl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_ctl.wbdata
                            ))
 
       op2_data := MuxCase(alu_op2, Array(
@@ -319,8 +318,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
       rs2_data := MuxCase(rf_rs2_data, Array(
                            ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.mem_wbdata,
-                           ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_wbdata
+                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
+                           ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_ctl.wbdata
                            ))
    } else{
       // Rely only on control interlocking to resolve hazards

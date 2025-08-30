@@ -34,7 +34,6 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val alu_out       = Output(UInt(conf.xlen.W))
    val wbaddr        = Output(UInt(5.W))
-   val wbdata        = Output(UInt(conf.xlen.W))
    val ctrl_rf_wen   = Output(Bool())
    val is_csr        = Output(Bool())
 }
@@ -133,7 +132,6 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
    
    io.to_ctl.alu_out       := alu_out
-   io.to_ctl.wbdata        := io.dec_exe.bits.data
    io.to_ctl.wbaddr        := io.dec_exe.bits.wbaddr
    io.to_ctl.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
    io.to_ctl.is_csr        := io.dec_exe.ctrl_csr_cmd =/= CSR.N && io.dec_exe.ctrl_csr_cmd =/= CSR.I
