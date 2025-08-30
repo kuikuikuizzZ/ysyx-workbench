@@ -183,8 +183,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // io.ctl.pipeline_kill := (io.dat.csr_eret || io.ctl.mem_exception)
    // val dec_exception = (!cs_val_inst && io.icache_valid)
    val dec_exception = false.B
-   val io.exe_ctl.exception   = RegInit(false.B)
-   val mem_exception = RegNext(io.exe_ctl.exception)
+   val exe_reg_exception   = RegInit(false.B)
+   val mem_exception = RegNext(exe_reg_exception)
    io.ctl_lsu.mem_exception := mem_exception
    pipeline_kill := mem_exception 
    
