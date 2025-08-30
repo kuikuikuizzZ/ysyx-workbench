@@ -62,12 +62,12 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val cache       = Module(new ysyx_24100012_ICache)
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
-  cache.io.clock := clock
-  cache.io.reset := reset
-  cache.io.port <> io.port
-  cache.io.pc := pc_reg
-  cache.io.req_valid := !io.reset && pc_valid && io.ifu_dec.ready
-  cache.io.debug <> io.debug.icache 
+  cache.io.clock      := clock
+  cache.io.reset      := reset
+  cache.io.req.bits   := pc_reg
+  cache.io.req.valid  := !io.reset && pc_valid && io.ifu_dec.ready
+  cache.io.port       <> io.port
+  cache.io.debug      <> io.debug.icache 
   
   // Pipeline Interface
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid ))
