@@ -72,8 +72,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io := DontCare
    val dec_reg_inst = io.ifu_dec.bits.inst
    val dec_reg_pc = io.ifu_dec.bits.pc
-   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
-   io.ifu_dec.ready := io.dec_exe.ready
+
    // Control Signals
    val csignals =
       ListLookup(dec_reg_inst,
@@ -236,11 +235,14 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // val exe_inst_is_load = RegInit(false.B)
 
-   // when (!io.ifu_dec.valid)
-   // {
-   //    exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
-   // }
-
+   when (io.ifu_dec.valid)
+   {
+      exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
+   }
+   // stall for load-use hazard
+   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+            (io.exe_ctl.is_csr)
    
    // if (conf.USE_FULL_BYPASSING)
    // {
@@ -350,7 +352,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
    io.dec_exe.bits.br_type       := cs_br_type
    
-
+   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
+   io.ifu_dec.ready := io.dec_exe.ready  && !stall 
+   
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
