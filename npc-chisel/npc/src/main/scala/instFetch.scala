@@ -41,10 +41,14 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
 
-  when((!io.ctl.dec_stall && !io.ctl.full_stall) || io.ctl.pipeline_kill) {
+  when(cache.io.valid && io.ifu_dec.ready) {
       pc_reg := pc_next
       pc_valid := true.B
-  } .otherwise {
+  } .elsewhen(!io.ifu_dec.ready){
+      pc_reg := pc_reg
+      pc_valid := pc_valid
+  }
+  .otherwise {
       pc_valid := false.B
   }
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
@@ -62,35 +66,17 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.reset := reset
   cache.io.port <> io.port
   cache.io.pc := pc_reg
-  cache.io.req_valid := !io.reset && pc_valid
+  cache.io.req_valid := !io.reset && pc_valid && io.ifu_dec.ready
   cache.io.debug <> io.debug.icache 
   
   // Pipeline Interface
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid ))
-  // val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid,cache.io.valid || pc_valid))
+  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid,cache.io.valid || io.ifu_dec.ready))
   
   io.icache_valid := cache.io.valid
-  when (io.ctl.pipeline_kill)
-  {
-    io.ifu_dec.valid := false.B
-    io.ifu_dec.bits.inst := BUBBLE
-  }
-  .elsewhen (!io.ctl.dec_stall && !io.ctl.full_stall)
-  {
-    when (io.ctl.if_kill)
-    {
-        io.ifu_dec.valid := false.B
-        io.ifu_dec.bits.inst := BUBBLE
-    }
-    .otherwise
-    {
-        io.ifu_dec.valid :=  cache.io.valid
-        io.ifu_dec.bits.inst := if_inst
-    }
-
-    io.ifu_dec.bits.pc := pc_reg
-  }
-
+  io.ifu_dec.valid :=  if_valid
+  io.ifu_dec.bits.inst := if_inst
+  io.ifu_dec.bits.pc := pc_reg
 
 
   ////////// debug
