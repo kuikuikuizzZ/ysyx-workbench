@@ -267,8 +267,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    }
    // stall full pipeline on D$ miss
    val dmem_val   = io.lsu_ctl.ctrl_mem_val
-   // full_stall    := !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
-   full_stall    := !io.icache_valid 
+   full_stall    := !io.icache_valid || !((dmem_val && io.lsu_ctl.resp_valid) || !dmem_val)
 
    io.ctl_sign.pc_sel := ctrl_exe_pc_sel
    io.ctl_sign.if_kill := ifkill
