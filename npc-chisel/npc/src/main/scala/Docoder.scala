@@ -232,14 +232,23 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    //    exe_reg_is_csr      := false.B
    //    exe_reg_exception   := false.B
    // }
-   exe_reg_wbaddr      := Mux(!io.ifu_dec.valid,exe_reg_wbaddr     ,dec_wbaddr )
-   exe_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,exe_reg_ctrl_rf_wen,cs_rf_wen  )
-   exe_reg_exception   := Mux(!io.ifu_dec.valid,exe_reg_exception  ,dec_exception)
-   exe_reg_is_csr      := Mux(!io.ifu_dec.valid,exe_reg_is_csr     ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I)
-   mem_reg_wbaddr      := Mux(!io.ifu_dec.valid,mem_reg_wbaddr        ,exe_reg_wbaddr      )
-   wb_reg_wbaddr       := Mux(!io.ifu_dec.valid,wb_reg_wbaddr         ,mem_reg_wbaddr      ) 
-   mem_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,mem_reg_ctrl_rf_wen   ,exe_reg_ctrl_rf_wen ) 
-   wb_reg_ctrl_rf_wen  := Mux(!io.ifu_dec.valid,wb_reg_ctrl_rf_wen    ,mem_reg_ctrl_rf_wen )  
+   // exe_reg_wbaddr      := Mux(!io.ifu_dec.valid,exe_reg_wbaddr          ,dec_wbaddr )
+   // exe_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,exe_reg_ctrl_rf_wen     ,cs_rf_wen  )
+   // exe_reg_exception   := Mux(!io.ifu_dec.valid,exe_reg_exception       ,dec_exception)
+   // exe_reg_is_csr      := Mux(!io.ifu_dec.valid,exe_reg_is_csr          ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I)
+   // mem_reg_wbaddr      := Mux(!io.ifu_dec.valid,mem_reg_wbaddr          ,exe_reg_wbaddr      )
+   // wb_reg_wbaddr       := Mux(!io.ifu_dec.valid,wb_reg_wbaddr           ,mem_reg_wbaddr      ) 
+   // mem_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,mem_reg_ctrl_rf_wen     ,exe_reg_ctrl_rf_wen ) 
+   // wb_reg_ctrl_rf_wen  := Mux(!io.ifu_dec.valid,wb_reg_ctrl_rf_wen      ,mem_reg_ctrl_rf_wen )  
+
+   exe_reg_wbaddr      := dec_wbaddr 
+   exe_reg_ctrl_rf_wen := cs_rf_wen  
+   exe_reg_exception   := dec_exception
+   exe_reg_is_csr      := cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I
+   mem_reg_wbaddr      := exe_reg_wbaddr      
+   wb_reg_wbaddr       := mem_reg_wbaddr      
+   mem_reg_ctrl_rf_wen := exe_reg_ctrl_rf_wen  
+   wb_reg_ctrl_rf_wen  := mem_reg_ctrl_rf_wen   
 
    // val exe_inst_is_load = RegInit(false.B)
 
