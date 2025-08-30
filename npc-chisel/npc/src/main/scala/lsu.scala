@@ -119,13 +119,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     
 
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
-    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
-    io.to_ctl.ctrl_mem_val  := mem_en
-    io.to_ctl.wbdata        := io.exe_mem.bits.data
-    io.to_ctl.wbaddr        := io.exe_mem.bits.wbaddr
-    io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
-    io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
-    
     io.exe_mem.ready := io.mem_wb.ready && ((!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid))
 
     // WB Mux
@@ -141,6 +134,14 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
 
+    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    io.to_ctl.ctrl_mem_val  := mem_en
+    io.to_ctl.wbdata        := wbdata
+    io.to_ctl.wbaddr        := io.exe_mem.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
+    io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
+
+    
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
