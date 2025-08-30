@@ -233,12 +233,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // io.wb_ctl.ctrl_rf_wen  := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.lsu_ctl.ctrl_rf_wen  ,io.wb_ctl.ctrl_rf_wen      )  
    // io.exe_ctl.is_csr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I ,io.exe_ctl.is_csr)          
 
-   val exe_inst_is_load = io.exe_ctl.inst_is_load
-   
-   // stall for load-use hazard
-   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
-            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
-            (io.exe_ctl.is_csr)
    
    // if (conf.USE_FULL_BYPASSING)
    // {
@@ -350,6 +344,19 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    
    // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
    io.ifu_dec.ready := io.dec_exe.ready  && !stall 
+
+   /////// stall 
+   val inst_is_load = cs_mem_en && (cs_mem_fcn === M_XRD)
+   val exe_inst_is_load = io.exe_mem.inst_is_load
+   // stall for load-use hazard
+   // NOTE: when load inst in dec stage, bypass not work in next cycle 
+   // for WBDATA in mem stage is not ready 
+   // after stall, dec inst can find wbdata in wb stage
+   stall := inst_is_load ||
+            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+            (io.exe_ctl.is_csr)
+
 
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
