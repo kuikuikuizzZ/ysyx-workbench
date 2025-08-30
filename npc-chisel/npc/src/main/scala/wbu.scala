@@ -19,7 +19,6 @@ class WBToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val wb_data       = Output(UInt(conf.xlen.W))
    val wb_addr       = Output(UInt(5.W))
    val ctrl_rf_wen   = Output(Bool())
-   val is_csr        = Output(Bool())
 }
 
 
@@ -30,11 +29,16 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
         val debug = new WBUDebugPort()
         val ctl = new CtrlSignalIO()
         val ebreak = Output(Bool())
+        val to_ctl = new WBToCTLIO()
     })
 
     io := DontCare
     io.ebreak            := io.mem_wb.bits.ebreak
     io.mem_wb.ready := true.B
+
+    io.to_ctl.wb_data    := io.mem_wb.bits.data
+    io.to_ctl.wb_addr    := io.mem_wb.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen:= io.mem_wb.bits.ctrl_rf_wen
 
     io.reg.valid         := io.mem_wb.valid
     io.reg.bits.data     := io.mem_wb.bits.data

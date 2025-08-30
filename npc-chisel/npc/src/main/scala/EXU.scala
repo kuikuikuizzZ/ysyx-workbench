@@ -34,6 +34,7 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val alu_out       = Output(UInt(conf.xlen.W))
    val wb_addr       = Output(UInt(5.W))
+   val wb_data       = Output(UInt(conf.xlen.W))
    val ctrl_rf_wen   = Output(Bool())
    val is_csr        = Output(Bool())
 }
@@ -75,7 +76,6 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
                   (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
                   (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
-   io.to_ctl.alu_out := alu_out
 
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
@@ -132,6 +132,11 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
    io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
    
+   io.to_ctl.alu_out       := alu_out
+   io.to_ctl.wb_data       := io.dec_exe.bits.data
+   io.to_ctl.wb_addr       := io.dec_exe.bits.wbaddr
+   io.to_ctl.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
+   io.to_ctl.is_csr        := io.dec_exe.ctrl_csr_cmd =/= CSR.N && io.dec_exe.ctrl_csr_cmd =/= CSR.I
 }
 
  

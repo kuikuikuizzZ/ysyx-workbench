@@ -25,7 +25,6 @@ class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val alu_out       = Output(UInt(conf.xlen.W))
     val wb_addr       = Output(UInt(5.W))
     val ctrl_rf_wen   = Output(Bool())
-    val is_csr        = Output(Bool())
 }
 
 
@@ -121,6 +120,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
+    io.to_ctl.wb_data       := io.exe_mem.bits.data
+    io.to_ctl.wb_addr       := io.exe_mem.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
     
     io.exe_mem.ready := io.mem_wb.ready && ((!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid))
 

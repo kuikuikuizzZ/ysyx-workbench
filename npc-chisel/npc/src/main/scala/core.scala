@@ -54,17 +54,18 @@ class ysyx_24100012 extends Module
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
   decoder.io.icache_valid := inst_fetch.io.icache_valid 
-  decoder.io.exe_ctl <> exu.io.to_ctl
   decoder.io.mem_wbdata := lsu.io.mem_wb.bits.data
   decoder.io.wb_wbdata := wbu.io.reg.bits.data
 
   exu.io.ctl <> decoder.io.ctl_sign
+  exu.io.to_ctl <> decoder.io.exe_ctl 
 
   lsu.io.ctl <> decoder.io.ctl_lsu
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
+  wbu.io.to_ctl <> decoder.io.wb_ctl
 
   pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec, decoder.io.dec_exe)
   pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
