@@ -15,6 +15,12 @@ class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val data = Output(UInt(conf.xprlen.W))
     val wbaddr = Output(UInt(5.W))
 }
+class WBToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val wb_data       = Output(UInt(conf.xlen.W))
+   val wb_addr       = Output(UInt(5.W))
+   val ctrl_rf_wen   = Output(Bool())
+   val is_csr        = Output(Bool())
+}
 
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {

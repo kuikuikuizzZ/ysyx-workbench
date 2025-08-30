@@ -31,8 +31,11 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val exe_brjmp_target    =   Output(UInt(conf.xprlen.W))
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
 }
-class ToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-   val alu_out = Output(UInt(conf.xlen.W))
+class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val alu_out       = Output(UInt(conf.xlen.W))
+   val wb_addr       = Output(UInt(5.W))
+   val ctrl_rf_wen   = Output(Bool())
+   val is_csr        = Output(Bool())
 }
 
 
@@ -42,7 +45,7 @@ class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val exe_mem = new DecoupledIO(new EXEPipeIO())
    val ctl = new CtrlSignalIO()
    val ifu_out = new EXUToIFUOut()
-   val to_ctl = new ToCTLIO()
+   val to_ctl = new EXUToCTLIO()
 }
 
 class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module

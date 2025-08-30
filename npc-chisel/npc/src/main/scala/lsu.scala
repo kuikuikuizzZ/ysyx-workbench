@@ -22,6 +22,10 @@ class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val resp_valid   = Output(Bool())
     val ctrl_mem_val = Output(Bool())
+    val alu_out       = Output(UInt(conf.xlen.W))
+    val wb_addr       = Output(UInt(5.W))
+    val ctrl_rf_wen   = Output(Bool())
+    val is_csr        = Output(Bool())
 }
 
 
