@@ -160,6 +160,7 @@ uint32_t top_decode_pc() {
     if (!_rootp) return 0;
     uint32_t pc ;
     IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_rpc);
+    // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_REG_pc);
     IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
     return pc;
 }
@@ -211,6 +212,8 @@ uint32_t top_op1() {
     if (!_rootp) return 0;
     uint32_t op1=0;
     IFDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__exu_io_dec_exe_bits_rop1_data);
+    // IFDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__exu_io_dec_exe_bits_REG_op1_data);
+
     IFNDEF(CONFIG_SOC,op1=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__d__DOT__casez_tmp_0);
     return op1;
 }
@@ -219,6 +222,8 @@ uint32_t top_op2() {
     if (!_rootp) return 0;
     uint32_t op2 =0;
     IFDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__exu_io_dec_exe_bits_rop2_data);
+    // IFDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__exu_io_dec_exe_bits_REG_op2_data);
+
     IFNDEF(CONFIG_SOC,op2=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__d__DOT__casez_tmp_1);
     return op2;
 }

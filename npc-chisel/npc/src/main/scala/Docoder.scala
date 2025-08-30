@@ -232,10 +232,10 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       exe_reg_exception   := false.B
    }
 
-   mem_reg_wbaddr      := exe_reg_wbaddr
-   wb_reg_wbaddr       := mem_reg_wbaddr
-   mem_reg_ctrl_rf_wen := exe_reg_ctrl_rf_wen
-   wb_reg_ctrl_rf_wen  := mem_reg_ctrl_rf_wen
+   mem_reg_wbaddr      := Mux(!full_stall,exe_reg_wbaddr,mem_reg_wbaddr)
+   wb_reg_wbaddr       := Mux(!full_stall,mem_reg_wbaddr,wb_reg_wbaddr) 
+   mem_reg_ctrl_rf_wen := Mux(!full_stall,exe_reg_ctrl_rf_wen,mem_reg_ctrl_rf_wen) 
+   wb_reg_ctrl_rf_wen  := Mux(!full_stall,mem_reg_ctrl_rf_wen,wb_reg_ctrl_rf_wen)  
 
    val exe_inst_is_load = RegInit(false.B)
 
