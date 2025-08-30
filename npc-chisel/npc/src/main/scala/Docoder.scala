@@ -189,7 +189,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    
    // Stall Signal Logic --------------------
    
-   // val stall   = Wire(Bool())
+   val stall   = Wire(Bool())
 
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
@@ -354,7 +354,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    
    // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
    io.ifu_dec.ready := io.dec_exe.ready  && !stall 
-   
+
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
    val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
