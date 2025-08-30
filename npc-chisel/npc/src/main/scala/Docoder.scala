@@ -191,7 +191,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    
    // Stall Signal Logic --------------------
    
-   val stall   = Wire(Bool())
+   // val stall   = Wire(Bool())
 
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
