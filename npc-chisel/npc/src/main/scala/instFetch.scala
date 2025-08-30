@@ -34,6 +34,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
     new InstFetchIo()
   )
   io := DontCare
+  val cache       = Module(new ysyx_24100012_ICache)
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
@@ -59,9 +60,9 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
-  val cache       = Module(new ysyx_24100012_ICache)
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
+
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
