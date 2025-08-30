@@ -12,12 +12,12 @@ class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val miss_cnt = Output(UInt(conf.perfCountBits.W))
 }
 
-
 class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val clock     = Input(Clock())
   val reset     = Input(Bool())
   val port      = new MemPortIo(conf.xlen)
-  val req       = Decoupled((UInt(conf.xprlen.W)))
+  val pc        = Input(UInt(conf.xprlen.W))
+  val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
   val debug     = Output(new ICacheDebugPort)
@@ -29,7 +29,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     io.port := DontCare
 
 
-    val sIdle :: sHit :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(6)
+    val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)
     val state               = RegInit(sIdle)
     val s_bits              = conf.ICacheSizeBits
     val b_bits              = conf.ICacheBlockBits
@@ -44,43 +44,43 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     
     val ren = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
-    val reg_req_valid       = RegNext(io.req.valid,false.B)
+    val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
     val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
     
-    // val in_sdram = io.req.bits >= SDRAM_BASE && io.req.bits < (SDRAM_BASE + SDRAM_SIZE)
-    // val in_flash = io.req.bits >= FLASH_BASE && io.req.bits < (FLASH_BASE + FLASH_SIZE)
-    // val in_psram = io.req.bits >= PSRAM_BASE && io.req.bits < (PSRAM_BASE + PSRAM_SIZE)
+    // val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
+    // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
+    // val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
     // val in_mem = in_sdram || in_flash || in_psram
 
-    // val cache_data = mem.read(io.req.bits(5,2),(io.req.valid || ren) && in_mem)
+    // val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
     // val cache_valid = cache_data(58) && in_mem
-    // val hit = cache_valid && (io.req.bits(31,6) === cache_data(57,32))
+    // val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
     // io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
     // io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
 
-    val group_index = io.req.bits(b_bits+2-1,2)
-    val cache_block = mem.read(io.req.bits(s_bits+b_bits+2-1,b_bits+2),(io.req.valid || ren))
+    val group_index = io.pc(b_bits+2-1,2)
+    val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid = valids.read(io.req.bits(s_bits+b_bits+2-1,b_bits+2),(io.req.valid || ren))
-    val tag = tags.read(io.req.bits(s_bits+b_bits+2-1,b_bits+2),(io.req.valid || ren))
-    val hit = cache_valid && (io.req.bits(conf.xprlen-1,s_bits+b_bits+2) === tag)
+    val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
         
     io.inst := Mux(hit,cache_data,BUBBLE)
     io.valid := Mux(hit,true.B,false.B)
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting
-        io.port.req.bits.addr   := Cat(io.req.bits(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
+        io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
         io.port.req.bits.fcn    := M_XRD
         io.port.req.bits.typ    := MT_WU
     }
     when(state === sBurstRequesting) {
         io.port.req.valid           := state === sBurstRequesting
-        io.port.req.bits.addr       := Cat(io.req.bits(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
+        io.port.req.bits.addr       := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
         io.port.req.bits.fcn        := M_XRD
         io.port.req.bits.typ        := MT_WU
         io.port.req.bits.burst      := BURST_INCR
@@ -88,7 +88,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     }
     
 
-    // 状态迁移
+        // 状态迁移
     switch(state) {
         is(sIdle) {
             ren := false.B
@@ -122,9 +122,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
 
     // 写入缓存（仅当完成整行加载）
     when(state === sComplete) {
-        val index = io.req.bits(s_bits + b_bits + 2 - 1, b_bits+2)
+        val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
         mem.write(index, fullCacheLine) // 写入数据
-        tags.write(index, io.req.bits(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
+        tags.write(index, io.pc(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
         valids.write(index, true.B) // 标记有效
     }
 

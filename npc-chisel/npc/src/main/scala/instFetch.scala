@@ -64,8 +64,8 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   // val valid       = RegNext(cache.io.valid,false.B)
   cache.io.clock      := clock
   cache.io.reset      := reset
-  cache.io.req.bits   := pc_reg
-  cache.io.req.valid  := !io.reset && pc_valid && io.ifu_dec.ready
+  cache.io.pc         := pc_reg
+  cache.io.req_valid  := !io.reset && pc_valid && io.ifu_dec.ready
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   
