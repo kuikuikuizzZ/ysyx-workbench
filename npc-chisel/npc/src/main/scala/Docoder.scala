@@ -61,7 +61,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ctl_sign      =  Flipped(new CtrlSignalIO)
    val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
-   val exe_ctl       =  Flipped(new EXEToCTLIO())
+   val exe_ctl       =  Flipped(new EXUToCTLIO())
    val wb_ctl        =  Flipped(new WBToCTLIO)
    val debug         =  new CtrlDebugPort
 }
