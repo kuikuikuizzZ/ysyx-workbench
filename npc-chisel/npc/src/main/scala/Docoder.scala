@@ -323,7 +323,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
-   io.dec_exe.valid              := io.ifu_dec.valid
+   io.dec_exe.valid              := io.ifu_dec.valid  && !stall 
    io.dec_exe.bits.pc            := dec_reg_pc
    io.dec_exe.bits.rs1_addr      := dec_rs1_addr
    io.dec_exe.bits.rs2_addr      := dec_rs2_addr
@@ -346,14 +346,12 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ifu_dec.ready := io.dec_exe.ready  && !stall 
 
    /////// stall 
-   val inst_is_load = cs_mem_en && (cs_mem_fcn === M_XRD)
    val exe_inst_is_load = io.exe_ctl.inst_is_load
    // stall for load-use hazard
    // NOTE: when load inst in dec stage, bypass not work in next cycle 
    // for WBDATA in mem stage is not ready 
    // after stall, dec inst can find wbdata in wb stage
-   stall := inst_is_load ||
-            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
             (io.exe_ctl.is_csr)
 
