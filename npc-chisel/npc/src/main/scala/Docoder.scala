@@ -347,7 +347,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    /////// stall 
    val inst_is_load = cs_mem_en && (cs_mem_fcn === M_XRD)
-   val exe_inst_is_load = io.exe_mem.inst_is_load
+   val exe_inst_is_load = io.exe_ctl.inst_is_load
    // stall for load-use hazard
    // NOTE: when load inst in dec stage, bypass not work in next cycle 
    // for WBDATA in mem stage is not ready 
