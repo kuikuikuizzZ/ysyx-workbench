@@ -330,7 +330,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // when load inst in dec stage, bypass not work in next cycle 
    // for WBDATA in mem stage is not ready 
    // after stall, dec inst can find wbdata in wb stage
-   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+   stall := inst_is_load ||
+            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
             (io.exe_ctl.is_csr)
 
