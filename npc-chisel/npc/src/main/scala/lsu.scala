@@ -26,6 +26,7 @@ class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val wbaddr        = Output(UInt(5.W))
     val wbdata        = Output(UInt(conf.xlen.W))
     val ctrl_rf_wen   = Output(Bool())
+    val inst_is_load  = Output(Bool())
 }
 
 
@@ -142,7 +143,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.to_ctl.wbaddr        := io.exe_mem.bits.wbaddr
     io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
     io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
-
+    io.to_ctl.inst_is_load  := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
