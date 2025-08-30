@@ -323,28 +323,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
-   io.dec_exe.valid              := io.ifu_dec.valid  && !stall 
-   io.dec_exe.bits.pc            := dec_reg_pc
-   io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-   io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-   io.dec_exe.bits.op1_data      := op1_data
-   io.dec_exe.bits.op2_data      := op2_data
-   io.dec_exe.bits.rs2_data      := rs2_data
-   io.dec_exe.bits.op2_sel       := cs_op2_sel
-   io.dec_exe.bits.alu_fun       := cs_alu_fun
-   io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
-   io.dec_exe.bits.inst          := dec_reg_inst
-   io.dec_exe.bits.wbaddr        := dec_wbaddr
-   io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
-   io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
-   io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
-   io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
-   io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
-   io.dec_exe.bits.br_type       := cs_br_type
-   
-   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
-   io.ifu_dec.ready := io.dec_exe.ready  && !stall 
-
    /////// stall 
    val exe_inst_is_load = io.exe_ctl.inst_is_load
    // stall for load-use hazard
@@ -354,6 +332,42 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
             (io.exe_ctl.is_csr)
+
+   when (!stall){
+      io.dec_exe.valid              := io.ifu_dec.valid  && !stall 
+      io.dec_exe.bits.pc            := dec_reg_pc
+      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
+      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
+      io.dec_exe.bits.op1_data      := op1_data
+      io.dec_exe.bits.op2_data      := op2_data
+      io.dec_exe.bits.rs2_data      := rs2_data
+      io.dec_exe.bits.op2_sel       := cs_op2_sel
+      io.dec_exe.bits.alu_fun       := cs_alu_fun
+      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
+      io.dec_exe.bits.inst          := dec_reg_inst
+      io.dec_exe.bits.wbaddr        := dec_wbaddr
+      io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
+      io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
+      io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
+      io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
+      io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
+      io.dec_exe.bits.br_type       := cs_br_type
+   } .otherwise{
+      io.dec_exe.bits.valid         := true.B
+      io.dec_exe.bits.inst          := BUBBLE
+      io.dec_exe.bits.wbaddr        := 0.U
+      io.dec_exe.bits.ctrl_rf_wen   := false.B
+      io.dec_exe.bits.ctrl_mem_val  := false.B
+      io.dec_exe.bits.ctrl_mem_fcn  := M_X
+      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
+      io.dec_exe.bits.ctrl_br_type  := BR_N
+   }
+
+   
+   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
+   io.ifu_dec.ready := io.dec_exe.ready  && !stall 
+
+
 
 
    /////////   Debug Signals
