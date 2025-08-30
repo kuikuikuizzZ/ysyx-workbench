@@ -19,7 +19,7 @@ class WBToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val wbdata       = Output(UInt(conf.xlen.W))
    val wbaddr       = Output(UInt(5.W))
    val ctrl_rf_wen  = Output(Bool())
-
+}
 
 
 class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
