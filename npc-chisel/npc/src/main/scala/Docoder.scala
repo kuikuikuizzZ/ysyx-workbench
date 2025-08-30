@@ -235,10 +235,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // val exe_inst_is_load = RegInit(false.B)
 
-   when (io.ifu_dec.valid)
-   {
-      exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
-   }
+   
+   val  exe_inst_is_load = cs_mem_en && (cs_mem_fcn === M_XRD)
+   
    // stall for load-use hazard
    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
