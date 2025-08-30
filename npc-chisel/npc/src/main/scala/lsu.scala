@@ -58,9 +58,9 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
     csr.io.pc           := io.pc
     io.exception_target := csr.io.evec
     io.rdata            := csr.io.rw.rdata    
-
-    // io.dat.csr_eret := csr.io.eret
     io.ebreak := csr.io.insn_break
+    // io.dat.csr_eret := csr.io.eret
+
     // Add your own uarch counters here!
     // csr.io.counters.foreach(_.inc := false.B)
 }
@@ -81,7 +81,6 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
     val io = IO(new LSUIO())
     io := DontCare
-    io.exe_mem.ready := true.B
     
     // val valid = Wire(Bool())
     val mem_data = Wire(UInt(conf.xlen.W))
@@ -118,6 +117,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
+    io.exe_mem.ready := io.mem_wb.ready && ((!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid))
+
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
                   (io.exe_mem.bits.ctrl_wb_sel === WB_ALU) -> io.exe_mem.bits.alu_out,
@@ -126,13 +127,12 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    // io.mem_wb.valid         := io.exe_mem.valid  && !io.ctl.mem_exception
-    io.mem_wb.valid         := io.exe_mem.valid && io.port.resp.valid
+    io.mem_wb.valid         := io.exe_mem.valid && io.to_ctl.resp_valid  
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
 
-    /* Debug */
+    /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
     io.debug.mem_en     := mem_en
@@ -151,5 +151,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     }
     io.debug.loadCount  := loadCnt
     io.debug.storeCount := storeCnt
+    /////////// Debug Port
 }
 

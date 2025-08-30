@@ -30,20 +30,10 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.ebreak            := io.mem_wb.bits.ebreak
     io.mem_wb.ready := true.B
 
-    // full stall to valid
-    when (!io.ctl.full_stall) 
-    // when (io.mem_wb.valid)
-    {
-        io.reg.valid         := io.mem_wb.valid && !io.ctl.mem_exception 
-        io.reg.bits.data     := io.mem_wb.bits.data
-        io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
-        io.reg.bits.rf_wen   := Mux(io.ctl.mem_exception, false.B,io.mem_wb.bits.ctrl_rf_wen)
-    }
-    .otherwise
-    {
-        io.reg.valid         := false.B
-        io.reg.bits.rf_wen   := false.B
-    }
+    io.reg.valid         := io.mem_wb.valid
+    io.reg.bits.data     := io.mem_wb.bits.data
+    io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
+    io.reg.bits.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
     
     ///////// DEBUG PORT
     val wbCount = RegInit(0.U(conf.perfCountBits.W))
