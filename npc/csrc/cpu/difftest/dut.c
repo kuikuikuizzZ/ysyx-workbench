@@ -177,14 +177,16 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   }
   memory_access_skip_ref();
 
-  if (is_skip_ref) {
+  if (is_skip_ref && cpu.pc != 0x0) {
     // to skip the checking of an instruction, just copy the reg state to reference design
+    printf("skip one instruction at pc = %.8x\n", pc);
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
 
-  if ( pc_next != pc) {
+  if (pc != 0x0 && pc_next != pc ) {
+    printf("pc_next != pc, pc_next = %.8x, pc = %.8x\n", pc_next, pc);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);

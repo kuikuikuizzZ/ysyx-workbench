@@ -18,8 +18,7 @@
         input lsu_port_valid,
         input [31:0] lsu_port_storeCount,
         input [31:0] lsu_port_loadCount,
-        
-        input [31:0] wbu_port_wbCount
+        input [31:0] wbu_port_wbCount,
         input [31:0] ifu_port_instFetchCount,
         input [31:0] ifu_port_icache_hit_cnt,
         input [31:0] ifu_port_icache_miss_cnt,        
