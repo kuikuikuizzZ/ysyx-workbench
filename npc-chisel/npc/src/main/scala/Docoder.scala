@@ -328,7 +328,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val mem_inst_is_load = io.lsu_ctl.inst_is_load
    // NOTE: stall for load-use hazard
    // when load inst in exe stage, bypass not work in dec stage, alu_out is not answer 
-   // for WBDATA in mem stage is not ready 
+   // when load inst in exe stage, for WBDATA in mem stage is not ready 
    // after stall, dec inst can find wbdata in wb stage
    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
@@ -339,7 +339,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
    // or exe stage always load inst, and pipeline is broken
    when (!stall){
-      io.dec_exe.valid              := io.ifu_dec.valid  && !stall 
+      io.dec_exe.valid              := io.ifu_dec.valid  
       io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
       io.dec_exe.bits.rs2_addr      := dec_rs2_addr
