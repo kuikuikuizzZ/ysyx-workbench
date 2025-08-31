@@ -115,7 +115,7 @@ class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val con
    io.port.resp.valid := axi4lite_mem.io.resp.valid
 }
 
-class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
+class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
@@ -234,51 +234,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
 }
 
 
-class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: ysyx_24100012_Config) extends Module
-{
-   val io = IO(new Bundle
-   {
-      val port = Flipped(new MemPortIo(data_width = conf.xprlen))
-      val axi_port = new AXI4LiteIo()
-   }) 
-   io := DontCare
-
-   val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
-
-   io.port.req.ready := RegInit(true.B)
-   axi4lite_mem.io := DontCare
-   axi4lite_mem.io.clock  := clock
-   axi4lite_mem.io.reset := reset
-   axi4lite_mem.io.axi_io <> io.axi_port
-
-   axi4lite_mem.io.req.raddr := io.port.req.bits.addr
-   axi4lite_mem.io.req.wen := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XWR, false.B)
-   axi4lite_mem.io.req.ren := Mux(io.port.req.valid,io.port.req.bits.fcn === M_XRD, false.B)
-
-   /////////// Read Port
-   val resp_datai = axi4lite_mem.io.resp.bits.data
-   val req_typi = Wire(UInt(3.W))
-   val req_addri = io.port.req.bits.addr
-   req_typi := io.port.req.bits.typ
-   io.port.resp.bits.data := MuxCase(resp_datai,Seq(
-      (req_typi === MT_B) -> Cat(Fill(24,resp_datai(7)),resp_datai(7,0)),
-      (req_typi === MT_H) -> Cat(Fill(16,resp_datai(15)),resp_datai(15,0)),
-      (req_typi === MT_BU) -> Cat(Fill(24,0.U),resp_datai(7,0)),
-      (req_typi === MT_HU) -> Cat(Fill(16,0.U),resp_datai(15,0))
-   ))
-   
-   /////////// Write Port
-   when (io.port.req.valid && (io.port.req.bits.fcn === M_XWR)){
-      // axi4lite_mem.io.req.waddr := req_addri
-      axi4lite_mem.io.req.data := io.port.req.bits.data<< (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.waddr := Cat(req_addri(31,2),0.asUInt(2.W))
-      axi4lite_mem.io.req.mask := Mux(req_typi === MT_B,1.U << req_addri(1,0),
-                              Mux(req_typi === MT_H,3.U << req_addri(1,0),15.U))
-   }
-   io.port.resp.valid := axi4lite_mem.io.resp.valid
-}
-
-class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
+class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
