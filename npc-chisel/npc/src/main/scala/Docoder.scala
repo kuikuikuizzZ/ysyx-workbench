@@ -156,25 +156,23 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.dec_reg.rs2_addr := dec_rs2_addr
    
    ////// Branch Logic
-   val br_eq  = (io.reg_in.rs1_data === io.reg_in.rs2_data)
-   val br_lt  = (io.reg_in.rs1_data.asSInt < io.reg_in.rs2_data.asSInt) 
-   val br_ltu = (io.reg_in.rs1_data.asUInt < io.reg_in.rs2_data.asUInt)
    val pipeline_kill = Wire(Bool())
-
+   val exe_br_type = io.exe_ctl.br_type
    val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
-                         Mux(cs_br_type === BR_N  , PC_4,
-                         Mux(cs_br_type === BR_NE , Mux(!br_eq,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_EQ , Mux( br_eq,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_GE , Mux(!br_lt,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_GEU, Mux(!br_ltu, PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_LT , Mux( br_lt,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_LTU, Mux( br_ltu, PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_J  , PC_BRJMP,
-                         Mux(cs_br_type === BR_JR , PC_JALR,
+                         Mux(exe_br_type === BR_N  , PC_4,
+                         Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_GE , Mux(!io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_GEU, Mux(!io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_LT , Mux( io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_LTU, Mux( io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_J  , PC_BRJMP,
+                         Mux(exe_br_type === BR_JR , PC_JALR,
                                                             PC_4
                      ))))))))))   
 
-   val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
+   // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
+   val ifkill  = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || RegNext(cs_fencei)
    val deckill = (ctrl_exe_pc_sel =/= PC_4)
 
    // Exception Handling ---------------------
@@ -338,7 +336,21 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
    // or exe stage always load inst, and pipeline is broken
-   when (!stall){
+   when (!stall ){
+
+
+   } 
+   when( stall ){
+      io.dec_exe.valid              := true.B
+      io.dec_exe.bits.inst          := BUBBLE
+      io.dec_exe.bits.wbaddr        := 0.U
+      io.dec_exe.bits.ctrl_rf_wen   := false.B
+      io.dec_exe.bits.ctrl_mem_val  := false.B
+      io.dec_exe.bits.ctrl_mem_fcn  := M_X
+      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
+      io.dec_exe.bits.br_type       := BR_N
+   } .otherwise {
+      
       io.dec_exe.valid              := io.ifu_dec.valid  
       io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
@@ -349,24 +361,29 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.op2_sel       := cs_op2_sel
       io.dec_exe.bits.alu_fun       := cs_alu_fun
       io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
-      io.dec_exe.bits.inst          := dec_reg_inst
-      io.dec_exe.bits.wbaddr        := dec_wbaddr
-      io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
-      io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
-      io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
-      io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
-      io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
-      io.dec_exe.bits.br_type       := cs_br_type
-   } .otherwise{
-      io.dec_exe.valid              := true.B
-      io.dec_exe.bits.inst          := BUBBLE
-      io.dec_exe.bits.wbaddr        := 0.U
-      io.dec_exe.bits.ctrl_rf_wen   := false.B
-      io.dec_exe.bits.ctrl_mem_val  := false.B
-      io.dec_exe.bits.ctrl_mem_fcn  := M_X
-      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-      io.dec_exe.bits.br_type       := BR_N
+
+      when(deckill){
+         exe_reg_valid         := false.B
+         exe_reg_inst          := BUBBLE
+         exe_reg_wbaddr        := 0.U
+         exe_reg_ctrl_rf_wen   := false.B
+         exe_reg_ctrl_mem_val  := false.B
+         exe_reg_ctrl_mem_fcn  := M_X
+         exe_reg_ctrl_csr_cmd  := CSR.N
+         exe_reg_ctrl_br_type  := BR_N      
+      }
+      .otherwise{
+         io.dec_exe.bits.inst          := dec_reg_inst
+         io.dec_exe.bits.wbaddr        := dec_wbaddr
+         io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
+         io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
+         io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
+         io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
+         io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
+         io.dec_exe.bits.br_type       := cs_br_type
+      }
    }
+
 
    
    // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
