@@ -22,6 +22,11 @@ class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val resp_valid   = Output(Bool())
     val ctrl_mem_val = Output(Bool())
+    val alu_out       = Output(UInt(conf.xlen.W))
+    val wbaddr        = Output(UInt(5.W))
+    val wbdata        = Output(UInt(conf.xlen.W))
+    val ctrl_rf_wen   = Output(Bool())
+    val inst_is_load  = Output(Bool())
 }
 
 
@@ -115,9 +120,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     
 
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
-    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
-    io.to_ctl.ctrl_mem_val  := mem_en
-    io.exe_mem.ready := io.mem_wb.ready && ((!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid))
+    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid)
+    // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
+    val ready = mem_ready
+    io.exe_mem.ready := io.mem_wb.ready && ready
 
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
@@ -127,10 +133,18 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    io.mem_wb.valid         := io.exe_mem.valid && io.to_ctl.resp_valid  
+    io.mem_wb.valid         := (!mem_en || (mem_en && io.to_ctl.resp_valid))
     io.mem_wb.bits.data     := wbdata
     io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
+
+    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    io.to_ctl.ctrl_mem_val  := mem_en
+    io.to_ctl.wbdata        := wbdata
+    io.to_ctl.wbaddr        := io.exe_mem.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
+    io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
+    io.to_ctl.inst_is_load  := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))

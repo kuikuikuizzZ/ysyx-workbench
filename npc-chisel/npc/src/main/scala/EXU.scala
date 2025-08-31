@@ -31,8 +31,12 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val exe_brjmp_target    =   Output(UInt(conf.xprlen.W))
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
 }
-class ToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-   val alu_out = Output(UInt(conf.xlen.W))
+class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+   val alu_out       = Output(UInt(conf.xlen.W))
+   val wbaddr        = Output(UInt(5.W))
+   val inst_is_load  = Output(Bool())
+   val ctrl_rf_wen   = Output(Bool())
+   val is_csr        = Output(Bool())
 }
 
 
@@ -42,7 +46,7 @@ class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val exe_mem = new DecoupledIO(new EXEPipeIO())
    val ctl = new CtrlSignalIO()
    val ifu_out = new EXUToIFUOut()
-   val to_ctl = new ToCTLIO()
+   val to_ctl = new EXUToCTLIO()
 }
 
 class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
@@ -72,7 +76,6 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
                   (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
                   (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
-   io.to_ctl.alu_out := alu_out
 
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
@@ -129,6 +132,11 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
    io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
    
+   io.to_ctl.alu_out       := alu_out
+   io.to_ctl.wbaddr        := io.dec_exe.bits.wbaddr
+   io.to_ctl.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
+   io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
+   io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
 }
 
  

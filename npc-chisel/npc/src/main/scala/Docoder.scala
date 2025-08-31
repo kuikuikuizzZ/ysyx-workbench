@@ -58,12 +58,11 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ifu_dec       =  Flipped(new DecoupledIO(new IFUPipeIO))
    val dec_exe       =  new DecoupledIO( new DecPipeIO)
    val reg_in        =  Flipped(new RegFileOut())
-   val ctl_sign       =  Flipped(new CtrlSignalIO)
+   val ctl_sign      =  Flipped(new CtrlSignalIO)
    val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
-   val exe_ctl       = Flipped(new ToCTLIO())
-   val mem_wbdata    =  Input(UInt(conf.xlen.W))
-   val wb_wbdata     =  Input(UInt(conf.xlen.W))
+   val exe_ctl       =  Flipped(new EXUToCTLIO())
+   val wb_ctl        =  Flipped(new WBToCTLIO)
    val debug         =  new CtrlDebugPort
 }
 
@@ -73,8 +72,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io := DontCare
    val dec_reg_inst = io.ifu_dec.bits.inst
    val dec_reg_pc = io.ifu_dec.bits.pc
-   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
-   io.ifu_dec.ready := io.dec_exe.ready
+
    // Control Signals
    val csignals =
       ListLookup(dec_reg_inst,
@@ -196,14 +194,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
 
-   val exe_reg_wbaddr      = Reg(UInt())
-   val mem_reg_wbaddr      = Reg(UInt())
-   val wb_reg_wbaddr       = Reg(UInt())
-   val exe_reg_ctrl_rf_wen = RegInit(false.B)
-   val mem_reg_ctrl_rf_wen = RegInit(false.B)
-   val wb_reg_ctrl_rf_wen  = RegInit(false.B)
 
-   val exe_reg_is_csr = RegInit(false.B)
 
    // TODO rename stall==hazard_stall full_stall == cmiss_stall
    // val full_stall = Wire(Bool())
@@ -211,63 +202,57 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // {
    //    when (deckill)
    //    {
-   //       exe_reg_wbaddr      := 0.U
-   //       exe_reg_ctrl_rf_wen := false.B
-   //       exe_reg_is_csr      := false.B
-   //       exe_reg_exception   := false.B
+   //       io.exe_ctl.wbaddr      := 0.U
+   //       io.exe_ctl.ctrl_rf_wen := false.B
+   //       io.exe_ctl.is_csr      := false.B
+   //       io.exe_ctl.exception   := false.B
    //    }
    //    .otherwise
    //    {
-   //       exe_reg_wbaddr      := dec_wbaddr
-   //       exe_reg_ctrl_rf_wen := cs_rf_wen
-   //       exe_reg_is_csr      := cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I
-   //       exe_reg_exception   := dec_exception
+   //       io.exe_ctl.wbaddr      := dec_wbaddr
+   //       io.exe_ctl.ctrl_rf_wen := cs_rf_wen
+   //       io.exe_ctl.is_csr      := cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I
+   //       io.exe_ctl.exception   := dec_exception
    //    }
    // }
    // .elsewhen (stall && !full_stall)
    // {
    //    // kill exe stage
-   //    exe_reg_wbaddr      := 0.U
-   //    exe_reg_ctrl_rf_wen := false.B
-   //    exe_reg_is_csr      := false.B
-   //    exe_reg_exception   := false.B
+   //    io.exe_ctl.wbaddr      := 0.U
+   //    io.exe_ctl.ctrl_rf_wen := false.B
+   //    io.exe_ctl.is_csr      := false.B
+   //    io.exe_ctl.exception   := false.B
    // }
-   exe_reg_wbaddr      := Mux(!io.ifu_dec.valid,exe_reg_wbaddr     ,dec_wbaddr )
-   exe_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,exe_reg_ctrl_rf_wen,cs_rf_wen  )
-   exe_reg_exception   := Mux(!io.ifu_dec.valid,exe_reg_exception  ,dec_exception)
-   exe_reg_is_csr      := Mux(!io.ifu_dec.valid,exe_reg_is_csr     ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I)
-   mem_reg_wbaddr      := Mux(!io.ifu_dec.valid,mem_reg_wbaddr        ,exe_reg_wbaddr      )
-   wb_reg_wbaddr       := Mux(!io.ifu_dec.valid,wb_reg_wbaddr         ,mem_reg_wbaddr      ) 
-   mem_reg_ctrl_rf_wen := Mux(!io.ifu_dec.valid,mem_reg_ctrl_rf_wen   ,exe_reg_ctrl_rf_wen ) 
-   wb_reg_ctrl_rf_wen  := Mux(!io.ifu_dec.valid,wb_reg_ctrl_rf_wen    ,mem_reg_ctrl_rf_wen )  
 
-   // val exe_inst_is_load = RegInit(false.B)
-
-   // when (!io.ifu_dec.valid)
-   // {
-   //    exe_inst_is_load := cs_mem_en && (cs_mem_fcn === M_XRD)
-   // }
+   // io.exe_ctl.exception   := Mux(io.ifu_dec.valid && io.dec_exe.ready ,dec_exception        ,io.exe_ctl.exception       )
+   // io.exe_ctl.wbaddr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,dec_wbaddr           ,io.exe_ctl.wbaddr          )
+   // io.exe_ctl.ctrl_rf_wen := Mux(io.ifu_dec.valid && io.dec_exe.ready ,cs_rf_wen            ,io.exe_ctl.ctrl_rf_wen     )
+   // io.lsu_ctl.wbaddr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.exe_ctl.wbaddr       ,io.lsu_ctl.wbaddr          )
+   // io.wb_ctl.wbaddr       := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.lsu_ctl.wbaddr       ,io.wb_ctl.wbaddr           ) 
+   // io.lsu_ctl.ctrl_rf_wen := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.exe_ctl.ctrl_rf_wen  ,io.lsu_ctl.ctrl_rf_wen     ) 
+   // io.wb_ctl.ctrl_rf_wen  := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.lsu_ctl.ctrl_rf_wen  ,io.wb_ctl.ctrl_rf_wen      )  
+   // io.exe_ctl.is_csr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I ,io.exe_ctl.is_csr)          
 
    
    // if (conf.USE_FULL_BYPASSING)
    // {
    //    // stall for load-use hazard
-   //    stall := ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs1_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs1_oen) ||
-   //             ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs2_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs2_oen) ||
-   //             (exe_reg_is_csr)
+   //    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+   //             (io.exe_ctl.is_csr)
    // }
    // else
    // {
    //    // stall for all hazards
-   //    stall := ((exe_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && exe_reg_ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((mem_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && mem_reg_ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((wb_reg_wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs1_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs1_oen) ||
-   //             ((exe_inst_is_load) && (exe_reg_wbaddr === dec_rs2_addr) && (exe_reg_wbaddr =/= 0.U) && dec_rs2_oen) ||
-   //             ((exe_reg_is_csr))
+   //    stall := ((io.exe_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && dec_rs1_oen) ||
+   //             ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && dec_rs1_oen) ||
+   //             ((io.wb_ctl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen && dec_rs1_oen) ||
+   //             ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && dec_rs2_oen) ||
+   //             ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && dec_rs2_oen) ||
+   //             ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen && dec_rs2_oen) ||
+   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+   //             ((io.exe_ctl.is_csr))
    // }
 
    io.ctl_sign.pc_sel := ctrl_exe_pc_sel
@@ -312,21 +297,21 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op1_data := MuxCase(rf_rs1_data, Array(
                            ((cs_op1_sel === OP1_IMZ)) -> imm_z,
                            ((cs_op1_sel === OP1_PC)) -> dec_reg_pc,
-                           ((exe_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && exe_reg_ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((mem_reg_wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && mem_reg_ctrl_rf_wen) -> io.mem_wbdata,
-                           ((wb_reg_wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen) -> io.wb_wbdata
+                           ((io.exe_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
+                           ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
+                           ((io.wb_ctl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_ctl.wbdata
                            ))
 
       op2_data := MuxCase(alu_op2, Array(
-                           ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.exe_ctl.alu_out,
-                           ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.mem_wbdata,
-                           ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.wb_wbdata
+                           ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.exe_ctl.alu_out,
+                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.lsu_ctl.wbdata,
+                           ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.wb_ctl.wbdata
                            ))
 
       rs2_data := MuxCase(rf_rs2_data, Array(
-                           ((exe_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && exe_reg_ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((mem_reg_wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && mem_reg_ctrl_rf_wen) -> io.mem_wbdata,
-                           ((wb_reg_wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  wb_reg_ctrl_rf_wen) -> io.wb_wbdata
+                           ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
+                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
+                           ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen) -> io.wb_ctl.wbdata
                            ))
    } else{
       // Rely only on control interlocking to resolve hazards
@@ -338,25 +323,57 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       op2_data := alu_op2
    }
 
-   io.dec_exe.valid              := io.ifu_dec.valid
-   io.dec_exe.bits.pc            := dec_reg_pc
-   io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-   io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-   io.dec_exe.bits.op1_data      := op1_data
-   io.dec_exe.bits.op2_data      := op2_data
-   io.dec_exe.bits.rs2_data      := rs2_data
-   io.dec_exe.bits.op2_sel       := cs_op2_sel
-   io.dec_exe.bits.alu_fun       := cs_alu_fun
-   io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
-   io.dec_exe.bits.inst          := dec_reg_inst
-   io.dec_exe.bits.wbaddr        := dec_wbaddr
-   io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
-   io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
-   io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
-   io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
-   io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
-   io.dec_exe.bits.br_type       := cs_br_type
+   /////// stall 
+   val exe_inst_is_load = io.exe_ctl.inst_is_load
+   val mem_inst_is_load = io.lsu_ctl.inst_is_load
+   // NOTE: stall for load-use hazard
+   // when load inst in exe stage, bypass not work in dec stage, alu_out is not answer 
+   // when load inst in exe stage, for WBDATA in mem stage is not ready 
+   // after stall, dec inst can find wbdata in wb stage
+   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+            ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs1_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+            ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs2_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+            (io.exe_ctl.is_csr) 
+
+   // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
+   // or exe stage always load inst, and pipeline is broken
+   when (!stall){
+      io.dec_exe.valid              := io.ifu_dec.valid  
+      io.dec_exe.bits.pc            := dec_reg_pc
+      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
+      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
+      io.dec_exe.bits.op1_data      := op1_data
+      io.dec_exe.bits.op2_data      := op2_data
+      io.dec_exe.bits.rs2_data      := rs2_data
+      io.dec_exe.bits.op2_sel       := cs_op2_sel
+      io.dec_exe.bits.alu_fun       := cs_alu_fun
+      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
+      io.dec_exe.bits.inst          := dec_reg_inst
+      io.dec_exe.bits.wbaddr        := dec_wbaddr
+      io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
+      io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
+      io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
+      io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
+      io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
+      io.dec_exe.bits.br_type       := cs_br_type
+   } .otherwise{
+      io.dec_exe.valid              := true.B
+      io.dec_exe.bits.inst          := BUBBLE
+      io.dec_exe.bits.wbaddr        := 0.U
+      io.dec_exe.bits.ctrl_rf_wen   := false.B
+      io.dec_exe.bits.ctrl_mem_val  := false.B
+      io.dec_exe.bits.ctrl_mem_fcn  := M_X
+      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
+      io.dec_exe.bits.br_type       := BR_N
+   }
+
    
+   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
+   io.ifu_dec.ready := io.dec_exe.ready  && !stall 
+
+
+
 
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))

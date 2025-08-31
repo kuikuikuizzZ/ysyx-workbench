@@ -34,6 +34,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
     new InstFetchIo()
   )
   io := DontCare
+  val cache       = Module(new ysyx_24100012_ICache)
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
@@ -44,9 +45,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   when(cache.io.valid && io.ifu_dec.ready) {
       pc_reg := pc_next
       pc_valid := true.B
-  } .elsewhen(!io.ifu_dec.ready){
-      pc_reg := pc_reg
-      pc_valid := pc_valid
   }
   .otherwise {
       pc_valid := false.B
@@ -59,19 +57,19 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
-  val cache       = Module(new ysyx_24100012_ICache)
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
+
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
-  cache.io.req_valid  := !io.reset && pc_valid && io.ifu_dec.ready
+  cache.io.req_valid  := !io.reset && pc_valid
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   
   // Pipeline Interface
-  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid ))
-  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid,cache.io.valid || io.ifu_dec.ready))
+  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid || io.ifu_dec.ready ))
+  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready))
   
   io.icache_valid := cache.io.valid
   io.ifu_dec.valid :=  if_valid
