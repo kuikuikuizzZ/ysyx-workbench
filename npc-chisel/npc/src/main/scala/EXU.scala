@@ -37,6 +37,10 @@ class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val inst_is_load  = Output(Bool())
    val ctrl_rf_wen   = Output(Bool())
    val is_csr        = Output(Bool())
+   val br_type       = Output(UInt(BR_N.getWidth.W)) // for debug use
+   val br_eq         = Output(Bool())
+   val br_lt         = Output(Bool())
+   val br_ltu        = Output(Bool())
 }
 
 
@@ -137,6 +141,10 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.to_ctl.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
    io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
    io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
+   io.to_ctl.br_type       := io.dec_exe.bits.br_type // for debug use
+   io.to_ctl.br_eq         := (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
+   io.to_ctl.br_lt         := (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
+   io.to_ctl.br_ltu        := (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
 }
 
  

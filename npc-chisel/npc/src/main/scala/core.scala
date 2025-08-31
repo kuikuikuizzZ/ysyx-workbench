@@ -91,6 +91,8 @@ class ysyx_24100012 extends Module
   debug.io.reset := reset
   debug.io.halt := halt
   debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
+  debug.io.mem_pc := lsu.io.mem_wb.bits.pc
+  debug.io.wb_pc := wbu.io.wb_pc 
   debug.io.inst := inst_fetch.io.ifu_dec.bits.inst
   debug.io.lsu_port := lsu.io.debug
   

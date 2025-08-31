@@ -42,7 +42,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
 
-  when(cache.io.valid && io.ifu_dec.ready) {
+  when(cache.io.valid && io.ifu_dec.ready ) {
+      pc_reg := pc_next
+      pc_valid := true.B
+  }
+  .elsewhen(io.ctl.if_kill) {
       pc_reg := pc_next
       pc_valid := true.B
   }
@@ -52,29 +56,32 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
   // PC Register
-  pc_next :=  Mux(io.ctl.pc_sel === PC_4,         pc_plus4,
-                 Mux(io.ctl.pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
-                 Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
+  pc_next :=  Mux(io.ctl.exe_pc_sel     === PC_4,         pc_plus4,
+                 Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+                 Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
 
+  // NOTE: when if_kill, should not take the old pc value
+  cache.io.req_valid  := !io.reset && pc_valid && !io.ctl.if_kill 
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
-  cache.io.req_valid  := !io.reset && pc_valid
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   
   // Pipeline Interface
-  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(cache.io.inst,BUBBLE,cache.io.valid || io.ifu_dec.ready ))
+  val inst = Mux(io.ctl.if_kill, BUBBLE,cache.io.inst)
+  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
   val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready))
   
-  io.icache_valid := cache.io.valid
-  io.ifu_dec.valid :=  if_valid
-  io.ifu_dec.bits.inst := if_inst
+  // NOTE: if_kill should clean inst, in ifu_dec reg
+  io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B, if_valid)
+  io.ifu_dec.bits.inst :=  Mux(io.ctl.if_kill, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
+  io.icache_valid := cache.io.valid
 
 
   ////////// debug
