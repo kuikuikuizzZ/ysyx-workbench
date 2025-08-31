@@ -142,9 +142,9 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
    io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
    io.to_ctl.br_type       := io.dec_exe.bits.br_type // for debug use
-   io.to_ctl.br_eq  = (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
-   io.to_ctl.br_lt  = (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
-   io.to_ctl.br_ltu = (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
+   io.to_ctl.br_eq         := (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
+   io.to_ctl.br_lt         := (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
+   io.to_ctl.br_ltu        := (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
 }
 
  
