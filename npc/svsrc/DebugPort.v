@@ -1,11 +1,13 @@
 
-     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
+     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module ysyx_24100012_DebugPort(
         input clock,
         input reset,
         input halt, 
         input [31:0] pc,
+        input [31:0] wb_pc,
+        input [31:0] mem_pc,
         input [31:0] inst,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
@@ -21,7 +23,7 @@
         wire [31:0] expand_halt = {31'b0,halt};
         wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         always @(posedge clock) begin
-            dpi_port(expand_halt, pc, inst);
+            dpi_port(expand_halt, pc, inst,mem_pc,wb_pc);
         end
 
         always @(posedge clock) begin

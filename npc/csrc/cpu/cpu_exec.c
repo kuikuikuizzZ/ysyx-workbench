@@ -157,7 +157,8 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
 
     #ifdef CONFIG_DIFFTEST
     uint32_t pc = IFDEF(CONFIG_PIPELINE_PC,top_wb_pc(), s->pc);
-    difftest_step(pc,dnpc);
+    uint32_t diff_dnpc = IFDEF(CONFIG_PIPELINE_PC,top_mem_pc(), dnpc);
+    difftest_step(pc,diff_dnpc);
     #endif
     #ifdef CONFIG_ITRACE
     itrace_once(s);
