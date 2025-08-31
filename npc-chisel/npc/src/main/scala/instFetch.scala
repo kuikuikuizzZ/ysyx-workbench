@@ -69,14 +69,14 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   
   // Pipeline Interface
   val inst = Mux(io.ctl.if_kill, BUBBLE,cache.io.inst)
-  val if_inst = Mux(cache.io.valid,cache.io.inst,
-                Mux(io.ctl.if_kill, BUBBLE,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill )))
+  val if_inst = Mux(cache.io.valid,cache.io.inst, BUBBLE,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
   val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready))
   
-  io.icache_valid := cache.io.valid
-  io.ifu_dec.valid :=  if_valid
-  io.ifu_dec.bits.inst := if_inst
+  // NOTE: if_kill should clean inst, in ifu_dec reg
+  io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B if_valid)
+  io.ifu_dec.bits.inst :=  Mux(io.ctl.if_kill, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
+  io.icache_valid := cache.io.valid
 
 
   ////////// debug
