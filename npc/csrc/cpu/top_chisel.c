@@ -14,6 +14,8 @@
 static uint32_t pc          = 0;
 static uint32_t inst        = 0;
 static uint32_t halt        = 0;
+static uint32_t wb_pc       = 0;
+static uint32_t mem_pc      = 0;
 
 static mem_access_t lsu_state = {0};
 
@@ -29,10 +31,13 @@ static uint32_t icache_miss         = 0;
 static ctrl_perf_event_t ctrl_perf_event = {0};
 //// PERF_EVENTS COUNTER
 
-extern "C" void dpi_port(int in_halt, int in_pc, int in_inst){
+extern "C" void dpi_port(int in_halt, int in_pc, int in_inst, int in_mem_pc, int in_wb_pc){
     pc      = in_pc;
     inst    = in_inst;
     halt    = in_halt;
+    mem_pc  = in_mem_pc;
+    wb_pc   = in_wb_pc;
+
 }
 
 extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
@@ -150,20 +155,28 @@ uint32_t top_csr(int i) {
 
 uint32_t top_pc() {
     if (!_rootp) return 0;
-    uint32_t pc ;
-    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst_fetch__DOT__pc_reg);
-    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
-    return pc;
+    uint32_t tpc ;
+    IFDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst_fetch__DOT__pc_reg);
+    IFNDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
+    return tpc;
 }
 
 uint32_t top_decode_pc() {
     if (!_rootp) return 0;
-    uint32_t pc ;
-    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_rpc);
+    uint32_t decode_pc ;
+    IFDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_rpc);
     // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__decoder_io_ifu_dec_bits_REG_pc);
-    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
-    return pc;
+    IFNDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__pc_reg);
+    return decode_pc;
 }
+
+uint32_t top_mem_pc() {
+    return mem_pc;
+}
+uint32_t top_wb_pc() {
+    return wb_pc;
+}
+
 
 uint32_t top_halt(){
     if (!_rootp) return 0;

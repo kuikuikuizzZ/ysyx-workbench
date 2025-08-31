@@ -9,10 +9,11 @@ import npc.Constants._
 import javax.xml.transform.OutputKeys
 
 class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val wbaddr     = Output(UInt(conf.xprlen.W))
-    val data       = Output(UInt(conf.xprlen.W))
+    val wbaddr          = Output(UInt(conf.xprlen.W))
+    val data            = Output(UInt(conf.xprlen.W))
+    val pc              = Output(UInt(conf.xprlen.W))
+    val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
-    val ebreak     = Output(Bool())
 }
 
 class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -98,7 +99,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
     csr_files.io.alu_out    := io.exe_mem.bits.alu_out
     io.exception_target     := csr_files.io.exception_target    
-    io.mem_wb.bits.ebreak   := csr_files.io.ebreak
 
     when (mem_en && in_clint ){
         io.port.req.valid    := false.B
@@ -137,10 +137,12 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
-    io.mem_wb.valid         := (!mem_en || (mem_en && io.to_ctl.resp_valid))
-    io.mem_wb.bits.data     := wbdata
-    io.mem_wb.bits.wbaddr   := io.exe_mem.bits.wbaddr
-    io.mem_wb.bits.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
+    io.mem_wb.valid             := (!mem_en || (mem_en && io.to_ctl.resp_valid))
+    io.mem_wb.bits.data         := wbdata
+    io.mem_wb.bits.wbaddr       := io.exe_mem.bits.wbaddr
+    io.mem_wb.bits.ebreak       := csr_files.io.ebreak
+    io.mem_wb.bits.pc           := io.exe_mem.bits.pc
+    io.mem_wb.bits.ctrl_rf_wen  := io.exe_mem.bits.ctrl_rf_wen
 
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en

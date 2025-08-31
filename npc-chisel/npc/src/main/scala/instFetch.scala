@@ -64,10 +64,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
   // val valid       = RegNext(cache.io.valid,false.B)
 
+  // NOTE: when if_kill, should not take the old pc value
+  cache.io.req_valid  := !io.reset && pc_valid && !io.ctl.if_kill 
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
-  cache.io.req_valid  := !io.reset && pc_valid && !io.ctl.if_kill 
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   

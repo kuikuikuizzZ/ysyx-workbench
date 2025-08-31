@@ -29,11 +29,13 @@ class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module 
         val debug = new WBUDebugPort()
         val ctl = new CtrlSignalIO()
         val ebreak = Output(Bool())
+        val wb_pc = Output(UInt(conf.xprlen.W))
         val to_ctl = new WBToCTLIO()
     })
 
     io := DontCare
     io.ebreak            := io.mem_wb.bits.ebreak
+    io.wb_pc             := io.mem_wb.bits.pc
     io.mem_wb.ready := true.B
 
     io.to_ctl.wbdata        := io.mem_wb.bits.data
