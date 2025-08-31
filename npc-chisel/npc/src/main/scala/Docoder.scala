@@ -332,8 +332,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    // after stall, dec inst can find wbdata in wb stage
    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
-            // ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs1_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
-            // ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs2_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
+            ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs1_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
+            ((mem_inst_is_load) && (io.lsu_ctl.wbaddr === dec_rs2_addr) && (io.lsu_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
             (io.exe_ctl.is_csr) 
 
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
