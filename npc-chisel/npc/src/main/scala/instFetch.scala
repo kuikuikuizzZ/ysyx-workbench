@@ -45,9 +45,6 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   when(cache.io.valid && io.ifu_dec.ready) {
       pc_reg := pc_next
       pc_valid := true.B
-  } .elsewhen(!io.ifu_dec.ready){
-      pc_reg := pc_reg
-      pc_valid := pc_valid
   }
   .otherwise {
       pc_valid := false.B
