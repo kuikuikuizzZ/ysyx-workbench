@@ -109,13 +109,17 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := false.B
         }
     } .otherwise {
-        io.port.req.valid    := mem_en
-        io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
-        io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
-        io.port.req.bits.addr := addr
-        io.port.req.bits.data := io.exe_mem.bits.rs2_data 
-        io.port.req.bits.burstlen := 0.U
-        io.port.req.bits.burst := BURST_FIXED
+        when(io.port.req.ready) {
+            io.port.req.valid    := mem_en
+            io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
+            io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
+            io.port.req.bits.addr := addr
+            io.port.req.bits.data := io.exe_mem.bits.rs2_data 
+            io.port.req.bits.burstlen := 0.U
+            io.port.req.bits.burst := BURST_FIXED
+        } .otherwise {
+            io.port.req.valid    := false.B
+        }
     }
     
 
