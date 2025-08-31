@@ -73,6 +73,10 @@ uint32_t top_csr(int i);
 
 uint32_t top_pc();
 
+uint32_t top_wb_pc();
+
+uint32_t top_mem_pc();
+
 uint32_t top_halt();
 
 uint32_t top_inst();
