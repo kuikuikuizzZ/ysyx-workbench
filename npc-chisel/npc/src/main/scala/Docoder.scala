@@ -30,7 +30,7 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 
 class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val pc_sel              =   Input(UInt(PC_4.getWidth.W))
+  val exe_pc_sel              =   Input(UInt(PC_4.getWidth.W))
   val pipeline_kill       =   Input(Bool())
   val if_kill             =   Input(Bool())
   val dec_kill            =   Input(Bool())
@@ -253,7 +253,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    //             ((io.exe_ctl.is_csr))
    // }
 
-   io.ctl_sign.pc_sel := ctrl_exe_pc_sel
+   io.ctl_sign.exe_pc_sel := ctrl_exe_pc_sel
    io.ctl_sign.if_kill := ifkill
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill

@@ -52,9 +52,9 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
   // PC Register
-  pc_next :=  Mux(io.ctl.pc_sel === PC_4,         pc_plus4,
-                 Mux(io.ctl.pc_sel === PC_BRJMP,  io.exu_in.exe_brjmp_target,
-                 Mux(io.ctl.pc_sel === PC_JALR,   io.exu_in.exe_jump_reg_target,
+  pc_next :=  Mux(io.ctl.exe_pc_sel     === PC_4,         pc_plus4,
+                 Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+                 Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
   // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
