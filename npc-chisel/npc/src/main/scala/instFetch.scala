@@ -42,7 +42,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
 
-  when(cache.io.valid && io.ifu_dec.ready || io.ctl.if_kill) {
+  when(cache.io.valid && io.ifu_dec.ready ) {
+      pc_reg := pc_next
+      pc_valid := true.B
+  }
+  .elsewhen(io.ctl.if_kill) {
       pc_reg := pc_next
       pc_valid := true.B
   }
@@ -63,7 +67,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
-  cache.io.req_valid  := !io.reset && pc_valid
+  cache.io.req_valid  := !io.reset && pc_valid && !io.ctl.if_kill 
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   
