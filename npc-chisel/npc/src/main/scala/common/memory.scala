@@ -197,6 +197,9 @@ class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_2
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
    io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
+   for (i <- 0 until numMasters) {
+      io.ports(i).req.ready := state === s_idle
+   }
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
    axi4lite_mem.io.axi_io <> io.axi_port
@@ -308,6 +311,9 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
    io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
+   for (i <- 0 until numMasters) {
+      io.ports(i).req.ready := state === s_idle
+   }
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
    axi4lite_mem.io.axi_io <> io.axi_port
