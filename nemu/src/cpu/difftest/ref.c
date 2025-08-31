@@ -59,15 +59,13 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     for (int i=0;i<NXPR;i++){
       cpu.gpr[i] = context->gpr[i];
     }
-    cpu.pc = context->pc;
+    // cpu.pc = context->pc;
   }
-  printf("nemu difftest_regcpy pc %x \n", cpu.pc);
 
   return;
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
-  printf("nemu pc %x \n", cpu.pc);
   cpu_exec(n);
 }
 

@@ -77,6 +77,7 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val debug               = new LSUDebugPort
     val exception_target    = Output(UInt(conf.xprlen.W))
     val ctl                 = Flipped(new CtlToLSUlIO)
+    val pc                  = Output(UInt(conf.xprlen.W))
     val to_ctl             = new LSUTOCtlIO
     
     val clintIO = Flipped(  new Bundle{
