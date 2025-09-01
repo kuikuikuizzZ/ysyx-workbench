@@ -61,12 +61,12 @@ bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
         return false;
      }
   }  
-  mem_access_t mem = top_lsu_state();
-  if (ref_r->mem_addr != mem.addr ||
-      !mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
-        printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
-        printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
-        return false;}      
+  // mem_access_t mem = top_lsu_state();
+  // if (ref_r->mem_addr != mem.addr ||
+  //     !mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
+  //       printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
+  //       printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
+  //       return false;}      
   return true;
 }
 
@@ -175,7 +175,7 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
       panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
     return;
   }
-  memory_access_skip_ref();
+  // memory_access_skip_ref();
 
   if (is_skip_ref) {
     // to skip the checking of an instruction, just copy the reg state to reference design

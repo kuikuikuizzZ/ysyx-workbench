@@ -97,7 +97,7 @@ static word_t pmem_read(paddr_t addr, int len) {
   #ifdef CONFIG_HAS_SDRAM
   else if (in_sdram_pmem(addr)) ret = host_read(guest_to_sdram(addr), len);
   #endif
-  else panic("pmem_write:\taddr = 0x%x\n not support", addr);
+  else panic("pmem_read:\taddr = 0x%x\n not support", addr);
   return ret;
 }
 
