@@ -336,10 +336,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
    // or exe stage always load inst, and pipeline is broken
-   when (!stall ){
-
-
-   } 
    when( stall ){
       io.dec_exe.valid              := true.B
       io.dec_exe.bits.inst          := BUBBLE
