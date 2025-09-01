@@ -12,6 +12,7 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val wbaddr          = Output(UInt(conf.xprlen.W))
     val data            = Output(UInt(conf.xprlen.W))
     val pc              = Output(UInt(conf.xprlen.W))
+    val inst            = Output(UInt(conf.xlen.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
 }
@@ -143,7 +144,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.ebreak       := csr_files.io.ebreak
     io.mem_wb.bits.pc           := io.exe_mem.bits.pc
     io.mem_wb.bits.ctrl_rf_wen  := io.exe_mem.bits.ctrl_rf_wen
-
+    io.mem_wb.bits.inst         := io.exe_mem.bits.inst
+    
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
     io.to_ctl.wbdata        := wbdata
