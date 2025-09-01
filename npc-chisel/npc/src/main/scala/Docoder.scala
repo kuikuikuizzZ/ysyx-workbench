@@ -287,7 +287,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.pc            := dec_reg_pc
    } .otherwise {
 
-      io.dec_exe.valid              := ifu_dec.valid  
+      io.dec_exe.valid              := io.ifu_dec.valid  
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
       io.dec_exe.bits.rs2_addr      := dec_rs2_addr
       io.dec_exe.bits.op1_data      := op1_data
