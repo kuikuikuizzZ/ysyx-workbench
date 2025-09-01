@@ -75,7 +75,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   // Pipeline Interface
   val inst = Mux(io.ctl.if_kill, BUBBLE,cache.io.inst)
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
-  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready))
+  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
   
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B, if_valid)
