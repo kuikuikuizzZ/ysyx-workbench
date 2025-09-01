@@ -12,6 +12,7 @@ class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    // Memory State
    val inst          = Output(UInt(conf.xlen.W))
    val pc            = Output(UInt(conf.xprlen.W))
+   val pc_valid         = Output(Bool())
    val wbaddr        = Output(UInt(5.W))
    val rs1_addr      = Output(UInt(5.W))
    val rs2_addr      = Output(UInt(5.W))
@@ -94,6 +95,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.dec_exe.ready := io.exe_mem.ready
    io.exe_mem.valid              := io.dec_exe.valid
    io.exe_mem.bits.pc            := io.dec_exe.bits.pc
+   io.exe_mem.bits.pc_valid      := io.dec_exe.bits.pc_valid
    io.exe_mem.bits.inst          := io.dec_exe.bits.inst
    io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
    io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr

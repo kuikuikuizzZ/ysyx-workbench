@@ -11,6 +11,7 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 {
    val inst             = Output(UInt(conf.xlen.W))
    val pc               = Output(UInt(conf.xprlen.W))
+   val pc_valid         = Output(Bool())
    val wbaddr           = Output(UInt(5.W))
    val rs1_addr         = Output(UInt(5.W))
    val rs2_addr         = Output(UInt(5.W))
@@ -287,6 +288,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.pc            := dec_reg_pc
    } .otherwise {
 
+      io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
       io.dec_exe.bits.rs2_addr      := dec_rs2_addr
       io.dec_exe.bits.op1_data      := op1_data
@@ -298,7 +300,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
       when(deckill){
          io.dec_exe.valid              := true.B
-         io.dec_exe.bits.pc            := io.exe_ctl.pc 
+         io.dec_exe.bits.pc_valid      := false.B
          io.dec_exe.bits.inst          := BUBBLE
          io.dec_exe.bits.wbaddr        := 0.U
          io.dec_exe.bits.ctrl_rf_wen   := false.B
@@ -309,7 +311,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       }
       .otherwise{
          io.dec_exe.valid              := io.ifu_dec.valid  
-         io.dec_exe.bits.pc            := dec_reg_pc
+         io.dec_exe.bits.pc_valid      := io.ifu_dec.bits.pc_valid
          io.dec_exe.bits.inst          := dec_reg_inst
          io.dec_exe.bits.wbaddr        := dec_wbaddr
          io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
@@ -318,7 +320,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
          io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
          io.dec_exe.bits.br_type       := cs_br_type
-         
       }
    }
 
