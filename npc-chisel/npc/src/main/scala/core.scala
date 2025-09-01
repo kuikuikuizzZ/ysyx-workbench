@@ -93,7 +93,7 @@ class ysyx_24100012 extends Module
   debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
   debug.io.mem_pc := lsu.io.mem_wb.bits.pc
   debug.io.wb_pc := wbu.io.wb_pc 
-  debug.io.inst := exu.io.dec_exu.bits.inst
+  debug.io.inst := exu.io.dec_exe.bits.inst
   debug.io.wb_inst := wbu.io.wb_inst
   debug.io.lsu_port := lsu.io.debug
   
