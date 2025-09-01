@@ -16,6 +16,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val pc = Input(UInt(32.W))
         val wb_pc = Input(UInt(32.W))
         val mem_pc = Input(UInt(32.W))
+        val wb_inst = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
