@@ -344,7 +344,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.valid              := true.B
       io.dec_exe.bits.inst          := BUBBLE
       io.dec_exe.bits.wbaddr        := 0.U
-      io.dec_exe.bits.pc            := 0.U
       io.dec_exe.bits.ctrl_rf_wen   := false.B
       io.dec_exe.bits.ctrl_mem_val  := false.B
       io.dec_exe.bits.ctrl_mem_fcn  := M_X

@@ -185,7 +185,8 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
     return;
   }
 
-  if (pc != 0x0 && pc_next != pc ) {
+  if ((pc != 0x0 && pc_next != 0x0)  && pc_next != pc ) {
+    printf("pc = %.8x, pc_next = %.8x\n", pc,pc_next);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);
