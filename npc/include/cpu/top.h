@@ -83,6 +83,8 @@ uint32_t top_inst();
 
 uint32_t top_dnpc();
 
+uint32_t top_wb_inst();
+
 mem_access_t top_lsu_state();
 
 void clear_top_lsu_state();

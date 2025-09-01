@@ -187,6 +187,9 @@ uint32_t top_wb_pc() {
     return wb_pc;
 }
 
+uint32_t top_wb_inst() {
+    return wb_inst;
+}
 
 uint32_t top_halt(){
     if (!_rootp) return 0;
