@@ -298,7 +298,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
       when(deckill){
          io.dec_exe.valid              := true.B
-         io.dec_exe.bits.pc            := io.lsu_ctl.pc //dec_reg_pc
+         io.dec_exe.bits.pc            := io.exe_ctl.pc //dec_reg_pc
          io.dec_exe.bits.inst          := BUBBLE
          io.dec_exe.bits.wbaddr        := 0.U
          io.dec_exe.bits.ctrl_rf_wen   := false.B
