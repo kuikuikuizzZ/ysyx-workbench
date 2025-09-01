@@ -33,6 +33,7 @@ class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val alu_out       = Output(UInt(conf.xlen.W))
+   val pc            = Output(UInt(conf.xprlen.W))
    val wbaddr        = Output(UInt(5.W))
    val inst_is_load  = Output(Bool())
    val ctrl_rf_wen   = Output(Bool())
@@ -86,34 +87,6 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val brjmp_offset                 = io.dec_exe.bits.op2_data
    io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
    io.ifu_out.exe_jump_reg_target   := adder_out
-
-   // when (io.ctl.pipeline_kill)
-   // {
-   //    io.exe_mem.valid              := false.B
-   //    io.exe_mem.bits.inst          := BUBBLE
-   //    io.exe_mem.bits.ctrl_rf_wen   := false.B
-   //    io.exe_mem.bits.ctrl_mem_val  := false.B
-   //    io.exe_mem.bits.ctrl_csr_cmd  := false.B
-   // }
-   // .elsewhen (!io.ctl.full_stall)
-   // {
-   //    io.exe_mem.valid              := io.dec_exe.valid
-   //    io.exe_mem.bits.pc            := io.dec_exe.bits.pc
-   //    io.exe_mem.bits.inst          := io.dec_exe.bits.inst
-   //    io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
-   //    io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
-   //    io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
-   //    io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
-   //    io.exe_mem.bits.op1_data      := io.dec_exe.bits.op1_data
-   //    io.exe_mem.bits.op2_data      := io.dec_exe.bits.op2_data
-   //    io.exe_mem.bits.rs2_data      := io.dec_exe.bits.rs2_data
-   //    io.exe_mem.bits.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
-   //    io.exe_mem.bits.ctrl_mem_val  := io.dec_exe.bits.ctrl_mem_val
-   //    io.exe_mem.bits.ctrl_mem_fcn  := io.dec_exe.bits.ctrl_mem_fcn
-   //    io.exe_mem.bits.ctrl_mem_typ  := io.dec_exe.bits.ctrl_mem_typ
-   //    io.exe_mem.bits.ctrl_wb_sel   := io.dec_exe.bits.ctrl_wb_sel
-   //    io.exe_mem.bits.ctrl_csr_cmd  := io.dec_exe.bits.ctrl_csr_cmd
-   // }
 
 
    // (1) exe_mem.ready = false -> exe_mem_reg == old  exe_mem_reg != io.exe_mem
