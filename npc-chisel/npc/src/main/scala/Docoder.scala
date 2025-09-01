@@ -192,67 +192,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
 
-
-
-   // TODO rename stall==hazard_stall full_stall == cmiss_stall
-   // val full_stall = Wire(Bool())
-   // when (!stall && !full_stall)
-   // {
-   //    when (deckill)
-   //    {
-   //       io.exe_ctl.wbaddr      := 0.U
-   //       io.exe_ctl.ctrl_rf_wen := false.B
-   //       io.exe_ctl.is_csr      := false.B
-   //       io.exe_ctl.exception   := false.B
-   //    }
-   //    .otherwise
-   //    {
-   //       io.exe_ctl.wbaddr      := dec_wbaddr
-   //       io.exe_ctl.ctrl_rf_wen := cs_rf_wen
-   //       io.exe_ctl.is_csr      := cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I
-   //       io.exe_ctl.exception   := dec_exception
-   //    }
-   // }
-   // .elsewhen (stall && !full_stall)
-   // {
-   //    // kill exe stage
-   //    io.exe_ctl.wbaddr      := 0.U
-   //    io.exe_ctl.ctrl_rf_wen := false.B
-   //    io.exe_ctl.is_csr      := false.B
-   //    io.exe_ctl.exception   := false.B
-   // }
-
-   // io.exe_ctl.exception   := Mux(io.ifu_dec.valid && io.dec_exe.ready ,dec_exception        ,io.exe_ctl.exception       )
-   // io.exe_ctl.wbaddr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,dec_wbaddr           ,io.exe_ctl.wbaddr          )
-   // io.exe_ctl.ctrl_rf_wen := Mux(io.ifu_dec.valid && io.dec_exe.ready ,cs_rf_wen            ,io.exe_ctl.ctrl_rf_wen     )
-   // io.lsu_ctl.wbaddr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.exe_ctl.wbaddr       ,io.lsu_ctl.wbaddr          )
-   // io.wb_ctl.wbaddr       := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.lsu_ctl.wbaddr       ,io.wb_ctl.wbaddr           ) 
-   // io.lsu_ctl.ctrl_rf_wen := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.exe_ctl.ctrl_rf_wen  ,io.lsu_ctl.ctrl_rf_wen     ) 
-   // io.wb_ctl.ctrl_rf_wen  := Mux(io.ifu_dec.valid && io.dec_exe.ready ,io.lsu_ctl.ctrl_rf_wen  ,io.wb_ctl.ctrl_rf_wen      )  
-   // io.exe_ctl.is_csr      := Mux(io.ifu_dec.valid && io.dec_exe.ready ,cs_csr_cmd =/= CSR.N && cs_csr_cmd =/= CSR.I ,io.exe_ctl.is_csr)          
-
-   
-   // if (conf.USE_FULL_BYPASSING)
-   // {
-   //    // stall for load-use hazard
-   //    stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
-   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
-   //             (io.exe_ctl.is_csr)
-   // }
-   // else
-   // {
-   //    // stall for all hazards
-   //    stall := ((io.exe_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((io.wb_ctl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen && dec_rs1_oen) ||
-   //             ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((io.wb_ctl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctl.ctrl_rf_wen && dec_rs2_oen) ||
-   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
-   //             ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
-   //             ((io.exe_ctl.is_csr))
-   // }
-
    io.ctl_sign.exe_pc_sel := ctrl_exe_pc_sel
    io.ctl_sign.if_kill := ifkill
    io.ctl_sign.dec_kill := deckill
@@ -348,7 +287,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.pc            := dec_reg_pc
    } .otherwise {
 
-      io.dec_exe.valid              := true.B  
+      io.dec_exe.valid              := ifu_dec.valid  
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
       io.dec_exe.bits.rs2_addr      := dec_rs2_addr
       io.dec_exe.bits.op1_data      := op1_data
