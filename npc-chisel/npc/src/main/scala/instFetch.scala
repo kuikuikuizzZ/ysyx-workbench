@@ -45,11 +45,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
   val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill))
   
-  when(if_valid && io.ifu_dec.ready) {
-      pc_reg := pc_next
-      pc_valid := true.B
-  }
-  .elsewhen(io.ctl.if_kill) {
+  when((if_valid && io.ifu_dec.ready) || io.ctl.if_kill) {
       pc_reg := pc_next
       pc_valid := true.B
   }
