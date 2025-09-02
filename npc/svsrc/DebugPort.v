@@ -30,9 +30,9 @@
 
         always @(*) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
-                lsu_port(wb_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
-            end else if (wb_valid && lsu_port_fcn == 1'b0) begin
-                lsu_port(wb_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
+                lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
+            end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
+                lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
             end else begin
                 lsu_port(1'd0,1'd0,32'd0,32'd0,32'd0);
             end
