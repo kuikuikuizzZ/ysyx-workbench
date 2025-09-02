@@ -47,7 +47,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
 
         wire [31:0] expand_halt = {31'b0,halt};
         wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
-        always @(*) begin
+        always @(posedge clock) begin
             dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
         end
 
