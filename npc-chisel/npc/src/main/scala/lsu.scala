@@ -17,6 +17,7 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val inst            = Output(UInt(conf.xlen.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
+    val debug           = Output(new LSUDebugPort)
 }
 
 class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -149,6 +150,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.inst             := io.exe_mem.bits.inst
     io.mem_wb.bits.pc_valid         := io.exe_mem.bits.pc_valid 
     io.mem_wb.bits.mem_resp_valid   := io.port.resp.valid
+    io.mem_wb.bits.debug            := io.debug
     
     io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val  := mem_en
