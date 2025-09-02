@@ -286,8 +286,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
       io.dec_exe.bits.br_type       := BR_N
       io.dec_exe.bits.pc            := dec_reg_pc
-      // io.dec_exe.bits.pc_valid      := false.B
-
+      io.dec_exe.bits.pc_valid      := false.B
+      
    } .otherwise {
       io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
