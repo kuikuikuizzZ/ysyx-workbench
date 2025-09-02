@@ -135,6 +135,7 @@ void exec_once(Decode *s){
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif
+
     sync_cpu();
     s->inst = top_inst();
     if (top_halt()){

@@ -36,7 +36,7 @@ extern "C" void dpi_port(int in_halt, int in_pc, int in_inst, int in_mem_pc, int
     inst    = in_inst;
     halt    = in_halt;
     mem_pc  = in_mem_pc;
-    wb_pc   = (wb_inst!=0x00004033)?in_wb_pc:wb_pc;
+    wb_pc   = in_wb_pc;
     wb_inst = in_wb_inst;
 }
 

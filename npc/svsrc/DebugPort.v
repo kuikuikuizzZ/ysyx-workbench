@@ -23,7 +23,7 @@
 
         wire [31:0] expand_halt = {31'b0,halt};
         wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
-        always @(posedge clock) begin
+        always @(*) begin
             dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
         end
 
