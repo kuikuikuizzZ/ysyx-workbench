@@ -95,7 +95,7 @@ class ysyx_24100012 extends Module
   debug.io.wb_pc := wbu.io.wb_pc 
   debug.io.inst := exu.io.dec_exe.bits.inst
   debug.io.wb_inst := wbu.io.wb_inst
-  debug.io.wb_valid := wbu.io.wb_valid
+  debug.io.wb_valid := wbu.io.mem_wb.valid
   debug.io.lsu_port := lsu.io.debug
   
   perfEvent.io.clock      := clock
