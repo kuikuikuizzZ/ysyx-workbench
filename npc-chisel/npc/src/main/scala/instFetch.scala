@@ -77,7 +77,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(io.ctl.if_kill, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
-  io.ifu_dec.bits.pc_valid := true.B
+  io.ifu_dec.bits.pc_valid := Mux(io.ctl.if_kill, false.B, true.B)
   io.icache_valid := cache.io.valid
   
 
