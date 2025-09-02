@@ -28,7 +28,7 @@
             dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
         end
 
-        always @(*) begin
+        always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
                 lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
             end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin

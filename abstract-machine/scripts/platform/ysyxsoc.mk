@@ -18,7 +18,7 @@ LDFLAGS   += --gc-sections -e _start
 
 YSYXSOCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 # YSYXSOCFLAGS += -e $(IMAGE).elf
-# YSYXSOCFLAGS += -b
+YSYXSOCFLAGS += -b
 # YSYXSOCFLAGS += --flash_file=$(AM_KERNELS_HOME)/tests/soc-tests/build/char-test-riscv32e-ysyxsoc.bin
 
 MAINARGS_MAX_LEN = 64

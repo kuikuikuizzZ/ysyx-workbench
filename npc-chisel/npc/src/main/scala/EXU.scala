@@ -43,6 +43,7 @@ class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val br_eq         = Output(Bool())
    val br_lt         = Output(Bool())
    val br_ltu        = Output(Bool())
+   val pc_valid      = Output(Bool())
 }
 
 
@@ -120,6 +121,7 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.to_ctl.br_eq         := (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
    io.to_ctl.br_lt         := (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
    io.to_ctl.br_ltu        := (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
+   io.to_ctl.pc_valid      := io.dec_exe.bits.pc_valid
 }
 
  

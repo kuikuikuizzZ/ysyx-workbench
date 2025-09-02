@@ -159,7 +159,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    ////// Branch Logic
    val pipeline_kill = Wire(Bool())
    val exe_br_type = io.exe_ctl.br_type
-   val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
+   val exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
                          Mux(exe_br_type === BR_N  , PC_4,
                          Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
                          Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
@@ -171,7 +171,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                          Mux(exe_br_type === BR_JR , PC_JALR,
                                                             PC_4
                      ))))))))))   
-
+                     
+   // make sure jump/jalr is not taken when pc is not valid
+   val ctrl_exe_pc_sel = Mux(io.exe_ctl.pc_valid,  PC_4,exe_pc_sel)
    // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
    val ifkill  = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || RegNext(cs_fencei)
    val deckill = (ctrl_exe_pc_sel =/= PC_4)
