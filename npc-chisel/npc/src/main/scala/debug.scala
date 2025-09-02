@@ -14,10 +14,11 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val reset = Input(Bool())   
         val halt = Input(Bool())
         val pc = Input(UInt(32.W))
-        val wb_pc = Input(UInt(32.W))
-        val mem_pc = Input(UInt(32.W))
-        val wb_inst = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
+        val mem_pc = Input(UInt(32.W))
+        val wb_valid = Input(Bool())
+        val wb_pc = Input(UInt(32.W))
+        val wb_inst = Input(UInt(32.W))
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
@@ -42,6 +43,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         input lsu_port_mem_en,
         input lsu_port_fcn,
         input lsu_port_valid,
+        input wb_port_valid,
         input [1:0]  lsu_port_typ
         );
 
@@ -54,8 +56,8 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
                 lsu_port(lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
-            end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
-                lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
+            end else if (wb_port_valid && lsu_port_fcn == 1'b0) begin
+                lsu_port(wb_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
             end else begin
                 lsu_port(1'd0,1'd0,32'd0,32'd0,32'd0);
             end
