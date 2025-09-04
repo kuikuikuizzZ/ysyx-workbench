@@ -17,6 +17,7 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val inst            = Output(UInt(conf.xlen.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
+    val exception       = Output(Bool())
     val debug           = Output(new LSUDebugPort)
 }
 
@@ -25,13 +26,14 @@ class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val resp_valid   = Output(Bool())
-    val ctrl_mem_val = Output(Bool())
-    val alu_out       = Output(UInt(conf.xlen.W))
-    val wbaddr        = Output(UInt(5.W))
-    val wbdata        = Output(UInt(conf.xlen.W))
-    val ctrl_rf_wen   = Output(Bool())
-    val inst_is_load  = Output(Bool())
+    val resp_valid      = Output(Bool())
+    val ctrl_mem_val    = Output(Bool())
+    val alu_out         = Output(UInt(conf.xlen.W))
+    val wbaddr          = Output(UInt(5.W))
+    val wbdata          = Output(UInt(conf.xlen.W))
+    val ctrl_rf_wen     = Output(Bool())
+    val inst_is_load    = Output(Bool())
+    val mem_exception   = Output(Bool())
 }
 
 

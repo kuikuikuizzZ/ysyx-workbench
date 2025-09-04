@@ -27,6 +27,7 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ctrl_mem_fcn     = Output(UInt(M_X.getWidth.W)) 
    val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
    val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
+   val exception        = Output(Bool())
 }
 
 
@@ -36,8 +37,6 @@ class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val if_kill             =   Input(Bool())
   val dec_kill            =   Input(Bool())
   val mem_exception       =   Input(Bool())
-//   val dec_stall           =   Input(Bool())
-//   val full_stall          =   Input(Bool())
 }
 
 class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
@@ -178,13 +177,11 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // Exception Handling ---------------------
 
-   // io.ctl.pipeline_kill := (io.dat.csr_eret || io.ctl.mem_exception)
-   // val dec_exception = (!cs_val_inst && io.icache_valid)
-   val dec_exception = false.B
-   val exe_reg_exception   = RegInit(false.B)
-   val mem_exception = RegNext(exe_reg_exception)
-   io.ctl_lsu.mem_exception := mem_exception
-   pipeline_kill := mem_exception 
+   val dec_exception = (!cs_val_inst && io.icache_valid)
+
+   val mem_exception = io.ctl_lsu.mem_exception 
+   pipeline_kill :=  (io.dat.csr_eret || io.ctl.mem_exception) 
+   io.ctl.pipeline_kill := pipeline_kill
    
    // Stall Signal Logic --------------------
    
@@ -276,8 +273,10 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
    // or exe stage always load inst, and pipeline is broken
-   when( stall || (!io.ifu_dec.valid && io.dec_exe.ready)){
+   when( stall || (!io.ifu_dec.valid && io.dec_exe.ready) || pipeline_kill){
       io.dec_exe.valid              := true.B
+      io.dec_exe.bits.pc            := dec_reg_pc
+      io.dec_exe.bits.pc_valid      := false.B
       io.dec_exe.bits.inst          := BUBBLE
       io.dec_exe.bits.wbaddr        := 0.U
       io.dec_exe.bits.ctrl_rf_wen   := false.B
@@ -285,9 +284,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       io.dec_exe.bits.ctrl_mem_fcn  := M_X
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
       io.dec_exe.bits.br_type       := BR_N
-      io.dec_exe.bits.pc            := dec_reg_pc
-      io.dec_exe.bits.pc_valid      := false.B
-      
+      io.dec_exe.bits.exception     := false.B
+
    } .otherwise {
       io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.rs1_addr      := dec_rs1_addr
@@ -308,7 +306,8 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.dec_exe.bits.ctrl_mem_val  := false.B
          io.dec_exe.bits.ctrl_mem_fcn  := M_X
          io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-         io.dec_exe.bits.br_type       := BR_N    
+         io.dec_exe.bits.br_type       := BR_N  
+         io.dec_exe.bits.exception     := false.B
       }
       .otherwise{
          io.dec_exe.valid              := io.ifu_dec.valid  
@@ -321,6 +320,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
          io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
          io.dec_exe.bits.br_type       := cs_br_type
+         io.dec_exe.bits.exception     := dec_exception
       }
    }
 
