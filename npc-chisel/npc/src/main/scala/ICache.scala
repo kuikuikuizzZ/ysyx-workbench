@@ -87,13 +87,12 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.burst      := BURST_INCR
         io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength,0.U)
     }
-    val exception = WireInit(0.U,UInt(5.W))
 
         // 状态迁移
     switch(state) {
         is(sIdle) {
             ren := false.B
-            exception := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
+            io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
             when(!hit && reg_req_valid) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
                     state := sIdle
@@ -118,7 +117,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
             }
             when(io.port.resp.bits.resp =/= 0.U) {
                 state := sIdle
-                exception := EXC_INSTR_ACCESS_FAULT
+                io.exception  := EXC_INSTR_ACCESS_FAULT
             }
         }
         is(sComplete) { 
