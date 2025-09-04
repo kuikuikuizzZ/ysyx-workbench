@@ -59,7 +59,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     for (int i=0;i<NXPR;i++){
       cpu.gpr[i] = context->gpr[i];
     }
-    // cpu.pc = context->pc;
+    cpu.pc = (context->pc == 0x0)? cpu.pc : context->pc;
   }
 
   return;
