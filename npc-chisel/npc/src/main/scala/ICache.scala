@@ -118,6 +118,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
             when(io.port.resp.bits.resp =/= 0.U) {
                 state := sIdle
                 io.exception  := EXC_INSTR_ACCESS_FAULT
+            }.otherwise {
+                state := sIdle
+                io.exception  := EXC_NORMAL
             }
         }
         is(sComplete) { 
