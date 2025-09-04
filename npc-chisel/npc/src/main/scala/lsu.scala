@@ -34,6 +34,7 @@ class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val ctrl_rf_wen     = Output(Bool())
     val inst_is_load    = Output(Bool())
     val mem_exception   = Output(Bool())
+    val csr_eret        = Output(Bool())
 }
 
 

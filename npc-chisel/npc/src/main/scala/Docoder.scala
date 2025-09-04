@@ -179,9 +179,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    val dec_exception = (!cs_val_inst && io.icache_valid)
 
-   val mem_exception = io.ctl_lsu.mem_exception 
-   pipeline_kill :=  (io.dat.csr_eret || io.ctl.mem_exception) 
-   io.ctl.pipeline_kill := pipeline_kill
+   val mem_exception = io.lsu_ctl.mem_exception 
+   pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
+   io.ctl_sign.pipeline_kill := pipeline_kill
    
    // Stall Signal Logic --------------------
    
