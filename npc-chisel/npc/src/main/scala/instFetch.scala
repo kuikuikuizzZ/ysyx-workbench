@@ -4,7 +4,6 @@ import chisel3._
 import chisel3.util._
 import npc.common._
 import npc.Constants._
-import npc.common.Constants._
 
 class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
   val valid           = Output(Bool())

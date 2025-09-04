@@ -3,11 +3,10 @@ package npc
 
 import chisel3._
 import chisel3.util._
-import javax.xml.transform.OutputKeys
 
 import npc.common._
 import npc.Constants._
-import npc.common.Constants._
+import javax.xml.transform.OutputKeys
 
 class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val wbaddr          = Output(UInt(conf.xprlen.W))
