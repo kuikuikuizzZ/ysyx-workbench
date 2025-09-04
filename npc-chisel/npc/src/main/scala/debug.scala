@@ -14,15 +14,17 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val reset = Input(Bool())   
         val halt = Input(Bool())
         val pc = Input(UInt(32.W))
-        val wb_pc = Input(UInt(32.W))
-        val mem_pc = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
+        val mem_pc = Input(UInt(32.W))
+        val wb_valid = Input(Bool())
+        val wb_pc = Input(UInt(32.W))
+        val wb_inst = Input(UInt(32.W))
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
      setInline("DebugPort.v",
      """
-     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc);
+     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc,input int wb_inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module ysyx_24100012_DebugPort(
         input clock,
@@ -30,6 +32,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         input halt, 
         input [31:0] pc,
         input [31:0] wb_pc,
+        input [31:0] wb_inst,
         input [31:0] mem_pc,
         input [31:0] inst,
         input [31:0] lsu_port_addr,
@@ -40,18 +43,19 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         input lsu_port_mem_en,
         input lsu_port_fcn,
         input lsu_port_valid,
+        input wb_valid,
         input [1:0]  lsu_port_typ
         );
 
         wire [31:0] expand_halt = {31'b0,halt};
         wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         always @(*) begin
-            dpi_port(expand_halt, pc, inst,mem_pc,wb_pc);
+            dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
         end
 
         always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
-                lsu_port(lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
+                lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
             end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
                 lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
             end else begin

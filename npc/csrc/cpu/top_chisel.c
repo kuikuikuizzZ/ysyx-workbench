@@ -16,7 +16,7 @@ static uint32_t inst        = 0;
 static uint32_t halt        = 0;
 static uint32_t wb_pc       = 0;
 static uint32_t mem_pc      = 0;
-
+static uint32_t wb_inst    = 0;
 static mem_access_t lsu_state = {0};
 
 
@@ -31,13 +31,13 @@ static uint32_t icache_miss         = 0;
 static ctrl_perf_event_t ctrl_perf_event = {0};
 //// PERF_EVENTS COUNTER
 
-extern "C" void dpi_port(int in_halt, int in_pc, int in_inst, int in_mem_pc, int in_wb_pc){
+extern "C" void dpi_port(int in_halt, int in_pc, int in_inst, int in_mem_pc, int in_wb_pc,int in_wb_inst){
     pc      = in_pc;
     inst    = in_inst;
     halt    = in_halt;
     mem_pc  = in_mem_pc;
     wb_pc   = in_wb_pc;
-
+    wb_inst = in_wb_inst;
 }
 
 extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
@@ -187,6 +187,9 @@ uint32_t top_wb_pc() {
     return wb_pc;
 }
 
+uint32_t top_wb_inst() {
+    return wb_inst;
+}
 
 uint32_t top_halt(){
     if (!_rootp) return 0;

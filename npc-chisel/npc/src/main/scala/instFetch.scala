@@ -14,6 +14,7 @@ class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
 class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val pc        = Output(UInt(conf.xprlen.W))
   val inst      = Output(UInt(conf.xprlen.W))
+  val pc_valid         = Output(Bool())
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -76,8 +77,9 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(io.ctl.if_kill, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
+  io.ifu_dec.bits.pc_valid := Mux(io.ctl.if_kill, false.B, true.B)
   io.icache_valid := cache.io.valid
-
+  
 
   ////////// debug
   val instFetchCount = RegInit(0.U(conf.perfCountBits.W))
