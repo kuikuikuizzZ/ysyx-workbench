@@ -85,25 +85,27 @@ class ysyx_24100012 extends Module
   io.slave.b.id := 0.U
 
   // ///// debug port
-  val debug = Module(new ysyx_24100012_DebugPort())
-  val perfEvent = Module(new ysyx_24100012_PerfEventPort())
-  debug.io.clock := clock
-  debug.io.reset := reset
-  debug.io.halt := halt
-  debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
-  debug.io.mem_pc := lsu.io.mem_wb.bits.pc
-  debug.io.wb_pc := wbu.io.wb_pc 
-  debug.io.inst := exu.io.dec_exe.bits.inst
-  debug.io.wb_inst := wbu.io.wb_inst
-  debug.io.wb_valid := wbu.io.mem_wb.bits.mem_resp_valid
-  debug.io.lsu_port := wbu.io.mem_wb.bits.debug
-  
-  perfEvent.io.clock      := clock
-  perfEvent.io.reset      := reset
-  perfEvent.io.ifu_port   := inst_fetch.io.debug
-  perfEvent.io.ctl_port   := decoder.io.debug
-  perfEvent.io.lsu_port   := lsu.io.debug
-  perfEvent.io.wbu_port   := wbu.io.debug
+  if (conf.ENABLE_DEBUG) {
+    val debug = Module(new ysyx_24100012_DebugPort())
+    val perfEvent = Module(new ysyx_24100012_PerfEventPort())
+    debug.io.clock := clock
+    debug.io.reset := reset
+    debug.io.halt := halt
+    debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
+    debug.io.mem_pc := lsu.io.mem_wb.bits.pc
+    debug.io.wb_pc := wbu.io.wb_pc 
+    debug.io.inst := exu.io.dec_exe.bits.inst
+    debug.io.wb_inst := wbu.io.wb_inst
+    debug.io.wb_valid := wbu.io.mem_wb.bits.mem_resp_valid
+    debug.io.lsu_port := wbu.io.mem_wb.bits.debug
+    
+    perfEvent.io.clock      := clock
+    perfEvent.io.reset      := reset
+    perfEvent.io.ifu_port   := inst_fetch.io.debug
+    perfEvent.io.ctl_port   := decoder.io.debug
+    perfEvent.io.lsu_port   := lsu.io.debug
+    perfEvent.io.wbu_port   := wbu.io.debug
+  }
 }
 
 
