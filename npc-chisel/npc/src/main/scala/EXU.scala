@@ -6,6 +6,7 @@ import chisel3.util._
 
 import npc.common._
 import npc.Constants._
+import npc.common.Constants._
 
 
 class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {

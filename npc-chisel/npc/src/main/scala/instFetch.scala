@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import npc.common._
 import npc.Constants._
+import npc.common.Constants._
 
 class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
   val valid           = Output(Bool())
@@ -15,7 +16,7 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val pc        = Output(UInt(conf.xprlen.W))
   val inst      = Output(UInt(conf.xprlen.W))
   val pc_valid         = Output(Bool())
-   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
+  val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {

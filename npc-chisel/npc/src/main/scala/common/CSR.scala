@@ -245,7 +245,7 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
     reg_mcause :=  Cat(0.U(28.W),io.exception(3,0))
   }
 
-  assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
+  assert(PopCount(insn_ret :: io.exception =/=0.U :: Nil) <= 1, "these conditions must be mutually exclusive")
 
   //  when (reg_time >= reg_mtimecmp) {
   //     reg_mip.mtip := true
@@ -284,7 +284,7 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
     reg_mcause := Causes.breakpoint
   }
 
-  when (io.exception || insn_call || insn_break) {
+  when (io.exception =/= 0.U || insn_call || insn_break) {
     reg_mepc := io.pc
   }
 
