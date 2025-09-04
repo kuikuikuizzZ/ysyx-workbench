@@ -55,11 +55,11 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
         val csr_cmd             = Input(UInt(CSR.N.getWidth.W))
         val pc                  = Input(UInt(conf.xprlen.W))
         val alu_out             = Input(UInt(conf.xlen.W))
+        val exception           = Input(UInt(EXC_NORMAL.getWidth.W))
         val exception_target    = Output(UInt(conf.xprlen.W))
         val rdata               = Output(UInt(conf.xlen.W))
         val ebreak              = Output(Bool())
         val eret                = Output(Bool())
-        val exception           = Output(UInt(EXC_NORMAL.getWidth.W))
     }) 
     // Control Status Registers
     val csr = Module(new ysyx_24100012_CSRFile())
