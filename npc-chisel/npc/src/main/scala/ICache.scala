@@ -139,7 +139,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
 
     io.inst          := Mux(hit,cache_data,BUBBLE)
     io.valid         := Mux(hit,true.B,false.B)
-    io.exception     := exception
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
