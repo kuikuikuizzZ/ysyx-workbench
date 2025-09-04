@@ -315,6 +315,9 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
    io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
    io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
+   io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
+
    for (i <- 0 until numMasters) {
       io.ports(i).req.ready := state === s_idle
    }
