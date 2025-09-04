@@ -87,7 +87,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.burst      := BURST_INCR
         io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength,0.U)
     }
-    val exception = Wire(UInt(5.W))
+    val exception = WireInit(0.U,UInt(5.W))
 
         // 状态迁移
     switch(state) {
