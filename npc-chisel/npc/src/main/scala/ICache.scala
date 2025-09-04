@@ -20,7 +20,9 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
+  val exception = Output(UInt(5.W))
   val debug     = Output(new ICacheDebugPort)
+  
 }
 
 class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Module { 
@@ -69,8 +71,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
         
-    io.inst := Mux(hit,cache_data,BUBBLE)
-    io.valid := Mux(hit,true.B,false.B)
+
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting
@@ -86,15 +87,20 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.burst      := BURST_INCR
         io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength,0.U)
     }
-    
+    val exception = Wire(UInt(5.W))
 
         // 状态迁移
     switch(state) {
         is(sIdle) {
             ren := false.B
+            exception := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
             when(!hit && reg_req_valid) {
-                state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
-                offset := 0.U }}
+                when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
+                    state := sIdle
+                } .otherwise{
+                    state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
+                    offset := 0.U
+                }}}
         is(sRequesting) { when(io.port.req.ready) {state := sReceiving }}
         is(sBurstRequesting) { when(io.port.req.ready) {state := sReceiving }}
         is(sReceiving) {
@@ -109,6 +115,10 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 }.otherwise {
                     state := sRequesting // 继续请求下一子块
                 }
+            }
+            when(io.port.resp.bits.resp =/= 0.U) {
+                state := sIdle
+                exception := EXC_INSTR_ACCESS_FAULT
             }
         }
         is(sComplete) { 
@@ -128,6 +138,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         valids.write(index, true.B) // 标记有效
     }
 
+    io.inst          := Mux(hit,cache_data,BUBBLE)
+    io.valid         := Mux(hit,true.B,false.B)
+    io.exception     := exception
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))

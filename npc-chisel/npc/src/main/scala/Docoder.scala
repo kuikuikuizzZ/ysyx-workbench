@@ -27,7 +27,7 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ctrl_mem_fcn     = Output(UInt(M_X.getWidth.W)) 
    val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
    val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
-   val exception        = Output(Bool())
+   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
 
@@ -177,7 +177,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // Exception Handling ---------------------
 
-   val dec_exception = (!cs_val_inst && io.icache_valid)
+   val dec_exception = Mux(!cs_val_inst,io.ifu_dec.bits.exception, EXC_ILLEGAL_INSTR)
 
    val mem_exception = io.lsu_ctl.mem_exception 
    pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 

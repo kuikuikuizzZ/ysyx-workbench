@@ -45,6 +45,7 @@ trait NPCProcConstants
 
 
 
+
 trait ScalarOpConstants
 {
    //************************************
@@ -144,6 +145,8 @@ trait ScalarOpConstants
    val MT_READ  = 0.asUInt(2.W)
    val MT_WRITE = 1.asUInt(2.W)
    val MT_FENCE = 2.asUInt(2.W)
+
+
 
 }
 

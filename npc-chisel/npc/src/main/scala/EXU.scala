@@ -26,7 +26,7 @@ class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val ctrl_mem_fcn     = Output(UInt(M_X.getWidth.W)) 
    val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
    val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
-   val exception        = Output(Bool())
+   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
 class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
