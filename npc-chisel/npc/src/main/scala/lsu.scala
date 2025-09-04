@@ -59,6 +59,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
         val exception_target    = Output(UInt(conf.xprlen.W))
         val rdata               = Output(UInt(conf.xlen.W))
         val ebreak              = Output(Bool())
+        val eret                = Output(Bool())
     }) 
     // Control Status Registers
     val csr = Module(new ysyx_24100012_CSRFile())
@@ -72,7 +73,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
     io.exception_target := csr.io.evec
     io.rdata            := csr.io.rw.rdata    
     io.ebreak := csr.io.insn_break
-    // io.dat.csr_eret := csr.io.eret
+    io.eret := csr.io.eret
 
     // Add your own uarch counters here!
     // csr.io.counters.foreach(_.inc := false.B)
@@ -106,7 +107,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
     csr_files.io.alu_out    := io.exe_mem.bits.alu_out
     io.exception_target     := csr_files.io.exception_target    
-
+    
     when (mem_en && in_clint ){
         io.port.req.valid    := false.B
         when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
@@ -162,6 +163,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
     io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
     io.to_ctl.inst_is_load  := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
+    io.to_ctl.csr_eret      := csr_files.io.eret
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
