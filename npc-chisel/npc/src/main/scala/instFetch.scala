@@ -42,11 +42,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
 
   val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
-  val inst = Mux(io.ctl.if_kill, BUBBLE,cache.io.inst)
+  val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
+  val inst = Mux(should_kill, BUBBLE,cache.io.inst)
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
   val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill))
-  
-  when((if_valid && io.ifu_dec.ready) || io.ctl.if_kill) {
+  when((if_valid && io.ifu_dec.ready) || should_kill) {
       pc_reg := pc_next
       pc_valid := true.B
   }
@@ -65,7 +65,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   // val valid       = RegNext(cache.io.valid,false.B)
 
   // NOTE: when if_kill, should not take the old pc value
-  cache.io.req_valid  := !io.reset && pc_valid && !io.ctl.if_kill 
+  cache.io.req_valid  := !io.reset && pc_valid && !should_kill 
   cache.io.clock      := clock
   cache.io.reset      := reset
   cache.io.pc         := pc_reg
@@ -74,10 +74,10 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   Mux(io.ctl.if_kill, true.B, if_valid)
-  io.ifu_dec.bits.inst :=  Mux(io.ctl.if_kill, BUBBLE,if_inst)
+  io.ifu_dec.valid :=   Mux(should_kill, true.B, if_valid)
+  io.ifu_dec.bits.inst :=  Mux(should_kill, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
-  io.ifu_dec.bits.pc_valid := Mux(io.ctl.if_kill, false.B, true.B)
+  io.ifu_dec.bits.pc_valid := Mux(should_kill, false.B, true.B)
   io.icache_valid := cache.io.valid
   
 
