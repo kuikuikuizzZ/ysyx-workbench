@@ -103,12 +103,12 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 }.otherwise {
                     state := sRequesting // 继续请求下一子块
                 }
-                when(io.port.resp.bits.resp =/= 0.U) {
-                    state := sIdle
-                io.exception  := EXC_INSTR_ACCESS_FAULT
-                }.otherwise {
-                    io.exception  := EXC_NORMAL
-                }
+                // when(io.port.resp.bits.resp =/= 0.U) {
+                //     state := sIdle
+                //     io.exception  := EXC_INSTR_ACCESS_FAULT
+                // }.otherwise {
+                //     io.exception  := EXC_NORMAL
+                // }
             }
             
         }
