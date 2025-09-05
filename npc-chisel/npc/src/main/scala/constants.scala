@@ -44,6 +44,25 @@ trait NPCProcConstants
 }
 
 
+trait ExceptionCodesConstants {
+  // 异常号定义 (符合 RISC-V 特权规范)
+  val EXC_NORMAL                  = 0.U(5.W)
+  val EXC_INSTR_ADDR_MISALIGNED   = 0x10.U(5.W)
+  val EXC_INSTR_ACCESS_FAULT      = 0x11.U(5.W)
+  val EXC_ILLEGAL_INSTR           = 0x12.U(5.W)
+  val EXC_BREAKPOINT              = 0x13.U(5.W)
+  val EXC_LOAD_ADDR_MISALIGNED    = 0x14.U(5.W)
+  val EXC_LOAD_ACCESS_FAULT       = 0x15.U(5.W)
+  val EXC_STORE_ADDR_MISALIGNED   = 0x16.U(5.W)
+  val EXC_STORE_ACCESS_FAULT      = 0x17.U(5.W)
+  val EXC_ECALL_U_MODE            = 0x18.U(5.W)
+  val EXC_ECALL_S_MODE            = 0x19.U(5.W)
+  val EXC_ECALL_M_MODE            = 0x1b.U(5.W)
+  val EXC_INSTR_PAGE_FAULT        = 0x1c.U(5.W)
+  val EXC_LOAD_PAGE_FAULT         = 0x1d.U(5.W)
+  val EXC_STORE_PAGE_FAULT        = 0x1f.U(5.W)
+}
+
 
 trait ScalarOpConstants
 {
@@ -144,6 +163,8 @@ trait ScalarOpConstants
    val MT_READ  = 0.asUInt(2.W)
    val MT_WRITE = 1.asUInt(2.W)
    val MT_FENCE = 2.asUInt(2.W)
+
+
 
 }
 

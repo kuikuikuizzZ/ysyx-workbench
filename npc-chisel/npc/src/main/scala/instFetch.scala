@@ -15,6 +15,7 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val pc        = Output(UInt(conf.xprlen.W))
   val inst      = Output(UInt(conf.xprlen.W))
   val pc_valid         = Output(Bool())
+  val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
@@ -74,10 +75,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   Mux(should_kill, true.B, if_valid)
-  io.ifu_dec.bits.inst :=  Mux(should_kill, BUBBLE,if_inst)
+  io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
+  io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
-  io.ifu_dec.bits.pc_valid := Mux(should_kill, false.B, true.B)
+  io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
+  io.ifu_dec.bits.exception := cache.io.exception
   io.icache_valid := cache.io.valid
   
 

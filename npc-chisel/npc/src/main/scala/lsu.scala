@@ -17,7 +17,6 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val inst            = Output(UInt(conf.xlen.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
-    val exception       = Output(Bool())
     val debug           = Output(new LSUDebugPort)
 }
 
@@ -56,6 +55,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
         val csr_cmd             = Input(UInt(CSR.N.getWidth.W))
         val pc                  = Input(UInt(conf.xprlen.W))
         val alu_out             = Input(UInt(conf.xlen.W))
+        val exception           = Input(UInt(EXC_NORMAL.getWidth.W))
         val exception_target    = Output(UInt(conf.xprlen.W))
         val rdata               = Output(UInt(conf.xlen.W))
         val ebreak              = Output(Bool())
@@ -68,7 +68,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
     csr.io.rw.cmd       := io.csr_cmd
     csr.io.rw.wdata     := io.alu_out
     // csr.io.retire    := !(io.exe_mem.bits.stall || io.exe_mem.bits.exception)
-    // csr.io.exception := io.exe_mem.bits.exception
+    csr.io.exception := io.exception
     csr.io.pc           := io.pc
     io.exception_target := csr.io.evec
     io.rdata            := csr.io.rw.rdata    
@@ -97,17 +97,23 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io := DontCare
     
     // val valid = Wire(Bool())
+    val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
     val mem_data = Wire(UInt(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
     val csr_files = Module(new ysyx_24100012_CSRFiles)
+    
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
     csr_files.io.alu_out    := io.exe_mem.bits.alu_out
+    csr_files.io.exception  := Mux(exception === 0.U,io.exe_mem.bits.exception,exception)
+
     io.exception_target     := csr_files.io.exception_target    
     
+    // lsu should support mis-aligned access? or should based on slave type? 
+    // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B) 
     when (mem_en && in_clint ){
         io.port.req.valid    := false.B
         when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
@@ -129,6 +135,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.port.req.valid    := false.B
         }
     }
+
     
 
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
@@ -145,6 +152,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
 
+    exception := Mux(mem_en && io.port.resp.bits.resp =/= 0.U , 
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
     io.mem_wb.valid                 := (!mem_en || (mem_en && io.to_ctl.resp_valid))
     io.mem_wb.bits.data             := wbdata
     io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
@@ -156,14 +166,15 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.mem_resp_valid   := io.port.resp.valid
     io.mem_wb.bits.debug            := io.debug
     
-    io.to_ctl.resp_valid    := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
-    io.to_ctl.ctrl_mem_val  := mem_en
-    io.to_ctl.wbdata        := wbdata
-    io.to_ctl.wbaddr        := io.exe_mem.bits.wbaddr
-    io.to_ctl.ctrl_rf_wen   := io.exe_mem.bits.ctrl_rf_wen
-    io.to_ctl.alu_out       := io.exe_mem.bits.alu_out
-    io.to_ctl.inst_is_load  := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
-    io.to_ctl.csr_eret      := csr_files.io.eret
+    io.to_ctl.resp_valid        := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    io.to_ctl.ctrl_mem_val      := mem_en
+    io.to_ctl.wbdata            := wbdata
+    io.to_ctl.wbaddr            := io.exe_mem.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen       := io.exe_mem.bits.ctrl_rf_wen
+    io.to_ctl.alu_out           := io.exe_mem.bits.alu_out
+    io.to_ctl.inst_is_load      := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
+    io.to_ctl.csr_eret          := csr_files.io.eret
+    io.to_ctl.mem_exception     := csr_files.io.exception =/= EXC_NORMAL
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
