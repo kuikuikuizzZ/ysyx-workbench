@@ -51,17 +51,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
-    
-    // val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
-    // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
-    // val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
-    // val in_mem = in_sdram || in_flash || in_psram
-
-    // val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
-    // val cache_valid = cache_data(58) && in_mem
-    // val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
-    // io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
-    // io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
 
     val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
@@ -119,7 +108,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                 state := sIdle
                 io.exception  := EXC_INSTR_ACCESS_FAULT
             }.otherwise {
-                state := sIdle
                 io.exception  := EXC_NORMAL
             }
         }
