@@ -71,7 +71,7 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
         
     io.inst := Mux(hit,cache_data,BUBBLE)
-    io.valid := Mux(hit,true.B,false.B)
+    io.valid := Mux(hit || io.fencei,true.B,false.B)
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting
