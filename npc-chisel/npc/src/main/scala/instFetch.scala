@@ -63,10 +63,10 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
    // for a fencei, refetch the if_pc (assuming no stall, no branch, and no exception)
-   when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)
-   {
-      pc_next := pc_reg
-   }
+  //  when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)
+  //  {
+  //     pc_next := pc_reg
+  //  }
 
   // NOTE: when if_kill, should not take the old pc value
   cache.io.req_valid  := !io.reset && pc_valid && !should_kill 
