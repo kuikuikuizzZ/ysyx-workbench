@@ -20,9 +20,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
-  val exception = Output(UInt(5.W))
   val debug     = Output(new ICacheDebugPort)
-  
 }
 
 class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Module { 
@@ -51,6 +49,17 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
+    
+    // val in_sdram = io.pc >= SDRAM_BASE && io.pc < (SDRAM_BASE + SDRAM_SIZE)
+    // val in_flash = io.pc >= FLASH_BASE && io.pc < (FLASH_BASE + FLASH_SIZE)
+    // val in_psram = io.pc >= PSRAM_BASE && io.pc < (PSRAM_BASE + PSRAM_SIZE)
+    // val in_mem = in_sdram || in_flash || in_psram
+
+    // val cache_data = mem.read(io.pc(5,2),(io.req_valid || ren) && in_mem)
+    // val cache_valid = cache_data(58) && in_mem
+    // val hit = cache_valid && (io.pc(31,6) === cache_data(57,32))
+    // io.inst := Mux(hit,cache_data(31,0),Mux(in_mem,BUBBLE,io.port.resp.bits.data))
+    // io.valid := Mux(hit,true.B,Mux(in_mem,false.B,io.port.resp.valid))
 
     val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
@@ -60,7 +69,8 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
         
-
+    io.inst := Mux(hit,cache_data,BUBBLE)
+    io.valid := Mux(hit,true.B,false.B)
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting
@@ -76,21 +86,17 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         io.port.req.bits.burst      := BURST_INCR
         io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength,0.U)
     }
+    
 
         // 状态迁移
     switch(state) {
         is(sIdle) {
             ren := false.B
-            io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
             when(!hit && reg_req_valid) {
-                when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
-                    state := sIdle
-                } .otherwise{
-                    state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
-                    offset := 0.U
-                }}}
-        is(sRequesting) { when(io.port.req.ready) {state := sReceiving }}
-        is(sBurstRequesting) { when(io.port.req.ready) {state := sReceiving }}
+                state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
+                offset := 0.U }}
+        is(sRequesting) { state := sReceiving }
+        is(sBurstRequesting) { state := sReceiving }
         is(sReceiving) {
             when(io.port.resp.valid) {
                 cacheLineBuffer(offset) := io.port.resp.bits.data // 存储子块
@@ -102,11 +108,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
                     state := sReceiving 
                 }.otherwise {
                     state := sRequesting // 继续请求下一子块
-                }
-                when(io.port.resp.bits.resp =/= 0.U) {
-                    io.exception  := EXC_INSTR_ACCESS_FAULT
-                }.otherwise {
-                    io.exception  := EXC_NORMAL
                 }
             }
         }
@@ -127,8 +128,6 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         valids.write(index, true.B) // 标记有效
     }
 
-    io.inst          := Mux(hit,cache_data,BUBBLE)
-    io.valid         := Mux(hit,true.B,false.B)
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
