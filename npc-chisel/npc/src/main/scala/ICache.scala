@@ -15,13 +15,14 @@ class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val clock     = Input(Clock())
   val reset     = Input(Bool())
-  val port      = new MemPortIo(conf.xlen)
   val pc        = Input(UInt(conf.xprlen.W))
+  val fencei    = Input(Bool())
   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
   val exception = Output(UInt(5.W))
   val debug     = Output(new ICacheDebugPort)
+  val port      = new MemPortIo(conf.xlen)
   
 }
 
@@ -129,6 +130,11 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
 
     io.inst          := Mux(hit,cache_data,BUBBLE)
     io.valid         := Mux(hit,true.B,false.B)
+    when (io.fencei){
+        for (addr <- 0 until size) {
+            valids.write(addr.U, false.B)
+        }
+    }
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))

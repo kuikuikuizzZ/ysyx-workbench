@@ -32,11 +32,12 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 
 
 class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val exe_pc_sel              =   Input(UInt(PC_4.getWidth.W))
-  val pipeline_kill       =   Input(Bool())
-  val if_kill             =   Input(Bool())
-  val dec_kill            =   Input(Bool())
-  val mem_exception       =   Input(Bool())
+  val exe_pc_sel           =   Input(UInt(PC_4.getWidth.W))
+  val pipeline_kill        =   Input(Bool())
+  val if_kill              =   Input(Bool())
+  val dec_kill             =   Input(Bool())
+  val mem_exception        =   Input(Bool())
+  val fencei               =   Input(Bool())
 }
 
 class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
@@ -172,8 +173,9 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
                      ))))))))))   
 
    // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
-   val ifkill  = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || RegNext(cs_fencei)
-   val deckill = (ctrl_exe_pc_sel =/= PC_4)
+   val reg_fencei = RegNext(cs_fencei)
+   val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
+   val deckill    = (ctrl_exe_pc_sel =/= PC_4)
 
    // Exception Handling ---------------------
 
@@ -197,6 +199,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill
    io.ctl_sign.mem_exception := mem_exception
+   io.ctl_sign.fencei := cs_fencei || reg_fencei
    // io.ctl_sign.dec_stall := stall
    // io.ctl_sign.full_stall := full_stall
 

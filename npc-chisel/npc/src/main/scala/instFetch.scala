@@ -62,8 +62,11 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
                  Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
-  // val inst_reg    = RegEnable(cache.io.inst,BUBBLE,cache.io.valid)
-  // val valid       = RegNext(cache.io.valid,false.B)
+   // for a fencei, refetch the if_pc (assuming no stall, no branch, and no exception)
+   when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)
+   {
+      pc_next := pc_reg
+   }
 
   // NOTE: when if_kill, should not take the old pc value
   cache.io.req_valid  := !io.reset && pc_valid && !should_kill 
@@ -72,7 +75,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
-  
+  cache.io.fencei     := io.ctl.fencei
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
