@@ -21,6 +21,7 @@ class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val halt          = Input(Bool())
   val reset         = Input(Bool())
   val clock         = Input(Clock())
+  val fencei        = Input(Bool())
   val debug         = Output(new IFUDebugPort)
 
 }
@@ -90,6 +91,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.port <> io.port
   cache.io.pc := pc_reg
   cache.io.req_valid := pc_valid && !io.reset
+  cache.io.fencei := io.fencei
   cache.io.debug <> io.debug.icache 
   // val valid = RegInit(false.B)
   val valid = RegNext(cache.io.valid,false.B)

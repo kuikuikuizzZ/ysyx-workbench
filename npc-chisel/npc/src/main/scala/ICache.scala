@@ -20,6 +20,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   val req_valid = Input(Bool())
   val inst      = Output(UInt(conf.xlen.W))
   val valid     = Output(Bool())
+  val fencei    = Input(Bool())
   val debug     = Output(new ICacheDebugPort)
 }
 
@@ -128,6 +129,11 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
         valids.write(index, true.B) // 标记有效
     }
 
+    when (io.fencei){
+        for (addr <- 0 until size) {
+            valids.write(addr.U, false.B)
+        }
+    }
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
