@@ -15,18 +15,25 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         val halt = Input(Bool())
         val pc = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
+        val mem_pc = Input(UInt(32.W))
+        val wb_valid = Input(Bool())
+        val wb_pc = Input(UInt(32.W))
+        val wb_inst = Input(UInt(32.W))
         val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
      setInline("DebugPort.v",
      """
-     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst);
+     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc,input int wb_inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module ysyx_24100012_DebugPort(
         input clock,
         input reset,
         input halt, 
         input [31:0] pc,
+        input [31:0] wb_pc,
+        input [31:0] wb_inst,
+        input [31:0] mem_pc,
         input [31:0] inst,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
@@ -36,18 +43,19 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
         input lsu_port_mem_en,
         input lsu_port_fcn,
         input lsu_port_valid,
+        input wb_valid,
         input [1:0]  lsu_port_typ
         );
 
         wire [31:0] expand_halt = {31'b0,halt};
         wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
-        always @(posedge clock) begin
-            dpi_port(expand_halt, pc, inst);
+        always @(*) begin
+            dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
         end
 
         always @(posedge clock) begin
             if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
-                lsu_port(lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
+                lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
             end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
                 lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
             end else begin
@@ -64,8 +72,6 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      val io = IO(new Bundle {
         val clock       = Input(Clock())
         val reset       = Input(Bool()) 
-        val finish      = Input(Bool())
-        val ifu_valid   = Input(Bool())
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
@@ -83,8 +89,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      module ysyx_24100012_PerfEventPort(
         input clock,
         input reset,
-        input finish,
-        input ifu_valid,
+        input ifu_port_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
         input [31:0] lsu_port_wdata,
@@ -110,16 +115,16 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
 
 
         always @(posedge clock) begin
-            if (finish) begin
-                perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
-                    ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
-                    ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
+            perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
+                ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
+                ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
+            perf_event_wbu(wbu_port_wbCount);
+            if (lsu_port_valid)
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
-                perf_event_wbu(wbu_port_wbCount);
+            if (ifu_port_valid) begin
                 perf_event_ifu(ifu_port_instFetchCount);   
-            end 
-            if (ifu_valid)
                 perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
+            end
         end
 
      endmodule

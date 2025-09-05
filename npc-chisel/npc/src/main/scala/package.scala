@@ -10,6 +10,7 @@ object Constants extends
    NPCProcConstants with
    npc.common.PrivilegedConstants with
    RISCVConstants with
-   npc.common.AXI4BurstTypes
+   npc.common.AXI4BurstTypes with
+    ExceptionCodesConstants
 {
 }
