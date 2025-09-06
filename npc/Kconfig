@@ -17,6 +17,10 @@ config NVBOARD
   bool "nvboard enable"
   default n
 
+config PIPELINE_PC
+  bool "pipline enable"
+  default y
+
 config SOC
   bool "run with/without soc"
   default y
