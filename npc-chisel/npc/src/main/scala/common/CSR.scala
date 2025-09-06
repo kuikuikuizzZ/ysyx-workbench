@@ -94,7 +94,7 @@ class CSRFileIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   // val status = Output(new MStatus())
   val status = Output(UInt(conf.xprlen.W)) // using UInt for simplicity, can be changed to MStatus if needed
   val evec = Output(UInt(conf.xprlen.W))
-  val exception = Input(UInt(5.W))
+  val exception = Input(Bool())
   val pc = Input(UInt(conf.xprlen.W))
   val retire = Input(Bool())
   // val time = Output(UInt(conf.xprlen.W))
@@ -241,11 +241,11 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
 
   // ILLEGAL INSTR
   // TODO: Support misaligned address exceptions
-  when (io.exception =/= 0.U) {
-    reg_mcause :=  Cat(0.U(28.W),io.exception(3,0))
+  when (io.exception) {
+    reg_mcause := Causes.illegal_instruction
   }
 
-  // assert(PopCount(insn_ret :: io.exception =/=0.U :: Nil) <= 1, "these conditions must be mutually exclusive")
+  assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
 
   //  when (reg_time >= reg_mtimecmp) {
   //     reg_mip.mtip := true
@@ -284,7 +284,7 @@ class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Mod
     reg_mcause := Causes.breakpoint
   }
 
-  when (io.exception =/= 0.U || insn_call || insn_break) {
+  when (io.exception || insn_call || insn_break) {
     reg_mepc := io.pc
   }
 

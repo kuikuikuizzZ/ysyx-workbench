@@ -14,11 +14,11 @@ char itrace_buff [ITRACE_SIZE];
 RingBuffer *rb = NULL;
 VerilatedContext* contextp = NULL;
 extern char* perf_file;
-static uint64_t cycles = 0;
 
 #ifdef CONFIG_PC_MAX_REPEAT
 static uint32_t pc_repeat_count = 0;
 static paddr_t  pc_old = 0;
+static uint64_t cycles = 0;
 #endif
 
 void init_disasm();
@@ -135,7 +135,6 @@ void exec_once(Decode *s){
     #ifdef CONFIG_WATCH_TOP
     watch_top();
     #endif
-
     sync_cpu();
     s->inst = top_inst();
     if (top_halt()){
@@ -232,4 +231,4 @@ void perf_event_display(){
     top_perf_event_display(fp);
     fprintf(fp,"******* End Performance counter *******\n");
     if (perf_file) fclose(fp);
-} 
+}

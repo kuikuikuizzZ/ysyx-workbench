@@ -5946,6 +5946,199 @@ module AXI4Fragmenter(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
   assign auto_out_rready = auto_in_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:37:9
 endmodule
 
+module AXI4DelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  output        io_in_awready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_in_awvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [3:0]  io_in_awid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [31:0] io_in_awaddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [7:0]  io_in_awlen,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [2:0]  io_in_awsize,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [1:0]  io_in_awburst,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_in_wready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_in_wvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [31:0] io_in_wdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [3:0]  io_in_wstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_in_wlast,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+                io_in_bready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_in_bvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [3:0]  io_in_bid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [1:0]  io_in_bresp,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_in_arready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_in_arvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [3:0]  io_in_arid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [31:0] io_in_araddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [7:0]  io_in_arlen,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [2:0]  io_in_arsize,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [1:0]  io_in_arburst,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_in_rready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_in_rvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [3:0]  io_in_rid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [31:0] io_in_rdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [1:0]  io_in_rresp,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_in_rlast,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_awready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_out_awvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [3:0]  io_out_awid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [31:0] io_out_awaddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [7:0]  io_out_awlen,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [2:0]  io_out_awsize,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [1:0]  io_out_awburst,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_wready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_out_wvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [31:0] io_out_wdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [3:0]  io_out_wstrb,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_out_wlast,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+                io_out_bready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_bvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [3:0]  io_out_bid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [1:0]  io_out_bresp,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_arready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_out_arvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [3:0]  io_out_arid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [31:0] io_out_araddr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [7:0]  io_out_arlen,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [2:0]  io_out_arsize,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output [1:0]  io_out_arburst,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  output        io_out_rready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_rvalid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [3:0]  io_out_rid,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [31:0] io_out_rdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input  [1:0]  io_out_rresp,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+  input         io_out_rlast	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:24:14
+);
+
+  reg  [1:0]  state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22
+  reg  [31:0] cnt;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:33:20
+  wire        _io_out_rready_T = state == 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :36:66
+  reg         is_read;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:26
+  reg         rvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:39:27
+  wire        _io_out_rready_T_1 = state == 2'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :40:94
+  reg  [31:0] rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:40:27
+  reg  [1:0]  rresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:41:27
+  reg  [3:0]  rid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:42:27
+  reg         rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:43:27
+  reg         bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:49:26
+  reg  [1:0]  bresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:50:26
+  reg  [3:0]  bid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:51:26
+  wire        io_out_bready_0 =
+    (_io_out_rready_T | _io_out_rready_T_1) & io_in_bready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :96:{27,43}
+  wire        io_out_rready_0 =
+    (_io_out_rready_T | _io_out_rready_T_1) & io_in_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :101:{27,43}
+  always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+    automatic logic _rlast_T;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35
+    automatic logic _bid_T;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:74
+    _rlast_T = io_out_rvalid & io_out_rready_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35, :101:27
+    _bid_T = io_out_bvalid & io_out_bready_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:74, :96:27
+    if (reset) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      state <= 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22
+      cnt <= 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:33:20
+    end
+    else begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      automatic logic             axi_start =
+        io_in_arvalid & io_out_arready | io_in_awvalid & io_out_awready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:{35,54,73}
+      automatic logic             axi_finsh;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:55
+      automatic logic             _GEN;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:61:29
+      automatic logic             _GEN_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:64:{20,30}
+      automatic logic [3:0][1:0]  _GEN_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
+      automatic logic [3:0][31:0] _GEN_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :54:18, :55:36, :57:39, :61:38
+      axi_finsh = _rlast_T | _bid_T;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:{35,55,74}
+      _GEN = cnt == 32'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:33:20, :61:29
+      _GEN_0 = is_read & rvalid & ~rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:26, :39:27, :43:27, :64:{20,30,33}
+      _GEN_1 =
+        {{{1'h0, _GEN_0}},
+         {_GEN ? 2'h3 : state},
+         {axi_finsh ? 2'h2 : state},
+         {axi_start ? 2'h1 : state}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :34:54, :35:55, :36:66, :40:94, :54:18, :55:{36,44}, :57:39, :58:31, :61:{29,38,46}, :64:{20,30,41}, :65:15, :68:15
+      state <= _GEN_1[state];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
+      _GEN_2 =
+        {{(&state) & _GEN_0 ? 32'h38000 : cnt},
+         {_GEN ? cnt : cnt - 32'h1},
+         {axi_finsh ? {16'h0, cnt[31:16]} : cnt + 32'h38000},
+         {axi_start ? 32'h38000 : cnt}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :33:20, :34:54, :35:55, :36:66, :40:94, :54:18, :55:36, :56:25, :57:39, :59:{29,36}, :60:{41,48}, :61:{29,38}, :62:{37,44}, :64:{20,30,41}, :66:13
+      cnt <= _GEN_2[state];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :33:20, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38
+    end
+    if (io_in_arvalid | _io_out_rready_T)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:{57,66}
+      is_read <= io_in_arvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:26
+    if (io_out_rvalid | _io_out_rready_T)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :39:59
+      rvalid <= io_out_rvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:39:27
+    if (_rlast_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35, :40:{85,94}
+      rdata <= io_out_rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:40:27
+    if (_rlast_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35, :40:94, :41:85
+      rresp <= io_out_rresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:41:27
+    if (_rlast_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35, :40:94, :42:85
+      rid <= io_out_rid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:42:27
+    if (_rlast_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:35, :40:94, :43:85
+      rlast <= io_out_rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:43:27
+    if (io_out_bvalid | _io_out_rready_T)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :49:58
+      bvalid <= io_out_bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:49:26
+    if (_bid_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:74, :40:94, :50:83
+      bresp <= io_out_bresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:50:26
+    if (_bid_T & _io_out_rready_T_1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:35:74, :40:94, :51:83
+      bid <= io_out_bid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:51:26
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      `FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+    `endif // FIRRTL_BEFORE_INITIAL
+    initial begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      automatic logic [31:0] _RANDOM[0:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      `ifdef INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+        `INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+        for (logic [1:0] i = 2'h0; i < 2'h3; i += 2'h1) begin
+          _RANDOM[i] = `RANDOM;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+        end	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+        state = _RANDOM[2'h0][1:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22
+        cnt = {_RANDOM[2'h0][31:2], _RANDOM[2'h1][1:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :33:20
+        is_read = _RANDOM[2'h1][2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :33:20, :36:26
+        rvalid = _RANDOM[2'h1][4];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :33:20, :39:27
+        rdata = {_RANDOM[2'h1][31:5], _RANDOM[2'h2][4:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :33:20, :40:27
+        rresp = _RANDOM[2'h2][6:5];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :41:27
+        rid = _RANDOM[2'h2][10:7];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :42:27
+        rlast = _RANDOM[2'h2][11];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :43:27
+        bvalid = _RANDOM[2'h2][12];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :49:26
+        bresp = _RANDOM[2'h2][14:13];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :50:26
+        bid = _RANDOM[2'h2][18:15];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27, :51:26
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+      `FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  assign io_in_awready = io_out_awready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_in_wready = io_out_wready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_in_bvalid = (&state) & bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :49:26, :97:{27,34}
+  assign io_in_bid = bid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :51:26
+  assign io_in_bresp = bresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :50:26
+  assign io_in_arready = io_out_arready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_in_rvalid = (&state) & rvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :39:27, :97:34, :102:27
+  assign io_in_rid = rid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :42:27
+  assign io_in_rdata = rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :40:27
+  assign io_in_rresp = rresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :41:27
+  assign io_in_rlast = rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :43:27
+  assign io_out_awvalid = _io_out_rready_T & io_in_awvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :36:66, :82:27
+  assign io_out_awid = io_in_awid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_awaddr = io_in_awaddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_awlen = io_in_awlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_awsize = io_in_awsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_awburst = io_in_awburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_wvalid = _io_out_rready_T & io_in_wvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :36:66, :90:27
+  assign io_out_wdata = io_in_wdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_wstrb = io_in_wstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_wlast = io_in_wlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_bready = io_out_bready_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :96:27
+  assign io_out_arvalid = _io_out_rready_T & io_in_arvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :36:66, :74:27
+  assign io_out_arid = io_in_arid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_araddr = io_in_araddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_arlen = io_in_arlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_arsize = io_in_arsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_arburst = io_in_arburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7
+  assign io_out_rready = io_out_rready_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :101:27
+endmodule
+
 module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:60:9
   input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:60:9
                 reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:60:9
@@ -5991,35 +6184,35 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
                 vga_valid	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:105:17
 );
 
-  wire        _axi4delay_delayer_in_awready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_in_wready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_in_bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [3:0]  _axi4delay_delayer_in_bid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [1:0]  _axi4delay_delayer_in_bresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_in_arready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_in_rvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [3:0]  _axi4delay_delayer_in_rid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [31:0] _axi4delay_delayer_in_rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [1:0]  _axi4delay_delayer_in_rresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_in_rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_awvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [3:0]  _axi4delay_delayer_out_awid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [31:0] _axi4delay_delayer_out_awaddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [7:0]  _axi4delay_delayer_out_awlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [2:0]  _axi4delay_delayer_out_awsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [1:0]  _axi4delay_delayer_out_awburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_wvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [31:0] _axi4delay_delayer_out_wdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [3:0]  _axi4delay_delayer_out_wstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_wlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_bready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_arvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [3:0]  _axi4delay_delayer_out_arid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [31:0] _axi4delay_delayer_out_araddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [7:0]  _axi4delay_delayer_out_arlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [2:0]  _axi4delay_delayer_out_arsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire [1:0]  _axi4delay_delayer_out_arburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-  wire        _axi4delay_delayer_out_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+  wire        _axi4delay_delayer_io_in_awready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_in_wready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_in_bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [3:0]  _axi4delay_delayer_io_in_bid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [1:0]  _axi4delay_delayer_io_in_bresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_in_arready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_in_rvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [3:0]  _axi4delay_delayer_io_in_rid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [31:0] _axi4delay_delayer_io_in_rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [1:0]  _axi4delay_delayer_io_in_rresp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_in_rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_awvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [3:0]  _axi4delay_delayer_io_out_awid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [31:0] _axi4delay_delayer_io_out_awaddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [7:0]  _axi4delay_delayer_io_out_awlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [2:0]  _axi4delay_delayer_io_out_awsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [1:0]  _axi4delay_delayer_io_out_awburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_wvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [31:0] _axi4delay_delayer_io_out_wdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [3:0]  _axi4delay_delayer_io_out_wstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_wlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_bready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_arvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [3:0]  _axi4delay_delayer_io_out_arid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [31:0] _axi4delay_delayer_io_out_araddr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [7:0]  _axi4delay_delayer_io_out_arlen;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [2:0]  _axi4delay_delayer_io_out_arsize;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire [1:0]  _axi4delay_delayer_io_out_arburst;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+  wire        _axi4delay_delayer_io_out_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
   wire        _axi4frag_auto_in_awready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
   wire        _axi4frag_auto_in_wready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
   wire        _axi4frag_auto_in_bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
@@ -6369,23 +6562,23 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_anon_in_rdata      (_axi4xbar_auto_anon_in_rdata),
     .auto_anon_in_rresp      (_axi4xbar_auto_anon_in_rresp),
     .auto_anon_in_rlast      (_axi4xbar_auto_anon_in_rlast),
-    .auto_anon_out_1_awready      (_axi4delay_delayer_in_awready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_anon_out_1_awready      (_axi4delay_delayer_io_in_awready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_anon_out_1_awvalid      (_axi4xbar_auto_anon_out_1_awvalid),
     .auto_anon_out_1_awid    (_axi4xbar_auto_anon_out_1_awid),
     .auto_anon_out_1_awaddr  (_axi4xbar_auto_anon_out_1_awaddr),
     .auto_anon_out_1_awlen   (_axi4xbar_auto_anon_out_1_awlen),
     .auto_anon_out_1_awsize  (_axi4xbar_auto_anon_out_1_awsize),
     .auto_anon_out_1_awburst (_axi4xbar_auto_anon_out_1_awburst),
-    .auto_anon_out_1_wready       (_axi4delay_delayer_in_wready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_anon_out_1_wready       (_axi4delay_delayer_io_in_wready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_anon_out_1_wvalid       (_axi4xbar_auto_anon_out_1_wvalid),
     .auto_anon_out_1_wdata   (_axi4xbar_auto_anon_out_1_wdata),
     .auto_anon_out_1_wstrb   (_axi4xbar_auto_anon_out_1_wstrb),
     .auto_anon_out_1_wlast   (_axi4xbar_auto_anon_out_1_wlast),
     .auto_anon_out_1_bready       (_axi4xbar_auto_anon_out_1_bready),
-    .auto_anon_out_1_bvalid       (_axi4delay_delayer_in_bvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_bid     (_axi4delay_delayer_in_bid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_bresp   (_axi4delay_delayer_in_bresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_arready      (_axi4delay_delayer_in_arready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_anon_out_1_bvalid       (_axi4delay_delayer_io_in_bvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_bid     (_axi4delay_delayer_io_in_bid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_bresp   (_axi4delay_delayer_io_in_bresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_arready      (_axi4delay_delayer_io_in_arready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_anon_out_1_arvalid      (_axi4xbar_auto_anon_out_1_arvalid),
     .auto_anon_out_1_arid    (_axi4xbar_auto_anon_out_1_arid),
     .auto_anon_out_1_araddr  (_axi4xbar_auto_anon_out_1_araddr),
@@ -6393,11 +6586,11 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_anon_out_1_arsize  (_axi4xbar_auto_anon_out_1_arsize),
     .auto_anon_out_1_arburst (_axi4xbar_auto_anon_out_1_arburst),
     .auto_anon_out_1_rready       (_axi4xbar_auto_anon_out_1_rready),
-    .auto_anon_out_1_rvalid       (_axi4delay_delayer_in_rvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_rid     (_axi4delay_delayer_in_rid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_rdata   (_axi4delay_delayer_in_rdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_rresp   (_axi4delay_delayer_in_rresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_anon_out_1_rlast   (_axi4delay_delayer_in_rlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_anon_out_1_rvalid       (_axi4delay_delayer_io_in_rvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_rid     (_axi4delay_delayer_io_in_rid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_rdata   (_axi4delay_delayer_io_in_rdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_rresp   (_axi4delay_delayer_io_in_rresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_anon_out_1_rlast   (_axi4delay_delayer_io_in_rlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_anon_out_0_awready      (_axi4frag_auto_in_awready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
     .auto_anon_out_0_awvalid      (_axi4xbar_auto_anon_out_0_awvalid),
     .auto_anon_out_0_awid    (_axi4xbar_auto_anon_out_0_awid),
@@ -6745,29 +6938,29 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .clock                 (clock),
     .reset                 (reset),
     .auto_in_awready      (_lsdram_axi_auto_in_awready),
-    .auto_in_awvalid      (_axi4delay_delayer_out_awvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_awid    (_axi4delay_delayer_out_awid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_awaddr  (_axi4delay_delayer_out_awaddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_awlen   (_axi4delay_delayer_out_awlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_awsize  (_axi4delay_delayer_out_awsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_awburst (_axi4delay_delayer_out_awburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_in_awvalid      (_axi4delay_delayer_io_out_awvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_awid    (_axi4delay_delayer_io_out_awid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_awaddr  (_axi4delay_delayer_io_out_awaddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_awlen   (_axi4delay_delayer_io_out_awlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_awsize  (_axi4delay_delayer_io_out_awsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_awburst (_axi4delay_delayer_io_out_awburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_in_wready       (_lsdram_axi_auto_in_wready),
-    .auto_in_wvalid       (_axi4delay_delayer_out_wvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_wdata   (_axi4delay_delayer_out_wdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_wstrb   (_axi4delay_delayer_out_wstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_wlast   (_axi4delay_delayer_out_wlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_bready       (_axi4delay_delayer_out_bready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_in_wvalid       (_axi4delay_delayer_io_out_wvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_wdata   (_axi4delay_delayer_io_out_wdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_wstrb   (_axi4delay_delayer_io_out_wstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_wlast   (_axi4delay_delayer_io_out_wlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_bready       (_axi4delay_delayer_io_out_bready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_in_bvalid       (_lsdram_axi_auto_in_bvalid),
     .auto_in_bid     (_lsdram_axi_auto_in_bid),
     .auto_in_bresp   (_lsdram_axi_auto_in_bresp),
     .auto_in_arready      (_lsdram_axi_auto_in_arready),
-    .auto_in_arvalid      (_axi4delay_delayer_out_arvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_arid    (_axi4delay_delayer_out_arid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_araddr  (_axi4delay_delayer_out_araddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_arlen   (_axi4delay_delayer_out_arlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_arsize  (_axi4delay_delayer_out_arsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_arburst (_axi4delay_delayer_out_arburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .auto_in_rready       (_axi4delay_delayer_out_rready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+    .auto_in_arvalid      (_axi4delay_delayer_io_out_arvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_arid    (_axi4delay_delayer_io_out_arid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_araddr  (_axi4delay_delayer_io_out_araddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_arlen   (_axi4delay_delayer_io_out_arlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_arsize  (_axi4delay_delayer_io_out_arsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_arburst (_axi4delay_delayer_io_out_arburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .auto_in_rready       (_axi4delay_delayer_io_out_rready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
     .auto_in_rvalid       (_lsdram_axi_auto_in_rvalid),
     .auto_in_rid     (_lsdram_axi_auto_in_rid),
     .auto_in_rdata   (_lsdram_axi_auto_in_rdata),
@@ -7029,68 +7222,68 @@ module ysyxSoCASIC(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
     .auto_out_recho_real_last  (_axi4yank_auto_in_recho_real_last),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:125:30
     .auto_out_rlast            (_axi4yank_auto_in_rlast)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:125:30
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
-  axi4_delayer axi4delay_delayer (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
-    .clock             (clock),
-    .reset             (reset),
-    .in_awready       (_axi4delay_delayer_in_awready),
-    .in_awvalid       (_axi4xbar_auto_anon_out_1_awvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awid     (_axi4xbar_auto_anon_out_1_awid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awaddr   (_axi4xbar_auto_anon_out_1_awaddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awlen    (_axi4xbar_auto_anon_out_1_awlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awsize   (_axi4xbar_auto_anon_out_1_awsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awburst  (_axi4xbar_auto_anon_out_1_awburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wready        (_axi4delay_delayer_in_wready),
-    .in_wvalid        (_axi4xbar_auto_anon_out_1_wvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wdata    (_axi4xbar_auto_anon_out_1_wdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wstrb    (_axi4xbar_auto_anon_out_1_wstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wlast    (_axi4xbar_auto_anon_out_1_wlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_bready        (_axi4xbar_auto_anon_out_1_bready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_bvalid        (_axi4delay_delayer_in_bvalid),
-    .in_bid      (_axi4delay_delayer_in_bid),
-    .in_bresp    (_axi4delay_delayer_in_bresp),
-    .in_arready       (_axi4delay_delayer_in_arready),
-    .in_arvalid       (_axi4xbar_auto_anon_out_1_arvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arid     (_axi4xbar_auto_anon_out_1_arid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_araddr   (_axi4xbar_auto_anon_out_1_araddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arlen    (_axi4xbar_auto_anon_out_1_arlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arsize   (_axi4xbar_auto_anon_out_1_arsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arburst  (_axi4xbar_auto_anon_out_1_arburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_rready        (_axi4xbar_auto_anon_out_1_rready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_rvalid        (_axi4delay_delayer_in_rvalid),
-    .in_rid      (_axi4delay_delayer_in_rid),
-    .in_rdata    (_axi4delay_delayer_in_rdata),
-    .in_rresp    (_axi4delay_delayer_in_rresp),
-    .in_rlast    (_axi4delay_delayer_in_rlast),
-    .out_awready      (_lsdram_axi_auto_in_awready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_awvalid      (_axi4delay_delayer_out_awvalid),
-    .out_awid    (_axi4delay_delayer_out_awid),
-    .out_awaddr  (_axi4delay_delayer_out_awaddr),
-    .out_awlen   (_axi4delay_delayer_out_awlen),
-    .out_awsize  (_axi4delay_delayer_out_awsize),
-    .out_awburst (_axi4delay_delayer_out_awburst),
-    .out_wready       (_lsdram_axi_auto_in_wready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_wvalid       (_axi4delay_delayer_out_wvalid),
-    .out_wdata   (_axi4delay_delayer_out_wdata),
-    .out_wstrb   (_axi4delay_delayer_out_wstrb),
-    .out_wlast   (_axi4delay_delayer_out_wlast),
-    .out_bready       (_axi4delay_delayer_out_bready),
-    .out_bvalid       (_lsdram_axi_auto_in_bvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_bid     (_lsdram_axi_auto_in_bid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_bresp   (_lsdram_axi_auto_in_bresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_arready      (_lsdram_axi_auto_in_arready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_arvalid      (_axi4delay_delayer_out_arvalid),
-    .out_arid    (_axi4delay_delayer_out_arid),
-    .out_araddr  (_axi4delay_delayer_out_araddr),
-    .out_arlen   (_axi4delay_delayer_out_arlen),
-    .out_arsize  (_axi4delay_delayer_out_arsize),
-    .out_arburst (_axi4delay_delayer_out_arburst),
-    .out_rready       (_axi4delay_delayer_out_rready),
-    .out_rvalid       (_lsdram_axi_auto_in_rvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_rid     (_lsdram_axi_auto_in_rid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_rdata   (_lsdram_axi_auto_in_rdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_rresp   (_lsdram_axi_auto_in_rresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-    .out_rlast   (_lsdram_axi_auto_in_rlast)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
-  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:111:27
+  AXI4DelayerChisel axi4delay_delayer (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
+    .clock                (clock),
+    .reset                (reset),
+    .io_in_awready       (_axi4delay_delayer_io_in_awready),
+    .io_in_awvalid       (_axi4xbar_auto_anon_out_1_awvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_awid     (_axi4xbar_auto_anon_out_1_awid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_awaddr   (_axi4xbar_auto_anon_out_1_awaddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_awlen    (_axi4xbar_auto_anon_out_1_awlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_awsize   (_axi4xbar_auto_anon_out_1_awsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_awburst  (_axi4xbar_auto_anon_out_1_awburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_wready        (_axi4delay_delayer_io_in_wready),
+    .io_in_wvalid        (_axi4xbar_auto_anon_out_1_wvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_wdata    (_axi4xbar_auto_anon_out_1_wdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_wstrb    (_axi4xbar_auto_anon_out_1_wstrb),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_wlast    (_axi4xbar_auto_anon_out_1_wlast),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_bready        (_axi4xbar_auto_anon_out_1_bready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_bvalid        (_axi4delay_delayer_io_in_bvalid),
+    .io_in_bid      (_axi4delay_delayer_io_in_bid),
+    .io_in_bresp    (_axi4delay_delayer_io_in_bresp),
+    .io_in_arready       (_axi4delay_delayer_io_in_arready),
+    .io_in_arvalid       (_axi4xbar_auto_anon_out_1_arvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_arid     (_axi4xbar_auto_anon_out_1_arid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_araddr   (_axi4xbar_auto_anon_out_1_araddr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_arlen    (_axi4xbar_auto_anon_out_1_arlen),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_arsize   (_axi4xbar_auto_anon_out_1_arsize),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_arburst  (_axi4xbar_auto_anon_out_1_arburst),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_rready        (_axi4xbar_auto_anon_out_1_rready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .io_in_rvalid        (_axi4delay_delayer_io_in_rvalid),
+    .io_in_rid      (_axi4delay_delayer_io_in_rid),
+    .io_in_rdata    (_axi4delay_delayer_io_in_rdata),
+    .io_in_rresp    (_axi4delay_delayer_io_in_rresp),
+    .io_in_rlast    (_axi4delay_delayer_io_in_rlast),
+    .io_out_awready      (_lsdram_axi_auto_in_awready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_awvalid      (_axi4delay_delayer_io_out_awvalid),
+    .io_out_awid    (_axi4delay_delayer_io_out_awid),
+    .io_out_awaddr  (_axi4delay_delayer_io_out_awaddr),
+    .io_out_awlen   (_axi4delay_delayer_io_out_awlen),
+    .io_out_awsize  (_axi4delay_delayer_io_out_awsize),
+    .io_out_awburst (_axi4delay_delayer_io_out_awburst),
+    .io_out_wready       (_lsdram_axi_auto_in_wready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_wvalid       (_axi4delay_delayer_io_out_wvalid),
+    .io_out_wdata   (_axi4delay_delayer_io_out_wdata),
+    .io_out_wstrb   (_axi4delay_delayer_io_out_wstrb),
+    .io_out_wlast   (_axi4delay_delayer_io_out_wlast),
+    .io_out_bready       (_axi4delay_delayer_io_out_bready),
+    .io_out_bvalid       (_lsdram_axi_auto_in_bvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_bid     (_lsdram_axi_auto_in_bid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_bresp   (_lsdram_axi_auto_in_bresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_arready      (_lsdram_axi_auto_in_arready),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_arvalid      (_axi4delay_delayer_io_out_arvalid),
+    .io_out_arid    (_axi4delay_delayer_io_out_arid),
+    .io_out_araddr  (_axi4delay_delayer_io_out_araddr),
+    .io_out_arlen   (_axi4delay_delayer_io_out_arlen),
+    .io_out_arsize  (_axi4delay_delayer_io_out_arsize),
+    .io_out_arburst (_axi4delay_delayer_io_out_arburst),
+    .io_out_rready       (_axi4delay_delayer_io_out_rready),
+    .io_out_rvalid       (_lsdram_axi_auto_in_rvalid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_rid     (_lsdram_axi_auto_in_rid),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_rdata   (_lsdram_axi_auto_in_rdata),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_rresp   (_lsdram_axi_auto_in_rresp),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+    .io_out_rlast   (_lsdram_axi_auto_in_rlast)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/SoC.scala:49:60
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:115:27
 endmodule
 
 module bitrevChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/BitRev.scala:10:7
