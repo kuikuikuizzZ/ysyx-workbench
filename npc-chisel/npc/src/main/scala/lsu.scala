@@ -136,9 +136,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     }
 
     
-    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
-    val mem_exception   = io.port.resp.bits.resp
-    val mem_data        = Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
+    val mem_resp_valid  = RegNext(Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid))
+    val mem_exception   = RegNext(io.port.resp.bits.resp)
+    val mem_data        = RegNext(Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data))
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
@@ -182,8 +182,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.addr       := addr
     io.debug.fcn        := io.exe_mem.bits.ctrl_mem_fcn
     io.debug.wdata      := io.exe_mem.bits.rs2_data 
-    io.debug.rdata      := io.port.resp.bits.data
-    io.debug.valid      := io.port.resp.valid
+    io.debug.rdata      := mem_data
+    io.debug.valid      := mem_resp_valid
     io.debug.typ        := io.exe_mem.bits.ctrl_mem_typ
     when(io.port.req.valid) {
       when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {
