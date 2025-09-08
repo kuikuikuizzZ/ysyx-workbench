@@ -24,4 +24,4 @@ VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 
 build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
-	verilator $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
+	verilator $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush -Wall  -Wno-DECLFILENAME

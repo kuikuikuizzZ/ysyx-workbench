@@ -13,7 +13,7 @@ module ysyx_24100012_lfsr_delay (
     // LFSR伪随机数生成器
     wire feedback = lfsr[3] ^ lfsr[2]; // 反馈抽头 (4位LFSR多项式: x^4 + x^3 + 1)
     
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk ) begin
         if (!rst_n) begin
             lfsr <= 4'b0001;      // 复位时重置LFSR
             active <= 1'b0;       // 空闲状态
