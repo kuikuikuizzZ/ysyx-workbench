@@ -13,8 +13,6 @@ class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
 }
 
 class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
-  val clock     = Input(Clock())
-  val reset     = Input(Bool())
   val pc        = Input(UInt(conf.xprlen.W))
   val fencei    = Input(Bool())
   val req_valid = Input(Bool())

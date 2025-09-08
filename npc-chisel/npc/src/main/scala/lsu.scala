@@ -25,7 +25,6 @@ class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val resp_valid      = Output(Bool())
     val ctrl_mem_val    = Output(Bool())
     val alu_out         = Output(UInt(conf.xlen.W))
     val wbaddr          = Output(UInt(5.W))
@@ -98,7 +97,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     
     // val valid = Wire(Bool())
     val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
-    val mem_data = Wire(UInt(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
@@ -123,7 +121,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := false.B
         }
     } .otherwise {
-        when(io.port.req.ready) {
+        when(mem_en && io.port.req.ready) {
             io.port.req.valid    := mem_en
             io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
             io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
@@ -137,9 +135,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     }
 
     
-
-    mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
-    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid)
+    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    (io.port.resp.valid))
+    val mem_exception   = Mux(in_clint, 0.U,                    (io.port.resp.bits.resp))
+    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    ( io.port.resp.bits.data))
+    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready
@@ -151,11 +150,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
-
-    exception := Mux(mem_en && io.port.resp.bits.resp =/= 0.U , 
+    exception := Mux(mem_en && mem_exception =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
-    io.mem_wb.valid                 := (!mem_en || (mem_en && io.to_ctl.resp_valid))
+    io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
     io.mem_wb.bits.data             := wbdata
     io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ebreak           := csr_files.io.ebreak
@@ -163,10 +161,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.ctrl_rf_wen      := io.exe_mem.bits.ctrl_rf_wen
     io.mem_wb.bits.inst             := io.exe_mem.bits.inst
     io.mem_wb.bits.pc_valid         := io.exe_mem.bits.pc_valid 
-    io.mem_wb.bits.mem_resp_valid   := io.port.resp.valid
+    io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
     io.mem_wb.bits.debug            := io.debug
     
-    io.to_ctl.resp_valid        := Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
     io.to_ctl.ctrl_mem_val      := mem_en
     io.to_ctl.wbdata            := wbdata
     io.to_ctl.wbaddr            := io.exe_mem.bits.wbaddr
@@ -183,8 +180,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.addr       := addr
     io.debug.fcn        := io.exe_mem.bits.ctrl_mem_fcn
     io.debug.wdata      := io.exe_mem.bits.rs2_data 
-    io.debug.rdata      := io.port.resp.bits.data
-    io.debug.valid      := io.port.resp.valid
+    io.debug.rdata      := mem_data
+    io.debug.valid      := mem_resp_valid
     io.debug.typ        := io.exe_mem.bits.ctrl_mem_typ
     when(io.port.req.valid) {
       when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {

@@ -19,8 +19,6 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val clock             = Input(Clock())
-  val reset             = Input(Bool())
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
@@ -69,9 +67,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
    }
 
   // NOTE: when if_kill, should not take the old pc value
-  cache.io.req_valid  := !io.reset && pc_valid && !should_kill 
-  cache.io.clock      := clock
-  cache.io.reset      := reset
+  cache.io.req_valid  := pc_valid && !should_kill 
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
