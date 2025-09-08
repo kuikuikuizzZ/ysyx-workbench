@@ -21,5 +21,5 @@ case class ysyx_24100012_Config(
     val ICacheEnableBurst = true.B
 
     val USE_FULL_BYPASSING = false
-    val ENABLE_DEBUG = true
+    val ENABLE_DEBUG = false
 }
