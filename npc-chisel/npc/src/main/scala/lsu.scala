@@ -151,7 +151,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
-    exception := Mux(mem_en && mem_resp_exc =/= 0.U , 
+    exception := Mux(mem_en && mem_exception =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
     io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
