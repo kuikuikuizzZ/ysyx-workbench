@@ -138,7 +138,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
 
     
     val mem_resp_valid = RegNext(Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid))
-    mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
+    mem_data :=  RegNext(Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data))
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
@@ -151,8 +151,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
-
-    exception := Mux(mem_en && io.port.resp.bits.resp =/= 0.U , 
+    val mem_resp_exc = RegNext(io.port.resp.bits.resp)
+    exception := Mux(mem_en && mem_resp_exc =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
     io.mem_wb.valid                 := (!mem_en || (mem_en && io.to_ctl.resp_valid))
