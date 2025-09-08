@@ -25,7 +25,6 @@ class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-    val resp_valid      = Output(Bool())
     val ctrl_mem_val    = Output(Bool())
     val alu_out         = Output(UInt(conf.xlen.W))
     val wbaddr          = Output(UInt(5.W))
@@ -122,7 +121,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := false.B
         }
     } .otherwise {
-        when(io.port.req.ready) {
+        when(mem_en && io.port.req.ready) {
             io.port.req.valid    := mem_en
             io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
             io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
@@ -165,7 +164,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
     io.mem_wb.bits.debug            := io.debug
     
-    io.to_ctl.resp_valid        := mem_resp_valid
     io.to_ctl.ctrl_mem_val      := mem_en
     io.to_ctl.wbdata            := wbdata
     io.to_ctl.wbaddr            := io.exe_mem.bits.wbaddr
