@@ -137,7 +137,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     }
 
     
-    val mem_resp_valid = Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid)
+    val mem_resp_valid = RegNext(Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid))
     mem_data :=  Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data)
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
