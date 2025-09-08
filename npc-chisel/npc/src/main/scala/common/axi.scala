@@ -121,8 +121,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
     val accept_read = (rstate === rs_idle) && io.req.ren
     val accept_write = !accept_read && (wstate === ws_idle) && io.req.wen
-    val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
-    val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,false.B,(wstate === ws_idle)))
+    val is_read =   RegEnable (accept_read,false.B,(rstate === rs_idle))
+    val is_write =  RegEnable (accept_write,false.B,(wstate === ws_idle))
     val awfire = RegInit(false.B)
     val wfire = RegInit(false.B)
     val arfire = RegInit(false.B)
@@ -140,16 +140,16 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
     val size    = Mux(io.req.burst =/= BURST_FIXED,2.U,0.U)
-    val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
+    val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, accept_read || is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
     val arlen   = Mux(accept_read, io.req.burstlen,RegEnable(io.req.burstlen,accept_read))
     val arsize  = Mux(accept_read,size, RegEnable(size,accept_read))
     val arburst = Mux(accept_read,io.req.burst,RegEnable(io.req.burst,accept_read))
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
-    val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, is_write)
-    val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
-    val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, accept_write || is_write)
+    val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, accept_write || is_write)
+    val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, accept_write || is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
     // val awlen   =   Mux(conf.ICacheEnableBurst,io.req.burstlen,0.U)
@@ -195,7 +195,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     }
 
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) , (io.axi_io.r.valid) )
-    io.resp.valid := Mux(bfire ,io.axi_io.b.valid , (io.axi_io.r.valid) )
+    io.resp.valid := Mux(is_write && !is_read ,io.axi_io.b.valid , (io.axi_io.r.valid) )
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid, io.axi_io.r.resp ,
                           Mux(io.axi_io.b.valid , io.axi_io.b.resp, 0.U ))
 }
