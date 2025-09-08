@@ -193,13 +193,12 @@ class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_2
    
 
    val axi_resp = axi4lite_mem.io.resp.bits.resp
-   val resp_valid = axi_resp === 0.U
    io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
    io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
-   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
-   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
-   io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
-   io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
+   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active,axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active,axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
+   io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
 
    for (i <- 0 until numMasters) {
       io.ports(i).req.ready := state === s_idle
@@ -308,15 +307,14 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    // only instruction port support burst 
    req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,0.U)
    req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
-   val axi_resp = axi4lite_mem.io.resp.bits.resp
-   val resp_valid = axi_resp === 0.U
+
    val aligned_req_addri = Cat(req_addri(31,2),0.asUInt(2.W))
-   io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,resp_data,0.U)
-   io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,resp_data,0.U)
-   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
-   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.valid,false.B)  
-   io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
-   io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active&&resp_valid,axi4lite_mem.io.resp.bits.resp,0.U)  
+   io.ports(IPORT).resp.bits.data := Mux(state === s_ifu_active,  resp_data,0.U)
+   io.ports(DPORT).resp.bits.data := Mux(state === s_lsu_active,  resp_data,0.U)
+   io.ports(IPORT).resp.valid    := Mux(state === s_ifu_active,   axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(DPORT).resp.valid    := Mux(state === s_lsu_active,   axi4lite_mem.io.resp.valid,false.B)  
+   io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active,  axi4lite_mem.io.resp.bits.resp,0.U)  
+   io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,  axi4lite_mem.io.resp.bits.resp,0.U)  
 
    for (i <- 0 until numMasters) {
       io.ports(i).req.ready := state === s_idle
