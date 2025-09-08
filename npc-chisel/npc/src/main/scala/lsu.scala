@@ -98,7 +98,6 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     
     // val valid = Wire(Bool())
     val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
-    val mem_data = Wire(UInt(conf.xlen.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
@@ -138,8 +137,9 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
 
     
     val mem_resp_valid = RegNext(Mux(in_clint, io.clintIO.dr.ready, io.port.resp.valid))
-    mem_data :=  RegNext(Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data))
-    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && io.to_ctl.resp_valid)
+    val mem_exception = RegNext(io.port.resp.bits.resp)
+    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
+    val mem_data  =  RegNext(Mux(in_clint, io.clintIO.dr.data , io.port.resp.bits.data))
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready
@@ -151,11 +151,10 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
                   (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
                   ))
-    val mem_resp_exc = RegNext(io.port.resp.bits.resp)
     exception := Mux(mem_en && mem_resp_exc =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
-    io.mem_wb.valid                 := (!mem_en || (mem_en && io.to_ctl.resp_valid))
+    io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
     io.mem_wb.bits.data             := wbdata
     io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
     io.mem_wb.bits.ebreak           := csr_files.io.ebreak
