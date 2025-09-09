@@ -19,6 +19,8 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 }
 
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+  val clock             = Input(Clock())
+  val reset             = Input(Bool())
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
