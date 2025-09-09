@@ -121,11 +121,8 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
     val accept_read = (rstate === rs_idle) && io.req.ren
     val accept_write = !accept_read && (wstate === ws_idle) && io.req.wen
-    // val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
-    // val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,false.B,(wstate === ws_idle)))
     val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
-    val is_write = RegEnable (accept_write,false.B,(wstate === ws_idle))
-
+    val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,false.B,(wstate === ws_idle)))
     val awfire = RegInit(false.B)
     val wfire = RegInit(false.B)
     val arfire = RegInit(false.B)
@@ -150,9 +147,9 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val arburst = Mux(accept_read,io.req.burst,RegEnable(io.req.burst,accept_read))
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
-    val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, accept_write || is_write)
-    val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, accept_write || is_write)
-    val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, accept_write || is_write)
+    val awvalid =   Mux(awfire|| wstate === ws_wait_bvalid,false.B, is_write)
+    val wvalid  =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
+    val wlast   =   Mux(wfire || wstate === ws_wait_bvalid,false.B, is_write)
     val wdata   =   Mux(accept_write,io.req.data,RegEnable(io.req.data, 0.U,  accept_write||io.axi_io.w.ready))
     val wstrb   =   Mux(accept_write,io.req.mask,RegEnable(io.req.mask, 0.U,  accept_write||io.axi_io.w.ready))
     // val awlen   =   Mux(conf.ICacheEnableBurst,io.req.burstlen,0.U)
@@ -175,9 +172,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
             // rlast is high when rvalid is high
             // rstate := Mux(io.axi_io.r.last || (rstate === rs_wait_rlast) && (rfire), rs_idle, rs_wait_rlast)
             rstate := Mux(io.axi_io.r.last , rs_idle, rs_wait_rlast)
-            when (io.axi_io.r.valid){ 
-                io.resp.bits.data  := io.axi_io.r.data
-                 io.resp.valid      := io.axi_io.r.valid}
+            when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
     }
 
@@ -196,11 +191,11 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     switch(wstate){
         is(ws_idle)         { wstate := Mux(accept_write, ws_wait_ready, ws_idle)}
         is (ws_wait_ready)  { wstate := Mux((awfire && wfire) || (io.axi_io.aw.valid && io.axi_io.aw.ready), ws_wait_bvalid, ws_wait_ready)}
-        is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)
-                              io.resp.valid :=(io.axi_io.b.valid) }
+        is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)}
     }
 
     // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) , (io.axi_io.r.valid) )
+    io.resp.valid := Mux(is_write ,io.axi_io.b.valid , (io.axi_io.r.valid) )
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid, io.axi_io.r.resp ,
                           Mux(io.axi_io.b.valid , io.axi_io.b.resp, 0.U ))
 }
