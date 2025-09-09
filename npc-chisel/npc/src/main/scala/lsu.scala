@@ -152,7 +152,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   ))
     exception := Mux(mem_en && mem_exception =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
-            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), io.exe_mem.bits.exception,exception )
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), io.exe_mem.bits.exception )
     io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
     io.mem_wb.bits.data             := wbdata
     io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
