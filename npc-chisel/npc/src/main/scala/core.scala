@@ -44,9 +44,7 @@ class ysyx_24100012 extends Module
   arbiter.io.axi_port <> io.master
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
-  
-  inst_fetch.io.clock := clock
-  inst_fetch.io.reset := reset
+
   inst_fetch.io.ctl <> decoder.io.ctl_sign
   inst_fetch.io.exception_target := lsu.io.exception_target
   inst_fetch.io.exu_in <>  exu.io.ifu_out
