@@ -98,12 +98,12 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
       io.exe_mem.bits.ctrl_rf_wen      := false.B
       io.exe_mem.bits.ctrl_mem_val     := false.B
       io.exe_mem.bits.ctrl_csr_cmd     := false.B
-
+      io.exe_mem.valid                 := true.B
    } .otherwise{
       // (1) exe_mem.ready = false -> exe_mem_reg == old  exe_mem_reg != io.exe_mem
       // (2) io.dec_exe.valid = false -> dec_exe_reg == old, exe_mem_reg == io.exe_mem
-      io.dec_exe.ready := io.exe_mem.ready
-      io.exe_mem.valid              := io.dec_exe.valid
+      io.dec_exe.ready              := io.exe_mem.ready
+      io.exe_mem.valid              := true.B
       io.exe_mem.bits.pc            := io.dec_exe.bits.pc
       io.exe_mem.bits.pc_valid      := io.dec_exe.bits.pc_valid
       io.exe_mem.bits.inst          := io.dec_exe.bits.inst
