@@ -74,10 +74,10 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.fencei     := io.ctl.fencei
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
+  io.ifu_dec.valid :=   true.B
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
-  io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
+  io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, if_valid)
   io.ifu_dec.bits.exception := cache.io.exception
   io.icache_valid := cache.io.valid
   
