@@ -67,7 +67,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
    }
 
   // NOTE: when if_kill, should not take the old pc value
-  cache.io.req_valid  := pc_valid && !should_kill 
+  cache.io.req_valid  := !io.reset && pc_valid && !should_kill 
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
