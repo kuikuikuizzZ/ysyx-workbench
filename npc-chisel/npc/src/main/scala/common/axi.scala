@@ -126,7 +126,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
     val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
     val is_write = RegEnable (accept_write,false.B,(wstate === ws_idle))
 
-    al awfire = RegInit(false.B)
+    val awfire = RegInit(false.B)
     val wfire = RegInit(false.B)
     val arfire = RegInit(false.B)
     val bfire = RegInit(false.B)
