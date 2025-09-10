@@ -57,7 +57,6 @@ class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val ifu_out = new EXUToIFUOut()
    val to_ctl = new EXUToCTLIO()
    val lsu_exe = Flipped(new LSUToEXEIO())
-   val lsu_wbdata = Input(UInt(conf.xlen.W))
 }
 
 class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
