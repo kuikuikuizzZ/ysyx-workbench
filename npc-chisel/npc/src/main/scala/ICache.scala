@@ -60,9 +60,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     if (conf.ICacheBlockBits > 0){
         val group_index = io.pc(b_bits+2-1,2)
         val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
-        cache_data = cache_block_vec(group_index)
+        cache_data := cache_block_vec(group_index)
     } else {
-        cache_data = cache_block
+        cache_data := cache_block
     }
 
     when (state === sRequesting){
