@@ -16,7 +16,6 @@ class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val wbaddr           = Output(UInt(5.W))
    val rs1_addr         = Output(UInt(5.W))
    val rs2_addr         = Output(UInt(5.W))
-   val op2_sel          = Output(UInt(OP2_X.getWidth.W))
    val op1_data         = Output(UInt(conf.xprlen.W))
    val op2_data         = Output(UInt(conf.xprlen.W))
    val rs2_data         = Output(UInt(conf.xprlen.W))
