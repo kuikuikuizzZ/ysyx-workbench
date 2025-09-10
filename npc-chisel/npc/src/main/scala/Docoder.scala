@@ -30,13 +30,9 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
-class DecToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
-   val dec_brjmp_target    =   Output(UInt(conf.xprlen.W))
-   val dec_jump_reg_target =   Output(UInt(conf.xprlen.W))
-}
 
 class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
-  val dec_pc_sel           =   Input(UInt(PC_4.getWidth.W))
+  val exe_pc_sel           =   Input(UInt(PC_4.getWidth.W))
   val pipeline_kill        =   Input(Bool())
   val if_kill              =   Input(Bool())
   val dec_kill             =   Input(Bool())
@@ -68,7 +64,6 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
    val exe_ctl       =  Flipped(new EXUToCTLIO())
    val wb_ctl        =  Flipped(new WBToCTLIO)
-   val ifu_out       =  new DecToIFUOut()
    val debug         =  new CtrlDebugPort
 }
 
@@ -163,26 +158,25 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    
    ////// Branch Logic
    val pipeline_kill = Wire(Bool())
-   val br_eq  = Wire(Bool())
-   val br_lt  = Wire(Bool())
-   val br_ltu = Wire(Bool())
-   val ctrl_dec_pc_sel = Mux(pipeline_kill         , PC_EXC,
-                         Mux(cs_br_type === BR_N  , PC_4,
-                         Mux(cs_br_type === BR_NE , Mux(!br_eq,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_EQ , Mux( br_eq,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_GE , Mux(!br_lt,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_GEU, Mux(!br_ltu, PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_LT , Mux( br_lt,  PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_LTU, Mux( br_ltu, PC_BRJMP, PC_4),
-                         Mux(cs_br_type === BR_J  , PC_BRJMP,
-                         Mux(cs_br_type === BR_JR , PC_JALR,   PC_4
+   val exe_br_type = io.exe_ctl.br_type
+   val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
+                         Mux(exe_br_type === BR_N  , PC_4,
+                         Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_GE , Mux(!io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_GEU, Mux(!io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_LT , Mux( io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_LTU, Mux( io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+                         Mux(exe_br_type === BR_J  , PC_BRJMP,
+                         Mux(exe_br_type === BR_JR , PC_JALR,
+                                                            PC_4
                      ))))))))))   
 
-   // val ifkill  = (ctrl_dec_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
+   // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
    val reg_fencei = RegNext(cs_fencei)
-   val ifkill     = (ctrl_dec_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
-   // val deckill    = (ctrl_dec_pc_sel =/= PC_4)
-   val deckill = false.B
+   val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
+   val deckill    = (ctrl_exe_pc_sel =/= PC_4)
+
    // Exception Handling ---------------------
 
    // NOTE: initialization 0 will error 
@@ -200,7 +194,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
 
-   io.ctl_sign.dec_pc_sel := ctrl_dec_pc_sel
+   io.ctl_sign.exe_pc_sel := ctrl_exe_pc_sel
    io.ctl_sign.if_kill := ifkill
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill
@@ -268,14 +262,6 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
       rs2_data := rf_rs2_data
       op2_data := alu_op2
    }
-
-   val adder_out = (op1_data + op2_data)(conf.xprlen-1,0)
-   val brjmp_offset                 = op2_data
-   br_eq  := (op1_data     ===  rs2_data)
-   br_lt  := (op1_data.asSInt < rs2_data.asSInt) 
-   br_ltu := (op1_data.asUInt < rs2_data.asUInt)
-   io.ifu_out.dec_brjmp_target      := io.ifu_dec.bits.pc + brjmp_offset
-   io.ifu_out.dec_jump_reg_target   := adder_out
 
    /////// stall 
    val exe_inst_is_load = io.exe_ctl.inst_is_load

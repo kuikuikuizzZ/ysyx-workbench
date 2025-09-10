@@ -21,7 +21,7 @@ class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
-  val dec_in            = Flipped(new DecToIFUOut)
+  val exu_in            = Flipped(new EXUToIFUOut)
   val ifu_dec          = new DecoupledIO(new IFUPipeIO())
   val exception_target  = Input(UInt(conf.xprlen.W))
   val debug             = Output(new IFUDebugPort)
@@ -55,13 +55,13 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
   // PC Register
-  pc_next :=  Mux(io.ctl.dec_pc_sel     === PC_4,         pc_plus4,
-                 Mux(io.ctl.dec_pc_sel  === PC_BRJMP,  io.dec_in.dec_brjmp_target,
-                 Mux(io.ctl.dec_pc_sel  === PC_JALR,   io.dec_in.dec_jump_reg_target,
+  pc_next :=  Mux(io.ctl.exe_pc_sel     === PC_4,         pc_plus4,
+                 Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+                 Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
                  /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
    // for a fencei, refetch the pc (assuming no branch, and no exception)
-   when (io.ctl.fencei && io.ctl.dec_pc_sel === PC_4 && !io.ctl.pipeline_kill)
+   when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)
    {
       pc_next := pc_reg
    }
@@ -74,7 +74,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.fencei     := io.ctl.fencei
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
+  io.ifu_dec.valid :=   if_valid
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
   io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
