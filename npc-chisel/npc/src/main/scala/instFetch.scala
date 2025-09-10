@@ -43,8 +43,8 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   val pc_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
-  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill ))
-  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready || io.ctl.if_kill))
+  val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || should_kill ))
+  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready || should_kill))
   when((if_valid && io.ifu_dec.ready) || should_kill) {
       pc_reg := pc_next
       pc_valid := true.B
@@ -74,7 +74,7 @@ class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Modul
   cache.io.fencei     := io.ctl.fencei
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   if_valid
+  io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
   io.ifu_dec.bits.pc := pc_reg
   io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
