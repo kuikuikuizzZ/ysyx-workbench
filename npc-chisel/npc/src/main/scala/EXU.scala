@@ -16,6 +16,7 @@ class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val wbaddr           = Output(UInt(5.W))
    val rs1_addr         = Output(UInt(5.W))
    val rs2_addr         = Output(UInt(5.W))
+   val op2_sel          = Output(UInt(OP2_X.getWidth.W))
    val op1_data         = Output(UInt(conf.xprlen.W))
    val op2_data         = Output(UInt(conf.xprlen.W))
    val rs2_data         = Output(UInt(conf.xprlen.W))
@@ -65,11 +66,11 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val io = IO(new DpathIo())
    io := DontCare
    io.dec_exe.ready := true.B
-   val alu_op1 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
+   val alu_op1 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen),
                         io.lsu_exe.wbdata,io.dec_exe.bits.op1_data)
-   val alu_op2 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)),
+   val alu_op2 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen && (io.dec_exe.bits.op2_sel === OP2_RS2)),
                         io.lsu_exe.wbdata,io.dec_exe.bits.op2_data)
-   val rs2_data = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
+   val rs2_data = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen),
                         io.lsu_exe.wbdata,io.dec_exe.bits.rs2_data)
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
@@ -136,9 +137,9 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
    io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
    io.to_ctl.br_type       := io.dec_exe.bits.br_type // for debug use
-   io.to_ctl.br_eq         := (op1_data     ===  rs2_data)
-   io.to_ctl.br_lt         := (op1_data.asSInt < rs2_data.asSInt) 
-   io.to_ctl.br_ltu        := (op1_data.asUInt < rs2_data.asUInt)
+   io.to_ctl.br_eq         := (alu_op1     ===  rs2_data)
+   io.to_ctl.br_lt         := (alu_op1.asSInt < rs2_data.asSInt) 
+   io.to_ctl.br_ltu        := (alu_op1.asUInt < rs2_data.asUInt)
    io.to_ctl.pc_valid      := io.dec_exe.bits.pc_valid
 }
 
