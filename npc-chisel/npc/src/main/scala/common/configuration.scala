@@ -17,7 +17,7 @@ case class ysyx_24100012_Config(
     val burstLength = 0.U   // burstLength = axlen - 1   
 
     val ICacheSizeBits = 3
-    val ICacheBlockBits = 0
+    val ICacheBlockBits = 1
     val ICacheEnableBurst = false.B
 
     val USE_FULL_BYPASSING = true
