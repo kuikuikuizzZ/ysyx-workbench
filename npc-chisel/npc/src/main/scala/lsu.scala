@@ -35,6 +35,10 @@ class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val csr_eret        = Output(Bool())
 }
 
+class LSUToEXEIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+    val wbaddr          = Output(UInt(5.W))
+    val wbdata          = Output(UInt(conf.xlen.W))
+}
 
 class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val mem_en      = Output(Bool())
@@ -85,7 +89,7 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val exception_target    = Output(UInt(conf.xprlen.W))
     val ctl                 = Flipped(new CtlToLSUlIO)
     val to_ctl             = new LSUTOCtlIO
-    
+    val to_exe              = new LSUToEXEIO
     val clintIO = Flipped(  new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
@@ -173,6 +177,8 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.to_ctl.csr_eret          := csr_files.io.eret
     io.to_ctl.mem_exception     := exception
 
+    io.to_exe.wbdata            := wbdata
+    io.to_exe.wbaddr            := io.exe_mem.bits.wbaddr
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
