@@ -65,11 +65,11 @@ class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
    val io = IO(new DpathIo())
    io := DontCare
    io.dec_exe.ready := true.B
-   val alu_op1 = Mux( ((io.lsu_exe.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
+   val alu_op1 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
                         io.lsu_exe.wbdata,io.dec_exe.bits.op1_data)
-   val alu_op2 = Mux( ((io.lsu_exe.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)),
+   val alu_op2 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)),
                         io.lsu_exe.wbdata,io.dec_exe.bits.op2_data)
-   val rs2_data = Mux( ((io.lsu_exe.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
+   val rs2_data = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen),
                         io.lsu_exe.wbdata,io.dec_exe.bits.rs2_data)
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
