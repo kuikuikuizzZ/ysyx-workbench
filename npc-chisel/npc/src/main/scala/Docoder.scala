@@ -270,10 +270,10 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
    }
 
    val adder_out = (op1_data + op2_data)(conf.xprlen-1,0)
+   val brjmp_offset                 = op2_data
    br_eq  := (op1_data     ===  rs2_data)
    br_lt  := (op1_data.asSInt < rs2_data.asSInt) 
    br_ltu := (op1_data.asUInt < rs2_data.asUInt)
-   val brjmp_offset                 = op2_data
    io.ifu_out.dec_brjmp_target      := io.ifu_dec.bits.pc + brjmp_offset
    io.ifu_out.dec_jump_reg_target   := adder_out
 
