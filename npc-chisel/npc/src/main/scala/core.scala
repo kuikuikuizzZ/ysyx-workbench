@@ -47,7 +47,7 @@ class ysyx_24100012 extends Module
 
   inst_fetch.io.ctl <> decoder.io.ctl_sign
   inst_fetch.io.exception_target := lsu.io.exception_target
-  inst_fetch.io.exu_in <>  exu.io.ifu_out
+  inst_fetch.io.dec_in <>  decoder.io.ifu_out
   
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
