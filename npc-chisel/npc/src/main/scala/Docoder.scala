@@ -276,7 +276,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
 
    // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
    // or exe stage always load inst, and pipeline is broken
-   when( stall || (!io.ifu_dec.pc_valid && io.dec_exe.ready) || pipeline_kill){
+   when( stall || (!io.ifu_dec.valid && io.dec_exe.ready) || pipeline_kill){
       io.dec_exe.valid              := true.B
       io.dec_exe.bits.pc            := dec_reg_pc
       io.dec_exe.bits.pc_valid      := false.B
@@ -371,7 +371,7 @@ class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Mod
          dec_reg_inst === EBREAK ||dec_reg_inst === WFI  || dec_reg_inst === FENCE_I || dec_reg_inst === FENCE  
 
    val isUtype = dec_reg_inst === LUI || dec_reg_inst === AUIPC
-   when(io.ifu_dec.pc_valid){
+   when(io.ifu_dec.valid){
       when(isLoad) {
          loadCount := loadCount + 1.U
       }.elsewhen(isStore) {
