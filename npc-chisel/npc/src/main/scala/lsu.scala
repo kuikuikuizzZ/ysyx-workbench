@@ -106,7 +106,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     csr_files.io.inst       := io.exe_mem.bits.inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
     csr_files.io.alu_out    := io.exe_mem.bits.alu_out
-    csr_files.io.exception  := Mux(exception === 0.U,io.exe_mem.bits.exception,exception)
+    csr_files.io.exception  := exception
 
     io.exception_target     := csr_files.io.exception_target    
     
@@ -121,7 +121,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
             io.clintIO.dr.en := false.B
         }
     } .otherwise {
-        when(mem_en && io.port.req.ready) {
+        when(mem_en ) {
             io.port.req.valid    := mem_en
             io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
             io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
@@ -152,7 +152,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
                   ))
     exception := Mux(mem_en && mem_exception =/= 0.U , 
             Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
-            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL )
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), io.exe_mem.bits.exception )
     io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
     io.mem_wb.bits.data             := wbdata
     io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
@@ -171,7 +171,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.to_ctl.alu_out           := io.exe_mem.bits.alu_out
     io.to_ctl.inst_is_load      := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
     io.to_ctl.csr_eret          := csr_files.io.eret
-    io.to_ctl.mem_exception     := csr_files.io.exception =/= EXC_NORMAL
+    io.to_ctl.mem_exception     := exception
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
