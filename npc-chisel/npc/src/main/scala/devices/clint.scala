@@ -13,15 +13,15 @@ object  CLINTS{
     val mtime_high  =     0XBFFC.U(16.W)
 }
 
-class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends Module { 
+class AXI4CLINT(implicit val conf: Config) extends Module { 
     val io = IO(new Bundle() { 
         val axi_io = Flipped(new AXI4LiteIo())
         val reset = Input(Bool())
         val clock = Input(Clock())
     })
 
-    val clint = Module(new ysyx_24100012_CLINT())
-    val node = Module(new ysyx_24100012_AXI4LiteSlave())
+    val clint = Module(new CLINT())
+    val node = Module(new AXI4LiteSlave())
     
     clint.io.clock := io.clock
     clint.io.reset := io.reset
@@ -32,7 +32,7 @@ class ysyx_24100012_AXI4CLINT(implicit val conf: ysyx_24100012_Config) extends M
 
 }
 
-class ysyx_24100012_CLINT(implicit val conf: ysyx_24100012_Config) extends Module { 
+class CLINT(implicit val conf: Config) extends Module { 
     val io = IO(new Bundle() { 
         val reset = Input(Bool())
         val clock = Input(Clock())

@@ -8,7 +8,7 @@ import npc.common._
 import npc.Constants._
 
 
-class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class EXEPipeIO(implicit val conf: Config) extends Bundle() {
    // Memory State
    val inst             = Output(UInt(conf.xlen.W))
    val pc               = Output(UInt(conf.xprlen.W))
@@ -29,11 +29,11 @@ class EXEPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
    val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
-class EXUToIFUOut (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class EXUToIFUOut (implicit val conf: Config) extends Bundle() {
    val exe_brjmp_target    =   Output(UInt(conf.xprlen.W))
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
 }
-class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class EXUToCTLIO (implicit val conf: Config) extends Bundle() {
    val alu_out       = Output(UInt(conf.xlen.W))
    val pc            = Output(UInt(conf.xprlen.W))
    val wbaddr        = Output(UInt(5.W))
@@ -48,7 +48,7 @@ class EXUToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 
-class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle() 
+class DpathIo(implicit val conf: Config) extends Bundle() 
 {
    val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))
    val exe_mem = new DecoupledIO(new EXEPipeIO())
@@ -57,7 +57,7 @@ class DpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val to_ctl = new EXUToCTLIO()
 }
 
-class ysyx_24100012_EXU(implicit conf: ysyx_24100012_Config) extends Module
+class EXU(implicit conf: Config) extends Module
 {
    val io = IO(new DpathIo())
    io := DontCare

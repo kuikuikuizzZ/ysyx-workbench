@@ -71,7 +71,7 @@ object CSR
 
 
 
-class CSRFileIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class CSRFileIO(implicit val conf: Config) extends Bundle {
   val hartid = Input(UInt(conf.xprlen.W))
   val rw = new Bundle {
     val cmd = Input(UInt(CSR.SZ.W))
@@ -102,7 +102,7 @@ class CSRFileIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
 
 }
 
-class ysyx_24100012_CSRFile(implicit val conf: ysyx_24100012_Config) extends Module
+class CSRFile(implicit val conf: Config) extends Module
 {
   val io = IO(new CSRFileIO)
   io := DontCare

@@ -5,7 +5,7 @@ import chisel3.util._
 
 import Constants._
 import npc.common._
-import npc.devices.{ysyx_24100012_AXI4LiteMem,ysyx_24100012_AXI4LiteMemRandomDelay}
+import npc.devices.{AXI4LiteMem,AXI4LiteMemRandomDelay}
 
 trait AXI4BurstTypes
 {
@@ -15,7 +15,7 @@ trait AXI4BurstTypes
    val BURST_X      = 3.asUInt(2.W)
 }
 
-class AXI4Req (val dataWidth : Int)(implicit val conf: ysyx_24100012_Config) extends Bundle{
+class AXI4Req (val dataWidth : Int)(implicit val conf: Config) extends Bundle{
     val maskWidth = dataWidth/8
     val raddr   = Input(UInt(conf.xprlen.W))
     val waddr   = Input(UInt(conf.xprlen.W))
@@ -50,7 +50,7 @@ class AXIRport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
 }
 
 
-class AXI4LiteAR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
+class AXI4LiteAR (val addrWidth : Int) (implicit val conf: Config) extends Bundle{
     val valid   =   Output(Bool())
     val addr    =   Output(UInt(conf.xprlen.W))
     val ready   =   Input(Bool()) 
@@ -60,7 +60,7 @@ class AXI4LiteAR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)
     val burst   =   Output(UInt(BURST_X.getWidth.W))
 } 
 
-class AXI4LiteR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)extends Bundle{
+class AXI4LiteR (val addrWidth : Int) (implicit val conf: Config)extends Bundle{
     val valid   =   Input(Bool())
     val data    =   Input(UInt(addrWidth.W))
     val resp    =   Input(UInt(2.W))
@@ -69,7 +69,7 @@ class AXI4LiteR (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)e
     val last    =   Input(Bool())
 } 
 
-class AXI4LiteAW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
+class AXI4LiteAW (val addrWidth : Int) (implicit val conf: Config) extends Bundle{
     val valid   =   Output(Bool())
     val addr    =   Output(UInt(addrWidth.W))
     val ready   =   Input(Bool()) 
@@ -79,7 +79,7 @@ class AXI4LiteAW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config)
     val burst   =   Output(UInt(BURST_X.getWidth.W))
 } 
 
-class AXI4LiteW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
+class AXI4LiteW (val addrWidth : Int) (implicit val conf: Config) extends Bundle{
     val valid   =   Output(Bool())
     val data    =   Output(UInt(addrWidth.W))
     val strb    =   Output(UInt(conf.maskBits.W))
@@ -87,14 +87,14 @@ class AXI4LiteW (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) 
     val last    =   Output(Bool())
 } 
 
-class AXI4LiteB (val addrWidth : Int) (implicit val conf: ysyx_24100012_Config) extends Bundle{
+class AXI4LiteB (val addrWidth : Int) (implicit val conf: Config) extends Bundle{
     val valid   =   Input(Bool())
     val resp    =   Input(UInt(2.W))
     val ready   =   Output(Bool()) 
     val id      =   Input(UInt(conf.idBits.W))
 } 
 
-class AXI4LiteIo (implicit val conf: ysyx_24100012_Config) extends Bundle{ 
+class AXI4LiteIo (implicit val conf: Config) extends Bundle{ 
     val ar      =   new AXI4LiteAR(conf.xprlen)
     val r       =   new AXI4LiteR(conf.xlen)
     val aw      =   new AXI4LiteAW(conf.xprlen)
@@ -102,7 +102,7 @@ class AXI4LiteIo (implicit val conf: ysyx_24100012_Config) extends Bundle{
     val b       =   new AXI4LiteB(conf.xlen)
 }
 
-class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) extends Module{
+class AXI4LiteMaster (implicit val conf: Config) extends Module{
     val io = IO( new Bundle {
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())
@@ -202,7 +202,7 @@ class ysyx_24100012_AXI4LiteMaster (implicit val conf: ysyx_24100012_Config) ext
 
 
 
-class ysyx_24100012_AXI4LiteSlave (implicit val conf: ysyx_24100012_Config) extends Module{
+class AXI4LiteSlave (implicit val conf: Config) extends Module{
     val io = IO( new Bundle {
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())
