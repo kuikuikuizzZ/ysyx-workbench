@@ -37,7 +37,6 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--emit-verilog",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
@@ -46,7 +45,8 @@ object Elaborate extends App {
   )
   emitVerilog(
     new ysyx_24100012(),
-    firtoolOptions)
+        "--emit-verilog",
+)
 }
 
 
