@@ -1,6 +1,6 @@
 import chisel3._
 import npc._
-import npc.common.{ysyx_24100012_Config}
+import npc.common.{Config}
 package sifive {
   package enterprise {
     package firrtl {
@@ -21,7 +21,7 @@ package sifive {
 
 
 class ysyx_24100012 extends Module { 
-  implicit val conf = ysyx_24100012_Config()
+  implicit val conf = Config()
   val io = IO(new CoreIo())
   val core = Module(new Core())
   chisel3.experimental.annotate(
