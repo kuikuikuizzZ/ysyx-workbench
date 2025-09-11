@@ -56,6 +56,7 @@ class Core(implicit val conf: Config)extends Module
 
   exu.io.ctl <> decoder.io.ctl_sign
   exu.io.to_ctl <> decoder.io.exe_ctl 
+  exu.io.lsu_exe <> lsu.io.to_exe
 
   lsu.io.ctl <> decoder.io.ctl_lsu
   lsu.io.to_ctl <> decoder.io.lsu_ctl
