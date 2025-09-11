@@ -1,5 +1,5 @@
 import chisel3._
-import circt.stage.ChiselStage
+import circt.stage._
 
 import npc._
 import npc.common.{Config}
@@ -43,10 +43,9 @@ object Elaborate extends App {
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
   )
-  new ChiselStage().emitVerilog(
-    new ysyx_24100012(),
-    args,
-    firtoolOptions)
+  new ChiselMain().main(
+    "--module ysyx_24100012",
+    )
 }
 
 
