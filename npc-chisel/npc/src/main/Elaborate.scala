@@ -45,7 +45,6 @@ object Elaborate extends App {
   )
   emitVerilog(
     new ysyx_24100012(),
-    args,
     firtoolOptions)
 }
 
