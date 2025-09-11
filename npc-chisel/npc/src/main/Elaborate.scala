@@ -36,8 +36,6 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--target",
-    "verilog",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
@@ -46,7 +44,8 @@ object Elaborate extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
-    Array("--help"),
+    Array("--target",
+    "verilog"),
     firtoolOptions)
 }
 
