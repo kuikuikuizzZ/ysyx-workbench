@@ -1,6 +1,6 @@
 import chisel3._
 import npc._
-
+import npc.common.{ysyx_24100012_Config}
 package sifive {
   package enterprise {
     package firrtl {
