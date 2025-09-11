@@ -35,7 +35,7 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--emit-verilog",
+    "--ir-verilog",
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
