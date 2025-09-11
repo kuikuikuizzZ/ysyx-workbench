@@ -10,7 +10,6 @@ object Elaborate extends App {
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
-    "--log-level error",
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
