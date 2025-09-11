@@ -38,10 +38,13 @@ class InstFetch(implicit conf: Config) extends Module {
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
+  val pc_reg = Wire(UInt(conf.xprlen.W))
   if (conf.ENABLE_IVERILOG){
-    val pc_reg = RegInit(START_ADDR_MROM)
+    val pc_value = RegInit(START_ADDR_MROM)
+    pc_reg := pc_value
   } else {
-    val pc_reg = RegInit(START_ADDR)
+    val pc_value = RegInit(START_ADDR)
+    pc_reg := pc_value
   }
   val pc_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
