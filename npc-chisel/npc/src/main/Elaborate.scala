@@ -1,4 +1,5 @@
 import chisel3._
+
 import npc._
 import npc.common.{Config}
 package sifive {
@@ -36,16 +37,14 @@ class ysyx_24100012 extends Module {
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(
-      // make yosys happy
-      // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
-      "disallowLocalVariables",
+       "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
-    args,
+    Array("--target","verilog","--target-dir","build"),
     firtoolOptions)
 }
 

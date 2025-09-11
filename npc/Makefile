@@ -81,7 +81,7 @@ PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
 run: build 
 	@echo $(ARGS) $(IMG)
-	$(NPC_EXEC)
+	$(NPC_EXEC) 
 
 clean:
 	rm -rf $(BUILD_DIR_BASE)
