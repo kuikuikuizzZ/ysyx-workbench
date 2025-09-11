@@ -21,5 +21,5 @@ case class Config(
     val ICacheEnableBurst = true.B
 
     val USE_FULL_BYPASSING = true
-    val ENABLE_DEBUG = false
+    val ENABLE_DEBUG = true
 }

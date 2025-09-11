@@ -55,7 +55,6 @@ class DpathIo(implicit val conf: Config) extends Bundle()
    val ctl = new CtrlSignalIO()
    val ifu_out = new EXUToIFUOut()
    val to_ctl = new EXUToCTLIO()
-   val lsu_exe = Flipped(new LSUToEXEIO())
 }
 
 class EXU(implicit conf: Config) extends Module
@@ -63,12 +62,9 @@ class EXU(implicit conf: Config) extends Module
    val io = IO(new DpathIo())
    io := DontCare
    io.dec_exe.ready := true.B
-   val alu_op1 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen),
-                        io.lsu_exe.wbdata,io.dec_exe.bits.op1_data)
-   val alu_op2 = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen && (io.dec_exe.bits.op2_sel === OP2_RS2)),
-                        io.lsu_exe.wbdata,io.dec_exe.bits.op2_data)
-   val rs2_data = Mux( ((io.lsu_exe.wbaddr === io.dec_exe.bits.rs1_addr) && (io.dec_exe.bits.rs1_addr =/= 0.U) && io.lsu_exe.ctrl_rf_wen),
-                        io.lsu_exe.wbdata,io.dec_exe.bits.rs2_data)
+   val alu_op1 = io.dec_exe.bits.op1_data.asUInt
+   val alu_op2 = io.dec_exe.bits.op2_data.asUInt
+
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
    val alu_shamt = alu_op2(4,0).asUInt
@@ -115,9 +111,9 @@ class EXU(implicit conf: Config) extends Module
       io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
       io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
       io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
-      io.exe_mem.bits.op1_data      := alu_op1
-      io.exe_mem.bits.op2_data      := alu_op2
-      io.exe_mem.bits.rs2_data      := rs2_data
+      io.exe_mem.bits.op1_data      := io.dec_exe.bits.op1_data
+      io.exe_mem.bits.op2_data      := io.dec_exe.bits.op2_data
+      io.exe_mem.bits.rs2_data      := io.dec_exe.bits.rs2_data
       io.exe_mem.bits.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
       io.exe_mem.bits.ctrl_mem_val  := io.dec_exe.bits.ctrl_mem_val
       io.exe_mem.bits.ctrl_mem_fcn  := io.dec_exe.bits.ctrl_mem_fcn
@@ -134,9 +130,9 @@ class EXU(implicit conf: Config) extends Module
    io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
    io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
    io.to_ctl.br_type       := io.dec_exe.bits.br_type // for debug use
-   io.to_ctl.br_eq         := (alu_op1     ===  rs2_data)
-   io.to_ctl.br_lt         := (alu_op1.asSInt < rs2_data.asSInt) 
-   io.to_ctl.br_ltu        := (alu_op1.asUInt < rs2_data.asUInt)
+   io.to_ctl.br_eq         := (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
+   io.to_ctl.br_lt         := (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
+   io.to_ctl.br_ltu        := (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
    io.to_ctl.pc_valid      := io.dec_exe.bits.pc_valid
 }
 

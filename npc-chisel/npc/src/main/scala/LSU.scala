@@ -35,11 +35,6 @@ class LSUTOCtlIO (implicit val conf: Config) extends Bundle() {
     val csr_eret        = Output(Bool())
 }
 
-class LSUToEXEIO (implicit val conf: Config) extends Bundle() {
-    val wbaddr          = Output(UInt(5.W))
-    val wbdata          = Output(UInt(conf.xlen.W))
-    val ctrl_rf_wen     = Output(Bool())
-}
 
 class LSUDebugPort(implicit val conf: Config) extends Bundle {
     val mem_en      = Output(Bool())
@@ -90,7 +85,7 @@ class LSUIO(implicit val conf: Config) extends Bundle {
     val exception_target    = Output(UInt(conf.xprlen.W))
     val ctl                 = Flipped(new CtlToLSUlIO)
     val to_ctl             = new LSUTOCtlIO
-    val to_exe              = new LSUToEXEIO
+    
     val clintIO = Flipped(  new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
@@ -177,10 +172,6 @@ class LSU(implicit val conf: Config) extends Module {
     io.to_ctl.inst_is_load      := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
     io.to_ctl.csr_eret          := csr_files.io.eret
     io.to_ctl.mem_exception     := exception
-
-    io.to_exe.wbdata            := wbdata
-    io.to_exe.wbaddr            := io.exe_mem.bits.wbaddr
-    io.to_exe.ctrl_rf_wen       := io.exe_mem.bits.ctrl_rf_wen
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
