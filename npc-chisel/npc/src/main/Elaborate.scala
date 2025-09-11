@@ -45,8 +45,7 @@ object Elaborate extends App {
   )
   emitVerilog(
     new ysyx_24100012(),
-        "--emit-verilog",
-)
+    Array("--emit-verilog",))
 }
 
 
