@@ -1,5 +1,5 @@
 import chisel3._
-import circt.stage.ChiselStage
+import chisel3.stage.ChiselStage
 
 import npc._
 import npc.common.{Config}
