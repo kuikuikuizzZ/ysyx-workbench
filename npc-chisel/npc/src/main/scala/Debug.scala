@@ -8,7 +8,7 @@ import npc._
 import npc.devices._
 
 
-class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
+class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxInline{ 
     val io = IO(new Bundle {
         val clock = Input(Clock())
         val reset = Input(Bool())   
@@ -26,7 +26,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
      """
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc,input int wb_inst);
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
-     module ysyx_24100012_DebugPort(
+     module DebugPort(
         input clock,
         input reset,
         input halt, 
@@ -68,7 +68,7 @@ class ysyx_24100012_DebugPort() (implicit val conf: ysyx_24100012_Config)extends
 
 }
 
-class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)extends BlackBox with HasBlackBoxInline{ 
+class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxInline{ 
      val io = IO(new Bundle {
         val clock       = Input(Clock())
         val reset       = Input(Bool()) 
@@ -86,7 +86,7 @@ class ysyx_24100012_PerfEventPort() (implicit val conf: ysyx_24100012_Config)ext
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
-     module ysyx_24100012_PerfEventPort(
+     module PerfEventPort(
         input clock,
         input reset,
         input ifu_port_valid,

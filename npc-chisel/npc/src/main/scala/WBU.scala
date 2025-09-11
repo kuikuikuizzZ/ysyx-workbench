@@ -6,23 +6,23 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class WBUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class WBUDebugPort(implicit val conf: Config) extends Bundle {
     val wbCount = Output(UInt(conf.perfCountBits.W))
 }
 
-class WBToRegIo(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class WBToRegIo(implicit val conf: Config) extends Bundle {
     val rf_wen = Output(Bool())
     val data = Output(UInt(conf.xprlen.W))
     val wbaddr = Output(UInt(5.W))
 }
-class WBToCTLIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class WBToCTLIO (implicit val conf: Config) extends Bundle() {
    val wbdata       = Output(UInt(conf.xlen.W))
    val wbaddr       = Output(UInt(5.W))
    val ctrl_rf_wen  = Output(Bool())
 }
 
 
-class ysyx_24100012_WBU(implicit val conf: ysyx_24100012_Config) extends Module {
+class WBU(implicit val conf: Config) extends Module {
     val io = IO(new Bundle {
         val mem_wb = Flipped(new DecoupledIO (new LSUPipeIO()))
         val reg = new DecoupledIO(new WBToRegIo())

@@ -7,7 +7,7 @@ import npc.common.Instructions._
 import npc.common._
 import npc.Constants._
 
-class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
+class DecPipeIO(implicit val conf: Config) extends Bundle()
 {
    val inst             = Output(UInt(conf.xlen.W))
    val pc               = Output(UInt(conf.xprlen.W))
@@ -31,7 +31,7 @@ class DecPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle()
 }
 
 
-class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class CtrlSignalIO(implicit val conf: Config) extends Bundle() {
   val exe_pc_sel           =   Input(UInt(PC_4.getWidth.W))
   val pipeline_kill        =   Input(Bool())
   val if_kill              =   Input(Bool())
@@ -40,7 +40,7 @@ class CtrlSignalIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
   val fencei               =   Input(Bool())
 }
 
-class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
+class CtrlDebugPort(implicit val conf: Config) extends Bundle()
 { 
    val csrCount      = Output(UInt(conf.perfCountBits.W))   
    val storeCount    = Output(UInt(conf.perfCountBits.W)) 
@@ -52,7 +52,7 @@ class CtrlDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val otherCount    = Output(UInt(conf.perfCountBits.W)) 
 }
 
-class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
+class CpathIo(implicit val conf: Config) extends Bundle()
 {
    val icache_valid  =  Input(Bool())
    val dec_reg       =  Flipped(new RegFilePipeIn())
@@ -67,7 +67,7 @@ class CpathIo(implicit val conf: ysyx_24100012_Config) extends Bundle()
    val debug         =  new CtrlDebugPort
 }
 
-class ysyx_24100012_Decoder(implicit val conf: ysyx_24100012_Config) extends Module
+class Decoder(implicit val conf: Config) extends Module
 {
    val io = IO(new CpathIo())
    io := DontCare

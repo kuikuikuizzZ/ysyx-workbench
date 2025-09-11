@@ -7,12 +7,12 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class ICacheDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle { 
+class ICacheDebugPort(implicit val conf: Config) extends Bundle { 
     val hit_cnt = Output(UInt(conf.perfCountBits.W))
     val miss_cnt = Output(UInt(conf.perfCountBits.W))
 }
 
-class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class ICacheIO(implicit val conf: Config) extends Bundle {
   val pc        = Input(UInt(conf.xprlen.W))
   val fencei    = Input(Bool())
   val req_valid = Input(Bool())
@@ -24,7 +24,7 @@ class ICacheIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
   
 }
 
-class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Module { 
+class ICache(implicit val conf: Config) extends Module { 
     val io = IO(new ICacheIO)
     io := DontCare
     io.port := DontCare
@@ -47,9 +47,9 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("ysyx_24100012_icache_mem") 
-    val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
-    val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
+    val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("icache_mem") 
+    val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("icache_tags") 
+    val valids = SyncReadMem(size,Bool()).suggestName("icache_valids") 
 
     val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))

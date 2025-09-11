@@ -49,13 +49,13 @@ class MemIo(val addrWidth: Int) extends Bundle
 
 
 // from the pov of the datapath
-class MemPortIo(val data_width: Int)(implicit val conf: ysyx_24100012_Config) extends Bundle 
+class MemPortIo(val data_width: Int)(implicit val conf: Config) extends Bundle 
 {
    val req    = new DecoupledIO(new MemReq(data_width))
    val resp   = Flipped(new ValidIO(new MemResp(data_width)))
 }
 
-class MemReq(val data_width: Int)(implicit val conf: ysyx_24100012_Config) extends Bundle
+class MemReq(val data_width: Int)(implicit val conf: Config) extends Bundle
 {
    val addr       = Output(UInt(conf.xprlen.W))
    val data       = Output(UInt(data_width.W))
@@ -72,7 +72,7 @@ class MemResp(val data_width: Int) extends Bundle
 }
 
 
-class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: ysyx_24100012_Config) extends Module
+class AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val conf: Config) extends Module
 {
    val io = IO(new Bundle
    {
@@ -81,7 +81,7 @@ class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val con
    }) 
    io := DontCare
 
-   val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
+   val axi4lite_mem = Module(new AXI4LiteMaster)
 
    io.port.req.ready := RegInit(true.B)
    axi4lite_mem.io := DontCare
@@ -117,7 +117,7 @@ class ysyx_24100012_AXI4LiteMemeory(num_bytes: Int = (1 << 21))(implicit val con
 }
 
 
-class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
+class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Module {
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
@@ -127,7 +127,7 @@ class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_2
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
    val state = RegInit(s_idle)
    val burstlen_reg = RegInit(0.U(conf.AXIBurstLenBits.W))
-   val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
+   val axi4lite_mem = Module(new AXI4LiteMaster)
    axi4lite_mem.io := DontCare
    
    val currentMaster = RegInit(0.U(1.W)) 
@@ -241,7 +241,7 @@ class ysyx_24100012_AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: ysyx_2
 }
 
 
-class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
+class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Module {
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
@@ -251,7 +251,7 @@ class ysyx_24100012_AXI4LiteArbiter(numMasters: Int)(implicit val conf: ysyx_241
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
    val state = RegInit(s_idle)
    val burstlen_reg = RegInit(0.U(conf.AXIBurstLenBits.W))
-   val axi4lite_mem = Module(new ysyx_24100012_AXI4LiteMaster)
+   val axi4lite_mem = Module(new AXI4LiteMaster)
    axi4lite_mem.io := DontCare
    
 

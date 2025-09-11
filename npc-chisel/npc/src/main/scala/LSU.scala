@@ -8,7 +8,7 @@ import npc.common._
 import npc.Constants._
 import javax.xml.transform.OutputKeys
 
-class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class LSUPipeIO(implicit val conf: Config) extends Bundle() {
     val wbaddr          = Output(UInt(conf.xprlen.W))
     val data            = Output(UInt(conf.xprlen.W))
     val pc              = Output(UInt(conf.xprlen.W))
@@ -20,11 +20,11 @@ class LSUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle() {
     val debug           = Output(new LSUDebugPort)
 }
 
-class CtlToLSUlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class CtlToLSUlIO (implicit val conf: Config) extends Bundle() {
     val mem_exception = Output(Bool())
 }
 
-class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class LSUTOCtlIO (implicit val conf: Config) extends Bundle() {
     val ctrl_mem_val    = Output(Bool())
     val alu_out         = Output(UInt(conf.xlen.W))
     val wbaddr          = Output(UInt(5.W))
@@ -36,7 +36,7 @@ class LSUTOCtlIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 
-class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class LSUDebugPort(implicit val conf: Config) extends Bundle {
     val mem_en      = Output(Bool())
     val fcn         = Output(Bool())
     val addr        = Output(UInt(conf.xprlen.W))
@@ -48,7 +48,7 @@ class LSUDebugPort(implicit val conf: ysyx_24100012_Config) extends Bundle {
     val loadCount   = Output(UInt(conf.perfCountBits.W))
 }
 
-class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Module {
+class CSRFiles(implicit val conf: Config) extends Module {
     val io = IO(new Bundle{
         val inst                = Input(UInt(conf.xlen.W))
         val csr_cmd             = Input(UInt(CSR.N.getWidth.W))
@@ -61,7 +61,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
         val eret                = Output(Bool())
     }) 
     // Control Status Registers
-    val csr = Module(new ysyx_24100012_CSRFile())
+    val csr = Module(new CSRFile())
     csr.io := DontCare
     csr.io.decode.csr   := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
     csr.io.rw.cmd       := io.csr_cmd
@@ -77,7 +77,7 @@ class ysyx_24100012_CSRFiles(implicit val conf: ysyx_24100012_Config) extends Mo
     // Add your own uarch counters here!
     // csr.io.counters.foreach(_.inc := false.B)
 }
-class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class LSUIO(implicit val conf: Config) extends Bundle {
     val exe_mem             = Flipped(new DecoupledIO(new EXEPipeIO()))
     val mem_wb              = new DecoupledIO(new LSUPipeIO)
     val port                = new MemPortIo(conf.xprlen)
@@ -91,7 +91,7 @@ class LSUIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
             val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         })
 }
-class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module {
+class LSU(implicit val conf: Config) extends Module {
     val io = IO(new LSUIO())
     io := DontCare
     
@@ -100,7 +100,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
-    val csr_files = Module(new ysyx_24100012_CSRFiles)
+    val csr_files = Module(new CSRFiles)
     
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst

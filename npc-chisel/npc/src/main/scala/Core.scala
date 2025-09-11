@@ -5,18 +5,18 @@ import chisel3._
 import chisel3.util._
 import npc.common._
 import npc.Constants._
-import npc.devices.{ysyx_24100012_CLINT}
+import npc.devices.{CLINT}
 
   
 
-class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle 
+class CoreIo(implicit val conf: Config) extends Bundle 
 {
   val interrupt = Input(Bool())
   val master = new AXI4LiteIo()
   val slave = Flipped(new AXI4LiteIo())
 }
 
-class ysyx_24100012 extends Module
+class Core(implicit val conf: Config)extends Module
 {
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
@@ -25,17 +25,18 @@ class ysyx_24100012 extends Module
       // thisIn.bits := RegNext(prevOut.bits)
       thisIn.valid := (prevOut.valid && thisIn.ready)
   }
-  implicit val conf = ysyx_24100012_Config()
   val io = IO(new CoreIo())
 
-  val inst_fetch  = Module(new ysyx_24100012_InstFetch())
-  val arbiter     = Module(new ysyx_24100012_AXI4LiteArbiter(2))
-  val decoder     = Module(new ysyx_24100012_Decoder())
-  val reg_file    = Module(new ysyx_24100012_RegFile())
-  val exu         = Module(new ysyx_24100012_EXU())
-  val lsu         = Module(new ysyx_24100012_LSU())
-  val wbu         = Module(new ysyx_24100012_WBU())
-  val clint       = Module(new ysyx_24100012_CLINT())
+  val inst_fetch  = Module(new InstFetch())
+  val arbiter     = Module(new AXI4LiteArbiter(2))
+  val decoder     = Module(new Decoder())
+  val reg_file    = Module(new RegFile())
+  val exu         = Module(new EXU())
+  val lsu         = Module(new LSU())
+  val wbu         = Module(new WBU())
+  val clint       = Module(new CLINT())
+
+
 
   clint.io.clock := clock
   clint.io.reset := reset
@@ -84,8 +85,8 @@ class ysyx_24100012 extends Module
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
-    val debug = Module(new ysyx_24100012_DebugPort())
-    val perfEvent = Module(new ysyx_24100012_PerfEventPort())
+    val debug = Module(new DebugPort())
+    val perfEvent = Module(new PerfEventPort())
     debug.io.clock := clock
     debug.io.reset := reset
     debug.io.halt := halt

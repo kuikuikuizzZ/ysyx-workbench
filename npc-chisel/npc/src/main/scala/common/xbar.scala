@@ -9,7 +9,7 @@ import npc.common._
 import npc.devices.{ExtendedDevices,DeviceRange}
 
 
-class ysyx_24100012_AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
+class AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Module {
     // 确保设备范围不重叠
     deviceRanges.combinations(2).foreach { case Seq(a, b) =>
         assert(
@@ -50,7 +50,7 @@ class ysyx_24100012_AddressDecoder(deviceRanges: Seq[DeviceRange]) extends Modul
 }
 
 
-// class ysyx_24100012_AXIBar(num_masters: Int, num_slaves: Int) (implicit val conf: ysyx_24100012_Config) extends Module { 
+// class AXIBar(num_masters: Int, num_slaves: Int) (implicit val conf: Config) extends Module { 
 //     val io = IO(new Bundle { 
 //         val masters = Vec(num_masters, new AXI4LiteIo)
 //         val slaves = Vec(num_slaves, Flipped(new AXI4LiteIo))

@@ -4,7 +4,7 @@ package common
 import chisel3._
 import chisel3.util._
 
-case class ysyx_24100012_Config(
+case class Config(
  xprlen: Int = 32) {
     val xlen = xprlen
     val idBits = 4

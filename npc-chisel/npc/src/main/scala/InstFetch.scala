@@ -5,20 +5,20 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 
-class IFUDebugPort(implicit val conf: ysyx_24100012_Config)   extends Bundle() {
+class IFUDebugPort(implicit val conf: Config)   extends Bundle() {
   val valid           = Output(Bool())
   val instFetchCount  = Output(UInt(conf.perfCountBits.W))
   val icache          = new ICacheDebugPort
 }
 
-class IFUPipeIO(implicit val conf: ysyx_24100012_Config) extends Bundle {
+class IFUPipeIO(implicit val conf: Config) extends Bundle {
   val pc        = Output(UInt(conf.xprlen.W))
   val inst      = Output(UInt(conf.xprlen.W))
   val pc_valid         = Output(Bool())
   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
-class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class InstFetchIo(implicit val conf: Config) extends Bundle() {
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
@@ -29,12 +29,12 @@ class InstFetchIo(implicit val conf: ysyx_24100012_Config) extends Bundle() {
 }
 
 
-class ysyx_24100012_InstFetch(implicit conf: ysyx_24100012_Config) extends Module {
+class InstFetch(implicit conf: Config) extends Module {
   val io = IO(
     new InstFetchIo()
   )
   io := DontCare
-  val cache       = Module(new ysyx_24100012_ICache)
+  val cache       = Module(new ICache)
 
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
