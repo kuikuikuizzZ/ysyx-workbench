@@ -165,7 +165,7 @@ uint32_t top_pc() {
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
     uint32_t pc;
-    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__casez_tmp);
+    // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__casez_tmp);
     IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__inst_fetch__DOT__casez_tmp);
     IFDEF(CONFIG_PIPELINE_PC,pc=top_mem_pc(););
     return pc;
