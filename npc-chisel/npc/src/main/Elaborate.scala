@@ -1,4 +1,6 @@
 import chisel3._
+import circt.stage.ChiselStage
+
 import npc._
 import npc.common.{Config}
 package sifive {
@@ -41,7 +43,7 @@ object Elaborate extends App {
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
   )
-  circt.stage.ChiselStage.emitVerilog(
+  (new ChiselStage).emitVerilog(
     new ysyx_24100012(),
     args,
     firtoolOptions)
