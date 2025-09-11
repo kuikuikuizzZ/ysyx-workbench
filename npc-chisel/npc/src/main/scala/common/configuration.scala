@@ -22,6 +22,4 @@ case class Config(
 
     val USE_FULL_BYPASSING = true
     val ENABLE_DEBUG = true
-    val ENABLE_IVERILOG = false
-
 }
