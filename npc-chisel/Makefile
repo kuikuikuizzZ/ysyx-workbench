@@ -10,7 +10,7 @@ build:
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
-	mill -i $(PRJ).runMain Elaborate --split-verilog --target-dir $(BUILD_DIR) 
+	mill -i $(PRJ).runMain Elaborate --emit-verilog --target-dir $(BUILD_DIR) 
 
 verilog: build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
