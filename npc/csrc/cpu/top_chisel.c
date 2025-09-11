@@ -204,7 +204,7 @@ uint32_t top_inst() {
 uint32_t top_alu_out() {
     if (!_rootp) return 0;
     uint32_t alu_out;
-    IFDEF(CONFIG_SOC,alu_out=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__exu__DOT__casez_tmp);
+    IFDEF(CONFIG_SOC,alu_out=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu_io_exe_mem_bits_ralu_out);
     return alu_out;
 
 }

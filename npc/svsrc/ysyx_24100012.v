@@ -2796,7 +2796,7 @@ module ysyx_24100012(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chi
 endmodule
 
 
-// ----- 8< ----- FILE "./DebugPort.v" ----- 8< -----
+
 
 
      import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc,input int wb_inst);
@@ -2840,7 +2840,7 @@ endmodule
      endmodule
      
 
-// ----- 8< ----- FILE "./PerfEventPort.v" ----- 8< -----
+
 
 
      import "DPI-C" function void perf_event_lsu(input int storeCount, input int loadCount);
@@ -2895,5 +2895,5 @@ endmodule
 
 // ----- 8< ----- FILE "firrtl_black_box_resource_files.f" ----- 8< -----
 
-DebugPort.v
-PerfEventPort.v
+
+
