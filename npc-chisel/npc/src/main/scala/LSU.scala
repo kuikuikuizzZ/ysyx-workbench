@@ -183,7 +183,7 @@ class ysyx_24100012_LSU(implicit val conf: ysyx_24100012_Config) extends Module 
     io.debug.rdata      := mem_data
     io.debug.valid      := mem_resp_valid
     io.debug.typ        := io.exe_mem.bits.ctrl_mem_typ
-    when(io.port.resp.valid) {
+    when(io.port.resp.valid && mem_en) {
       when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {
         storeCnt := storeCnt + 1.U
       }.otherwise {
