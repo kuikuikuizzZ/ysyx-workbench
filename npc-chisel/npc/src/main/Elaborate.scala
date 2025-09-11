@@ -45,7 +45,7 @@ object Elaborate extends App {
   )
   emitVerilog(
     new ysyx_24100012(),
-    Array("--emit-verilog"))
+    firtoolOptions.:+("--target-dir", "build"))
 }
 
 
