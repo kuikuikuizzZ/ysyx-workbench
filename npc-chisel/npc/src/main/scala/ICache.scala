@@ -51,18 +51,14 @@ class ysyx_24100012_ICache(implicit val conf: ysyx_24100012_Config) extends Modu
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("ysyx_24100012_icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("ysyx_24100012_icache_valids") 
 
+    val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
+    val cache_data = cache_block_vec(group_index)
     val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
-    val cache_data = Wire(UInt(conf.xlen.W))
-    val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
-    if (conf.ICacheBlockBits > 0){
-        val group_index = io.pc(b_bits+2-1,2)
-        cache_data := cache_block_vec(group_index)
-    } else {
-        cache_data := cache_block
-    }
+        
 
     when (state === sRequesting){
         io.port.req             := DontCare
