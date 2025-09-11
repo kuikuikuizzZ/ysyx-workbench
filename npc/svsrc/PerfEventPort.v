@@ -8,12 +8,6 @@
      module PerfEventPort(
         input clock,
         input ifu_port_valid,
-        input [31:0] lsu_port_addr,
-        input [31:0] lsu_port_rdata,
-        input [31:0] lsu_port_wdata,
-        input [1:0]  lsu_port_typ,
-        input lsu_port_mem_en,
-        input lsu_port_fcn,
         input lsu_port_valid,
         input [31:0] lsu_port_storeCount,
         input [31:0] lsu_port_loadCount,

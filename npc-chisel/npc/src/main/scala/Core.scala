@@ -88,6 +88,7 @@ class Core(implicit val conf: Config)extends Module
     val debug = Module(new DebugPort())
     val perfEvent = Module(new PerfEventPort())
     debug.io.clock := clock
+    debug.io.reset := reset
     debug.io.halt := halt
     debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
     debug.io.mem_pc := lsu.io.mem_wb.bits.pc
@@ -98,6 +99,7 @@ class Core(implicit val conf: Config)extends Module
     debug.io.lsu_port := wbu.io.mem_wb.bits.debug
     
     perfEvent.io.clock      := clock
+    perfEvent.io.reset      := reset
     perfEvent.io.ifu_port   := inst_fetch.io.debug
     perfEvent.io.ctl_port   := decoder.io.debug
     perfEvent.io.lsu_port   := lsu.io.debug
