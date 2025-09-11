@@ -43,7 +43,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   emitVerilog(
-    new ysyx_24100012(),args,firtoolOptions)
+    new ysyx_24100012())
 }
 
 
