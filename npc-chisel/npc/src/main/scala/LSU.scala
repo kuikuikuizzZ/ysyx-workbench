@@ -35,7 +35,7 @@ class LSUTOCtlIO (implicit val conf: Config) extends Bundle() {
     val csr_eret        = Output(Bool())
 }
 
-class LSUToEXEIO (implicit val conf: ysyx_24100012_Config) extends Bundle() {
+class LSUToEXEIO (implicit val conf: Config) extends Bundle() {
     val wbaddr          = Output(UInt(5.W))
     val wbdata          = Output(UInt(conf.xlen.W))
     val ctrl_rf_wen     = Output(Bool())
