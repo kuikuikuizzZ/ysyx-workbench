@@ -9,7 +9,7 @@ object Elaborate extends App {
       "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
-      "module-name-prefix=ysyx",
+      "--split-verilog",
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
