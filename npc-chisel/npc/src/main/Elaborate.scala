@@ -44,8 +44,7 @@ object Elaborate extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
-    Array("--target",
-    "verilog"),
+    Array("--target","verilog"),
     firtoolOptions)
 }
 
