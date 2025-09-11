@@ -13,7 +13,7 @@ build:
 	mill -i $(PRJ).runMain Elaborate 
 
 verilog: build
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v
 	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc/
 
 verilog_old: build
