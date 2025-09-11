@@ -7,7 +7,6 @@
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
      module PerfEventPort(
         input clock,
-        input reset,
         input ifu_port_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
