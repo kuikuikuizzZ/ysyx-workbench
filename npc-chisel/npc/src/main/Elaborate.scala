@@ -43,7 +43,7 @@ object Elaborate extends App {
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
   )
-  (new ChiselStage)emitVerilog(
+  emitVerilog(
     new ysyx_24100012(),
     args,
     firtoolOptions)
