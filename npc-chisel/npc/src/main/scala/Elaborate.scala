@@ -4,6 +4,7 @@ import npc._
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--split-verilog",
+    "-o=./build",
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
@@ -11,7 +12,6 @@ object Elaborate extends App {
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
-    "-o=./build",
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
