@@ -11,7 +11,6 @@ import npc.devices._
 class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxInline{ 
     val io = IO(new Bundle {
         val clock = Input(Clock())
-        val reset = Input(Bool())   
         val halt = Input(Bool())
         val pc = Input(UInt(32.W))
         val inst = Input(UInt(32.W))
@@ -28,7 +27,6 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
      import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module DebugPort(
         input clock,
-        input reset,
         input halt, 
         input [31:0] pc,
         input [31:0] wb_pc,
@@ -38,8 +36,6 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
         input [31:0] lsu_port_wdata,
-        input [31:0] lsu_port_storeCount,
-        input [31:0] lsu_port_loadCount,
         input lsu_port_mem_en,
         input lsu_port_fcn,
         input lsu_port_valid,
@@ -71,7 +67,6 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
 class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxInline{ 
      val io = IO(new Bundle {
         val clock       = Input(Clock())
-        val reset       = Input(Bool()) 
         val lsu_port    = Flipped(new LSUDebugPort()) 
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
@@ -88,7 +83,6 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
          input int itype, input int rtype, input int jtype,  input int utype, input int other);
      module PerfEventPort(
         input clock,
-        input reset,
         input ifu_port_valid,
         input [31:0] lsu_port_addr,
         input [31:0] lsu_port_rdata,
