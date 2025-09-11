@@ -43,7 +43,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   emitVerilog(
-    new ysyx_24100012(),Array("--emit-verilog","--target-dir","build"))
+    new ysyx_24100012(),Array("--verilog","--target-dir","build"))
 }
 
 
