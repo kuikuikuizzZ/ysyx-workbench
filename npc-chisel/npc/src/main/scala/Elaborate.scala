@@ -1,6 +1,25 @@
 import chisel3._
 import npc._
 
+package sifive {
+  package enterprise {
+    package firrtl {
+
+      case class NestedPrefixModulesAnnotation(
+          val target: _root_.firrtl.annotations.Target,
+          prefix: String,
+          inclusive: Boolean
+      ) extends _root_.firrtl.annotations.SingleTargetAnnotation[
+            _root_.firrtl.annotations.Target
+          ] {
+
+        override def duplicate(n: _root_.firrtl.annotations.Target) = ???
+      }
+    }
+  }
+}
+
+
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(
@@ -10,7 +29,6 @@ object Elaborate extends App {
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
-      "-prefix=Bar_",
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),

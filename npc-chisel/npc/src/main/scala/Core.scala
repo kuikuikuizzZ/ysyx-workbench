@@ -37,6 +37,13 @@ class ysyx_24100012 extends Module
   val wbu         = Module(new ysyx_24100012_WBU())
   val clint       = Module(new ysyx_24100012_CLINT())
 
+  chisel3.experimental.annotate(
+    new chisel3.experimental.ChiselAnnotation {
+      override def toFirrtl = sifive.enterprise.firrtl
+        .NestedPrefixModulesAnnotation(inst_fetch.toTarget, "prefix_", true)
+    }
+  )
+
   clint.io.clock := clock
   clint.io.reset := reset
   clint.io.in <> lsu.io.clintIO  
