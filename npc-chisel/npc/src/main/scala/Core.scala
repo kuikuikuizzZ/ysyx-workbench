@@ -16,7 +16,7 @@ class CoreIo(implicit val conf: ysyx_24100012_Config) extends Bundle
   val slave = Flipped(new AXI4LiteIo())
 }
 
-class ysyx_24100012 extends Module
+class Core extends Module
 {
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {

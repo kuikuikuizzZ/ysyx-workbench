@@ -20,6 +20,18 @@ package sifive {
 }
 
 
+class ysyx_24100012 extends Module { 
+  val io = IO(new CoreIo())
+  val core = Module(new Core())
+  chisel3.experimental.annotate(
+    new chisel3.experimental.ChiselAnnotation {
+      override def toFirrtl = sifive.enterprise.firrtl
+        .NestedPrefixModulesAnnotation(core.toTarget, "ysyx_24100012", true)
+    }
+  )
+  core.io <> io
+}
+
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(
