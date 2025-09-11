@@ -25,7 +25,6 @@ class Core extends Module
       // thisIn.bits := RegNext(prevOut.bits)
       thisIn.valid := (prevOut.valid && thisIn.ready)
   }
-  implicit val conf = ysyx_24100012_Config()
   val io = IO(new CoreIo())
 
   val inst_fetch  = Module(new ysyx_24100012_InstFetch())
@@ -37,12 +36,7 @@ class Core extends Module
   val wbu         = Module(new ysyx_24100012_WBU())
   val clint       = Module(new ysyx_24100012_CLINT())
 
-  chisel3.experimental.annotate(
-    new chisel3.experimental.ChiselAnnotation {
-      override def toFirrtl = sifive.enterprise.firrtl
-        .NestedPrefixModulesAnnotation(inst_fetch.toTarget, "prefix_", true)
-    }
-  )
+
 
   clint.io.clock := clock
   clint.io.reset := reset

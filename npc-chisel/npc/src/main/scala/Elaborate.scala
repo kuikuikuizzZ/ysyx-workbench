@@ -23,6 +23,7 @@ package sifive {
 class ysyx_24100012 extends Module { 
   val io = IO(new CoreIo())
   val core = Module(new Core())
+  implicit val conf = ysyx_24100012_Config()
   chisel3.experimental.annotate(
     new chisel3.experimental.ChiselAnnotation {
       override def toFirrtl = sifive.enterprise.firrtl
