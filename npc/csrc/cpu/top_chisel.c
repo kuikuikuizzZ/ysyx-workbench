@@ -133,7 +133,7 @@ uint32_t top_gpr(int i) {
         return 0;
     }
     uint32_t gpr_i ;
-    IFDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__reg_file__DOT__ysyx_24100012_regfile_mem_ext__DOT__Memory[i];);
+    IFDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__reg_file__DOT__regfile_mem_ext__DOT__Memory[i];);
     IFNDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__reg_file__DOT__regfile_ext__DOT__Memory[i]);
     return gpr_i;
 }
