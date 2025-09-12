@@ -30,7 +30,6 @@ build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 
 
-iverilog-build: $(SVSOURCES)
-
-	iverilog -o $(BUILD_DIR)/iverilog/$(NAME).vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012
+iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
