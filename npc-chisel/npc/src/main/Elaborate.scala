@@ -39,7 +39,7 @@ object Elaborate extends App {
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
-      "locationInfoStyle=wrapInAtSquareBracket",
+      // "locationInfoStyle=wrapInAtSquareBracket",
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
