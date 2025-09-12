@@ -10,6 +10,7 @@ ifdef CONFIG_SOC
 else
 	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
 endif
+
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)
@@ -20,7 +21,7 @@ VSINC_PATH += $(SOC_HOME)/perip/spi/rtl
 VINCLUDES = $(addprefix -I, $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
-
+IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
 
 build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
@@ -28,4 +29,8 @@ build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 
+
+iverilog-build: $(SVSOURCES)
+
+	iverilog -o $(BUILD_DIR)/iverilog/$(NAME).vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012
 
