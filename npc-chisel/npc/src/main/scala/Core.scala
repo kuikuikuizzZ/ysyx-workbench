@@ -31,8 +31,8 @@ class Core(implicit val conf: Config)extends Module
       //   validReg := prevOut.valid
       // }
       // thisIn.valid := validReg
-      // thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
-      thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
+      thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
+      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
 
       thisIn.valid := (prevOut.valid && thisIn.ready)
   }
