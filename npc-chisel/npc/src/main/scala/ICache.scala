@@ -52,11 +52,11 @@ class ICache(implicit val conf: Config) extends Module {
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
 
     val group_index = io.pc(b_bits+2-1,2)
-    val cache_block = Mux(state === sComplete || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    val cache_block = Mux(ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid =Mux(state === sComplete || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
-    val tag =  Mux(state === sComplete || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    val cache_valid =Mux(ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
 
@@ -79,6 +79,7 @@ class ICache(implicit val conf: Config) extends Module {
         // 状态迁移
     switch(state) {
         is(sIdle) {
+            ren := false.B
             io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
             when(!hit && io.req_valid) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
@@ -110,6 +111,7 @@ class ICache(implicit val conf: Config) extends Module {
         }
         is(sComplete) { 
             state   := sIdle
+            ren     := true.B
         }
     }
 
