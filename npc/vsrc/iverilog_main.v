@@ -1,13 +1,5 @@
 module main ();
   reg clk, reset;
-  initial begin
-     for (i = 0 ;  i <= 10 ;  i = i + 1) begin
-       clk = 0;
-       reset = 1;
-     end
-     reset = 0;
-     $finish;
-  end // initial begin
 
   wire [15:0]   externalPins_gpio_out;	
   wire [15:0]   externalPins_gpio_in;	// 
@@ -55,7 +47,8 @@ module main ();
       .externalPins_uart_tx     (externalPins_uart_rx) ,	
       .externalPins_halt	      (externalPins_halt)	// 
   );
-  always  clk = ~clk;
+  always #10000 clk = ~clk;
+
   integer i;
   integer j;
   initial begin
@@ -64,7 +57,7 @@ module main ();
     end
     for (i = 0; i <= 100000; i = i + 1) begin
       reset = 0;
-      if (halt) begin
+      if (externalPins_halt) begin
           $display("Test completed after %d iterations", i);
           $finish;
       end
