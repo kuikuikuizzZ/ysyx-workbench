@@ -39,12 +39,12 @@ class InstFetch(implicit conf: Config) extends Module {
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
-  val pc_reg = RegInit(START_ADDR_MROM)
+  val pc_reg = RegInit(START_ADDR)
   val pc_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready || should_kill ))
-  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,false.B,cache.io.valid || io.ifu_dec.ready || should_kill))
+  val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,cache.io.valid || io.ifu_dec.ready || should_kill))
   when((if_valid && io.ifu_dec.ready) || should_kill) {
       pc_reg := pc_next
       pc_valid := true.B

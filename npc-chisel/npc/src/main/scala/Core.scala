@@ -14,7 +14,6 @@ class CoreIo(implicit val conf: Config) extends Bundle
   val interrupt = Input(Bool())
   val master = new AXI4LiteIo()
   val slave = Flipped(new AXI4LiteIo())
-  val halt = Output(Bool())
 }
 
 class Core(implicit val conf: Config)extends Module
@@ -83,7 +82,6 @@ class Core(implicit val conf: Config)extends Module
   io.slave.b.valid := false.B
   io.slave.b.resp := 0.U
   io.slave.b.id := 0.U
-  io.halt := halt 
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
