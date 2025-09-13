@@ -180,8 +180,8 @@ class Decoder(implicit val conf: Config) extends Module
    // Exception Handling ---------------------
 
    // NOTE: initialization 0 will error 
-   // val dec_exception = Mux(!cs_val_inst, EXC_ILLEGAL_INSTR ,io.ifu_dec.bits.exception)
-   val dec_exception = io.ifu_dec.bits.exception
+   val dec_exception = Mux(!cs_val_inst, EXC_ILLEGAL_INSTR ,io.ifu_dec.bits.exception)
+   // val dec_exception = io.ifu_dec.bits.exception
 
    val mem_exception = io.lsu_ctl.mem_exception 
    pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
