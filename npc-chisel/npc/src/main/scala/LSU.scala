@@ -141,7 +141,7 @@ class LSU(implicit val conf: Config) extends Module {
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
-    io.exe_mem.ready := io.mem_wb.ready && ready
+    io.exe_mem.ready := io.mem_wb.ready || ready
 
     // WB Mux
     val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(

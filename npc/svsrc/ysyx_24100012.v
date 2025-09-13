@@ -879,6 +879,7 @@ endmodule
 
 module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
   input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+                reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
   output [4:0]  io_dec_reg_rs1_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
                 io_dec_reg_rs2_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
   output        io_ifu_dec_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
@@ -1124,11 +1125,15 @@ module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workben
     | io_exe_ctl_inst_is_load & _stall_T_5 & (|io_exe_ctl_wbaddr)
     & ~((|ctrl_exe_pc_sel) | _GEN_13)
     & (_GEN_9 | ~(_csignals_T_17 | _csignals_T_19 | _GEN_11)
-       & (_GEN_2 | ~_GEN_16 & (_GEN_15 | _csignals_T_499))) | io_exe_ctl_is_csr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:38, :194:26, :195:26, :240:48, :246:48, :273:{95,104}, :274:{104,120}, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
+       & (_GEN_2 | ~_GEN_16 & (_GEN_15 | _csignals_T_499))) | io_exe_ctl_is_csr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:39, :194:26, :195:26, :240:48, :246:48, :273:{95,104}, :274:{104,120}, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
   wire        _GEN_19 = stall | ~io_ifu_dec_valid & io_dec_exe_ready | pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:187:43, :274:120, :279:{20,38,59}]
-  wire        _GEN_20 = _GEN_19 | (|ctrl_exe_pc_sel);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:38, :279:{59,76}, :283:37, :303:20, :306:40, :318:40]
-  always @(posedge clock)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
-    reg_fencei <= csignals_13;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:176:28, src/main/scala/chisel3/util/Lookup.scala:34:39]
+  wire        _GEN_20 = _GEN_19 | (|ctrl_exe_pc_sel);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:39, :279:{59,76}, :283:37, :303:20, :306:40, :318:40]
+  always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+    if (reset)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+      reg_fencei <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :176:28]
+    else	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+      reg_fencei <= csignals_13;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:176:28, src/main/scala/chisel3/util/Lookup.scala:34:39]
+  end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
     `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
       `FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
@@ -1202,7 +1207,7 @@ module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workben
                           ? 4'h3
                           : _csignals_T_69
                               ? 4'h4
-                              : _csignals_T_71 ? 4'h5 : _csignals_T_73 ? 4'h6 : 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :177:38, :279:{59,76}, :289:37, :303:20, :312:40, :325:40, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
+                              : _csignals_T_71 ? 4'h5 : _csignals_T_73 ? 4'h6 : 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :177:39, :279:{59,76}, :289:37, :303:20, :312:40, :325:40, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
   assign io_dec_exe_bits_alu_fun =
     _csignals_T_1 | _csignals_T_3 | _csignals_T_5 | _csignals_T_7 | _csignals_T_9
     | _csignals_T_11 | _csignals_T_13 | _csignals_T_632 | _csignals_T_17
@@ -1309,11 +1314,11 @@ module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workben
                           ? 3'h7
                           : {_csignals_T_87 | _csignals_T_89 | _csignals_T_91
                                | _csignals_T_93,
-                             2'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :177:38, :279:{59,76}, :288:37, :303:20, :311:40, :324:40, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
+                             2'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :177:39, :279:{59,76}, :288:37, :303:20, :311:40, :324:40, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
   assign io_dec_exe_bits_exception = _GEN_20 ? 5'h0 : io_ifu_dec_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :279:76, :283:37, :290:37, :303:20, :306:40, :307:40, :313:40, :318:40, :326:40]
   assign io_ctl_sign_exe_pc_sel = ctrl_exe_pc_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29]
   assign io_ctl_sign_pipeline_kill = pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :187:43]
-  assign io_ctl_sign_if_kill = (|ctrl_exe_pc_sel) | csignals_13 | reg_fencei;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :176:28, :177:{38,62}, src/main/scala/chisel3/util/Lookup.scala:34:39]
+  assign io_ctl_sign_if_kill = (|ctrl_exe_pc_sel) | csignals_13 | reg_fencei;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :162:29, :176:28, :177:{39,63}, src/main/scala/chisel3/util/Lookup.scala:34:39]
   assign io_ctl_sign_fencei = csignals_13 | reg_fencei;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :176:28, :202:36, src/main/scala/chisel3/util/Lookup.scala:34:39]
 endmodule
 
@@ -2100,6 +2105,7 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
   );
   ysyx_24100012_Decoder decoder (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:33:27]
     .clock                        (clock),
+    .reset                        (reset),
     .io_dec_reg_rs1_addr          (_decoder_io_dec_reg_rs1_addr),
     .io_dec_reg_rs2_addr          (_decoder_io_dec_reg_rs2_addr),
     .io_ifu_dec_ready             (_decoder_io_ifu_dec_ready),
