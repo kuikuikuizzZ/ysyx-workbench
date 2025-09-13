@@ -101,8 +101,7 @@ class LSU(implicit val conf: Config) extends Module {
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
     val csr_files = Module(new CSRFiles)
-    val mem_ready = WireInit(true.B)
-    
+
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
