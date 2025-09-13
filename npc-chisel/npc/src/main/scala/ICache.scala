@@ -122,16 +122,16 @@ class ICache(implicit val conf: Config) extends Module {
     // 写入缓存（仅当完成整行加载）
     when(state === sComplete) {
         val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
-        mem(index)= fullCacheLine // 写入数据
-        tags(index)= io.pc(conf.xprlen-1, s_bits + b_bits + 2) // 写入Tag
-        valids(index)= true.B // 标记有效
+        mem(index)      := fullCacheLine // 写入数据
+        tags(index)     := io.pc(conf.xprlen-1, s_bits + b_bits + 2) // 写入Tag
+        valids(index)   := true.B // 标记有效
     }
 
     io.inst          := Mux(hit,cache_data,BUBBLE)
     io.valid         := Mux(hit,true.B,false.B)
     when (io.fencei){
         for (addr <- 0 until size) {
-            valids(addr.U)= false.B
+            valids(addr.U):= false.B
         }
     }
 
