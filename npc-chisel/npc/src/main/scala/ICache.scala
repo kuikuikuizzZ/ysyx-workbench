@@ -58,7 +58,17 @@ class ICache(implicit val conf: Config) extends Module {
     val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
-        
+    
+
+    when (reset.asBool()) {
+    // 注意：在Chisel中，我们通常避免在复位时进行循环写操作，因为这样可能会产生非常大的硬件。
+    // 但在仿真中，我们可以使用这样的初始化。在综合时，这个循环可能会被优化掉，或者需要特定的综合支持。
+        for (i <- 0 until size) {
+            mem.write(i.U, 0.U(cache_data_width.W))
+            tags.write(i.U, 0.U(tag_bits.W))
+            valids.write(i.U, false.B)
+        }
+    }
 
     when (state === sRequesting){
         io.port.req             := DontCare
