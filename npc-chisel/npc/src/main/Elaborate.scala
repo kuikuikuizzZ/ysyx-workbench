@@ -36,7 +36,6 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--disable-all-randomization",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",

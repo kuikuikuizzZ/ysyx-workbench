@@ -101,6 +101,7 @@ class LSU(implicit val conf: Config) extends Module {
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
     val csr_files = Module(new CSRFiles)
+    val mem_ready = WireInit(true.B)
     
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.inst       := io.exe_mem.bits.inst
@@ -138,7 +139,7 @@ class LSU(implicit val conf: Config) extends Module {
     val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    (io.port.resp.valid))
     val mem_exception   = Mux(in_clint, 0.U,                    (io.port.resp.bits.resp))
     val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    ( io.port.resp.bits.data))
-    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
+    mem_ready := (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready
