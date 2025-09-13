@@ -74,7 +74,9 @@ localparam ST_WAIT_ACK    = 2'b10;
 
   reg [1:0] state;
   wire req_accept;
-
+  wire is_read  = ((in_psel && !in_penable) || (state == ST_WAIT_ACCEPT)) && !in_pwrite;
+  wire is_write = ((in_psel && !in_penable) || (state == ST_WAIT_ACCEPT)) &&  in_pwrite;
+  
   always @(posedge clock) begin
     if (reset) state <= ST_IDLE;
     else
@@ -86,8 +88,6 @@ localparam ST_WAIT_ACK    = 2'b10;
       endcase
   end
 
-  wire is_read  = ((in_psel && !in_penable) || (state == ST_WAIT_ACCEPT)) && !in_pwrite;
-  wire is_write = ((in_psel && !in_penable) || (state == ST_WAIT_ACCEPT)) &&  in_pwrite;
   sdram_axi_core #(
     .SDRAM_MHZ(100),
     .SDRAM_ADDR_W(25),

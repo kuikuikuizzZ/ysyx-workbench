@@ -461,7 +461,7 @@ module AXI4Xbar(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rock
   reg         awFIFOMap_15_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:129:29
   wire        _awFIFOMap_15_T_19 = awFIFOMap_15_count != 3'h7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:128:34, :132:43
   reg         casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
     casez (auto_anon_in_arid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
       4'b0000:
         casez_tmp =
@@ -528,13 +528,13 @@ module AXI4Xbar(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rock
           (arFIFOMap_15_count == 3'h0 | arFIFOMap_15_last == requestARIO_0_1)
           & _arFIFOMap_15_T_20;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:60:9, :128:34, :129:29, :132:43, :135:71, :136:{22,30,44}, :153:45, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
-  end // always_comb
+  end // always @(*)
   wire        in_0_arvalid = auto_anon_in_arvalid & casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45
   assign anonIn_arready = in_0_arready & casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:153:45, :154:45, src/main/scala/chisel3/util/Mux.scala:30:73
   reg         latched;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:161:30
   wire        _anonIn_awready_T = latched | _awIn_0_io_enq_ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:74:47, :161:30, :162:57
   reg         casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:82
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:82
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:82
     casez (auto_anon_in_awid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:82
       4'b0000:
         casez_tmp_0 =
@@ -601,7 +601,7 @@ module AXI4Xbar(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rock
           (awFIFOMap_15_count == 3'h0 | awFIFOMap_15_last == requestAWIO_0_1)
           & _awFIFOMap_15_T_19;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:60:9, :128:34, :129:29, :132:43, :135:71, :136:{22,30,44}, :162:82, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/diplomacy/Parameters.scala:137:{41,46,59}
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:82
-  end // always_comb
+  end // always @(*)
   wire        in_0_awvalid = auto_anon_in_awvalid & _anonIn_awready_T & casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:{45,57,82}
   assign anonIn_awready = in_0_awready & _anonIn_awready_T & casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:162:{57,82}, :163:{45,82}, src/main/scala/chisel3/util/Mux.scala:30:73
   wire        awIn_0_io_enq_valid = auto_anon_in_awvalid & ~latched;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:161:30, :164:{51,54}
@@ -2713,7 +2713,7 @@ module CPU(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/CPU.s
     .io_slave_rdata    (/* unused */),
     .io_slave_rresp    (/* unused */),
     .io_slave_rlast    (/* unused */),
-    .halt                    (halt)
+    .io_halt                 (halt)
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/CPU.scala:39:21
 endmodule
 
@@ -2757,7 +2757,7 @@ module Bcd16seg(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/
 );
 
   reg [7:0] casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:37:22, :38:30
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
     casez (io_code)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
       4'b0000:
         casez_tmp = 8'hFD;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
@@ -2792,7 +2792,7 @@ module Bcd16seg(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/
       default:
         casez_tmp = 8'h8E;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:36:12, :37:22, :38:30, :39:30, :40:30, :41:30, :42:30, :43:30, :44:30, :45:30, :46:30, :47:30, :48:30, :49:30, :50:30, :51:30, :52:30, :53:30
-  end // always_comb
+  end // always @(*)
   assign io_seg = ~casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:30:7, :37:22, :38:30, :55:15
 endmodule
 
@@ -2978,7 +2978,7 @@ module PS2Keyboard(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
   reg        ps2_clk_sync_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:48:31
   reg        ps2_clk_sync_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:48:31
   reg  [7:0] casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:87:17
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:87:17
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:87:17
     casez (r_ptr)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:42:30, :87:17
       3'b000:
         casez_tmp = fifo_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:40:26, :87:17
@@ -2997,7 +2997,7 @@ module PS2Keyboard(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
       default:
         casez_tmp = fifo_7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:40:26, :87:17
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:42:30, :87:17
-  end // always_comb
+  end // always @(*)
   wire       _GEN = ready & ~io_nextdata_n;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:44:30, :56:{16,19}
   wire [2:0] _rptr_T = r_ptr + 3'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:42:30, :57:22
   wire       sampling = ps2_clk_sync_2 & ~ps2_clk_sync_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:48:31, :53:{36,39}
@@ -3368,7 +3368,7 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
   wire        _GEN_8 = state == 3'h3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :64:19
   wire        _GEN_9 = _GEN_8 | state == 3'h4;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :64:19, :169:33, :200:33
   reg  [3:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:64:19, :67:61
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :67:61, :106:33, :138:33, :169:33, :200:33
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :67:61, :106:33, :138:33, :169:33, :200:33
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :67:61, :106:33, :138:33, :169:33, :200:33
       3'b000:
         casez_tmp = _GEN_2 ? 4'hF : auto_in_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :67:61, :75:{48,68}, :83:35, :87:24, :106:33, :138:33, :169:33, :200:33
@@ -3387,10 +3387,10 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
       default:
         casez_tmp = auto_in_pstrb;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :67:61, :106:33, :138:33, :169:33, :200:33
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :67:61, :106:33, :138:33, :169:33, :200:33
-  end // always_comb
+  end // always @(*)
   reg         casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:64:19, :92:34
   wire        _GEN_10 = ~_GEN_4 & (|counter);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :67:{52,61}, :92:{25,34}, :95:33, :106:33, :124:34, :127:33
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :92:34, :124:34, :156:34, :188:34
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :92:34, :124:34, :156:34, :188:34
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34
       3'b000:
         casez_tmp_0 = ~_GEN_4 & (_GEN_2 | auto_in_penable);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :67:61, :75:{48,68}, :76:35, :87:24, :92:{25,34}, :95:33, :124:34, :156:34, :188:34
@@ -3409,9 +3409,9 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
       default:
         casez_tmp_0 = _GEN_6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :92:34, :106:33, :124:{25,34}, :128:33, :156:34, :188:34
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34
-  end // always_comb
+  end // always @(*)
   reg  [1:0]  casez_tmp_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:64:19, :92:34
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34
       3'b000:
         casez_tmp_1 =
@@ -3452,10 +3452,10 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
       default:
         casez_tmp_1 = counter;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:55:26, :58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34
-  end // always_comb
+  end // always @(*)
   reg  [2:0]  casez_tmp_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:64:19, :92:34
   wire [2:0]  _GEN_11 = state == 3'h5 & _GEN_4 ? 3'h0 : state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :64:19, :92:25, :250:34, :258:19
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34
       3'b000:
         casez_tmp_2 = _GEN_4 ? 3'h1 : state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :73:34, :92:{25,34}, :94:19, :124:34, :156:34, :188:34, :219:34
@@ -3474,7 +3474,7 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
       default:
         casez_tmp_2 = _GEN_11;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34, :250:34, :258:19
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:58:24, :60:47, :64:19, :92:34, :124:34, :156:34, :188:34, :219:34
-  end // always_comb
+  end // always @(*)
   always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:9
     if (reset) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:9
       counter <= 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:9, :55:26
@@ -3971,7 +3971,7 @@ module APBDelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyx
   wire        _io_out_penable_T = state == 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:23:7, :27:22, :34:18
   wire        _GEN = cnt == 32'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:31:20, :40:29
   reg  [1:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:18, :35:36
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:27:22, :34:18, :35:36, :37:43, :40:38, :42:25
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:27:22, :34:18, :35:36, :37:43, :40:38, :42:25
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:27:22, :34:18, :35:36, :37:43, :40:38, :42:25
       2'b00:
         casez_tmp = apb_start ? 2'h1 : state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:23:7, :27:22, :32:33, :34:18, :35:{36,44}, :37:43, :40:38, :42:25
@@ -3982,7 +3982,7 @@ module APBDelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyx
       default:
         casez_tmp = 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:23:7, :27:22, :34:18, :35:36, :37:43, :40:38, :42:25
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:27:22, :34:18, :35:36, :37:43, :40:38, :42:25
-  end // always_comb
+  end // always @(*)
   reg         pslverr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:45:27
   reg  [31:0] prdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:46:27
   wire        _io_out_penable_T_1 = state == 2'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:23:7, :27:22, :49:48
@@ -4093,7 +4093,7 @@ module AXI4ToAPB(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src
   reg         is_write_r;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
   wire        is_write = _is_write_T ? accept_write : is_write_r;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32, :52:{39,61,73}
   reg  [1:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:54:22, :55:33
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
       2'b00:
         casez_tmp = {1'h0, auto_in_arvalid | auto_in_awvalid & auto_in_wvalid};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:{33,39,49,62}, :56:33, :57:43
@@ -4109,7 +4109,7 @@ module AXI4ToAPB(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src
       default:
         casez_tmp = state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
-  end // always_comb
+  end // always @(*)
   `ifndef SYNTHESIS	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
     always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
       if (~reset & auto_in_arvalid & (|auto_in_arlen)) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:{13,25,40}
@@ -5081,7 +5081,7 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
   wire        _Queue1_BundleMap_io_deq_valid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17
   wire        _Queue1_BundleMap_io_deq_bits_real_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17
   reg         casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:60:36
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:60:36
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:60:36
     casez (auto_in_arid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:60:36
       4'b0000:
         casez_tmp = _Queue1_BundleMap_io_enq_ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :60:36
@@ -5116,9 +5116,9 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp = _Queue1_BundleMap_15_io_enq_ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :60:36
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:60:36
-  end // always_comb
+  end // always @(*)
   reg         casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:28
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:28
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:28
     casez (auto_out_rid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:28
       4'b0000:
         casez_tmp_0 = _Queue1_BundleMap_io_deq_valid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :69:28
@@ -5153,9 +5153,9 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp_0 = _Queue1_BundleMap_15_io_deq_valid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :69:28
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:28
-  end // always_comb
+  end // always @(*)
   reg         casez_tmp_1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:73:22
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:73:22
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:73:22
     casez (auto_out_rid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:73:22
       4'b0000:
         casez_tmp_1 = _Queue1_BundleMap_io_deq_bits_real_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :73:22
@@ -5190,13 +5190,13 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp_1 = _Queue1_BundleMap_15_io_deq_bits_real_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :73:22
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:73:22
-  end // always_comb
+  end // always @(*)
   wire [15:0] _arsel_T_1 = 16'h1 << auto_in_arid;	// src/main/scala/chisel3/util/OneHot.scala:65:12
   wire [15:0] _rsel_T_1 = 16'h1 << auto_out_rid;	// src/main/scala/chisel3/util/OneHot.scala:65:12
   wire        _GEN = auto_out_rvalid & auto_in_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:78:37
   wire        _GEN_0 = auto_in_arvalid & auto_out_arready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:81:37
   reg         casez_tmp_2;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:89:36
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:89:36
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:89:36
     casez (auto_in_awid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:89:36
       4'b0000:
         casez_tmp_2 = _Queue1_BundleMap_16_io_enq_ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :89:36
@@ -5231,9 +5231,9 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp_2 = _Queue1_BundleMap_31_io_enq_ready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :89:36
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:89:36
-  end // always_comb
+  end // always @(*)
   reg         casez_tmp_3;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:98:28
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:98:28
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:98:28
     casez (auto_out_bid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:98:28
       4'b0000:
         casez_tmp_3 = _Queue1_BundleMap_16_io_deq_valid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :98:28
@@ -5268,7 +5268,7 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp_3 = _Queue1_BundleMap_31_io_deq_valid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :98:28
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:98:28
-  end // always_comb
+  end // always @(*)
   `ifndef SYNTHESIS	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:14
     always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:14
       if (~reset & ~(~auto_out_rvalid | casez_tmp_0)) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:69:{14,15,28}
@@ -5286,7 +5286,7 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
     end // always @(posedge)
   `endif // not def SYNTHESIS
   reg         casez_tmp_4;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:102:22
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:102:22
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:102:22
     casez (auto_out_bid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:102:22
       4'b0000:
         casez_tmp_4 = _Queue1_BundleMap_16_io_deq_bits_real_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :102:22
@@ -5321,7 +5321,7 @@ module AXI4UserYanker(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp_4 = _Queue1_BundleMap_31_io_deq_bits_real_last;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:51:17, :102:22
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:102:22
-  end // always_comb
+  end // always @(*)
   wire [15:0] _awsel_T_1 = 16'h1 << auto_in_awid;	// src/main/scala/chisel3/util/OneHot.scala:65:12
   wire [15:0] _bsel_T_1 = 16'h1 << auto_out_bid;	// src/main/scala/chisel3/util/OneHot.scala:65:12
   wire        _GEN_1 = auto_out_bvalid & auto_in_bready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:107:37
@@ -6003,7 +6003,7 @@ module AXI4Fragmenter(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
   reg  [1:0]  error_14;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:211:26
   reg  [1:0]  error_15;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:211:26
   reg  [1:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:212:41
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:212:41
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:212:41
     casez (auto_out_bid)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:212:41
       4'b0000:
         casez_tmp = error_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:211:26, :212:41
@@ -6038,7 +6038,7 @@ module AXI4Fragmenter(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSo
       default:
         casez_tmp = error_15;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:211:26, :212:41
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:212:41
-  end // always_comb
+  end // always @(*)
   wire [15:0] _GEN = 16'h1 << auto_out_bid;	// src/main/scala/chisel3/util/OneHot.scala:65:12
   wire        _GEN_0 = nodeOut_bready & auto_out_bvalid;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:208:33, src/main/scala/chisel3/util/Decoupled.scala:51:35
   wire [31:0] _inc_addr_T_1 = addr + {16'h0, 16'h1 << _deq_q_io_deq_bits_size};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:73:23, :108:{29,38}, src/main/scala/chisel3/util/Decoupled.scala:362:21
@@ -6348,7 +6348,7 @@ module AXI4DelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysy
   wire        _GEN = cnt == 32'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:33:20, :61:29
   wire        _GEN_0 = is_read & rvalid & ~rlast;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:26, :39:27, :43:27, :64:{20,30,33}
   reg  [31:0] casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:54:18, :55:36
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :54:18, :55:36, :57:39, :61:38
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :54:18, :55:36, :57:39, :61:38
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38
       2'b00:
         casez_tmp = axi_start ? 32'h38000 : cnt;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:33:20, :34:54, :36:66, :40:94, :54:18, :55:36, :56:25, :57:39, :61:38
@@ -6359,9 +6359,9 @@ module AXI4DelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysy
       default:
         casez_tmp = (&state) & _GEN_0 ? 32'h38000 : cnt;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :33:20, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:{20,30,41}, :66:13
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38
-  end // always_comb
+  end // always @(*)
   reg  [1:0]  casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:54:18, :55:36
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
+  always @(*) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
     casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
       2'b00:
         casez_tmp_0 = axi_start ? 2'h1 : state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7, :28:22, :34:54, :36:66, :40:94, :54:18, :55:{36,44}, :57:39, :61:38, :64:41
@@ -6372,7 +6372,7 @@ module AXI4DelayerChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysy
       default:
         casez_tmp_0 = {1'h0, _GEN_0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:{20,30,41}, :65:15, :68:15
     endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:28:22, :36:66, :40:94, :54:18, :55:36, :57:39, :61:38, :64:41
-  end // always_comb
+  end // always @(*)
   assign io_out_bready_0 = (_io_out_rready_T | _io_out_rready_T_1) & io_in_bready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :96:{27,43}
   assign io_out_rready_0 = (_io_out_rready_T | _io_out_rready_T_1) & io_in_rready;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:36:66, :40:94, :101:{27,43}
   always @(posedge clock) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:23:7

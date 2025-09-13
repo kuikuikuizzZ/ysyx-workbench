@@ -5,6 +5,8 @@ module sdram(
   input        ras,
   input        cas,
   input        we,
+  input         b,
+  input         w,
   input [12:0] a,
   input [ 1:0] ba,
   input [ 1:0] dqm,
