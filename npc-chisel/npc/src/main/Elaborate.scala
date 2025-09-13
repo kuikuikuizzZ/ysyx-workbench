@@ -41,11 +41,12 @@ object Elaborate extends App {
        "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb"
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
-    Array("--help"),
+    Array("--target","verilog","--target-dir","build"),
     firtoolOptions)
 }
 
