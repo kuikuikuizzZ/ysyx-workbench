@@ -44,7 +44,7 @@
 module PSRAM_READER (
     input   wire            clk,
     input   wire            rst_n,
-    input   wire            is_qpi,
+    // input   wire            is_qpi,
     input   wire [23:0]     addr,
     input   wire            rd,
     input   wire [2:0]      size,
@@ -63,6 +63,7 @@ module PSRAM_READER (
 
     wire [7:0]  cmd_add_count;
     wire [7:0]  FINAL_COUNT = cmd_add_count + size*2; // was 27: Always read 1 word
+    wire is_qpi = 1'b0;
 
     reg         state, nstate;
     reg [7:0]   counter;
@@ -159,7 +160,7 @@ endmodule
 module PSRAM_WRITER (
     input   wire            clk,
     input   wire            rst_n,
-    input   wire            is_qpi,
+    // input   wire            is_qpi,
     input   wire [23:0]     addr,
     input   wire [31: 0]    line,
     input   wire [2:0]      size,
@@ -178,7 +179,7 @@ module PSRAM_WRITER (
 
     wire [7:0]  cmd_add_count;
     wire [7:0]  FINAL_COUNT = cmd_add_count + size*2; // was 27: Always read 1 word
-
+    wire is_qpi = 1'b0;
     reg         state, nstate;
     reg [7:0]   counter;
     reg [23:0]  saddr;

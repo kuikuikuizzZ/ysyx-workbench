@@ -319,8 +319,10 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   reg         reg_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:49:38]
   reg  [31:0] cacheLineBuffer_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:50:34]
   reg  [31:0] cacheLineBuffer_1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:50:34]
-  wire        _tag_T_1 = io_req_valid | ren;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:47:22, :56:80]
-  wire        hit = _icache_valids_ext_R0_data & io_pc[31:5] == _icache_tags_ext_R0_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:52:27, :53:29, :61:{27,36,68}]
+  wire        _tag_T_2 = io_req_valid | ren;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:47:22, :56:80]
+  wire        hit =
+    _tag_T_2 & _icache_valids_ext_R0_data
+    & io_pc[31:5] == (_tag_T_2 ? _icache_tags_ext_R0_data : 27'h0);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:52:27, :53:29, :56:80, :60:19, :61:{27,36,68}, :69:23]
   wire        _io_port_req_valid_T_1 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:35:38, :81:16]
   wire        _GEN = state == 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:35:38, :91:19]
   wire        _GEN_0 = ~hit & reg_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:49:38, :61:27, :95:{18,23}]
@@ -406,7 +408,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   `endif // ENABLE_INITIAL_REG_
   ysyx_24100012_icache_mem_4x64 icache_mem_ext (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:51:26]
     .R0_addr (io_pc[4:3]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:37]
-    .R0_en   (_tag_T_1),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
+    .R0_en   (_tag_T_2),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
     .R0_clk  (clock),
     .R0_data (_icache_mem_ext_R0_data),
     .W0_addr (2'h3),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:7]
@@ -432,7 +434,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   );
   ysyx_24100012_icache_tags_4x27 icache_tags_ext (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:52:27]
     .R0_addr (io_pc[4:3]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:37]
-    .R0_en   (_tag_T_1),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
+    .R0_en   (_tag_T_2),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
     .R0_clk  (clock),
     .R0_data (_icache_tags_ext_R0_data),
     .W0_addr (2'h2),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:7]
@@ -458,7 +460,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   );
   ysyx_24100012_icache_valids_4x1 icache_valids_ext (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:53:29]
     .R0_addr (io_pc[4:3]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:37]
-    .R0_en   (_tag_T_1),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
+    .R0_en   (_tag_T_2),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:56:80]
     .R0_clk  (clock),
     .R0_data (_icache_valids_ext_R0_data),
     .W0_addr (2'h2),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:7]

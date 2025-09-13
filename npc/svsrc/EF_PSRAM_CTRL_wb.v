@@ -195,7 +195,7 @@ module EF_PSRAM_CTRL_wb (
         .dout(qpi_dout),
         .douten(qpi_doe)
     );
-    assign is_qpi_init = (state == QPI_INIT);
+    assign is_qpi_init = 1'b0;
     assign sck      = is_qpi_init? qpi_sck : (wb_we ? mw_sck  : mr_sck);
     assign ce_n     = is_qpi_init? qpi_ce_n : (wb_we ? mw_ce_n : mr_ce_n);
     assign dout     = is_qpi_init? qpi_dout : (wb_we ? mw_dout : mr_dout);
