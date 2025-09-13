@@ -61,7 +61,7 @@ class ICache(implicit val conf: Config) extends Module {
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
 
-    when (io.reset.asBool()) {
+    when (io.reset) {
     // 注意：在Chisel中，我们通常避免在复位时进行循环写操作，因为这样可能会产生非常大的硬件。
     // 但在仿真中，我们可以使用这样的初始化。在综合时，这个循环可能会被优化掉，或者需要特定的综合支持。
         for (i <- 0 until size) {
