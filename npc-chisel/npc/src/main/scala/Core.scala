@@ -23,7 +23,11 @@ class Core(implicit val conf: Config)extends Module
       prevOut.ready := thisIn.ready
       thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
       // thisIn.bits := RegNext(prevOut.bits)
-      thisIn.valid := (prevOut.valid && thisIn.ready)
+      val reg_valid = RegInit(false.B) 
+      when(prevOut.valid && thisIn.ready) {
+        reg_valid := true.B
+      }
+      thisIn.valid := reg_valid
   }
   val io = IO(new CoreIo())
 
