@@ -173,8 +173,8 @@ class Decoder(implicit val conf: Config) extends Module
                      ))))))))))   
 
    // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
-   val reg_fencei = RegNext(cs_fencei)
-   val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
+   val reg_fencei = RegNext(cs_fencei,N)
+   val if_kill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
    val deckill    = (ctrl_exe_pc_sel =/= PC_4)
 
    // Exception Handling ---------------------
@@ -195,7 +195,7 @@ class Decoder(implicit val conf: Config) extends Module
    val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
 
    io.ctl_sign.exe_pc_sel := ctrl_exe_pc_sel
-   io.ctl_sign.if_kill := ifkill
+   io.ctl_sign.if_kill := if_kill
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill
    io.ctl_sign.mem_exception := mem_exception
