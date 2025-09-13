@@ -13,6 +13,7 @@ class ICacheDebugPort(implicit val conf: Config) extends Bundle {
 }
 
 class ICacheIO(implicit val conf: Config) extends Bundle {
+  val reset     = Input(Bool())
   val pc        = Input(UInt(conf.xprlen.W))
   val fencei    = Input(Bool())
   val req_valid = Input(Bool())
