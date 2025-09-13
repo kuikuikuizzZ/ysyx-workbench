@@ -26,15 +26,15 @@ class Core(implicit val conf: Config)extends Module
       //   regBits := prevOut.bits
       // }
       // thisIn.bits := regBits
-      // val validReg = RegInit(false.B)
-      // when(thisIn.ready) {
-      //   validReg := prevOut.valid
-      // }
-      // thisIn.valid := validReg
-      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
+      val validReg = RegInit(false.B)
+      when(thisIn.ready) {
+        validReg := prevOut.valid
+      }
+      thisIn.valid := validReg
       thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
+      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
 
-      thisIn.valid := (prevOut.valid && thisIn.ready)
+      // thisIn.valid := (prevOut.valid && thisIn.ready)
   }
   val io = IO(new CoreIo())
 
