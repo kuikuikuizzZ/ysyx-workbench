@@ -7955,7 +7955,7 @@ module MROMHelper(
  reg [31:0] vga_mem [2000:0];
  wire [31:0] align_raddr, align_waddr;
  initial begin
-   reg [255*8-1:0] path;
+   reg [255*200-1:0] path;
    if (!$value$plusargs("image=%s", path)) begin
      path = "{rom_hex_file}";
    end

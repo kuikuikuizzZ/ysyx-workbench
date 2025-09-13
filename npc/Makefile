@@ -98,7 +98,7 @@ perf: build
 
 
 iverilog-run: iverilog-build
-	vvp $(BUILD_DIR)/iverilog/$(NAME).vvp image=$(IMG)
+	vvp $(BUILD_DIR)/iverilog/main.vvp image=$(IMG)
 
 .PHONY: run build clean sim
 
