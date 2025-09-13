@@ -16,19 +16,63 @@ class CoreIo(implicit val conf: Config) extends Bundle
   val slave = Flipped(new AXI4LiteIo())
 }
 
+class PipelineStage[T <: Data](gen: T) extends Module {
+  val io = IO(new Bundle {
+    val in = Flipped(Decoupled(gen))
+    val out = Decoupled(gen)
+  })
+  
+  // 状态寄存器（每个实例独立）
+  val validReg = RegInit(false.B)
+  val bitsReg = RegInit(0.U.asTypeOf(gen))
+  
+  // 复位逻辑
+  when(reset.asBool) {
+    validReg := false.B
+    bitsReg := 0.U.asTypeOf(gen)
+  }
+  
+  // 输入就绪逻辑
+  io.in.ready := !validReg || io.out.ready
+  
+  // 寄存器更新逻辑
+  when(io.in.ready && io.in.valid) {
+    validReg := true.B
+    bitsReg := io.in.bits
+  }.elsewhen(io.out.ready) {
+    validReg := false.B
+  }
+  
+  // 输出连接
+  io.out.valid := validReg
+  io.out.bits := bitsReg
+}
+
+object pipelineConnect {
+  def apply[T <: Data, T2 <: Data](
+    prevOut: DecoupledIO[T],
+    thisIn: DecoupledIO[T],
+    thisOut: DecoupledIO[T2]
+  ): Unit = {
+    // 创建独立的流水线阶段实例
+    val stage = Module(new PipelineStage(chiselTypeOf(prevOut.bits)))
+    
+    // 连接输入
+    stage.io.in <> prevOut
+    
+    // 连接输出
+    thisIn <> stage.io.out
+  }
+}
 class Core(implicit val conf: Config)extends Module
 {
-  def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
-    thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
-      prevOut.ready := thisIn.ready
-      thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
-      // thisIn.bits := RegNext(prevOut.bits)
-      val reg_valid = RegInit(false.B) 
-      when(prevOut.valid && thisIn.ready) {
-        reg_valid := true.B
-      }
-      thisIn.valid := reg_valid
-  }
+  // def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
+  //   thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+  //     prevOut.ready := thisIn.ready
+  //     thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
+  //     // thisIn.bits := RegNext(prevOut.bits)
+  //     thisIn.valid := (prevOut.valid && thisIn.ready)
+  // }
   val io = IO(new CoreIo())
 
   val inst_fetch  = Module(new InstFetch())
