@@ -36,7 +36,6 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--verilog-version=2012",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
