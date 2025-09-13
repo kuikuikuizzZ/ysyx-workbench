@@ -20,7 +20,7 @@ class EXEPipeIO(implicit val conf: Config) extends Bundle() {
    val op2_data         = Output(UInt(conf.xprlen.W))
    val rs2_data         = Output(UInt(conf.xprlen.W))
    val alu_out          = Output(UInt(conf.xlen.W))
-   val ctrl_wb_sel      = Output(UInt(WB_X.getWidth.W))
+   val ctrl_wb_sel      = Output(UInt())
    val ctrl_rf_wen      = Output(Bool())
    val ctrl_mem_val     = Output(Bool())
    val ctrl_mem_fcn     = Output(UInt(M_X.getWidth.W)) 

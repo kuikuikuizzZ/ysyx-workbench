@@ -14,6 +14,7 @@ class CoreIo(implicit val conf: Config) extends Bundle
   val interrupt = Input(Bool())
   val master = new AXI4LiteIo()
   val slave = Flipped(new AXI4LiteIo())
+  val halt = Output(Bool())
 }
 
 class Core(implicit val conf: Config)extends Module
@@ -21,6 +22,9 @@ class Core(implicit val conf: Config)extends Module
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
       prevOut.ready := thisIn.ready
+      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
+      // thisIn.bits := RegNext(prevOut.bits)
+      // thisIn.valid := (prevOut.valid && thisIn.ready)
       val regBits = RegInit(0.U.asTypeOf(chiselTypeOf(prevOut.bits)))
       when(prevOut.valid && thisIn.ready) {
         regBits := prevOut.bits
@@ -31,10 +35,6 @@ class Core(implicit val conf: Config)extends Module
         validReg := prevOut.valid
       }
       thisIn.valid := validReg
-      // thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
-      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
-
-      thisIn.valid := (prevOut.valid && thisIn.ready)
   }
   val io = IO(new CoreIo())
 
@@ -93,6 +93,7 @@ class Core(implicit val conf: Config)extends Module
   io.slave.b.valid := false.B
   io.slave.b.resp := 0.U
   io.slave.b.id := 0.U
+  io.halt := halt 
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
