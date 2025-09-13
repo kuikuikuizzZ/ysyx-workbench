@@ -255,7 +255,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   wire        _GEN_1 = state == 3'h4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :99:27]
   reg  [2:0]  casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:80:19, :84:41]
   wire [2:0]  _GEN_2 = io_port_req_ready ? 3'h3 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :91:{51,58}]
-  always @(*) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :84:41, :91:51, :94:38, :113:21]
+  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :84:41, :91:51, :94:38, :113:21]
     casez (state)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :84:41, :91:51, :94:38, :113:21]
       3'b000:
         casez_tmp = _GEN_0 ? {1'h0, ~(|(io_pc[1:0])), 1'h0} : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :34:38, :80:19, :83:39, :84:{23,41}, :85:{34,43}, :86:27, :88:27, :91:51, :94:38, :113:21]
@@ -274,7 +274,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
       default:
         casez_tmp = state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :84:41, :91:51, :94:38, :113:21]
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :84:41, :91:51, :94:38, :113:21]
-  end // always @(*)
+  end // always_comb
   wire        _GEN_3 = state == 3'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :63:17, :80:19]
   wire        _GEN_4 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :70:16, :80:19]
   wire        _GEN_5 = state == 3'h3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :80:19, :91:58]
@@ -428,7 +428,7 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
   reg         if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:47:61]
   wire        if_valid = _cache_io_valid ? _cache_io_valid : if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :47:{21,61}]
   reg  [31:0] casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:18]
-  always @(*) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
+  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
     casez (io_ctl_exe_pc_sel)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
       2'b00:
         casez_tmp = pc_reg + 32'h4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:42:23, :55:26, :58:{18,41}, :59:{21,41}, :60:{21,41}]
@@ -439,7 +439,7 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
       default:
         casez_tmp = io_exception_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
-  end // always @(*)
+  end // always_comb
   wire        _GEN = if_valid & io_ifu_dec_ready | should_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36, :47:21, :48:{18,39}]
   wire        _if_valid_T_2 = _cache_io_valid | io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :46:87]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
@@ -1079,7 +1079,7 @@ module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workben
   assign pipeline_kill = io_lsu_ctl_csr_eret | io_lsu_ctl_mem_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:187:43]
   wire        _op2_data_T_16 = csignals_3 == 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, src/main/scala/chisel3/util/Lookup.scala:34:39]
   reg  [31:0] casez_tmp;	// @[src/main/scala/chisel3/util/Mux.scala:126:16]
-  always @(*) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, src/main/scala/chisel3/util/Mux.scala:126:16]
+  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, src/main/scala/chisel3/util/Mux.scala:126:16]
     casez (csignals_3)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, src/main/scala/chisel3/util/Lookup.scala:34:39, src/main/scala/chisel3/util/Mux.scala:126:16]
       3'b000:
         casez_tmp = io_reg_in_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, src/main/scala/chisel3/util/Mux.scala:126:16]
@@ -1111,7 +1111,7 @@ module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workben
       default:
         casez_tmp = 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, :339:38, src/main/scala/chisel3/util/Mux.scala:126:16]
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:223:28, :224:28, :225:28, :226:28, :227:28, :228:28, src/main/scala/chisel3/util/Lookup.scala:34:39, src/main/scala/chisel3/util/Mux.scala:126:16]
-  end // always @(*)
+  end // always_comb
   wire        _stall_T = io_exe_ctl_wbaddr == io_ifu_dec_bits_inst[19:15];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:151:35, :240:48]
   wire        _stall_T_5 = io_exe_ctl_wbaddr == io_ifu_dec_bits_inst[24:20];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:152:35, :246:48]
   wire        _rs2_data_T_4 = io_lsu_ctl_wbaddr == io_ifu_dec_bits_inst[24:20];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:152:35, :247:48]
@@ -1434,7 +1434,7 @@ module ysyx_24100012_EXU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
   wire [31:0] _GEN = {27'h0, io_dec_exe_bits_op2_data[4:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:70:27, :82:77]
   wire [62:0] _alu_out_T_19 =
     {31'h0, io_dec_exe_bits_op1_data} << io_dec_exe_bits_op2_data[4:0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:70:27, :81:71]
-  always @(*) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
+  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
     casez (io_dec_exe_bits_alu_fun)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
       4'b0000:
         casez_tmp = _alu_out_T_1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:71:29, :74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
@@ -1470,7 +1470,7 @@ module ysyx_24100012_EXU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
       default:
         casez_tmp = 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:63:7, :74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:74:44, :75:44, :76:44, :77:44, :78:44, :79:44, :80:44, :81:44, :82:44, :83:44, :84:44, :85:44, src/main/scala/chisel3/util/Mux.scala:126:16]
-  end // always @(*)
+  end // always_comb
   assign io_dec_exe_ready = io_ctl_pipeline_kill | io_exe_mem_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:60:7, :64:21, :95:31, :105:37]
   assign io_exe_mem_bits_inst = io_ctl_pipeline_kill ? 32'h4033 : io_dec_exe_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:60:7, :95:31, :97:40, :109:37]
   assign io_exe_mem_bits_pc = io_dec_exe_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:60:7]
