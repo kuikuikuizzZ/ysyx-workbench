@@ -56,8 +56,8 @@ class ICache(implicit val conf: Config) extends Module {
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
-    val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_valid = Mux((io.req_valid || ren),valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),false.B)
+    val tag =  Mux((io.req_valid || ren),tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
 
