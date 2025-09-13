@@ -22,19 +22,19 @@ class Core(implicit val conf: Config)extends Module
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
     thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
       prevOut.ready := thisIn.ready
-      // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
       // thisIn.bits := RegNext(prevOut.bits)
-      thisIn.valid := (prevOut.valid && thisIn.ready)
-      val regBits = RegInit(0.U.asTypeOf(chiselTypeOf(prevOut.bits)))
-      when(prevOut.valid && thisIn.ready) {
-        regBits := prevOut.bits
-      }
-      thisIn.bits := regBits
+      // val regBits = RegInit(0.U.asTypeOf(chiselTypeOf(prevOut.bits)))
+      // when(prevOut.valid && thisIn.ready) {
+      //   regBits := prevOut.bits
+      // }
+      // thisIn.bits := regBits
       // val validReg = RegInit(false.B)
       // when(thisIn.ready) {
       //   validReg := prevOut.valid
       // }
       // thisIn.valid := validReg
+      thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
+      thisIn.valid := (prevOut.valid && thisIn.ready)
   }
   val io = IO(new CoreIo())
 
