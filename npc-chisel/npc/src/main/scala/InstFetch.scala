@@ -19,8 +19,6 @@ class IFUPipeIO(implicit val conf: Config) extends Bundle {
 }
 
 class InstFetchIo(implicit val conf: Config) extends Bundle() {
-  val reset             = Input(Bool())
-  val clock             = Input(Clock())
   val ctl               = new CtrlSignalIO
   val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
@@ -74,7 +72,6 @@ class InstFetch(implicit conf: Config) extends Module {
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   cache.io.fencei     := io.ctl.fencei
-  cache.io.reset      := io.reset
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
