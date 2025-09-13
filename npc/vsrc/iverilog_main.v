@@ -83,7 +83,7 @@ module main ();
       $display("Reset released at time %t", $time);
       
       // 执行1000个周期
-      wait(cycle_count == 100000); // 等待1000个周期（0-999）
+      wait(cycle_count == 10000); // 等待1000个周期（0-999）
       $display("Completed 1000 cycles at time %t", $time);
       
       // 结束仿真

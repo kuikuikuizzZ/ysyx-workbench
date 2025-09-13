@@ -48,28 +48,18 @@ class ICache(implicit val conf: Config) extends Module {
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("icache_mem") 
-    val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("icache_tags") 
-    val valids = SyncReadMem(size,Bool()).suggestName("icache_valids") 
+    val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
+    val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
+    val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
 
     val group_index = io.pc(b_bits+2-1,2)
-    val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_block = mem(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid = Mux((io.req_valid || ren),valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),false.B)
-    val tag =  Mux((io.req_valid || ren),tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),0.U)
+    val cache_valid = Mux((io.req_valid || ren),valids(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),false.B)
+    val tag =  Mux((io.req_valid || ren),tags(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
-
-    when (io.reset) {
-    // 注意：在Chisel中，我们通常避免在复位时进行循环写操作，因为这样可能会产生非常大的硬件。
-    // 但在仿真中，我们可以使用这样的初始化。在综合时，这个循环可能会被优化掉，或者需要特定的综合支持。
-        for (i <- 0 until size) {
-            mem.write(i.U, 0.U(cache_data_width.W))
-            tags.write(i.U, 0.U(tag_bits.W))
-            valids.write(i.U, false.B)
-        }
-    }
 
     when (state === sRequesting){
         io.port.req             := DontCare
@@ -132,16 +122,16 @@ class ICache(implicit val conf: Config) extends Module {
     // 写入缓存（仅当完成整行加载）
     when(state === sComplete) {
         val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
-        mem.write(index, fullCacheLine) // 写入数据
-        tags.write(index, io.pc(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
-        valids.write(index, true.B) // 标记有效
+        mem(index)= fullCacheLine // 写入数据
+        tags(index)= io.pc(conf.xprlen-1, s_bits + b_bits + 2) // 写入Tag
+        valids(index)= true.B // 标记有效
     }
 
     io.inst          := Mux(hit,cache_data,BUBBLE)
     io.valid         := Mux(hit,true.B,false.B)
     when (io.fencei){
         for (addr <- 0 until size) {
-            valids.write(addr.U, false.B)
+            valids(addr.U)= false.B
         }
     }
 

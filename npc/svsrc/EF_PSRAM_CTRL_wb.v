@@ -155,7 +155,7 @@ module EF_PSRAM_CTRL_wb (
     PSRAM_READER MR (
         .clk(clk_i),
         .rst_n(~rst_i),
-        .is_qpi(is_qpi),
+        // .is_qpi(is_qpi),
         .addr({adr_i[23:2],2'b0}),
         .rd(mr_rd),
         //.size(size), Always read a word
@@ -172,7 +172,7 @@ module EF_PSRAM_CTRL_wb (
     PSRAM_WRITER MW (
         .clk(clk_i),
         .rst_n(~rst_i),
-        .is_qpi(is_qpi),
+        // .is_qpi(is_qpi),
         .addr({adr_i[23:0]}),
         .wr(mw_wr),
         .size(size),
