@@ -50,9 +50,9 @@ class ICache(implicit val conf: Config) extends Module {
     val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
     val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
-    val cache_valid = RegInit(0.U(cache_data_width.W))
+    val cache_block = RegInit(0.U(cache_data_width.W))
     val tag         = RegInit(0.U(tag_bits.W))
-    val cache_block = RegInit(false.B)
+    val cache_valid = RegInit(false.B)
 
 
     val group_index = io.pc(b_bits+2-1,2)
