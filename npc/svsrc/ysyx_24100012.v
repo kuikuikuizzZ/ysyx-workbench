@@ -616,8 +616,7 @@ endmodule
 module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:244:7]
   input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:244:7]
                 reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:244:7]
-  output        io_ports_0_req_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
-  input         io_ports_0_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
+                io_ports_0_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
   input  [31:0] io_ports_0_req_bits_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
                 io_ports_0_req_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
   input         io_ports_0_req_bits_fcn,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:245:16]
@@ -777,7 +776,6 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
     .io_resp_bits_data  (_axi4lite_mem_io_resp_bits_data),
     .io_resp_bits_resp  (_axi4lite_mem_io_resp_bits_resp)
   );
-  assign io_ports_0_req_ready = ~(|state);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:244:7, :252:23, :267:18, :325:38]
   assign io_ports_0_resp_valid =
     _io_ports_0_resp_bits_resp_T & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:244:7, :254:29, :318:48, :320:40]
   assign io_ports_0_resp_bits_data =
@@ -1684,7 +1682,6 @@ module ysyx_24100012_LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
   output [1:0]  io_mem_wb_bits_debug_typ,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output [31:0] io_mem_wb_bits_debug_storeCount,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
                 io_mem_wb_bits_debug_loadCount,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
-  input         io_port_req_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output        io_port_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output [31:0] io_port_req_bits_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
                 io_port_req_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
@@ -1802,8 +1799,7 @@ module ysyx_24100012_LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
   assign io_mem_wb_bits_debug_storeCount = storeCnt;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :177:34]
   assign io_mem_wb_bits_debug_loadCount = loadCnt;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :178:34]
   assign io_port_req_valid =
-    ~(io_exe_mem_bits_ctrl_mem_val & in_clint) & io_exe_mem_bits_ctrl_mem_val
-    & io_port_req_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :102:39, :115:{18,31}, :116:30, :124:43]
+    ~(io_exe_mem_bits_ctrl_mem_val & in_clint) & io_exe_mem_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :102:39, :115:{18,31}, :116:30, :124:23]
   assign io_port_req_bits_addr = io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
   assign io_port_req_bits_data = io_exe_mem_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
   assign io_port_req_bits_fcn = io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
@@ -2078,7 +2074,6 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
   wire [31:0] _decoder_io_debug_jtypeCount;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:43:27]
   wire [31:0] _decoder_io_debug_utypeCount;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:43:27]
   wire [31:0] _decoder_io_debug_otherCount;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:43:27]
-  wire        _arbiter_io_ports_0_req_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
   wire        _arbiter_io_ports_0_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
   wire [31:0] _arbiter_io_ports_0_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
   wire [1:0]  _arbiter_io_ports_0_resp_bits_resp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
@@ -2368,7 +2363,6 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
   ysyx_24100012_AXI4LiteArbiter arbiter (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
     .clock                        (clock),
     .reset                        (reset),
-    .io_ports_0_req_ready         (_arbiter_io_ports_0_req_ready),
     .io_ports_0_req_valid         (_lsu_io_port_req_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:27]
     .io_ports_0_req_bits_addr     (_lsu_io_port_req_bits_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:27]
     .io_ports_0_req_bits_data     (_lsu_io_port_req_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:27]
@@ -2559,7 +2553,6 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_mem_wb_bits_debug_typ        (_lsu_io_mem_wb_bits_debug_typ),
     .io_mem_wb_bits_debug_storeCount (_lsu_io_mem_wb_bits_debug_storeCount),
     .io_mem_wb_bits_debug_loadCount  (_lsu_io_mem_wb_bits_debug_loadCount),
-    .io_port_req_ready               (_arbiter_io_ports_0_req_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
     .io_port_req_valid               (_lsu_io_port_req_valid),
     .io_port_req_bits_addr           (_lsu_io_port_req_bits_addr),
     .io_port_req_bits_data           (_lsu_io_port_req_bits_data),
