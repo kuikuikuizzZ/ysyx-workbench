@@ -54,7 +54,7 @@ class ICache(implicit val conf: Config) extends Module {
     when(reset.asBool) {
       // 默认初始化：将所有位置为0
       for (i <- 0 until size) {
-        mem.write(i.U, 0.U(dataWidth.W))
+        mem.write(i.U, 0.U(cache_data_width.W))
         tags.write(i.U, 0.U(tag_bits.W))
         valids.write(i.U, false.B)
       }
