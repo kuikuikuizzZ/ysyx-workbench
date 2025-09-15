@@ -200,10 +200,9 @@ class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Mod
    io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
    io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
 
-   for (i <- 0 until numMasters) {
-      io.ports(IPORT).req.ready := state === s_idle 
-      io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
-   }
+   io.ports(IPORT).req.ready := state === s_idle 
+   io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
+   
 
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
