@@ -50,15 +50,15 @@ class ICache(implicit val conf: Config) extends Module {
     val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
     val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
-    val cache_block = RegInit(0.U(cache_data_width.W))
-    val tag         = RegInit(0.U(tag_bits.W))
-    val cache_valid = RegInit(false.B)
+    // val cache_block = RegInit(0.U(cache_data_width.W))
+    // val tag         = RegInit(0.U(tag_bits.W))
+    // val cache_valid = RegInit(false.B)
 
 
     val group_index = io.pc(b_bits+2-1,2)
-    cache_valid := Mux(ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
-    tag         := Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
-    cache_block := Mux(ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    val cache_valid = Mux(ren || reg_req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    val tag         = Mux(ren || reg_req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    val cache_block = Mux(ren || reg_req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
     val hit         = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
