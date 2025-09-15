@@ -113,7 +113,7 @@ class LSU(implicit val conf: Config) extends Module {
     // lsu should support mis-aligned access? or should based on slave type? 
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B) 
     
-        when(mem_en && io.port.req.ready ) {
+        when(mem_en && !in_clint ) {
             io.port.req.valid    := mem_en
             io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
             io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
