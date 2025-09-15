@@ -39,7 +39,7 @@ class InstFetch(implicit conf: Config) extends Module {
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
-  val pc_reg = RegInit(START_ADDR)
+  val pc_reg = RegInit(START_ADDR_MROM)
   val pc_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
@@ -72,7 +72,6 @@ class InstFetch(implicit conf: Config) extends Module {
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   cache.io.fencei     := io.ctl.fencei
-
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
