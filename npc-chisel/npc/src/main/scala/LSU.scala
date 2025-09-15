@@ -121,7 +121,7 @@ class LSU(implicit val conf: Config) extends Module {
             io.clintIO.dr.en := false.B
         }
     } .otherwise {
-        when(mem_en && io.port.req.ready) {
+        when(mem_en ) {
             io.port.req.valid    := mem_en
             io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
             io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
