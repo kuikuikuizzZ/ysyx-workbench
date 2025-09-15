@@ -36,7 +36,6 @@ class ysyx_24100012 extends Module {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
-    "--initial-mem", 
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",

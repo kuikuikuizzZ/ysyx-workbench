@@ -51,6 +51,15 @@ class ICache(implicit val conf: Config) extends Module {
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("icache_valids") 
 
+    when(reset.asBool) {
+      // 默认初始化：将所有位置为0
+      for (i <- 0 until size) {
+        mem.write(i.U, 0.U(dataWidth.W))
+        tags.write(i.U, 0.U(tag_bits.W))
+        valids.write(i.U, false.B)
+      }
+    }
+
     val group_index = io.pc(b_bits+2-1,2)
     val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
