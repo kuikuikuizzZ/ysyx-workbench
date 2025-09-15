@@ -51,7 +51,7 @@ class ICache(implicit val conf: Config) extends Module {
     val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("icache_tags") 
     val valids = SyncReadMem(size,Bool()).suggestName("icache_valids") 
 
-    when(reset.asBool) {
+    when(!reset.asBool) {
       // 默认初始化：将所有位置为0
       for (i <- 0 until size) {
         mem.write(i.U, 0.U(cache_data_width.W))
