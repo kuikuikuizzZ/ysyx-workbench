@@ -67,7 +67,7 @@ class InstFetch(implicit conf: Config) extends Module {
    }
 
   // NOTE: when if_kill, should not take the old pc value
-  cache.io.req_valid  := pc_valid && !should_kill 
+  cache.io.req_valid  := pc_valid && !should_kill && io.ifu_dec.ready
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
