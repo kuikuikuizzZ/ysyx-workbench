@@ -329,8 +329,8 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
   reg         pc_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:43:25]
   wire        should_kill = io_ctl_if_kill | io_ctl_pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36]
   reg  [31:0] if_inst_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:46:59]
-  reg         if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:47:61]
-  wire        if_valid = _cache_io_valid ? _cache_io_valid : if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :47:{21,61}]
+  reg         if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:47:84]
+  wire        _if_valid_T_4 = _cache_io_valid ? _cache_io_valid : if_valid_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :47:{44,84}]
   reg  [31:0] casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:18]
   always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
     casez (io_ctl_exe_pc_sel)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
@@ -345,7 +345,7 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:58:{18,41}, :59:{21,41}, :60:{21,41}]
   end // always_comb
   reg  [31:0] instFetchCount;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:86:31]
-  wire        _GEN = if_valid & io_ifu_dec_ready | should_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36, :47:21, :48:{18,39}]
+  wire        _GEN = (should_kill | _if_valid_T_4) & io_ifu_dec_ready | should_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36, :47:{21,44}, :48:{18,39}]
   wire        _if_valid_T_2 = _cache_io_valid | io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :46:87]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
     if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
@@ -365,8 +365,8 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
       if (_cache_io_valid)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27]
         instFetchCount <= instFetchCount + 32'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:86:31, :88:38]
     end
-    if (_if_valid_T_2 | should_kill)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36, :46:87, :47:133]
-      if_valid_r <= _cache_io_valid & ~io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :47:{61,77,80}]
+    if (_if_valid_T_2 | should_kill)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:44:36, :46:87, :47:156]
+      if_valid_r <= _cache_io_valid & ~io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:37:27, :47:{84,100,103}]
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
     `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
@@ -384,7 +384,7 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
         pc_reg = _RANDOM[2'h0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :42:23]
         pc_valid = _RANDOM[2'h1][0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :43:25]
         if_inst_r = {_RANDOM[2'h1][31:1], _RANDOM[2'h2][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :43:25, :46:59]
-        if_valid_r = _RANDOM[2'h2][1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :46:59, :47:61]
+        if_valid_r = _RANDOM[2'h2][1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :46:59, :47:84]
         instFetchCount = {_RANDOM[2'h2][31:2], _RANDOM[2'h3][1:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :46:59, :86:31]
       `endif // RANDOMIZE_REG_INIT
     end // initial
@@ -412,13 +412,13 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
     .io_port_resp_bits_data    (io_port_resp_bits_data),
     .io_port_resp_bits_resp    (io_port_resp_bits_resp)
   );
-  assign io_ifu_dec_valid = should_kill | if_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :44:36, :47:21, :77:28]
+  assign io_ifu_dec_valid = should_kill | _if_valid_T_4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :44:36, :47:{21,44}, :77:28]
   assign io_ifu_dec_bits_pc = pc_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :42:23]
   assign io_ifu_dec_bits_inst =
     should_kill | (|_cache_io_exception)
       ? 32'h4033
       : _cache_io_valid ? _cache_io_inst : if_inst_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :37:27, :44:36, :45:17, :46:{20,59}, :78:{31,44,66}]
-  assign io_ifu_dec_bits_pc_valid = ~(should_kill | (|_cache_io_exception));	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :37:27, :43:25, :44:36, :47:80, :78:66, :80:{34,46}]
+  assign io_ifu_dec_bits_pc_valid = ~(should_kill | (|_cache_io_exception));	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :37:27, :43:25, :44:36, :47:103, :78:66, :80:{34,46}]
   assign io_ifu_dec_bits_exception = _cache_io_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :37:27]
   assign io_debug_valid = _cache_io_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :37:27]
   assign io_debug_instFetchCount = instFetchCount;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :86:31]
