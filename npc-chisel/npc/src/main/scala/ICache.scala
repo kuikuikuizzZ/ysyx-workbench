@@ -126,8 +126,8 @@ class ICache(implicit val conf: Config) extends Module {
         valids(index)   := true.B // 标记有效
     }
 
-    io.inst          := Mux(hit,cache_data,BUBBLE)
-    io.valid         := Mux(hit,true.B,false.B)
+    io.inst          := Mux(hit_reg,cache_data,BUBBLE)
+    io.valid         := Mux(hit_reg,true.B,false.B)
     when (io.fencei){
         for (addr <- 0 until size) {
             valids(addr.U):= false.B
