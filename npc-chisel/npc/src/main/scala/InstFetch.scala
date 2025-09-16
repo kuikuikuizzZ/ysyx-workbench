@@ -74,7 +74,7 @@ class InstFetch(implicit conf: Config) extends Module {
   cache.io.fencei     := io.ctl.fencei
 
   // NOTE: if_kill should clean inst, in ifu_dec reg
-  io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
+  io.ifu_dec.valid :=   Mux(should_kill , true.B, cache.io.valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,inst)
   io.ifu_dec.bits.pc := pc_reg
   io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, cache.io.valid)
