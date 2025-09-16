@@ -131,7 +131,7 @@ class LSU(implicit val conf: Config) extends Module {
                 io.clintIO.dr.en := false.B
             }
         }
-    }`
+    }
     
 
     
