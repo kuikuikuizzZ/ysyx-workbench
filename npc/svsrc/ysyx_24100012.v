@@ -713,7 +713,7 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
       burstlen_reg <=
         (|req_burst) & io_ports_1_req_valid ? io_ports_1_req_bits_burstlen : 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:256:30, :276:{32,43}, :311:20]
     end
-    else if (io_ports_0_req_valid & ~io_ports_1_req_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:277:{49,52}]
+    else if (io_ports_0_req_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:248:16]
       state <= 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:255:23, :278:19]
       burstlen_reg <= 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:256:30]
     end

@@ -326,7 +326,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
 
 
    io.ports(IPORT).req.ready := state === s_idle 
-   io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
+   io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.valid
 
    // for (i <- 0 until numMasters) {
    //    io.ports(i).req.ready := state === s_idle
