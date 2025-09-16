@@ -39,7 +39,7 @@ class Core(implicit val conf: Config)extends Module
   val io = IO(new CoreIo())
 
   val inst_fetch  = Module(new InstFetch())
-  val arbiter     = Module(new AXI4LiteArbiter(2))
+  val arbiter     = Module(new AXI4LiteRRArbiter(2))
   val decoder     = Module(new Decoder())
   val reg_file    = Module(new RegFile())
   val exu         = Module(new EXU())
