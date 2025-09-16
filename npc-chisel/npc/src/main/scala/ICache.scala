@@ -59,6 +59,7 @@ class ICache(implicit val conf: Config) extends Module {
     val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     val hit_reg = RegNext(hit,false.B)
+    val cache_reg = RegNext(cache_data) 
 
     when (state === sRequesting){
         io.port.req             := DontCare
@@ -126,7 +127,7 @@ class ICache(implicit val conf: Config) extends Module {
         valids(index)   := true.B // 标记有效
     }
 
-    io.inst          := Mux(hit_reg,cache_data,BUBBLE)
+    io.inst          := Mux(hit_reg,cache_reg,BUBBLE)
     io.valid         := Mux(hit_reg,true.B,false.B)
     when (io.fencei){
         for (addr <- 0 until size) {
