@@ -397,7 +397,7 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
     .reset                     (reset),
     .io_pc                     (pc_reg),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:42:23]
     .io_fencei                 (io_ctl_fencei),
-    .io_req_valid              (pc_valid & ~should_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:43:25, :44:36, :70:{35,38}]
+    .io_req_valid              (pc_valid & ~should_kill & io_ifu_dec_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:43:25, :44:36, :70:{38,51}]
     .io_inst                   (_cache_io_inst),
     .io_valid                  (_cache_io_valid),
     .io_exception              (_cache_io_exception),
