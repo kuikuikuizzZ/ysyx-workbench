@@ -81,7 +81,7 @@ class ICache(implicit val conf: Config) extends Module {
         is(sIdle) {
             ren := false.B
             io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
-            when(!hit_reg && reg_req_valid) {
+            when(!hit && io.req_valid) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
                     state := sIdle
                 } .otherwise{
