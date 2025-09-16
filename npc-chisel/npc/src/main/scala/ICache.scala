@@ -45,20 +45,25 @@ class ICache(implicit val conf: Config) extends Module {
     
     val ren = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
-    val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    val mem = SyncReadMem(size,UInt(cache_data_width.W)).suggestName("icache_mem") 
-    val tags = SyncReadMem(size,UInt(tag_bits.W)).suggestName("icache_tags") 
-    val valids = SyncReadMem(size,Bool()).suggestName("icache_valids") 
+    val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
+    val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
+    val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
 
     val group_index = io.pc(b_bits+2-1,2)
-    val cache_block = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_block = Mux(ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid = valids.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
-    val tag = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),(io.req_valid || ren))
+    val cache_valid =Mux(ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
-        
+    
+    // pipeline icache
+    val req_valid_reg       = RegNext(io.req_valid,false.B)
+    val hit_reg = RegNext(hit,false.B)
+    val cache_reg = RegNext(cache_data,0.U) 
+    // pipeline icache
+
 
     when (state === sRequesting){
         io.port.req             := DontCare
@@ -81,7 +86,7 @@ class ICache(implicit val conf: Config) extends Module {
         is(sIdle) {
             ren := false.B
             io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
-            when(!hit && reg_req_valid) {
+            when(!hit_reg && req_valid_reg) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
                     state := sIdle
                 } .otherwise{
@@ -121,24 +126,24 @@ class ICache(implicit val conf: Config) extends Module {
     // 写入缓存（仅当完成整行加载）
     when(state === sComplete) {
         val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
-        mem.write(index, fullCacheLine) // 写入数据
-        tags.write(index, io.pc(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
-        valids.write(index, true.B) // 标记有效
+        mem(index)      := fullCacheLine // 写入数据
+        tags(index)     := io.pc(conf.xprlen-1, s_bits + b_bits + 2) // 写入Tag
+        valids(index)   := true.B // 标记有效
     }
 
-    io.inst          := Mux(hit,cache_data,BUBBLE)
-    io.valid         := Mux(hit,true.B,false.B)
+    io.inst          := Mux(hit_reg,cache_reg,BUBBLE)
+    io.valid         := Mux(hit_reg,true.B,false.B)
     when (io.fencei){
         for (addr <- 0 until size) {
-            valids.write(addr.U, false.B)
+            valids(addr.U):= false.B
         }
     }
 
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
     val miss_cnt = RegInit(0.U(conf.perfCountBits.W))
-    hit_cnt := Mux(hit && reg_req_valid,hit_cnt+1.U,hit_cnt)
-    miss_cnt := Mux(!hit && reg_req_valid,miss_cnt+1.U,miss_cnt)
+    hit_cnt := Mux(hit_reg && req_valid_reg,hit_cnt+1.U,hit_cnt)
+    miss_cnt := Mux(!hit_reg && req_valid_reg,miss_cnt+1.U,miss_cnt)
     io.debug.hit_cnt := hit_cnt
     io.debug.miss_cnt := miss_cnt
     ////// END DEBUG

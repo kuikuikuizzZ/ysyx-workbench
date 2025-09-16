@@ -112,27 +112,27 @@ class LSU(implicit val conf: Config) extends Module {
     
     // lsu should support mis-aligned access? or should based on slave type? 
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B) 
-    when (mem_en && in_clint ){
-        io.port.req.valid    := false.B
-        when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
-            io.clintIO.dr.en := true.B
-            io.clintIO.dr.addr := addr
-        } .otherwise{
-            io.clintIO.dr.en := false.B
-        }
+    
+    when(mem_en && !in_clint ) {
+        io.port.req.valid    := mem_en
+        io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
+        io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
+        io.port.req.bits.addr := addr
+        io.port.req.bits.data := io.exe_mem.bits.rs2_data 
+        io.port.req.bits.burstlen := 0.U
+        io.port.req.bits.burst := BURST_FIXED
     } .otherwise {
-        when(mem_en ) {
-            io.port.req.valid    := mem_en
-            io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
-            io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
-            io.port.req.bits.addr := addr
-            io.port.req.bits.data := io.exe_mem.bits.rs2_data 
-            io.port.req.bits.burstlen := 0.U
-            io.port.req.bits.burst := BURST_FIXED
-        } .otherwise {
-            io.port.req.valid    := false.B
+        io.port.req.valid    := false.B
+        when (mem_en && in_clint ){
+            when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
+                io.clintIO.dr.en := true.B
+                io.clintIO.dr.addr := addr
+            } .otherwise{
+                io.clintIO.dr.en := false.B
+            }
         }
     }
+    
 
     
     val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    (io.port.resp.valid))
