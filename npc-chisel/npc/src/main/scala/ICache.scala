@@ -59,7 +59,7 @@ class ICache(implicit val conf: Config) extends Module {
     val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     val hit_reg = RegNext(hit,false.B)
-    val cache_reg = RegNext(cache_data) 
+    val cache_reg = RegNext(cache_data,0.U) 
 
     when (state === sRequesting){
         io.port.req             := DontCare
@@ -82,7 +82,7 @@ class ICache(implicit val conf: Config) extends Module {
         is(sIdle) {
             ren := false.B
             io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
-            when(!hit && io.req_valid) {
+            when(!hit_reg && io.reg_req_valid) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
                     state := sIdle
                 } .otherwise{
