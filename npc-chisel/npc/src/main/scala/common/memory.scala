@@ -274,7 +274,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
             state := s_ifu_active
             req_typi := io.ports(IPORT).req.bits.typ
             burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
-         } .elsewhen (io.ports(DPORT).req.valid && !io.ports(IPORT).req.valid) {
+         } .elsewhen (io.ports(DPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
             burstlen_reg := 0.U  

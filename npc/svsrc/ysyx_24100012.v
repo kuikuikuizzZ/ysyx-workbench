@@ -657,7 +657,7 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
   output        io_axi_port_bready	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:248:16]
 );
 
-  wire [31:0] resp_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:346:32, :347:17, :354:17]
+  wire [31:0] resp_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:351:32, :352:17, :359:17]
   wire [31:0] _resp_data_T_21;	// @[src/main/scala/chisel3/util/Mux.scala:126:16]
   wire        _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29]
   wire [31:0] _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29]
@@ -676,7 +676,7 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
   wire        _io_ports_1_resp_bits_resp_T = state == 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:255:23, :274:19, :320:48]
   wire        _io_ports_0_resp_bits_resp_T = state == 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:255:23, :278:19, :321:48]
   wire [31:0] aligned_resp_data =
-    _axi4lite_mem_io_resp_bits_data >> {27'h0, io_ports_0_req_bits_addr[1:0], 3'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :345:{39,54,59}]
+    _axi4lite_mem_io_resp_bits_data >> {27'h0, io_ports_0_req_bits_addr[1:0], 3'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :350:{39,54,59}]
   assign _resp_data_T_21 =
     io_ports_0_req_bits_typ == 3'h1
       ? {{24{aligned_resp_data[7]}}, aligned_resp_data[7:0]}
@@ -686,14 +686,14 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
               ? {24'h0, aligned_resp_data[7:0]}
               : io_ports_0_req_bits_typ == 3'h6
                   ? {16'h0, aligned_resp_data[15:0]}
-                  : _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :345:39, :348:{22,38,43,64,86}, :349:{22,38,43,64,87}, :350:{22,39}, :351:{22,39}, src/main/scala/chisel3/util/Mux.scala:126:16]
+                  : _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :350:39, :353:{22,38,43,64,86}, :354:{22,38,43,64,87}, :355:{22,39}, :356:{22,39}, src/main/scala/chisel3/util/Mux.scala:126:16]
   assign resp_data =
-    _io_ports_0_resp_bits_resp_T ? _resp_data_T_21 : _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :321:48, :346:32, :347:17, :354:17, src/main/scala/chisel3/util/Mux.scala:126:16]
+    _io_ports_0_resp_bits_resp_T ? _resp_data_T_21 : _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:257:29, :321:48, :351:32, :352:17, :359:17, src/main/scala/chisel3/util/Mux.scala:126:16]
   wire [62:0] _axi4lite_mem_io_req_data_T_2 =
     {31'h0,
      io_ports_1_req_valid | ~io_ports_0_req_valid ? 32'h0 : io_ports_0_req_bits_data}
-    << {58'h0, req_addri[1:0], 3'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:248:16, :306:20, :308:19, :345:59, :362:{44,57}]
-  wire [4:0]  _axi4lite_mem_io_req_mask_T_5 = 5'h3 << req_addri[1:0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20, :362:57, :364:59]
+    << {58'h0, req_addri[1:0], 3'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:248:16, :306:20, :308:19, :350:59, :367:{44,57}]
+  wire [4:0]  _axi4lite_mem_io_req_mask_T_5 = 5'h3 << req_addri[1:0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20, :367:57, :369:59]
   wire        _GEN = state == 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:255:23, :270:18, :274:19]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7]
     if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7]
@@ -713,7 +713,7 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
       burstlen_reg <=
         (|req_burst) & io_ports_1_req_valid ? io_ports_1_req_bits_burstlen : 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:256:30, :276:{32,43}, :311:20]
     end
-    else if (io_ports_0_req_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:248:16]
+    else if (io_ports_0_req_valid & ~io_ports_1_req_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:277:{49,52}]
       state <= 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:255:23, :278:19]
       burstlen_reg <= 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:256:30]
     end
@@ -764,30 +764,30 @@ module ysyx_24100012_AXI4LiteArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx
     .io_axi_io_bready  (io_axi_port_bready),
     .io_req_raddr       (req_addri),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20]
     .io_req_waddr       (req_addri),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20]
-    .io_req_data        (_axi4lite_mem_io_req_data_T_2[31:0]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:362:{32,44}]
+    .io_req_data        (_axi4lite_mem_io_req_data_T_2[31:0]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:367:{32,44}]
     .io_req_mask
       (io_ports_0_req_bits_typ == 3'h1
          ? 4'h1 << req_addri[1:0]
-         : io_ports_0_req_bits_typ == 3'h2 ? _axi4lite_mem_io_req_mask_T_5[3:0] : 4'hF),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20, :348:22, :349:22, :362:57, :363:{38,50,63}, :364:{34,46,59}]
-    .io_req_ren         (req_valid & ~req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:300:20, :302:18, :337:{34,53}]
-    .io_req_wen         (req_valid & req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:300:20, :302:18, :336:34]
+         : io_ports_0_req_bits_typ == 3'h2 ? _axi4lite_mem_io_req_mask_T_5[3:0] : 4'hF),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:306:20, :353:22, :354:22, :367:57, :368:{38,50,63}, :369:{34,46,59}]
+    .io_req_ren         (req_valid & ~req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:300:20, :302:18, :342:{34,53}]
+    .io_req_wen         (req_valid & req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:300:20, :302:18, :341:34]
     .io_req_burst       (req_burst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:311:20]
     .io_req_burstlen    (io_ports_1_req_valid ? io_ports_1_req_bits_burstlen : 8'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:256:30, :312:23]
     .io_resp_valid      (_axi4lite_mem_io_resp_valid),
     .io_resp_bits_data  (_axi4lite_mem_io_resp_bits_data),
     .io_resp_bits_resp  (_axi4lite_mem_io_resp_bits_resp)
   );
-  assign io_ports_0_req_ready = ~(|state);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :255:23, :270:18, :328:38]
+  assign io_ports_0_req_ready = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7]
   assign io_ports_0_resp_valid =
     _io_ports_0_resp_bits_resp_T & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :257:29, :321:48, :323:40]
   assign io_ports_0_resp_bits_data =
     _io_ports_0_resp_bits_resp_T ? _resp_data_T_21 : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :248:16, :321:{41,48}, src/main/scala/chisel3/util/Mux.scala:126:16]
   assign io_ports_0_resp_bits_resp =
     _io_ports_0_resp_bits_resp_T ? _axi4lite_mem_io_resp_bits_resp : 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :255:23, :257:29, :321:48, :325:41]
-  assign io_ports_1_req_ready = ~(|state);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :255:23, :270:18, :328:38]
+  assign io_ports_1_req_ready = ~(|state);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :255:23, :270:18, :328:39]
   assign io_ports_1_resp_valid =
     _io_ports_1_resp_bits_resp_T & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :257:29, :320:48, :322:40]
-  assign io_ports_1_resp_bits_data = _io_ports_1_resp_bits_resp_T ? resp_data : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :248:16, :320:{41,48}, :346:32, :347:17, :354:17]
+  assign io_ports_1_resp_bits_data = _io_ports_1_resp_bits_resp_T ? resp_data : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :248:16, :320:{41,48}, :351:32, :352:17, :359:17]
   assign io_ports_1_resp_bits_resp =
     _io_ports_1_resp_bits_resp_T ? _axi4lite_mem_io_resp_bits_resp : 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:247:7, :255:23, :257:29, :320:48, :324:41]
 endmodule
