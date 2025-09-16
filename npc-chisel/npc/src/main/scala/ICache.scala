@@ -45,7 +45,6 @@ class ICache(implicit val conf: Config) extends Module {
     
     val ren = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
-    val reg_req_valid       = RegNext(io.req_valid,false.B)
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
     val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
     val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
@@ -58,8 +57,13 @@ class ICache(implicit val conf: Config) extends Module {
     val cache_valid =Mux(ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
     val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
+    
+    // pipeline icache
+    val req_valid_reg       = RegNext(io.req_valid,false.B)
     val hit_reg = RegNext(hit,false.B)
     val cache_reg = RegNext(cache_data,0.U) 
+    // pipeline icache
+
 
     when (state === sRequesting){
         io.port.req             := DontCare
@@ -82,7 +86,7 @@ class ICache(implicit val conf: Config) extends Module {
         is(sIdle) {
             ren := false.B
             io.exception  := Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL)
-            when(!hit_reg && reg_req_valid) {
+            when(!hit_reg && req_valid_reg) {
                 when (io.pc(1,0) =/= 0.U) { // 非4字节对齐，直接报异常
                     state := sIdle
                 } .otherwise{
@@ -138,8 +142,8 @@ class ICache(implicit val conf: Config) extends Module {
     /////// DEBUG PORT
     val hit_cnt = RegInit(0.U(conf.perfCountBits.W))
     val miss_cnt = RegInit(0.U(conf.perfCountBits.W))
-    hit_cnt := Mux(hit && reg_req_valid,hit_cnt+1.U,hit_cnt)
-    miss_cnt := Mux(!hit && reg_req_valid,miss_cnt+1.U,miss_cnt)
+    hit_cnt := Mux(hit && req_valid_reg,hit_cnt+1.U,hit_cnt)
+    miss_cnt := Mux(!hit && req_valid_reg,miss_cnt+1.U,miss_cnt)
     io.debug.hit_cnt := hit_cnt
     io.debug.miss_cnt := miss_cnt
     ////// END DEBUG
