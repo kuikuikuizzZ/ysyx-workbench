@@ -200,11 +200,11 @@ class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Mod
    io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
    io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,axi4lite_mem.io.resp.bits.resp,0.U)  
 
-   io.ports(IPORT).req.ready := state === s_idle 
-   io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
-   // for(i <- 0 until numMasters){
-   //    io.ports(i).req.ready := state === s_idle 
-   // }
+   // io.ports(IPORT).req.ready := state === s_idle 
+   // io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
+   for(i <- 0 until numMasters){
+      io.ports(i).req.ready := state === s_idle 
+   }
 
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
@@ -274,7 +274,7 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
             state := s_ifu_active
             req_typi := io.ports(IPORT).req.bits.typ
             burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
-         } .elsewhen (io.ports(DPORT).req.valid) {
+         } .elsewhen (io.ports(DPORT).req.valid && !io.ports(IPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
             burstlen_reg := 0.U  
@@ -324,9 +324,14 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
    io.ports(IPORT).resp.bits.resp := Mux(state === s_ifu_active,  axi4lite_mem.io.resp.bits.resp,0.U)  
    io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,  axi4lite_mem.io.resp.bits.resp,0.U)  
 
-   for (i <- 0 until numMasters) {
-      io.ports(i).req.ready := state === s_idle
-   }
+
+   io.ports(IPORT).req.ready := state === s_idle 
+   io.ports(DPORT).req.ready := state === s_idle && !io.ports(IPORT).req.ready
+
+   // for (i <- 0 until numMasters) {
+   //    io.ports(i).req.ready := state === s_idle
+   // }
+
    axi4lite_mem.io.clock  := clock
    axi4lite_mem.io.reset := reset
    axi4lite_mem.io.axi_io <> io.axi_port
