@@ -11,7 +11,7 @@ ifeq ($(ARCH), riscv32e-npc)
 	export ICacheEnableBurst=false
 else 
 # ifeq ($(ARCH), riscv32e-ysyxsoc)
-	export ICacheSizeBits=2
+	export ICacheSizeBits=3
 	export ICacheBlockBits=1
 	export ICacheEnableBurst=true
 endif
