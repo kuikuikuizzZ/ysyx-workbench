@@ -23,7 +23,6 @@ module main ();
                 externalPins_vga_valid;	
   wire          externalPins_uart_tx,	
                 externalPins_uart_rx, 
-                externalPins_halt	;
   ysyxSoCFull dut (
       .clock(clk),	// home/uenui/code
       .reset(reset),	// home/uenui/code
@@ -47,7 +46,6 @@ module main ();
       .externalPins_vga_valid   (externalPins_vga_valid),	
       .externalPins_uart_rx     (externalPins_uart_tx)	,	
       .externalPins_uart_tx     (externalPins_uart_rx) ,	
-      .externalPins_halt	      (externalPins_halt)	// 
   );
     reg [31:0] cycle_count = 0; // 周期计数器
 
@@ -101,7 +99,7 @@ module main ();
     
     // 分支2: Halt信号监控
     begin
-      wait(externalPins_halt == 1);
+      wait(halt == 1);
       $display("Halt signal detected at time %t", $time);
     end
   join_any // 任意一个条件满足即继续
@@ -111,9 +109,9 @@ module main ();
   $display("Simulation completed");
   
   // 报告结束原因
-  if (externalPins_halt && !a0) begin
+  if (halt && !a0) begin
     $display("GOOD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0 );
-  end else if (externalPins_halt) begin
+  end else if (halt) begin
     $display("BAD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0);
   end else begin
     $display("Terminated after completing %d cycles a0 %x",cycle_count,a0);
