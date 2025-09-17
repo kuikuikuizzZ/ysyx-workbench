@@ -33,6 +33,7 @@ LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
 LDFLAGS += -lreadline 
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
+include $(NPC_CHISEL_HOME)/Makefile
 
 
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
@@ -95,6 +96,7 @@ perf: build
 	@mkdir -p $(PERF_DIR)
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
+
 
 .PHONY: run build clean sim
 

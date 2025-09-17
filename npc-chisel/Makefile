@@ -5,19 +5,19 @@ PRJ = npc
 test:
 	mill -i $(PRJ).test
 
-build:
+verilog_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
 	mill -i $(PRJ).runMain Elaborate 
 
-verilog: build
+verilog: verilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v
 	sed -i '/\.v/ s/.*//' $(BUILD_DIR)/*.v
 	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v)  $(NPC_HOME)/build/
 
-verilog_old: build
+verilog_old: verilog_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
 	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_no_soc/
 
