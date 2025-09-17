@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 20000;
+  localparam CLK_PERIOD = 1000000;
   reg clk, reset;
 
   wire [15:0]   externalPins_gpio_out;	
@@ -64,6 +64,8 @@ module main ();
         reset = 0; // 释放复位
     end
 
+    reg [31:0] a0;
+    wire halt = dut.asic.cpu.cpu.core.lsu.io_mem_wb_bits_ebreak;
     // 5. 周期计数器
     always @(posedge clk) begin
         if (reset) begin
@@ -71,9 +73,11 @@ module main ();
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
         end
+        if (halt) begin
+          a0 <= dut.asic.cpu.cpu.core.reg_file.regfile_mem_ext.Memory[10];
+        end
     end
 
-  wire a0 = dut.asic.cpu.cpu.core.reg_file.regfile_mem_10;
   initial begin
   // 初始化VCD波形文件
   $dumpfile("wave.vcd");
@@ -107,10 +111,10 @@ module main ();
   $display("Simulation completed");
   
   // 报告结束原因
-  if (externalPins_halt && a0) begin
-    $display("Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0 );
+  if (externalPins_halt && !a0) begin
+    $display("GOOD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0 );
   end else if (externalPins_halt) begin
-    $display("Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0);
+    $display("BAD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0);
   end else begin
     $display("Terminated after completing %d cycles a0 %x",cycle_count,a0);
   end

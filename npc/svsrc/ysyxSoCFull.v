@@ -3532,9 +3532,9 @@ module APBSPI(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/de
          _mspi_in_prdata[31:24]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:9, :48:22, :60:47, :62:{23,41,64}, :63:{42,68}, :64:19, :67:61, :101:21, :133:21, :165:21
 endmodule
 
-module APBPSRAM(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:179:9
-  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:179:9
-                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:179:9
+module APBPSRAM(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:9
+  input         clock,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:9
+                reset,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:9
                 auto_in_psel,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -3544,19 +3544,19 @@ module APBPSRAM(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/
   output        auto_in_pready,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output        qspi_bundle_sck,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:25
-                qspi_bundle_ce_n,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:25
-  inout  [3:0]  qspi_bundle_dio	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:181:25
+  output        qspi_bundle_sck,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:25
+                qspi_bundle_ce_n,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:25
+  inout  [3:0]  qspi_bundle_dio	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:25
 );
 
-  psram_top_apb mpsram (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:24
+  psram_top_apb mpsram (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:185:24
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
     .in_penable (auto_in_penable),
     .in_pwrite  (auto_in_pwrite),
     .in_paddr   (auto_in_paddr),
-    .in_pprot   (3'h1),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:24
+    .in_pprot   (3'h1),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:185:24
     .in_pwdata  (auto_in_pwdata),
     .in_pstrb   (auto_in_pstrb),
     .in_pready  (auto_in_pready),
@@ -3565,7 +3565,7 @@ module APBPSRAM(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/
     .qspi_sck   (qspi_bundle_sck),
     .qspi_ce_n  (qspi_bundle_ce_n),
     .qspi_dio   (qspi_bundle_dio)
-  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:183:24
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:185:24
 endmodule
 
 module AXI4MROM(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/MROM.scala:55:9
@@ -7442,58 +7442,58 @@ module bitrevChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/
   assign io_miso = _GEN ? data[0] : ~_GEN_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/BitRev.scala:10:7, :16:13, :19:{30,66,100}, :20:{15,22}, :23:{36,71}, :24:15, :28:15
 endmodule
 
-module psramChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-  input       io_sck,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:100:14
-              io_ce_n,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:100:14
-  inout [3:0] io_dio	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:100:14
+module psramChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+  input       io_sck,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:102:14
+              io_ce_n,	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:102:14
+  inout [3:0] io_dio	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:102:14
 );
 
-  wire [31:0] _psram_array_rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:111:35
+  wire [31:0] _psram_array_rdata;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:113:35
   wire [3:0]  _din_buf_din;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21
   reg  [1:0]  state;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg  [4:0]  counter;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire [4:0]  _counter_T_16 = counter + 5'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:58, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire [4:0]  length = (&state) ? {1'h0, _counter_T_16[4:1]} : 5'h4;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:{32,39,58,64}, :133:49, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire [4:0]  _counter_T_16 = counter + 5'h1;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:58, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire [4:0]  length = (&state) ? {1'h0, _counter_T_16[4:1]} : 5'h4;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:{32,39,58,64}, :135:49, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg  [7:0]  cmd;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg  [23:0] addr;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg  [31:0] din_data;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg  [31:0] dout_data;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   reg         wen_reg;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:52:14
-  wire        ren = state == 2'h2 & counter == 5'h6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, :127:{32,44,56}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire        _state_T_5 = cmd == 8'hEB;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:143:22, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire        _state_T_1 = counter < 5'h7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:151:55, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire        _state_T_4 = counter < 5'h5;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:154:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire        _state_T_8 = counter < 5'h6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:157:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  wire        _state_T_10 = counter < 5'h7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:151:55, :159:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-  reg  [4:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:150:17, :151:27
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :151:27, :154:27, :157:27, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-    casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :151:27, :154:27, :157:27, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        ren = state == 2'h2 & counter == 5'h6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, :129:{32,44,56}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        _state_T_5 = cmd == 8'hEB;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:145:22, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        _state_T_1 = counter < 5'h7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:153:55, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        _state_T_4 = counter < 5'h5;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:156:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        _state_T_8 = counter < 5'h6;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:159:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  wire        _state_T_10 = counter < 5'h7;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:153:55, :161:42, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  reg  [4:0]  casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:152:17, :153:27
+  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :153:27, :156:27, :159:27, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :153:27, :156:27, :159:27, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b00:
-        casez_tmp = ~io_ce_n & _state_T_1 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:{39,58}, :127:32, :144:27, :145:27, :150:17, :151:{27,33,34,46,55}, :154:27, :157:27, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp = ~io_ce_n & _state_T_1 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:{39,58}, :129:32, :146:27, :147:27, :152:17, :153:{27,33,34,46,55}, :156:27, :159:27, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b01:
-        casez_tmp = _state_T_4 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:{39,58}, :127:32, :144:27, :145:27, :150:17, :151:27, :154:{27,33,42}, :157:27, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp = _state_T_4 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:{39,58}, :129:32, :146:27, :147:27, :152:17, :153:27, :156:{27,33,42}, :159:27, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b10:
-        casez_tmp = _state_T_8 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:{39,58}, :127:32, :144:27, :145:27, :150:17, :151:27, :154:27, :157:{27,33,42}, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp = _state_T_8 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:{39,58}, :129:32, :146:27, :147:27, :152:17, :153:27, :156:27, :159:{27,33,42}, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       default:
-        casez_tmp = _state_T_10 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:{39,58}, :127:32, :144:27, :145:27, :150:17, :151:27, :154:27, :157:27, :159:{27,33,42}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-    endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :151:27, :154:27, :157:27, :159:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp = _state_T_10 ? _counter_T_16 : 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:{39,58}, :129:32, :146:27, :147:27, :152:17, :153:27, :156:27, :159:27, :161:{27,33,42}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :153:27, :156:27, :159:27, :161:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   end // always_comb
-  reg  [1:0]  casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:150:17, :152:25
-  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :152:25, :155:25, :158:25, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-    casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :152:25, :155:25, :158:25, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+  reg  [1:0]  casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:152:17, :154:25
+  always_comb begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :154:25, :157:25, :160:25, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    casez (state)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :154:25, :157:25, :160:25, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b00:
-        casez_tmp_0 = {1'h0, ~_state_T_1};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :151:55, :152:{25,31}, :155:25, :158:25, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp_0 = {1'h0, ~_state_T_1};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :153:55, :154:{25,31}, :157:25, :160:25, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b01:
-        casez_tmp_0 = _state_T_4 ? 2'h1 : {1'h1, ~_state_T_5};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, :110:39, :127:32, :143:22, :144:27, :145:27, :150:17, :152:25, :154:42, :155:{25,31}, :156:22, :158:25, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp_0 = _state_T_4 ? 2'h1 : {1'h1, ~_state_T_5};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, :112:39, :129:32, :145:22, :146:27, :147:27, :152:17, :154:25, :156:42, :157:{25,31}, :158:22, :160:25, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       2'b10:
-        casez_tmp_0 = {1'h1, ~_state_T_8};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :152:25, :155:25, :157:42, :158:{25,31}, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp_0 = {1'h1, ~_state_T_8};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :154:25, :157:25, :159:42, :160:{25,31}, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       default:
-        casez_tmp_0 = {2{_state_T_10}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :152:25, :155:25, :158:25, :159:42, :160:{24,30}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-    endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :127:32, :144:27, :145:27, :150:17, :152:25, :155:25, :158:25, :160:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        casez_tmp_0 = {2{_state_T_10}};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :154:25, :157:25, :160:25, :161:42, :162:{24,30}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    endcase	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :129:32, :146:27, :147:27, :152:17, :154:25, :157:25, :160:25, :162:24, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
   end // always_comb
   always @(posedge io_sck or posedge io_ce_n) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
     if (io_ce_n) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
-      state <= 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      state <= 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       counter <= 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       cmd <= 8'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       addr <= 24'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
@@ -7501,53 +7501,53 @@ module psramChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
       dout_data <= 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
     end
     else begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
-      state <= casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:150:17, :152:25, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-      counter <= casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:150:17, :151:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-      if (state == 2'h0)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, :144:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        cmd <= {cmd[6:0], _din_buf_din[0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:144:{74,78,87}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-      if (state == 2'h1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, :145:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        addr <= {addr[19:0], _din_buf_din};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:145:{41,46}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-      if (&state) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        din_data <= {din_data[27:0], _din_buf_din};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:146:{41,50}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        dout_data <= {dout_data[27:0], 4'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:147:{42,52}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      state <= casez_tmp_0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:152:17, :154:25, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      counter <= casez_tmp;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:152:17, :153:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      if (state == 2'h0)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, :146:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        cmd <= {cmd[6:0], _din_buf_din[0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:146:{74,78,87}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      if (state == 2'h1)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, :147:27, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        addr <= {addr[19:0], _din_buf_din};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:147:{41,46}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      if (&state) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        din_data <= {din_data[27:0], _din_buf_din};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:148:{41,50}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        dout_data <= {dout_data[27:0], 4'h0};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:149:{42,52}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       end
-      else if (ren)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:127:44
+      else if (ren)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:129:44
         dout_data <=
           {_psram_array_rdata[7:0],
            _psram_array_rdata[15:8],
            _psram_array_rdata[23:16],
-           _psram_array_rdata[31:24]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:111:35, :131:{27,48,74}, :132:{47,75}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+           _psram_array_rdata[31:24]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:113:35, :133:{27,48,74}, :134:{47,75}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
     end
   end // always @(posedge, posedge)
   always @(posedge io_sck) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
     if (io_ce_n)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
       wen_reg <= 1'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:52:14
     else	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:19:40
-      wen_reg <= cmd == 8'h38 & (&state);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :140:{28,52}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
+      wen_reg <= cmd == 8'h38 & (&state);	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :142:{28,52}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-    `ifdef FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-      `FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
+  `ifdef ENABLE_INITIAL_REG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+      `FIRRTL_BEFORE_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
     `endif // FIRRTL_BEFORE_INITIAL
-    logic [31:0] _RANDOM[0:3];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-    initial begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-      `ifdef INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-        `INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
+    logic [31:0] _RANDOM[0:3];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+    initial begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+      `ifdef INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+        `INIT_RANDOM_PROLOG_	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
+      `ifdef RANDOMIZE_REG_INIT	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
         for (logic [2:0] i = 3'h0; i < 3'h4; i += 3'h1) begin
-          _RANDOM[i[1:0]] = `RANDOM;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-        end	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-        state = _RANDOM[2'h0][1:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        counter = _RANDOM[2'h0][6:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        cmd = _RANDOM[2'h0][14:7];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        addr = {_RANDOM[2'h0][31:15], _RANDOM[2'h1][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        din_data = {_RANDOM[2'h1][31:7], _RANDOM[2'h2][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        dout_data = {_RANDOM[2'h2][31:7], _RANDOM[2'h3][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-        wen_reg = _RANDOM[2'h3][7];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
+          _RANDOM[i[1:0]] = `RANDOM;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+        end	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+        state = _RANDOM[2'h0][1:0];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        counter = _RANDOM[2'h0][6:2];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        cmd = _RANDOM[2'h0][14:7];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        addr = {_RANDOM[2'h0][31:15], _RANDOM[2'h1][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        din_data = {_RANDOM[2'h1][31:7], _RANDOM[2'h2][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        dout_data = {_RANDOM[2'h2][31:7], _RANDOM[2'h3][6:0]};	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+        wen_reg = _RANDOM[2'h3][7];	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
       `endif // RANDOMIZE_REG_INIT
-      if (io_ce_n) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-        state = 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+      if (io_ce_n) begin	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+        state = 2'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
         counter = 5'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
         cmd = 8'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
         addr = 24'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
@@ -7555,33 +7555,33 @@ module psramChisel(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/s
         dout_data = 32'h0;	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
       end
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
-      `FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:99:7
+    `ifdef FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
+      `FIRRTL_AFTER_INITIAL	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:101:7
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
   TriStateInBuf #(
     .width(4)
   ) din_buf (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21
     .dio    (io_dio),
-    .dout   ((&state) ? dout_data[31:28] : 4'hF),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :142:{20,48}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
-    .out_en (_state_T_5 & (&state)),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:39, :143:{22,45}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    .dout   ((&state) ? dout_data[31:28] : 4'hF),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :144:{20,48}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+    .out_en (_state_T_5 & (&state)),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:39, :145:{22,45}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
     .din    (_din_buf_din)
   );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/TriState.scala:32:21
-  psram_array psram_array (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:111:35
+  psram_array psram_array (	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:113:35
     .addr   (addr),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
     .wdata
       (length[3:0] == 4'h4
          ? {din_data[7:0], din_data[15:8], din_data[23:16], din_data[31:24]}
          : length[3:0] == 4'h2
              ? {din_data[31:16], din_data[7:0], din_data[15:8]}
-             : din_data),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:32, :133:49, :135:{15,24,40,54}, :136:{15,53,69}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
+             : din_data),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:32, :135:49, :137:{15,24,40,54}, :138:{15,53,69}, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14
     .rdata  (_psram_array_rdata),
     .reset  (io_ce_n),
     .clock  (io_sck),
-    .length (length),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:110:32
-    .wen    (wen_reg & (counter == 5'h7 | io_ce_n)),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:128:{33,46,62}, :151:55, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
-    .ren    (ren)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:127:44
-  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:111:35
+    .length (length),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:112:32
+    .wen    (wen_reg & (counter == 5'h7 | io_ce_n)),	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:130:{33,46,62}, :153:55, home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/util/reg.scala:22:14, :52:14
+    .ren    (ren)	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:129:44
+  );	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:113:35
 endmodule
 
 module sdramPad(	// home/uenui/code/github.com/OSCPU/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:133:7
@@ -7886,34 +7886,36 @@ module psram_array(
   output reg  [31:0]  rdata
 );
 
-   reg [7:0] vga_mem [8000:0];
-   initial begin
-     reg [2047:0] path = 0;
-     if (!$value$plusargs("image=%s", path)) begin
-       path = "./vsrc/dummy-riscv32e-npc.hex";
-     end
-     $display("Reading image from %s", path);
-     $readmemh( "./vsrc/mem_zeros.hex", vga_mem,0,8000);
-     $readmemh( path, vga_mem,0,2000);
-   
-   end
- 
-   reg [31:0] addr_ext ; // Extend address to 32 bits
-   reg [31:0] length_ext; // Extend address to 32 bits
+  reg [7:0] vga_mem [20000:0];
+  initial begin
+    reg [2047:0] path = 0;
+    if (!$value$plusargs("image=%s", path)) begin
+      path = "./vsrc/dummy-riscv32e-npc.hex";
+    end
+    $display("Reading image from %s", path);
+    $readmemh( "./vsrc/mem_zeros.hex", vga_mem,0,20000);
+    $readmemh( path, vga_mem,0,2000);
+  
+  end
 
-   reg wen_reg;
-   reg [31:0] wdata_reg;
-   always @(negedge clock) begin
-     if (ren ) begin 
-       rdata = {vga_mem[addr_ext+3],vga_mem[addr_ext+2],vga_mem[addr_ext+1],vga_mem[addr_ext]};
-     end     
-   else
-       rdata = 32'd0;
-   end
-   always @(posedge reset) begin
+  reg [31:0] addr_ext ; // Extend address to 32 bits
+  reg [31:0] length_ext; // Extend address to 32 bits
+
+  reg wen_reg;
+  reg [31:0] wdata_reg;
+  always @(negedge clock) begin
+    if (ren ) begin 
+      rdata = {vga_mem[addr_ext+3],vga_mem[addr_ext+2],vga_mem[addr_ext+1],vga_mem[addr_ext]};
+      //  $display("Reading from address %x data %x", addr_ext,rdata);
+    end     
+  else
+      rdata = 32'd0;
+  end
+  always @(posedge reset) begin
     if (wen)
-       vga_mem[addr_ext] = wdata_reg;
-   end
+      vga_mem[addr_ext] = wdata_reg;
+      //  $display("Writing to address %x data %x", addr_ext,vga_mem[addr_ext]);
+  end
    always @(negedge clock) begin
      wen_reg   <= wen;
      wdata_reg <= wdata;
