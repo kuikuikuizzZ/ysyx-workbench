@@ -9,7 +9,7 @@ ifeq ($(ARCH), riscv32e-npc)
 	export ICacheSizeBits=3
 	export ICacheBlockBits=0
 	export ICacheEnableBurst=false
-else ifeq ($(ARCH),riscv32e-ysyxsoc)
+else ifeq ( $(ARCH) ,riscv32e-ysyxsoc)
 	ICACHE_SIZE_BITS=3
 	$(ICACHE_BLOCK_BITS)=1
 	$(ICACHE_ENABLE_BURST)=true
