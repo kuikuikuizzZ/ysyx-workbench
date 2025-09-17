@@ -18,7 +18,7 @@ endif
 
 verilog_build:
 	$(call git_commit, "generate verilog")
-	@export ICACHE_SIZE_BITS =3
+	@export ICACHE_SIZE_BITS=3
 	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build
