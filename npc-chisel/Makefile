@@ -5,7 +5,7 @@ PRJ = npc
 test:
 	mill -i $(PRJ).test
 
-ifeq ($(ARCH), riscv32e-npc)
+ifeq ($(ARCH),riscv32e-npc)
 	export ICacheSizeBits=3
 	export ICacheBlockBits=0
 	export ICacheEnableBurst=false
