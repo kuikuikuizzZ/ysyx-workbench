@@ -22,7 +22,8 @@ module main ();
                 externalPins_vga_vsync,	
                 externalPins_vga_valid;	
   wire          externalPins_uart_tx,	
-                externalPins_uart_rx, 
+                externalPins_uart_rx;
+
   ysyxSoCFull dut (
       .clock(clk),	// home/uenui/code
       .reset(reset),	// home/uenui/code
@@ -45,7 +46,7 @@ module main ();
       .externalPins_vga_vsync   (externalPins_vga_vsync),	
       .externalPins_vga_valid   (externalPins_vga_valid),	
       .externalPins_uart_rx     (externalPins_uart_tx)	,	
-      .externalPins_uart_tx     (externalPins_uart_rx) ,	
+      .externalPins_uart_tx     (externalPins_uart_rx) 	
   );
     reg [31:0] cycle_count = 0; // 周期计数器
 
