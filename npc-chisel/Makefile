@@ -11,9 +11,9 @@ ifeq ($(ARCH), riscv32e-npc)
 	export ICacheEnableBurst=false
 else 
 # ifeq ($(ARCH), riscv32e-ysyxsoc)
-	export ICacheSizeBits=3
-	export ICacheBlockBits=1
-	export ICacheEnableBurst=true
+	ICACHE_SIZE_BITS=3
+	ICACHE_BLOCK_BITS=1
+	ICACHE_ENABLE_BURST=true
 endif
 
 verilog_build:
