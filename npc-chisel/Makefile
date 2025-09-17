@@ -15,7 +15,7 @@ else
 	$(ICACHE_BLOCK_BITS)=1
 	$(ICACHE_ENABLE_BURST)=true
 endif
-
+ICACHE_SIZE_BITS=3
 verilog_build:
 	$(call git_commit, "generate verilog")
 	@export ICACHE_SIZE_BITS=3
