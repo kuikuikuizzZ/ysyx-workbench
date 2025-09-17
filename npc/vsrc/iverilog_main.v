@@ -73,7 +73,7 @@ module main ();
         end
     end
 
-  wire a0 = dut.asic.cpu.cpu.core.reg_file.regfile_mem_ext.Memory[10];
+  wire a0 = dut.asic.cpu.cpu.core.reg_file.regfile_mem_10;
   initial begin
   // 初始化VCD波形文件
   $dumpfile("wave.vcd");
