@@ -5,20 +5,11 @@ PRJ = npc
 test:
 	mill -i $(PRJ).test
 
-ifeq ($(ARCH), riscv32e-npc)
-	export ICacheSizeBits=3
-	export ICacheBlockBits=0
-	export ICacheEnableBurst=false
-else ifeq ($(ARCH), riscv32e-ysyxsoc)
-	
-	export ICACHE_SIZE_BITS=3
-	$(ICACHE_BLOCK_BITS)=1
-	$(ICACHE_ENABLE_BURST)=true
-endif
+
+
 verilog_build:
 	$(call git_commit, "generate verilog")
-	@export ICACHE_SIZE_BITS=3
-	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS) $(ARCH)
+	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
