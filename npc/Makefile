@@ -81,7 +81,7 @@ PERF_ARGS ?= $(ARGS)
 PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
 run: build 
-	@echo $(ARGS) $(IMG)
+	@echo $(ARGS) $(IMG) $(ISA)
 	$(NPC_EXEC) 
 
 clean:

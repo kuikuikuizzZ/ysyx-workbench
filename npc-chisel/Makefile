@@ -5,6 +5,17 @@ PRJ = npc
 test:
 	mill -i $(PRJ).test
 
+ifeq ($(ARCH), riscv32e-npc)
+	export ICacheSizeBits=3
+	export ICacheBlockBits=0
+	export ICacheEnableBurst=false
+else 
+# ifeq ($(ARCH), riscv32e-ysyxsoc)
+	export ICacheSizeBits=2
+	export ICacheBlockBits=1
+	export ICacheEnableBurst=true
+endif
+
 verilog_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)

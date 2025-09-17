@@ -16,9 +16,9 @@ case class Config(
     val AXIBurstLenBits = 8
     val burstLength = 1.U   // burstLength = axlen - 1   
 
-    val ICacheSizeBits = 2
-    val ICacheBlockBits = 1
-    val ICacheEnableBurst = true.B
+    val ICacheSizeBits = sys.env.get("ICacheSizeBits").map(_.toInt).getOrElse(2),
+    val ICacheBlockBits = sys.env.get("ICacheSizeBits").map(_.toInt).getOrElse(1),
+    val ICacheEnableBurst = sys.env.get("ICacheSizeBits").map(_.toBool).getOrElse(true),
 
     val USE_FULL_BYPASSING = true
     val ENABLE_DEBUG = true
