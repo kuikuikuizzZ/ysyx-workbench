@@ -8,7 +8,7 @@ test:
 verilog_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(NPC_HOME)/svsrc
+	mkdir -p $(NPC_HOME)/bulid
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
 	mill -i $(PRJ).runMain Elaborate 
 

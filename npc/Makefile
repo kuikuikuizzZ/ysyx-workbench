@@ -33,7 +33,7 @@ LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
 LDFLAGS += -lreadline 
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
-include $(NPC_CHISEL_HOME)/Makefile
+
 
 
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
@@ -97,6 +97,8 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
+verilog: 
+	$(MAKE) -C $(NPC_CHISEL_HOME) verilog
 
 .PHONY: run build clean sim
 
