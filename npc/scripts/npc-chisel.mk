@@ -34,4 +34,4 @@ lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 
 
 verilog: 
-	$(MAKE) -C $(NPC_CHISEL_HOME) $(cat $(NPC_HOME)/.soc_env)  verilog
+	$(MAKE) -C $(NPC_CHISEL_HOME) $(cat .soc_env)  verilog

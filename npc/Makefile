@@ -97,7 +97,7 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
-.PHONY: run build clean sim
+.PHONY: run build clean sim verilog
 
 # 包含上级Makefile（保持原有依赖）
 include ../Makefile
