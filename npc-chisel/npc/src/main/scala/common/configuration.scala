@@ -18,7 +18,8 @@ case class Config(
 
     val ICacheSizeBits = sys.env.get("ICacheSizeBits").map(_.toInt).getOrElse(2)
     val ICacheBlockBits = sys.env.get("ICacheBlockBits").map(_.toInt).getOrElse(1)
-    val ICacheEnableBurst = sys.env.get("ICacheEnableBurst").map(java.lang.Boolean.parseBoolean).getOrElse(true)
+    val EnableBurst = sys.env.get("ICacheEnableBurst").map(java.lang.Boolean.parseBoolean).getOrElse(true)
+    val ICacheEnableBurst = if (EnableBurst) true.B else false.B
 
     val USE_FULL_BYPASSING = true
     val ENABLE_DEBUG = true
