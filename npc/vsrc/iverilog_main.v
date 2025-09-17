@@ -1,5 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
+  localparam CLK_PERIOD = 20000;
   reg clk, reset;
 
   wire [15:0]   externalPins_gpio_out;	
@@ -72,25 +73,50 @@ module main ();
         end
     end
 
-  // 6. 主测试序列
+  wire a0 = dut.asic.cpu.cpu.core.reg_file.regfile_mem_ext.Memory[10];
   initial begin
-      // 初始化VCD波形文件
-      $dumpfile("wave.vcd");
-      $dumpvars(0, dut); // 记录所有信号
-      
-      // 等待复位释放
-      wait(reset == 0);
-      $display("Reset released at time %t", $time);
-      
-      // 执行1000个周期
-      wait(cycle_count == 10000); // 等待1000个周期（0-999）
-      $display("Completed 1000 cycles at time %t", $time);
-      
-      // 结束仿真
-      #2; // 额外等待一个周期
-      $display("Simulation completed");
-      $finish;
+  // 初始化VCD波形文件
+  $dumpfile("wave.vcd");
+  $dumpvars(0, dut); // 记录所有信号
+  
+  
+  // 等待复位释放
+  wait(reset == 0);
+  $display("Reset released at time %t", $time);
+  
+  // 主仿真循环
+  fork
+    // 分支1: 周期计数监控
+    begin
+      while (cycle_count < CLK_PERIOD) begin
+        @(posedge clk);
+        cycle_count = cycle_count + 1;
+      end
+      $display("Completed %d cycles at time %t", cycle_count,$time);
+    end
+    
+    // 分支2: Halt信号监控
+    begin
+      wait(externalPins_halt == 1);
+      $display("Halt signal detected at time %t", $time);
+    end
+  join_any // 任意一个条件满足即继续
+  
+  // 结束仿真
+  #2; // 额外等待一个周期
+  $display("Simulation completed");
+  
+  // 报告结束原因
+  if (externalPins_halt && a0) begin
+    $display("Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0 );
+  end else if (externalPins_halt) begin
+    $display("Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0);
+  end else begin
+    $display("Terminated after completing %d cycles a0 %x",cycle_count,a0);
   end
+  
+  $finish;
+end
 
   assign externalPins_ps2_clk = 1'b0;
   assign externalPins_ps2_data = 1'b0;

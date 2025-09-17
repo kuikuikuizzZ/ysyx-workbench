@@ -39,6 +39,11 @@ run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
+iverilog-run: image
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) iverilog-run  IMG=$(IMAGE).hex
+#$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+
+
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb  ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
