@@ -97,9 +97,6 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
-verilog: 
-	$(MAKE) -C $(NPC_CHISEL_HOME)  ICACHE_SIZE_BITS=$(ICACHE_SIZE_BITS)  verilog
-
 .PHONY: run build clean sim
 
 # 包含上级Makefile（保持原有依赖）
