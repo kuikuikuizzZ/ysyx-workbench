@@ -2904,16 +2904,15 @@ import "DPI-C" function void pmem_mask_write(input int inaddr,input int mask, in
 import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, output int dout);
 
     wire [DATA_WIDTH-1:0] dw_mask_wide;
-    wire [31:0] dr_addr_aligned,dw_addr_aligned; 
-    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
     ysyx_24100012_mask_expander me (
         .mask(dw_mask),
         .mask_wide(dw_mask_wide)
     );
-
+    wire [31:0] dr_addr_aligned; 
+    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
     always @(posedge clock) begin
         if (dw_en) begin
-            pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
+            pmem_mask_write(dr_addr_aligned, dw_mask_wide, dw_data);
             dw_ready = 1'b1;
         end else begin
             dw_ready = 1'b0;
@@ -2932,6 +2931,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
 
     
     end
+
     assign dw_ready = 1'b1;
 
 endmodule
