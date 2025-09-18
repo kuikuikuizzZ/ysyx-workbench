@@ -103,7 +103,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    always @(posedge clock) begin
    |        if (dr_en) begin
    |            // -1 -> 1111
-   |            pmem_mask_read(dr_addr_aligned, -1, dr_data);
+   |            pmem_mask_read(dr_addr, -1, dr_data);
    |            dr_ready = 1'b1;
    |        end else begin
    |            dr_data = 32'b0;
