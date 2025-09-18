@@ -51,7 +51,7 @@ extern "C" {
         if (in_pmem(raddr)) {
             // TODO: support mask read, 4 bytes read and npc take care of mask
             *rword = host_read(guest_to_host(raddr),4);
-            printf("pmem read: raddr = %x, data %.8x mask %.8x\n", raddr,*rword,mask);
+            // printf("pmem read: raddr = %x, data %.8x mask %.8x\n", raddr,*rword,mask);
             return;
         }
         return;
@@ -63,7 +63,7 @@ extern "C" {
             uint32_t rword = host_read(guest_to_host(waddr),4);
             rword = (rword & ~mask) | (wdata & mask);
             host_write(guest_to_host(waddr), 4,rword);
-            printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
+            // printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
         }
 
         return;
