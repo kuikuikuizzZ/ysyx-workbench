@@ -2909,7 +2909,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
     assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
     ysyx_24100012_mask_expander me (
         .mask(dw_mask),
-        .mask_wide(dr_mask_wide)
+        .mask_wide(dw_mask_wide)
     );
 
     always @(posedge clock) begin
