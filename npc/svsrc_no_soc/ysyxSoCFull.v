@@ -2906,7 +2906,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
 
     wire [DATA_WIDTH-1:0] dw_mask_wide;
     ysyx_24100012_mask_expander me (
-        .mask_narrow(dw_mask),
+        .mask(dw_mask),
         .mask_wide(dw_mask_wide)
     );
     always @(posedge clock) begin
