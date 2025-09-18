@@ -111,7 +111,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |
    |    
    |    end
-   |    assign dr_offset = dr_addr[2:0];
+   |    assign dr_offset = dr_addr[1:0];
    |    assign dr_data = dr_data_raw << (dr_offset * 8);
    |    assign dw_ready = 1'b1;
    |
