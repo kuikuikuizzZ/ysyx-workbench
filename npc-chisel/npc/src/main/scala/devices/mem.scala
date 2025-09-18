@@ -87,9 +87,11 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |        .mask(dw_mask),
    |        .mask_wide(dw_mask_wide)
    |    );
+   |    wire [31:0] dw_addr_aligned; 
+   |    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
    |    always @(posedge clock) begin
    |        if (dw_en) begin
-   |            pmem_mask_write(dw_addr, dw_mask_wide, dw_data);
+   |            pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
    |            dw_ready = 1'b1;
    |        end else begin
    |            dw_ready = 1'b0;
