@@ -52,8 +52,8 @@ clean:
 	-rm -rf $(BUILD_DIR)
 	-rm -rf $(NPC_HOME)/build
 
-clean_old:
-	-rm -rf $(BUILD_DIR)
+clean_npc:
+	-rm -rf $(NPC_BUILD_DIR)
 	-rm -rf $(NPC_HOME)/svsrc_no_soc
 
 .PHONY: test verilog help reformat checkformat clean build verilog_old
