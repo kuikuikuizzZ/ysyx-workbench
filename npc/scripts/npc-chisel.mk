@@ -24,11 +24,11 @@ VINCLUDES = $(addprefix -I, $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 
-verilog: 
+verilog_npc: 
 	@echo CHISEL_VERILOG_CONFIG $(CHISEL_VERILOG_CONFIG) 
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_VERILOG_CONFIG) verilog_npc
 
-build: verilog $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
+build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
