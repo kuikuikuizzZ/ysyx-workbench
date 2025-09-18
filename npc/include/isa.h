@@ -67,20 +67,6 @@ static const uint32_t img [] = {
         0x00100073,      //ebreak
 };
 #endif
-#ifdef CONFIG_IMEM_MROM_BASE
-static const uint32_t img [] = { 
-        0x00100513,      //addi a0 x0 1
-        0x00150513,      //addi a0 a0 1
-        0x00150513,      //addi a0 a0 1
-        0xef001117,      //auipc	sp,0xef001
-        0x00a12223,      //sw a0, 4(sp)
-        0x00000513,      //addi a0 x0 0
-        0x00412503,      //lw a0, 4(sp)
-        0x00150513,      //addi a0 a0 1
-        0xffc50513,      //addi a0 a0 -4
-        0x00100073,      //ebreak
-};
-#endif
 
 #ifdef CONFIG_IMEM_FLASH_BASE
 // static const uint32_t img [] = {
