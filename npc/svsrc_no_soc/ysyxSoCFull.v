@@ -2933,7 +2933,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
 
     
     end
-    assign dr_offset = dr_addr[2:0];
+    assign dr_offset = dr_addr[1:0];
     assign dr_data = dr_data_raw << (dr_offset * 8);
     assign dw_ready = 1'b1;
 
