@@ -272,7 +272,7 @@ void watch_top(){
             top_pc(),
             top_decode_pc(),
             top_dnpc(),
-            top_inst(),
+            top_wb_inst(),
             top_gpr(10),
             top_op1(),
             top_op2(),
