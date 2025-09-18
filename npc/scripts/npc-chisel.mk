@@ -11,11 +11,8 @@ CHISEL_VERILOG_CONFIG+=ICACHE_ENABLE_BURST=false
 
 
 # SV源文件
-ifdef CONFIG_SOC
-	SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
-else
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
-endif
+SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
+
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)

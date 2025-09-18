@@ -15,6 +15,7 @@ ifdef CONFIG_SOC
 else
 	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
 endif
+
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)
