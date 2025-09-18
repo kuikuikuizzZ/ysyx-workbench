@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-NPC_BUILD_DIR = ./build/npc/
+NPC_BUILD_DIR = ./build/npc
 PRJ = npc
 
 test:
