@@ -219,8 +219,8 @@ class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Mod
    val resp_datai = axi4lite_mem.io.resp.bits.data
    val dport_addri = io.ports(DPORT).req.bits.addr
    val dport_typi = io.ports(DPORT).req.bits.typ
-   // val aligned_resp_data = resp_datai >> (dport_addri(1,0)<<3)
-   val aligned_resp_data = resp_datai
+   val aligned_resp_data = resp_datai >> (dport_addri(1,0)<<3)
+   // val aligned_resp_data = resp_datai
    when(state === s_lsu_active){
       resp_data := MuxCase(resp_datai,Seq(
          (dport_typi === MT_B) -> Cat(Fill(24,aligned_resp_data(7)),aligned_resp_data(7,0)),
