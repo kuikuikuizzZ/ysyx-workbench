@@ -185,7 +185,7 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   }
   bool has_bubble = false;
   IFDEF(CONFIG_PIPELINE_PC,has_bubble=top_wb_inst()==0x00004033;);
-  if (pc != 0x0 && pc_next != 0x0 &&pc_next != pc ) {
+  if (pc != 0x0 && pc_next != 0x0 && pc_next != pc ) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);
