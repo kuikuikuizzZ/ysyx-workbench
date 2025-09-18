@@ -2909,11 +2909,12 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
         .mask(dw_mask),
         .mask_wide(dw_mask_wide)
     );
-    wire [31:0] dr_addr_aligned; 
+    wire [31:0] dr_addr_aligned,dr_data_raw; 
+    wire [1:0] dr_offset;
     assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
     always @(posedge clock) begin
         if (dw_en) begin
-            pmem_mask_write(dw_addr, dw_mask_wide, dw_data);
+            pmem_mask_write(dr_addr_aligned, dw_mask_wide, dw_data);
             dw_ready = 1'b1;
         end else begin
             dw_ready = 1'b0;
@@ -2923,7 +2924,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
     always @(posedge clock) begin
         if (dr_en) begin
             // -1 -> 1111
-            pmem_mask_read(dr_addr, -1, dr_data);
+            pmem_mask_read(dr_addr, -1, dr_data_raw);
             dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
@@ -2932,7 +2933,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
 
     
     end
-
+    assign dr_data = dr_data_raw << (dr_offset * 8);
     assign dw_ready = 1'b1;
 
 endmodule
