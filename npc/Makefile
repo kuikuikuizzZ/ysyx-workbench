@@ -65,7 +65,14 @@ endif
 
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL
-    include $(NPC_HOME)/scripts/npc-chisel.mk
+	ifeq ($(ARCH), riscv32e-npc)
+		include $(NPC_HOME)/scripts/npc-chisel.mk
+	else ifeq ($(ARCH), riscv64-npc)
+		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
+	else
+		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
+# 		$(error "Please set ARCH to riscv32e-npc or riscv64-npc")
+	endif
 else
     include $(NPC_HOME)/scripts/npc.mk
 endif
