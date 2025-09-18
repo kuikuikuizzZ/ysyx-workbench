@@ -50,7 +50,7 @@ class ICache(implicit val conf: Config) extends Module {
     val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
 
-    val group_index = io.pc(b_bits+2-1,2)
+    val group_index = if (b_bits >0) io.pc(b_bits+2-1,2) else 0.U
     val cache_block = Mux(ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
