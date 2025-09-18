@@ -106,38 +106,11 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            dr_ready = 1'b0;
    |        end
    |
-   |        
+   |    
    |    end
    |
    |    assign dw_ready = 1'b1;
    |
    |endmodule
     """.stripMargin)
- }
-
- class ysyx_24100012_mask_expander  extends BlackBox with HasBlackBoxInline  {
-   val io = IO(new Bundle {
-     val mask        = Input(UInt(4.W))
-     val mask_wide   = Output(UInt(32.W))
-   })
-    setInline("ysyx_24100012_mask_expander.v",
-    """module ysyx_24100012_mask_expander #(parameter DATA_WIDTH = 32) (
-   |    input [DATA_WIDTH/8-1:0] mask,
-   |    output [DATA_WIDTH-1:0] mask_wide
-   |);
-   |
-   |function [DATA_WIDTH-1:0] expand_mask;
-   |    input [DATA_WIDTH/8-1:0] mask_in;
-   |    integer i;
-   |    begin
-   |        for (i = 0; i < DATA_WIDTH/8; i = i+1) begin
-   |            expand_mask[i*8 +: 8] = {8{mask_in[i]}}; // 每个掩码位扩展为8比特
-   |        end
-   |    end
-   |endfunction
-   |
-   |assign mask_wide = expand_mask(mask); // 调用函数
-   |
-   |endmodule
-    """)
  }
