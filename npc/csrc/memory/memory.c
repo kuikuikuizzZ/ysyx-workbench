@@ -60,8 +60,13 @@ extern "C" {
     void pmem_mask_write(int waddr,int mask, int wdata){
         if (in_pmem(waddr)){
             // align write
-            uint32_t rword = host_read(guest_to_host(waddr),4);
-            rword = (rword & ~mask) | (wdata & mask);
+            int count = 0;
+            while (mask) {
+                count += mask & 1;
+                mask >>= 1;
+            }
+            uint32_t rword = host_read(guest_to_host(waddr),count);
+            // rword = (rword & ~mask) | (wdata & mask);
             host_write(guest_to_host(waddr), 4,rword);
             // printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
         }
