@@ -58,7 +58,7 @@ object ElaborateNPC extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyxSoCFull(),
-    Array("--target","verilog","--target-dir","build"),
+    Array("--target","verilog","--target-dir","build/npc"),
     firtoolOptions)
 }
 
