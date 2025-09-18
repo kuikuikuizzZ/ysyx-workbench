@@ -70,7 +70,7 @@ ifdef CONFIG_NPC_CHISEL
 	else ifeq ($(ARCH), riscv32e-ysyxsoc)
 		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
 	else
-$(info Using Default ARCH riscv32e-ysyxsoc)
+        $(info Using Default ARCH riscv32e-ysyxsoc)
 		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
 	endif
 else
