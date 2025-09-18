@@ -35,6 +35,7 @@ LDFLAGS += -lreadline
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 
+
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 INCLUDES = $(addprefix -CFLAGS -I, $(INC_PATH))
 VCFLAGS := -CFLAGS $(CFLAGS) $(INCLUDES) 
@@ -64,7 +65,7 @@ endif
 
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL
-    include $(NPC_HOME)/scripts/npc-chisel.mk
+    include $(NPC_HOME)/scripts/npc-chisel-soc.mk
 else
     include $(NPC_HOME)/scripts/npc.mk
 endif
@@ -80,7 +81,7 @@ PERF_ARGS ?= $(ARGS)
 PERF_ARGS += --perf=$(PERF_FILE_PATH)
 # 通用规则
 run: build 
-	@echo $(ARGS) $(IMG)
+	@echo $(ARGS) $(IMG) $(ISA)
 	$(NPC_EXEC) 
 
 clean:
@@ -96,7 +97,7 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
-.PHONY: run build clean sim
+.PHONY: run build clean sim verilog
 
 # 包含上级Makefile（保持原有依赖）
 include ../Makefile
