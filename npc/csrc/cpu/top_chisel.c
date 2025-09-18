@@ -168,7 +168,7 @@ uint32_t top_pc() {
     uint32_t tpc ;
     IFDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg);
     IFDEF(CONFIG_PIPELINE_PC,tpc=top_wb_pc(););
-    IFNDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->top_wb_pc());
+    IFNDEF(CONFIG_SOC,tpc=top_wb_pc());
     return tpc;
 }
 
