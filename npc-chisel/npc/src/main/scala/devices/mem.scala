@@ -91,13 +91,13 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
    |    always @(posedge clock) begin
    |        if (dw_en) begin
-   |            pmem_mask_write(dw_addr, dw_mask_wide, dw_data); // mask替代Length
+   |            pmem_mask_write(dw_addr, dw_mask_wide, dw_data);
    |            dw_ready = 1'b1;
    |        end else begin
    |            dw_ready = 1'b0;
    |        end
    |    end
-   |
+   |     
    |    always @(posedge clock) begin
    |        if (dr_en) begin
    |            // -1 -> 1111
