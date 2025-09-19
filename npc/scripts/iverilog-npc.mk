@@ -9,7 +9,7 @@ IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
 
 verilog-iverlog: 
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
-	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverlog
+	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
 iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
 	mkdir -p $(BUILD_DIR)/iverilog
