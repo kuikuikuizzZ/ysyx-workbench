@@ -33,6 +33,11 @@ LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
 LDFLAGS += -lreadline 
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
+# verilog generate
+include $(NPC_HOME)/scripts/verilog-npc.mk
+include $(NPC_HOME)/scripts/verilog-soc.mk
+include $(NPC_HOME)/scripts/iverilog-npc.mk
+
 
 
 
@@ -57,23 +62,18 @@ $(info "LDFLAGS: $(LDFLAGS)")
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing --autoflush
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
 VERILATOR_BASE_FLAGS += $(addprefix -LDFLAGS , $(LDFLAGS))
-# VERILATOR_BASE_FLAGS += $(VINCLUDES)
+VERILATOR_BASE_FLAGS += $(VINCLUDES)
 
 ifdef CONFIG_WAVETRACE_FST
 	VERILATOR_BASE_FLAGS += --trace-fst
 endif
 
 # 根据CHISEL标志选择编译路径
-ifdef CONFIG_NPC_CHISEL
-	include $(NPC_HOME)/scripts/npc-chisel.mk
-else
-    include $(NPC_HOME)/scripts/npc.mk
-endif
-
-# verilog generate
-include $(NPC_HOME)/scripts/verilog-npc.mk
-include $(NPC_HOME)/scripts/verilog-soc.mk
-include $(NPC_HOME)/scripts/iverilog-npc.mk
+include $(NPC_HOME)/scripts/npc-chisel.mk
+# ifdef CONFIG_NPC_CHISEL
+# else
+#     include $(NPC_HOME)/scripts/npc.mk
+# endif
 
 ifdef IMG
 	IMG_NAME ?= $(notdir $(IMG))
