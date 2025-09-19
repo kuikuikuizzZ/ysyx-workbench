@@ -185,16 +185,23 @@ uint32_t top_decode_pc() {
     if (!_rootp) return 0;
     uint32_t decode_pc ;
     IFDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
-    // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_REG_pc);
     IFNDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__decoder_io_ifu_dec_bits_r_pc);
     return decode_pc;
 }
 
 uint32_t top_mem_pc() {
-    return mem_pc;
+    if (!_rootp) return 0;
+    uint32_t pc;
+    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu_io_exe_mem_bits_rpc);
+    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__lsu_io_exe_mem_bits_r_pc);
+    return pc;
 }
 uint32_t top_wb_pc() {
-    return wb_pc;
+    if (!_rootp) return 0;
+    uint32_t pc;
+    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__wbu_io_mem_wb_bits_rpc);
+    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__wbu_io_mem_wb_bits_rpc);
+    return pc;
 }
 
 uint32_t top_wb_inst() {
@@ -203,6 +210,10 @@ uint32_t top_wb_inst() {
 
 uint32_t top_halt(){
     if (!_rootp) return 0;
+    uint32_t halt;
+    IFDEF(CONFIG_SOC,halt=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__wbu_io_mem_wb_bits_rebreak);
+    IFNDEF(CONFIG_SOC,halt=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__wbu_io_mem_wb_bits_rebreak);
+
     return halt;
 }
 
