@@ -83,14 +83,13 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, output int dout);
    |
    |    wire [DATA_WIDTH-1:0] dw_mask_wide;
-   |    wire [31:0] dr_addr_aligned,dw_addr_aligned; 
-   |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
-   |    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
    |    ysyx_24100012_mask_expander me (
    |        .mask(dw_mask),
    |        .mask_wide(dw_mask_wide)
    |    );
-
+   |    wire [31:0] dw_addr_aligned,dr_addr_aligned; 
+   |    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
+   |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
    |    always @(posedge clock) begin
    |        if (dw_en) begin
    |            pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
@@ -112,6 +111,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |
    |    
    |    end
+   |
    |    assign dw_ready = 1'b1;
    |
    |endmodule
