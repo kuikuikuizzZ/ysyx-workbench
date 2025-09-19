@@ -4,12 +4,15 @@ VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 TOP_NAME = ysyxSoCFull
 NAME = V$(TOP_NAME)
 
+# Chisel 生成 verilog 配置
+CHISEL_VERILOG_CONFIG=ICACHE_SIZE_BITS=2
+CHISEL_VERILOG_CONFIG+=ICACHE_BLOCK_BITS=0
+CHISEL_VERILOG_CONFIG+=ICACHE_ENABLE_BURST=false
+CHISEL_VERILOG_CONFIG+=ENABLE_SOC=false
+
 # SV源文件
-ifdef CONFIG_SOC
-	SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
-else
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
-endif
+SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
+
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)
@@ -21,8 +24,11 @@ VINCLUDES = $(addprefix -I, $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 
+verilog_npc: 
+	@echo CHISEL_VERILOG_CONFIG $(CHISEL_VERILOG_CONFIG) 
+	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_VERILOG_CONFIG) verilog_npc
 
-build:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
+build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 

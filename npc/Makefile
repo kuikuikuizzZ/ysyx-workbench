@@ -65,7 +65,12 @@ endif
 
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL
-    include $(NPC_HOME)/scripts/npc-chisel-soc.mk
+	ifndef CONFIG_SOC
+		include $(NPC_HOME)/scripts/npc-chisel.mk
+	else
+        $(info Using Default ARCH riscv32e-ysyxsoc)
+		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
+	endif
 else
     include $(NPC_HOME)/scripts/npc.mk
 endif
