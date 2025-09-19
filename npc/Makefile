@@ -33,6 +33,11 @@ LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
 LDFLAGS += -lreadline 
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
+# verilog generate
+include $(NPC_HOME)/scripts/verilog-npc.mk
+include $(NPC_HOME)/scripts/verilog-soc.mk
+include $(NPC_HOME)/scripts/iverilog-npc.mk
+
 
 
 
@@ -65,12 +70,7 @@ endif
 
 # 根据CHISEL标志选择编译路径
 ifdef CONFIG_NPC_CHISEL
-	ifndef CONFIG_SOC
-		include $(NPC_HOME)/scripts/npc-chisel.mk
-	else
-        $(info Using Default ARCH riscv32e-ysyxsoc)
-		include $(NPC_HOME)/scripts/npc-chisel-soc.mk
-	endif
+	include $(NPC_HOME)/scripts/npc-chisel.mk
 else
     include $(NPC_HOME)/scripts/npc.mk
 endif
@@ -101,7 +101,6 @@ perf: build
 	@mkdir -p $(PERF_DIR)
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
-
 
 iverilog-run: iverilog-build
 	@echo $(ARGS) $(IMG)
