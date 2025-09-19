@@ -1,5 +1,6 @@
-BUILD_DIR = ./build
+BUILD_DIR = ./build/soc
 NPC_BUILD_DIR = ./build/npc
+IVERILOG_BUILD_DIR = ./build/iverilog
 PRJ = npc
 
 test:
@@ -9,15 +10,19 @@ verilog_build:
 	$(call git_commit, "generate verilog")
 	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(NPC_HOME)/build
-	mkdir -p $(NPC_HOME)/svsrc_no_soc
+	mkdir -p $(NPC_HOME)/build/soc
 	mill -i $(PRJ).runMain Elaborate 
 
 verilog_npc_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(NPC_BUILD_DIR)
-	mkdir -p $(NPC_HOME)/build
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
+	mill -i $(PRJ).runMain ElaborateNPC 
+
+verilog_iverilog_build:
+	$(call git_commit, "generate verilog")
+	mkdir -p $(IVERILOG_BUILD_DIR)
+	mkdir -p $(NPC_HOME)/svsrc_iverilog
 	mill -i $(PRJ).runMain ElaborateNPC 
 
 
@@ -27,11 +32,15 @@ verilog: verilog_build
 	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v)  $(NPC_HOME)/build/
 
 
-verilog_npc: verilog_npc_build
+verilog-npc: verilog_npc_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
-	sed -i '/\.v/ s/.*//' $(NPC_BUILD_DIR)/*.v
+	sed -i '/\.v/ s/.*//' $(NPC_BUILD_DIR)/npc/*.v
 	cp  -r $(wildcard $(NPC_BUILD_DIR)/*.sv $(NPC_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_no_soc/
 
+verilog-iverlog: verilog_npc_build
+# 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
+	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
+	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_iverilog/
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
