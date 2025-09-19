@@ -1,5 +1,10 @@
 # Chisel专用配置
-BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel
+ifdef CONFIG_SOC
+	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel-soc
+else 
+	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel
+endif
+
 VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 TOP_NAME = ysyxSoCFull
 NAME = V$(TOP_NAME)
@@ -11,6 +16,7 @@ ifdef CONFIG_SOC
 else
 	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
 endif
+
 
 BINARY = $(BUILD_DIR)/$(NAME)
 NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
