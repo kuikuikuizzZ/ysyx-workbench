@@ -57,7 +57,7 @@ $(info "LDFLAGS: $(LDFLAGS)")
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing --autoflush
 VERILATOR_BASE_FLAGS += $(VCFLAGS)
 VERILATOR_BASE_FLAGS += $(addprefix -LDFLAGS , $(LDFLAGS))
-VERILATOR_BASE_FLAGS += $(VINCLUDES)
+# VERILATOR_BASE_FLAGS += $(VINCLUDES)
 
 ifdef CONFIG_WAVETRACE_FST
 	VERILATOR_BASE_FLAGS += --trace-fst
