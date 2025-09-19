@@ -102,7 +102,12 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
-.PHONY: run build clean sim verilog
+
+iverilog-run: iverilog-build
+	@echo $(ARGS) $(IMG)
+	vvp $(BUILD_DIR)/iverilog/main.vvp $(ARGS) +image=$(IMG)
+
+.PHONY: run build clean sim verilog iverilog-run iverilog-build
 
 # 包含上级Makefile（保持原有依赖）
 include ../Makefile
