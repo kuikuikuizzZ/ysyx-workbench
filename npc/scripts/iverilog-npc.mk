@@ -7,7 +7,7 @@ CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_DEBUG=false
 
 IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
 
-verilog-iverlog: 
+verilog-iverilog: 
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
