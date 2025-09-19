@@ -63,6 +63,20 @@ object ElaborateNPC extends App {
     firtoolOptions)
 }
 
+object ElaborateIverilog extends App {
+  val firtoolOptions = Array(
+    "--lowering-options=" + List(
+       "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket",
+    ).reduce(_ + "," + _),
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new ysyxSoCFull(),
+    Array("--target","verilog","--target-dir","build/iverilog"),
+    firtoolOptions)
+}
+
 
 
 // object Elaborate extends App {

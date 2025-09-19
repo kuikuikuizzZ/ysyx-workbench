@@ -23,7 +23,7 @@ verilog_iverilog_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(IVERILOG_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_iverilog
-	mill -i $(PRJ).runMain ElaborateNPC --target-dir $(IVERILOG_BUILD_DIR)
+	mill -i $(PRJ).runMain ElaborateIverilog 
 
 
 verilog: verilog_build
