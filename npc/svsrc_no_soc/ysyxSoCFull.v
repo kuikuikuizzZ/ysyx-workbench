@@ -2909,7 +2909,7 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
         .mask(dw_mask),
         .mask_wide(dw_mask_wide)
     );
-    wire [31:0] dw_addr_aligned,dr_data_aligned; 
+    wire [31:0] dw_addr_aligned,dr_addr_aligned; 
     assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
     assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
     always @(posedge clock) begin

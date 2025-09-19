@@ -50,7 +50,7 @@ typedef struct {
 //         0x00000513,      //addi a0 x0 0
 //         0x00100073,      //ebreak
 // };
-#ifdef CONFIG_IMEM_BASE
+#ifndef CONFIG_SOC
 static const uint32_t img [] = { 
         0x00100513,      //addi a0 x0 1
         0x00150513,      //addi a0 a0 1
@@ -68,7 +68,7 @@ static const uint32_t img [] = {
 };
 #endif
 
-#ifdef CONFIG_IMEM_FLASH_BASE
+#ifdef CONFIG_SOC
 // static const uint32_t img [] = {
 //         0x00100513,    //addi a0 x0 1        30000000  
 //         0x00150513,    //addi a0 a0 1        30000004  
