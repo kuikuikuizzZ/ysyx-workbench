@@ -40,6 +40,7 @@ object Elaborate extends App {
        "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb"
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(

@@ -30,10 +30,6 @@ extern "C" {
             *rword = host_read(guest_to_host(raddr),len);
             return;
         }
-        IFDEF(CONFIG_DEVICE, {
-            if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) )
-            *rword = mmio_read(raddr, len);
-        });
         return;
     }
 

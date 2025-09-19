@@ -18,11 +18,12 @@ NPC_EXEC = $(BINARY) $(ARGS) $(IMG)
 NPC_PERF = $(BINARY) $(PERF_ARGS) $(IMG)
 
 
-VSINC_PATH := $(SOC_HOME)/perip/uart16550/rtl
-VSINC_PATH += $(SOC_HOME)/perip/spi/rtl
-VINCLUDES = $(addprefix -I, $(VSINC_PATH))
+VSINC_PATH := $(SOC_HOME)/perip/uart16550/rtl/
+VSINC_PATH += $(SOC_HOME)/perip/spi/rtl/
+VINCLUDES = $(addprefix -I , $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
+IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
 
 verilog_npc: 
 	@echo CHISEL_VERILOG_CONFIG $(CHISEL_VERILOG_CONFIG) 
@@ -34,4 +35,8 @@ build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 
+
+iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
+	mkdir -p $(BUILD_DIR)/iverilog
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 

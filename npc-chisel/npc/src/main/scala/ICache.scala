@@ -64,7 +64,6 @@ class ICache(implicit val conf: Config) extends Module {
     val cache_reg = RegNext(cache_data,0.U) 
     // pipeline icache
 
-
     when (state === sRequesting){
         io.port.req             := DontCare
         io.port.req.valid       := state === sRequesting

@@ -61,12 +61,12 @@ bool isa_difftest_checkregs(diff_context *ref_r, vaddr_t pc) {
         return false;
      }
   }  
-  // mem_access_t mem = top_lsu_state();
-  // if (ref_r->mem_addr != mem.addr ||
-  //     !mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
-  //       printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
-  //       printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
-  //       return false;}      
+  mem_access_t mem = top_lsu_state();
+  if (ref_r->mem_addr != mem.addr ||
+      !mem_data_equal(ref_r->mem_data,mem.data,mem.typ)  ){
+        printf("mem_access_addr, ref %.8x, top %.8x \n",ref_r->mem_addr,mem.addr);
+        printf("mem_access_data, ref %.8x, top %.8x \n",ref_r->mem_data,mem.data);
+        return false;}      
   return true;
 }
 
@@ -185,7 +185,7 @@ void difftest_step(vaddr_t pc, vaddr_t pc_next) {
   }
   bool has_bubble = false;
   IFDEF(CONFIG_PIPELINE_PC,has_bubble=top_wb_inst()==0x00004033;);
-  if (pc != 0x0 && pc_next != 0x0 && pc_next != pc ) {
+  if (pc != 0x0 && pc_next != 0x0 &&pc_next != pc ) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);
