@@ -22,6 +22,6 @@ case class Config(
     val EnableBurst = sys.env.get("ICACHE_ENABLE_BURST").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val ICacheEnableBurst = if (EnableBurst) true.B else false.B
     val EnableSOC = sys.env.get("ENABLE_SOC").map(java.lang.Boolean.parseBoolean).getOrElse(true)
-    val ENABLE_DEBUG =  sys.env.get("NPC_ENABLE_DEBUG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
+    val ENABLE_DEBUG =  sys.env.get("NPC_ENABLE_DEBUG").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val START_ADDR = if (EnableSOC) 0x30000000L.U(32.W) else 0x80000000L.U(32.W)
 }

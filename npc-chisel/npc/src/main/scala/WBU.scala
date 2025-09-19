@@ -34,7 +34,7 @@ class WBU(implicit val conf: Config) extends Module {
         val to_ctl = new WBToCTLIO()
     })
     val reg_pc = RegEnable(io.mem_wb.bits.pc,io.mem_wb.bits.pc_valid)
-    val reg_ebreak = RegNext(io.mem_wb.bits.ebreak,false.B)
+
     io := DontCare
     io.ebreak            := io.mem_wb.bits.ebreak
     io.wb_pc             := Mux(io.mem_wb.bits.pc_valid, io.mem_wb.bits.pc, reg_pc)
