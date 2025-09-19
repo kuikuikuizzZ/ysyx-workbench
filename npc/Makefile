@@ -34,11 +34,9 @@ LDFLAGS += -lreadline
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 # verilog generate
-# include $(NPC_HOME)/scripts/verilog-npc.mk
+include $(NPC_HOME)/scripts/verilog-npc.mk
 include $(NPC_HOME)/scripts/verilog-soc.mk
-# include $(NPC_HOME)/scripts/iverilog-npc.mk
-
-
+include $(NPC_HOME)/scripts/iverilog-npc.mk
 
 
 INC_PATH := $(WORK_DIR)/include $(INC_PATH)
