@@ -45,7 +45,7 @@ object Elaborate extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
-    Array("--target","verilog","--target-dir","build"),
+    Array("--target","verilog","--target-dir","build/soc"),
     firtoolOptions)
 }
 
@@ -59,7 +59,21 @@ object ElaborateNPC extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyxSoCFull(),
-    Array("--target","verilog","--target-dir","build/npc"),
+    Array("--target","verilog"),
+    firtoolOptions)
+}
+
+object ElaborateIverilog extends App {
+  val firtoolOptions = Array(
+    "--lowering-options=" + List(
+       "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket",
+    ).reduce(_ + "," + _),
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new ysyxSoCFull(),
+    Array("--target","verilog","--target-dir","build/iverilog"),
     firtoolOptions)
 }
 
