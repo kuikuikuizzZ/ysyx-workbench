@@ -5,9 +5,6 @@ import chisel3.util._
 trait PrivilegedConstants
 {
    val MTVEC = 0x100
-   val START_ADDR       = (0x30000000L.U(32.W))
-   
-   val START_ADDR_MROM  = (0x80000000L.U(32.W))
    val SDRAM_BASE       = (0xa0000000L.U(32.W))
    val SDRAM_SIZE       = (0x10000000L.U(32.W))
    val FLASH_BASE       = (0x30000000L.U(32.W))
