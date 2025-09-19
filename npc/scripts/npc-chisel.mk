@@ -11,11 +11,11 @@ NAME = V$(TOP_NAME)
 
 
 # SV源文件
-ifdef CONFIG_SOC
-	SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
-else
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
-endif
+SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
+# ifdef CONFIG_SOC
+# else
+# 	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
+# endif
 
 
 BINARY = $(BUILD_DIR)/$(NAME)
