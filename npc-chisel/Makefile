@@ -37,7 +37,7 @@ verilog-npc: verilog_npc_build
 	sed -i '/\.v/ s/.*//' $(NPC_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(NPC_BUILD_DIR)/*.sv $(NPC_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_no_soc/
 
-verilog-iverlog: verilog_npc_build
+verilog-iverlog: verilog_iverilog_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_iverilog/
