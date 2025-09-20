@@ -23,13 +23,14 @@ module main ();
     end
 
     wire a0 = dut.core.reg_file.regfile_mem_ext.Memory[10];;
-    wire halt = dut.core.lsu.csr_files.csr.insn_break;
+    reg halt; 
     // 5. 周期计数器
     always @(posedge clk) begin
         if (reset) begin
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
+            halt <= dut.core.lsu.csr_files.csr.insn_break;
         end
     end
 
