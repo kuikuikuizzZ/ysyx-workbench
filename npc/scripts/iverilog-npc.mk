@@ -13,8 +13,8 @@ verilog-iverilog:
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
 iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
-	mkdir -p $(BUILD_DIR)/iverilog
 	$(MAKE) riscv32e-iverilog_defconfig
+	mkdir -p $(BUILD_DIR)/iverilog
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
 sim-iverilog: iverilog-build
