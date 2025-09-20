@@ -2419,8 +2419,8 @@ module ysyx_24100012_AXI4LiteMem #(
     reg wen_reg;
     reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
     wire [31:0] dw_addr_aligned,dr_addr_aligned; 
-    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
-    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
+    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
+    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
     always @(posedge clock) begin
         if (dw_en) begin
            rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
