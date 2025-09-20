@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000;
+  localparam CLK_PERIOD = 10000;
   reg clk, reset;
 
   ysyxSoCFull dut (
