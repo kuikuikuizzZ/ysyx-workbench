@@ -31,7 +31,7 @@ class RegFile(implicit val conf: Config) extends Module {
   val wb_addr  = io.wb.bits.wbaddr
   
   // Register File
-  val regfile = Mem(16,0.U, UInt(conf.xlen.W)).suggestName("regfile_mem") 
+  val regfile = RegInit(VecInit(Seq.fill(config.regfileDepth)(conf.xlen.W))).suggestName("regfile_mem") 
 
   when (io.wb.valid && io.wb.bits.rf_wen && (wb_addr =/= 0.U)) {
     regfile(wb_addr) := io.wb.bits.data
