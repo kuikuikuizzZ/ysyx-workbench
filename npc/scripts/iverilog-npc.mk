@@ -15,7 +15,7 @@ verilog-iverilog:
 iverilog-config:
 	$(MAKE) riscv32e-iverilog_defconfig
 
-iverilog-build: iverilog-config $(SVSOURCES) $(IVERILOG_MAIN_FILE)
+iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) iverilog-config
 	mkdir -p $(BUILD_DIR)/iverilog
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 

@@ -26,12 +26,12 @@ class RegFileOut(implicit val conf: Config) extends Bundle {
 class RegFile(implicit val conf: Config) extends Module {
   val io = IO(new RegFileIo())
   io := DontCare
-  val rs1_addr = io.dec.rs1_addr(3,0)
-  val rs2_addr = io.dec.rs2_addr(3,0)
-  val wb_addr  = io.wb.bits.wbaddr(3,0)
+  val rs1_addr = io.dec.rs1_addr
+  val rs2_addr = io.dec.rs2_addr
+  val wb_addr  = io.wb.bits.wbaddr
   
   // Register File
-  val regfile = RegInit(VecInit(Seq.fill(conf.regfileDepth)(0.U(conf.xlen.W)))).suggestName("regfile_mem") 
+  val regfile = Mem(16, UInt(conf.xlen.W)).suggestName("regfile_mem") 
 
   when (io.wb.valid && io.wb.bits.rf_wen && (wb_addr =/= 0.U)) {
     regfile(wb_addr) := io.wb.bits.data
