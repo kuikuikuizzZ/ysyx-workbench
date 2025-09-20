@@ -161,7 +161,7 @@ module ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/n
         casez_tmp_1 = icache_tags_7;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:50:23, :58:19]
     endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:54:57, :58:19]
   end // always_comb
-  reg         req_valid_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:62:38]
+  reg         req_valid_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:62:32]
   reg         hit_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:63:26]
   reg  [31:0] cache_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:64:28]
   wire        _io_port_req_valid_T_1 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :74:16]
@@ -171,7 +171,7 @@ module ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/n
   always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :84:19, :88:45, :95:51, :98:38, :117:21]
     casez (state)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :84:19, :88:45, :95:51, :98:38, :117:21]
       3'b000:
-        casez_tmp_2 = ~hit_reg & req_valid_reg ? {2'h0, io_pc[1:0] == 2'h0} : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:30:13, :34:38, :62:38, :63:26, :84:19, :87:39, :88:{18,27,45}, :89:{34,43}, :90:27, :92:27, :95:51, :98:38, :117:21]
+        casez_tmp_2 = ~hit_reg & req_valid_reg ? {2'h0, io_pc[1:0] == 2'h0} : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:30:13, :34:38, :62:32, :63:26, :84:19, :87:39, :88:{18,27,45}, :89:{34,43}, :90:27, :92:27, :95:51, :98:38, :117:21]
       3'b001:
         casez_tmp_2 = _GEN_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38, :84:19, :88:45, :95:{51,58}, :98:38, :117:21]
       3'b010:
@@ -229,7 +229,7 @@ module ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/n
       icache_valids_5 <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :51:25]
       icache_valids_6 <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :51:25]
       icache_valids_7 <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :51:25]
-      req_valid_reg <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :62:38]
+      req_valid_reg <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :62:32]
       hit_reg <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:46:22, :63:26]
       cache_reg <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:30:13, :64:28]
     end
@@ -276,7 +276,7 @@ module ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/n
       icache_valids_5 <= ~io_fencei & (_GEN_7 | icache_valids_5);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:49:22, :51:25, :126:31, :128:25, :130:25, :135:21, :137:27]
       icache_valids_6 <= ~io_fencei & (_GEN_8 | icache_valids_6);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:49:22, :51:25, :126:31, :128:25, :130:25, :135:21, :137:27]
       icache_valids_7 <= ~io_fencei & (_GEN_9 | icache_valids_7);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:49:22, :51:25, :126:31, :128:25, :130:25, :135:21, :137:27]
-      req_valid_reg <= io_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:62:38]
+      req_valid_reg <= io_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:62:32]
       hit_reg <= _tag_T & casez_tmp_0 & io_pc[31:5] == (_tag_T ? casez_tmp_1 : 27'h0);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:50:31, :54:31, :57:25, :58:19, :59:{27,36,68}, :63:26]
       cache_reg <= _tag_T ? casez_tmp : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:30:13, :54:{26,31}, :64:28]
     end
@@ -325,7 +325,7 @@ module ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/n
         icache_valids_5 = _RANDOM[5'h10][1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25]
         icache_valids_6 = _RANDOM[5'h10][2];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25]
         icache_valids_7 = _RANDOM[5'h10][3];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25]
-        req_valid_reg = _RANDOM[5'h10][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25, :62:38]
+        req_valid_reg = _RANDOM[5'h10][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25, :62:32]
         hit_reg = _RANDOM[5'h10][5];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25, :63:26]
         cache_reg = {_RANDOM[5'h10][31:6], _RANDOM[5'h11][5:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :51:25, :64:28]
       `endif // RANDOMIZE_REG_INIT
@@ -783,6 +783,7 @@ endmodule
 
 module Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
   input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+                reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
   output [4:0]  io_dec_reg_rs1_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
                 io_dec_reg_rs2_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
   output        io_ifu_dec_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:72:15]
@@ -1031,8 +1032,12 @@ module Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
        & (_GEN_2 | ~_GEN_16 & (_GEN_15 | _csignals_T_499))) | io_exe_ctl_is_csr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:38, :194:26, :195:26, :240:48, :246:48, :273:{95,104}, :274:{104,120}, src/main/scala/chisel3/util/Lookup.scala:31:38, :34:39]
   wire        _GEN_19 = stall | ~io_ifu_dec_valid & io_dec_exe_ready | pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:187:43, :274:120, :279:{20,38,59}]
   wire        _GEN_20 = _GEN_19 | (|ctrl_exe_pc_sel);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:162:29, :177:38, :279:{59,76}, :283:37, :303:20, :306:40, :318:40]
-  always @(posedge clock)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
-    reg_fencei <= csignals_13;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:176:28, src/main/scala/chisel3/util/Lookup.scala:34:39]
+  always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+    if (reset)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+      reg_fencei <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7, :176:28]
+    else	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
+      reg_fencei <= csignals_13;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:176:28, src/main/scala/chisel3/util/Lookup.scala:34:39]
+  end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
     `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
       `FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
@@ -1996,6 +2001,7 @@ module Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc
   );
   Decoder decoder (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:42:27]
     .clock                        (clock),
+    .reset                        (reset),
     .io_dec_reg_rs1_addr          (_decoder_io_dec_reg_rs1_addr),
     .io_dec_reg_rs2_addr          (_decoder_io_dec_reg_rs2_addr),
     .io_ifu_dec_ready             (_decoder_io_ifu_dec_ready),
