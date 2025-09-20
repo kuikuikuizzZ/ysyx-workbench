@@ -24,4 +24,5 @@ case class Config(
     val EnableSOC = sys.env.get("ENABLE_SOC").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val ENABLE_DEBUG =  sys.env.get("NPC_ENABLE_DEBUG").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val START_ADDR = if (EnableSOC) 0x30000000L.U(32.W) else 0x80000000L.U(32.W)
+    val ENABLE_IVERILOG = sys.env.get("NPC_ENABLE_IVERILOG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
 }

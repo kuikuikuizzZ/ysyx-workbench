@@ -33,7 +33,6 @@ image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-	@$(OBJCOPY) -O verilog --adjust-vma=0x80000000 $(IMAGE).elf $(IMAGE).hex
 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 
 run: insert-arg

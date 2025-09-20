@@ -3,50 +3,9 @@ module main ();
   localparam CLK_PERIOD = 1000000;
   reg clk, reset;
 
-  wire [15:0]   externalPins_gpio_out;	
-  wire [15:0]   externalPins_gpio_in;	// 
-  wire [7:0]    externalPins_gpio_seg_0,
-                externalPins_gpio_seg_1,
-                externalPins_gpio_seg_2,
-                externalPins_gpio_seg_3,
-                externalPins_gpio_seg_4,
-                externalPins_gpio_seg_5,
-                externalPins_gpio_seg_6,
-                externalPins_gpio_seg_7;
-  wire          externalPins_ps2_clk,	// 
-                externalPins_ps2_data;	
-  wire [7:0]    externalPins_vga_r,	// ho
-                externalPins_vga_g,	// ho
-                externalPins_vga_b;	// ho
-  wire          externalPins_vga_hsync,	
-                externalPins_vga_vsync,	
-                externalPins_vga_valid;	
-  wire          externalPins_uart_tx,	
-                externalPins_uart_rx;
-
   ysyxSoCFull dut (
       .clock(clk),	// home/uenui/code
-      .reset(reset),	// home/uenui/code
-      .externalPins_gpio_out    (externalPins_gpio_out),	  
-      .externalPins_gpio_in     (externalPins_gpio_in),	   
-      .externalPins_gpio_seg_0	(externalPins_gpio_seg_0),
-      .externalPins_gpio_seg_1	(externalPins_gpio_seg_1),
-      .externalPins_gpio_seg_2	(externalPins_gpio_seg_2),
-      .externalPins_gpio_seg_3	(externalPins_gpio_seg_3),
-      .externalPins_gpio_seg_4	(externalPins_gpio_seg_4),
-      .externalPins_gpio_seg_5	(externalPins_gpio_seg_5),
-      .externalPins_gpio_seg_6	(externalPins_gpio_seg_6),
-      .externalPins_gpio_seg_7	(externalPins_gpio_seg_7),
-      .externalPins_ps2_clk     (externalPins_ps2_clk)	,	
-      .externalPins_ps2_data    (externalPins_ps2_data) ,	
-      .externalPins_vga_r       (externalPins_vga_r)    ,	
-      .externalPins_vga_g       (externalPins_vga_g)    ,	
-      .externalPins_vga_b       (externalPins_vga_b)    ,	
-      .externalPins_vga_hsync   (externalPins_vga_hsync),	
-      .externalPins_vga_vsync   (externalPins_vga_vsync),	
-      .externalPins_vga_valid   (externalPins_vga_valid),	
-      .externalPins_uart_rx     (externalPins_uart_tx)	,	
-      .externalPins_uart_tx     (externalPins_uart_rx) 	
+      .reset(reset)	// home/uenui/code
   );
     reg [31:0] cycle_count = 0; // 周期计数器
 
@@ -63,8 +22,8 @@ module main ();
         reset = 0; // 释放复位
     end
 
-    wire a0 = dut.asic.cpu.cpu.core.reg_file.regfile_mem_ext.Memory[10];;
-    wire halt = dut.asic.cpu.cpu.core.lsu.csr_files.csr.insn_break;
+    wire a0 = dut.core.reg_file.regfile_mem_ext.Memory[10];;
+    wire halt = dut.core.lsu.csr_files.csr.insn_break;
     // 5. 周期计数器
     always @(posedge clk) begin
         if (reset) begin
