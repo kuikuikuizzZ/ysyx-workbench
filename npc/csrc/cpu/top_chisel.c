@@ -9,8 +9,7 @@
 #ifndef __DEBUG_TOP__
 #define __DEBUG_TOP__
 #define LSU_FCN(key) 
-#define soc_regfile_mem(i) ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__reg_file__DOT__regfile_mem_ ## i
-#define npc_regfile_mem(i) ysyxSoCFull__DOT__core__DOT__reg_file__DOT__regfile_mem_ ## i
+
 
 static uint32_t pc          = 0;
 static uint32_t inst        = 0;
@@ -134,8 +133,8 @@ uint32_t top_gpr(int i) {
         return 0;
     }
     uint32_t gpr_i ;
-    IFDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp-> soc_regfile_mem(i););
-    IFNDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp-> npc_regfile_mem(i));
+    IFDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__reg_file__DOT__regfile_mem_ext__DOT__Memory[i];);
+    IFNDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__reg_file__DOT__regfile_mem_ext__DOT__Memory[i]);
     return gpr_i;
 }
 
