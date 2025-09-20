@@ -109,7 +109,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            wen_reg <= 1'b0;
    |            dw_ready <= 1'b1;
    |        end else begin
-   |            dw_ready <= 1'b1;
+   |            dw_ready <= 1'b0;
    |        end
    |    end
    |     
