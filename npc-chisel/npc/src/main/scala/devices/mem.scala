@@ -85,10 +85,10 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |  initial begin
    |    reg [2047:0] path = 0;
    |    if (!$value$plusargs("image=%s", path)) begin
-   |      path = "./vsrc/dummy-riscv32e-npc.hex";
+   |      path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
    |    end
    |    $display("Reading image from %s", path);
-   |    $readmemh( "./vsrc/mem_zeros.hex", mem,0,20000);
+   |    $readmemh( "./iverilog_scripts/mem_zeros.hex", mem,0,20000);
    |    $readmemh( path, mem,0,2000);
    |  
    |  end
@@ -126,6 +126,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |endmodule
     """.stripMargin)
    } else {
+      
    setInline("ysyx_24100012_AXI4LiteMem.v",
    """module ysyx_24100012_AXI4LiteMem #(
    |    ADDR_WIDTH = 32,

@@ -2378,8 +2378,6 @@ module ysyx_24100012_AXI4LiteMem #(
     ORIGIN_ADDR=32'h80000000,
     MEM_SIZE=32'h08000000
 ) (
-    // // // 全局时钟（根据Chisel的MemIo需补充）
-    // input clk,
     input clock,
     input reset,
 
@@ -2396,21 +2394,36 @@ module ysyx_24100012_AXI4LiteMem #(
     output  reg                     dr_ready,
     output  reg                     dw_ready
 );
-
-import "DPI-C" function void pmem_mask_write(input int inaddr,input int mask, input int din);
-import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, output int dout);
-
-    wire [DATA_WIDTH-1:0] dw_mask_wide;
-    ysyx_24100012_mask_expander me (
-        .mask(dw_mask),
-        .mask_wide(dw_mask_wide)
-    );
+  wire [DATA_WIDTH-1:0] dw_mask_wide;
+  ysyx_24100012_mask_expander me (
+      .mask(dw_mask),
+      .mask_wide(dw_mask_wide)
+  );
+  reg [7:0] mem [20000:0];
+  initial begin
+    reg [2047:0] path = 0;
+    if (!$value$plusargs("image=%s", path)) begin
+      path = "./vsrc/dummy-riscv32e-npc.hex";
+    end
+    $display("Reading image from %s", path);
+    $readmemh( "./vsrc/mem_zeros.hex", mem,0,20000);
+    $readmemh( path, mem,0,2000);
+  
+  end
+    reg wen_reg;
+    reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
     wire [31:0] dw_addr_aligned,dr_addr_aligned; 
     assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0} ;
     assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0} ;
     always @(posedge clock) begin
         if (dw_en) begin
-            pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
+           rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
+           wdata_reg <= dw_data;
+           wmask_wide_reg <= dw_mask_wide; 
+           wen_reg <= 1'b1;
+        end else if (wen_reg) begin
+            mem[dw_addr_aligned] <= wdata_reg & wmask_wide_reg | rdata_reg & ~wmask_wide_reg;
+            wen_reg <= 1'b0;
             dw_ready = 1'b1;
         end else begin
             dw_ready = 1'b0;
@@ -2419,18 +2432,14 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
      
     always @(posedge clock) begin
         if (dr_en) begin
-            // -1 -> 1111
-            pmem_mask_read(dr_addr_aligned, -1, dr_data);
+            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
             dr_ready = 1'b0;
-        end
-
-    
+        end    
     end
 
-    assign dw_ready = 1'b1;
 
 endmodule
     
