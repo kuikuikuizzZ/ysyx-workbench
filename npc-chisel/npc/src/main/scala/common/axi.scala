@@ -226,7 +226,7 @@ class AXI4LiteSlave (implicit val conf: Config) extends Module{
 
     switch (state) {
         is (s_idle)     { state := Mux(io.axi_io.ar.valid || (io.axi_io.aw.valid && io.axi_io.w.valid), s_inflight, s_idle) }
-        is (s_inflight) { state := Mux((!is_write &&io.out.dr.ready) || (is_write && io.out.dw.ready) ,  s_wait_rready_bready, s_inflight) }
+        is (s_inflight) { state := Mux(io.axi_io.ar.ready || io.axi_io.aw.ready, Mux((!is_write &&io.out.dr.ready) || (is_write && io.out.dw.ready) ,  s_idle, s_wait_rready_bready),s_inflight)}
         // is (s_inflight) { state := Mux(io.out.dr.ready ,  s_wait_rready_bready, s_inflight) }
         is (s_wait_rready_bready) { state := Mux(io.axi_io.r.ready || io.axi_io.b.ready , s_idle, s_wait_rready_bready) }
     }
