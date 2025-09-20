@@ -59,7 +59,7 @@ class ICache(implicit val conf: Config) extends Module {
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
     // pipeline icache
-    val req_valid_reg       = RegNext(io.req_valid,false.B)
+    val req_valid_reg = RegNext(io.req_valid,false.B)
     val hit_reg = RegNext(hit,false.B)
     val cache_reg = RegNext(cache_data,0.U) 
     // pipeline icache

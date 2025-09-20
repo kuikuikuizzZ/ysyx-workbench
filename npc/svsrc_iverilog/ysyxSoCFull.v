@@ -2432,7 +2432,7 @@ module ysyx_24100012_AXI4LiteMem #(
      
     always @(posedge clock) begin
         if (dr_en) begin
-            rdata = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
+            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
