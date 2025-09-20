@@ -2600,11 +2600,13 @@ module AXI4LiteSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-c
   reg         is_write_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:224:67]
   wire        is_write = (|state) ? is_write_r : accept_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :222:30, :223:81, :224:{23,67}]
   wire        _io_axi_io_b_valid_T = state == 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :228:39, :234:57]
+  wire        io_axi_io_ar_ready_0 = accept_read | _io_axi_io_b_valid_T & ~is_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:222:42, :224:23, :234:{47,57,72,75}]
+  wire        io_axi_io_aw_ready_0 = accept_write | _io_axi_io_b_valid_T & is_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:223:81, :224:23, :234:57, :236:{47,72}]
   reg  [31:0] araddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:237:86]
   reg  [31:0] awaddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:238:86]
   reg  [31:0] wdata_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:239:86]
   reg  [3:0]  wstrb_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:240:86]
-  wire        _io_axi_io_b_valid_T_2 = state == 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :229:39, :255:93]
+  wire        _io_axi_io_b_valid_T_2 = state == 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :229:85, :255:93]
   wire        io_axi_io_r_last_0 =
     ~is_write & _io_axi_io_b_valid_T & io_out_dr_ready | _io_axi_io_b_valid_T_2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:224:23, :234:{57,75}, :255:{38,83,93}]
   reg  [31:0] io_axi_io_r_data_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:256:80]
@@ -2615,12 +2617,12 @@ module AXI4LiteSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-c
     end
     else if (|state) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :222:30]
       if (state == 2'h1) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :227:20, :228:39]
-        if (~is_write & io_out_dr_ready | is_write & io_out_dw_ready)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:224:23, :229:{41,51,70,83}]
-          state <= 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :229:39]
-        else	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:229:70]
+        if (io_axi_io_ar_ready_0 | io_axi_io_aw_ready_0)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:229:59, :234:47, :236:47]
+          state <= {~(~is_write & io_out_dr_ready | is_write & io_out_dw_ready), 1'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :223:24, :224:23, :229:{85,87,97,116,129}]
+        else	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:229:59]
           state <= 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :228:39]
       end
-      else if (state == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :227:20, :229:39]
+      else if (state == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :227:20, :229:85]
         state <= {~(io_axi_io_r_ready | io_axi_io_b_ready), 1'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:221:24, :223:24, :231:{49,68}]
     end
     else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:222:30]
@@ -2664,11 +2666,11 @@ module AXI4LiteSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-c
       `FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  assign io_axi_io_ar_ready = accept_read | _io_axi_io_b_valid_T & ~is_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :222:42, :224:23, :234:{47,57,72,75}]
+  assign io_axi_io_ar_ready = io_axi_io_ar_ready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :234:47]
   assign io_axi_io_r_valid = io_axi_io_r_last_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :255:83]
   assign io_axi_io_r_data = _io_axi_io_b_valid_T ? io_out_dr_data : io_axi_io_r_data_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :234:57, :256:{31,80}]
   assign io_axi_io_r_last = io_axi_io_r_last_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :255:83]
-  assign io_axi_io_aw_ready = accept_write | _io_axi_io_b_valid_T & is_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :223:81, :224:23, :234:57, :236:{47,72}]
+  assign io_axi_io_aw_ready = io_axi_io_aw_ready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :236:47]
   assign io_axi_io_w_ready = accept_write | _io_axi_io_b_valid_T & is_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :223:81, :224:23, :234:57, :235:{47,72}]
   assign io_axi_io_b_valid =
     is_write & (_io_axi_io_b_valid_T & io_out_dw_ready | _io_axi_io_b_valid_T_2);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7, :224:23, :234:57, :255:93, :258:{37,65,86}]
