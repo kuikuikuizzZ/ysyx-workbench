@@ -2405,25 +2405,25 @@ module ysyx_24100012_AXI4LiteMem #(
       .mask(dw_mask),
       .mask_wide(dw_mask_wide)
   );
-  reg [31:0] mem [20000:0];
+  reg [7:0] mem [80000:0];
   initial begin
     reg [2047:0] path = 0;
     if (!$value$plusargs("image=%s", path)) begin
       path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
     end
     $display("Reading image from %s", path);
-    $readmemh( "./iverilog_scripts/mem_zeros.hex", mem,0,20000);
+    $readmemh( "./iverilog_scripts/mem_zeros.hex", mem,0,80000);
     $readmemh( path, mem,0,2000);
   
   end
     reg wen_reg;
     reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
     wire [31:0] dw_addr_aligned,dr_addr_aligned; 
-    assign dw_addr_aligned = ({dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000)>>2 ;
-    assign dr_addr_aligned = ({dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000)>>2 ;
+    assign dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
+    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
     always @(posedge clock) begin
         if (dw_en) begin
-           rdata_reg = mem[dw_addr_aligned];
+           rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
            wdata_reg <= dw_data;
            wmask_wide_reg <= dw_mask_wide; 
            wen_reg <= 1'b1;
@@ -2439,13 +2439,15 @@ module ysyx_24100012_AXI4LiteMem #(
      
     always @(posedge clock) begin
         if (dr_en) begin
-            dr_data = {mem[dr_addr_aligned][7:0],mem[dr_addr_aligned][15:8],mem[dr_addr_aligned][23:16],mem[dr_addr_aligned][31:24]};
+            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
             dr_ready = 1'b0;
         end    
     end
+
+
 endmodule
     
 
