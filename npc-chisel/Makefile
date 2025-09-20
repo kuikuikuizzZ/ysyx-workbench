@@ -60,10 +60,12 @@ idea:
 clean:
 	-rm -rf $(BUILD_DIR)
 	-rm -rf $(NPC_HOME)/build
-
-clean_npc:
-	-rm -rf $(NPC_BUILD_DIR)
 	-rm -rf $(NPC_HOME)/svsrc_no_soc
+	-rm -rf $(NPC_HOME)/svsrc_iverilog
+
+# clean_npc:
+# 	-rm -rf $(NPC_BUILD_DIR)
+# 	-rm -rf $(NPC_HOME)/svsrc_no_soc
 
 .PHONY: test verilog help reformat checkformat clean build verilog_old
 
