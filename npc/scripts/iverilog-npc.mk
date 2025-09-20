@@ -20,4 +20,4 @@ iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
 sim-iverilog: iverilog-build
 	@echo $(ARGS) $(IMG)
 # 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
-	vvp $(BUILD_DIR)/iverilog/main.vvp  
+	vvp $(BUILD_DIR)/iverilog/main.vvp  +image=$(IMG).hex
