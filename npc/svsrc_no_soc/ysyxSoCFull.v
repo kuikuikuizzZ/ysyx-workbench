@@ -1292,7 +1292,7 @@ module RegFile(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
   reg  [31:0] regfile_mem_15;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
   reg  [31:0] casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
   always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
-    casez (io_dec_rs1_addr[3:0])	// @[<stdin>:2269:33, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
+    casez (io_dec_rs1_addr[3:0])	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:29:33, :40:25]
       4'b0000:
         casez_tmp = regfile_mem_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
       4'b0001:
@@ -1325,11 +1325,11 @@ module RegFile(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
         casez_tmp = regfile_mem_14;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
       default:
         casez_tmp = regfile_mem_15;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
-    endcase	// @[<stdin>:2269:33, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
+    endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:29:33, :40:25]
   end // always_comb
   reg  [31:0] casez_tmp_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:41:25]
   always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
-    casez (io_dec_rs2_addr[3:0])	// @[<stdin>:2273:33, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
+    casez (io_dec_rs2_addr[3:0])	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:30:33, :40:25]
       4'b0000:
         casez_tmp_0 = regfile_mem_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
       4'b0001:
@@ -1362,9 +1362,9 @@ module RegFile(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
         casez_tmp_0 = regfile_mem_14;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
       default:
         casez_tmp_0 = regfile_mem_15;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :40:25]
-    endcase	// @[<stdin>:2273:33, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:40:25]
+    endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:30:33, :40:25]
   end // always_comb
-  wire        _GEN = io_wb_valid & io_wb_bits_rf_wen & (|io_wb_bits_wbaddr);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:36:{42,54}]
+  wire        _GEN = io_wb_valid & io_wb_bits_rf_wen & (|(io_wb_bits_wbaddr[3:0]));	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:31:35, :36:{42,54}]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7]
     if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7]
       regfile_mem_0 <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:{24,32}]
@@ -1385,37 +1385,37 @@ module RegFile(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
       regfile_mem_15 <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:{24,32}]
     end
     else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h0)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & ~(|(io_wb_bits_wbaddr[3:0])))	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:31:35, :34:24, :36:{42,54,64}, :37:22]
         regfile_mem_0 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h1)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_1 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h2)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_2 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h3)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h3)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_3 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h4)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h4)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_4 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h5)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h5)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_5 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h6)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h6)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_6 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h7)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h7)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_7 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h8)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h8)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_8 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h9)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'h9)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_9 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hA)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hA)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_10 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hB)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hB)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_11 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hC)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hC)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_12 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hD)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hD)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_13 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hE)	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:24, :36:{42,64}, :37:22]
+      if (_GEN & io_wb_bits_wbaddr[3:0] == 4'hE)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_14 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
-      if (_GEN & (&(io_wb_bits_wbaddr[3:0])))	// @[<stdin>:2266:19, home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24, :36:{42,64}, :37:22]
+      if (_GEN & (&(io_wb_bits_wbaddr[3:0])))	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:31:35, :34:24, :36:{42,64}, :37:22]
         regfile_mem_15 <= io_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:34:24]
     end
   end // always @(posedge)
@@ -1454,8 +1454,8 @@ module RegFile(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/
       `FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  assign io_out_rs1_data = (|io_dec_rs1_addr) ? casez_tmp : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:32, :40:{25,36}]
-  assign io_out_rs2_data = (|io_dec_rs2_addr) ? casez_tmp_0 : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :34:32, :41:{25,36}]
+  assign io_out_rs1_data = (|(io_dec_rs1_addr[3:0])) ? casez_tmp : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :29:33, :34:32, :40:{25,36}]
+  assign io_out_rs2_data = (|(io_dec_rs2_addr[3:0])) ? casez_tmp_0 : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/RegFile.scala:26:7, :30:33, :34:32, :41:{25,36}]
 endmodule
 
 module EXU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/EXU.scala:60:7]
