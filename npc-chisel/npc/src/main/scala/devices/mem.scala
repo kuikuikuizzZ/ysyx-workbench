@@ -103,7 +103,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |           wdata_reg <= dw_data;
    |           wmask_wide_reg <= dw_mask_wide; 
    |           wen_reg <= 1'b1;
-   |           dw_ready <= 1'b1;
+   |           dw_ready <= 1'b0;
    |        end else if (wen_reg) begin
    |            mem[dw_addr_aligned] = wdata_reg & wmask_wide_reg | rdata_reg & ~wmask_wide_reg;
    |            wen_reg <= 1'b0;
