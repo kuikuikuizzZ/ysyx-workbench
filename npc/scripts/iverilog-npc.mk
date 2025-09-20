@@ -12,8 +12,10 @@ verilog-iverilog:
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
-iverilog-build: $(SVSOURCES) $(IVERILOG_MAIN_FILE)
+iverilog-config:
 	$(MAKE) riscv32e-iverilog_defconfig
+
+iverilog-build: iverilog-config $(SVSOURCES) $(IVERILOG_MAIN_FILE)
 	mkdir -p $(BUILD_DIR)/iverilog
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
@@ -22,3 +24,7 @@ sim-iverilog: iverilog-build
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
 	vvp $(BUILD_DIR)/iverilog/main.vvp  +image=$(IMG).hex
 # 	vvp $(BUILD_DIR)/iverilog/main.vvp  
+
+sim-iverilog-raw: iverilog-build
+	vvp $(BUILD_DIR)/iverilog/main.vvp  
+

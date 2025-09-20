@@ -1,8 +1,12 @@
 # Chisel专用配置
-ifdef CONFIG_SOC
-	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel-soc
-else 
-	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel
+ifdef CONFIG_IVERILOG
+	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel-iverilog
+else
+	ifdef CONFIG_SOC
+		BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel-soc
+	else 
+		BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel
+	endif
 endif
 
 TOP_NAME = ysyxSoCFull
