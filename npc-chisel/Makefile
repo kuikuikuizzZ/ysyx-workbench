@@ -28,7 +28,7 @@ verilog_iverilog_build:
 
 verilog_iverilog_netlist_build:
 	$(call git_commit, "generate verilog")
-	mkdir -p $(IVERILOG_BUILD_DIR)
+	mkdir -p $(NETLIST_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_netlist
 	mill -i $(PRJ).runMain ElaborateIverilogNetlist 
 
