@@ -11,13 +11,13 @@ verilog_build:
 	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build/
-	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate 
 
 verilog_npc_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(NPC_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
-	mill -i $(PRJ).runMain ElaborateNPC --target-dir $(NPC_BUILD_DIR)
+	mill -i $(PRJ).runMain ElaborateNPC 
 
 verilog_iverilog_build:
 	$(call git_commit, "generate verilog")
@@ -60,10 +60,12 @@ idea:
 clean:
 	-rm -rf $(BUILD_DIR)
 	-rm -rf $(NPC_HOME)/build
-
-clean_npc:
-	-rm -rf $(NPC_BUILD_DIR)
 	-rm -rf $(NPC_HOME)/svsrc_no_soc
+	-rm -rf $(NPC_HOME)/svsrc_iverilog
+
+# clean_npc:
+# 	-rm -rf $(NPC_BUILD_DIR)
+# 	-rm -rf $(NPC_HOME)/svsrc_no_soc
 
 .PHONY: test verilog help reformat checkformat clean build verilog_old
 

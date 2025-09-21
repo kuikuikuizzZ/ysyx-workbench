@@ -173,7 +173,7 @@ class Decoder(implicit val conf: Config) extends Module
                      ))))))))))   
 
    // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
-   val reg_fencei = RegNext(cs_fencei)
+   val reg_fencei = RegNext(cs_fencei,N)
    val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
    val deckill    = (ctrl_exe_pc_sel =/= PC_4)
 
