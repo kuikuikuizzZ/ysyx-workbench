@@ -50,6 +50,12 @@ extern "C" {
             // printf("pmem read: raddr = %x, data %.8x mask %.8x\n", raddr,*rword,mask);
             return;
         }
+        IFNDEF(CONFIG_SOC, 
+            IFDEF(CONFIG_DEVICE, {
+                if (raddr==CONFIG_RTC_MMIO ||  raddr==(CONFIG_RTC_MMIO+4) ||
+                        raddr==(CONFIG_SERIAL_MMIO) || raddr==(CONFIG_SERIAL_MMIO+4) )
+                    *rword = mmio_read(raddr, 1);
+        }));
         return;
     }
 
@@ -61,6 +67,12 @@ extern "C" {
             host_write(guest_to_host(waddr), 4,rword);
             // printf("pmem write: waddr = %x data %.8x , mask %.8x \n",waddr, wdata, mask);
         }
+        IFNDEF(CONFIG_SOC, 
+            IFDEF(CONFIG_DEVICE, ){
+            if (waddr==CONFIG_RTC_MMIO ||  waddr==(CONFIG_RTC_MMIO+4) ||
+                waddr==(CONFIG_SERIAL_MMIO) || waddr==(CONFIG_SERIAL_MMIO+4) )
+             mmio_write(waddr, 1, wdata);
+        });
 
         return;
     }

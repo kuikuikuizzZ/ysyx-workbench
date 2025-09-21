@@ -58,7 +58,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
    |    ORIGIN_ADDR=32'h80000000,
-   |    MEM_SIZE=32'h08000000
+   |    MEM_SIZE=32'h01000000
    |) (
    |    input clock,
    |    input reset,
@@ -81,15 +81,15 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |      .mask(dw_mask),
    |      .mask_wide(dw_mask_wide)
    |  );
-   |  reg [7:0] mem [80000:0];
+   |  reg [7:0] mem [MEM_SIZE:0];
    |  reg [2047:0] path = 0;
+   |  reg [63:0] current_time;
    |  initial begin
    |    if (!$value$plusargs("image=%s", path)) begin
    |      path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
    |    end
    |    $display("Reading image from %s", path);
-   |    $readmemh( "./iverilog_scripts/mem_zeros.hex", mem,0,80000);
-   |    $readmemh( path, mem,0,2000);
+   |    $readmemh( path, mem,0,200000);
    |  
    |  end
    |    reg wen_reg;
@@ -99,13 +99,19 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |    always @(posedge clock) begin
-   |        if (dw_en) begin
+   |        if (dw_en && dw_addr ==  32'ha00003f8) begin
+   |            $write("%c",dw_data);
+   |            dw_ready = 1'b1;
+   |        end else if (dw_en && dw_addr >= 32'h80000000 && dw_addr < 32'h90000000) begin
    |           rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
    |           wdata_reg <= dw_data;
    |           dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |           wmask_wide_reg <= dw_mask_wide; 
    |           wen_reg <= 1'b1;
    |           dw_ready = 1'b1;
+   |        end else if (dw_en ) begin
+   |            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
+   |            dw_ready = 1'b1;
    |        end else if (wen_reg) begin
    |            mem[dw_addr_aligned+3] <= wdata_masked[31:24];
    |            mem[dw_addr_aligned+2] <= wdata_masked[23:16];
@@ -113,24 +119,25 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            mem[dw_addr_aligned] <= wdata_masked[7:0];
    |            wen_reg <= 1'b0;
    |            dw_ready = 1'b0;
-   |            //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
-   |        end else begin
+   |            
+   |        end  else begin
    |            dw_ready = 1'b0;
    |        end
    |    end
-   |     
-   |    always @(posedge clock) begin
-   |        if (dr_en) begin
+   |   
+   |  always @(posedge clock) begin
+   |     if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
    |            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |            dr_ready = 1'b1;
-   |            //$display("read %x from %x",dr_data,dr_addr_aligned);
-   |        end else begin
-   |            dr_data = 32'b0;
-   |            dr_ready = 1'b0;
-   |        end    
-   |    end
-   |
-   |
+   |     end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
+   |         current_time = $time;
+   |         dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
+   |         dr_ready = 1'b1;
+   |     end else begin 
+   |         dr_data = 32'b0;
+   |         dr_ready = 1'b0;
+   |     end
+   |   end
    |endmodule
     """.stripMargin)
    } else {

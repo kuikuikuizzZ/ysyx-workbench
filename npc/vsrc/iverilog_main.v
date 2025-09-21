@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000;
+  localparam CLK_PERIOD = 1000000000;
   reg clk, reset;
 
   ysyxSoCFull dut (
@@ -36,8 +36,8 @@ module main ();
 
   initial begin
   // 初始化VCD波形文件
-  $dumpfile("iverilog_wave.fst");
-  $dumpvars(0, dut); // 记录所有信号
+  // $dumpfile("iverilog_wave.fst");
+  // $dumpvars(0, dut); // 记录所有信号
   
   
   // 等待复位释放
@@ -58,7 +58,7 @@ module main ();
     // 分支2: Halt信号监控
     begin
       wait(halt == 1);
-      $display("Halt signal detected at time %t", $time);
+      $display("\nHalt signal detected at time %t", $time);
     end
   join_any // 任意一个条件满足即继续
   
@@ -77,10 +77,5 @@ module main ();
   
   $finish;
 end
-
-  assign externalPins_ps2_clk = 1'b0;
-  assign externalPins_ps2_data = 1'b0;
-  assign externalPins_gpio_in = 16'b0;
-  assign externalPins_uart_rx = 1'b0;
 
 endmodule // main
