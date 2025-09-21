@@ -2293,7 +2293,7 @@ module ysyx_24100012_AXI4LiteMem #(
 
     output  reg [DATA_WIDTH-1:0]    dr_data,   // 端口数据
     output  reg                     dr_ready,
-    output                      dw_ready
+    output  reg                     dw_ready
 );
   wire [DATA_WIDTH-1:0] dw_mask_wide;
   ysyx_24100012_mask_expander me (
