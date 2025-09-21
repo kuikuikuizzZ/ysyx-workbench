@@ -123,7 +123,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |        end
    |    end
    |     
-   |  always @(posedge clock)
+   |  always @(posedge clock) begin
    |     if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
    |            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |            dr_ready = 1'b1;
