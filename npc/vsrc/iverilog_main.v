@@ -22,7 +22,7 @@ module main ();
         reset = 0; // 释放复位
     end
 
-    wire a0 = dut.core.reg_file.regfile_mem_ext.Memory[10];;
+    wire a0 = dut.core.core.reg_file.regfile_mem_ext.Memory[10];;
     reg halt; 
     // 5. 周期计数器
     always @(posedge clk) begin
@@ -30,7 +30,7 @@ module main ();
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
-            halt <= dut.core.lsu.csr_files.csr.insn_break;
+            halt <= dut.core.core.lsu.csr_files.csr.insn_break;
         end
     end
 
