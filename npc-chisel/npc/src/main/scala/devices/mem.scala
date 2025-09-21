@@ -58,7 +58,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
    |    ORIGIN_ADDR=32'h80000000,
-   |    MEM_SIZE=32'h01000000
+   |    MEM_SIZE=32'h04000000
    |) (
    |    input clock,
    |    input reset,

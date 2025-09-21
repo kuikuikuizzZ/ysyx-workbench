@@ -43,3 +43,6 @@ sim-iverilog-raw: iverilog-build
 sim-iverilog-netlist: netlist-build
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
 	vvp $(BUILD_DIR)/netlist/main.vvp  +image=$(IMG).hex 
+
+sim-iverilog-netlist-raw: netlist-build
+	vvp $(BUILD_DIR)/netlist/main.vvp  
