@@ -2332,7 +2332,7 @@ module ysyx_24100012_AXI4LiteMem #(
             mem[dw_addr_aligned] <= wdata_masked[7:0];
             wen_reg <= 1'b0;
             dw_ready = 1'b0;
-            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
+            //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
         end else begin
             dw_ready = 1'b0;
         end
@@ -2342,7 +2342,7 @@ module ysyx_24100012_AXI4LiteMem #(
         if (dr_en) begin
             dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
-            $display("read %x from %x",dr_data,dr_addr_aligned);
+            //$display("read %x from %x",dr_data,dr_addr_aligned);
         end else begin
             dr_data = 32'b0;
             dr_ready = 1'b0;
