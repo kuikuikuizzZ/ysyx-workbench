@@ -2308,7 +2308,7 @@ module ysyx_24100012_AXI4LiteMem #(
     end
     $display("Reading image from %s", path);
     $readmemh( "./iverilog_scripts/mem_zeros.hex", mem,0,80000);
-    $readmemh( path, mem,0,2000);
+    $readmemh( path, mem,0,4000);
   
   end
     reg wen_reg;
