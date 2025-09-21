@@ -98,7 +98,10 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |    always @(posedge clock) begin
-   |        if (dw_en && dw_addr >= 32'h80000000) begin
+   |        if (dw_en && dw_addr ==  32'ha00003f8) begin
+   |            $write(stdout,"%c",dw_data);
+   |            dw_ready = 1'b1;
+   |        end else if (dw_en && dw_addr >= 32'h80000000) begin
    |           rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
    |           wdata_reg <= dw_data;
    |           dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
@@ -113,9 +116,6 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            wen_reg <= 1'b0;
    |            dw_ready = 1'b0;
    |            //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
-   |        end else if (dw_en && dw_addr ==  32'ha00003f8) begin
-   |            $fwrite(stdout,"%c",dw_data);
-   |            dw_ready = 1'b1;
    |        end else begin
    |            dw_ready = 1'b0;
    |        end

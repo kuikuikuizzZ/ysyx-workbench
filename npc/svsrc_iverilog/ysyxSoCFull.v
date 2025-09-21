@@ -2277,7 +2277,7 @@ module ysyx_24100012_AXI4LiteMem #(
     DATA_WIDTH = 32,
     MASK_WIDTH = 4,
     ORIGIN_ADDR=32'h80000000,
-    MEM_SIZE=32'h08000000
+    MEM_SIZE=32'h01000000
 ) (
     input clock,
     input reset,
@@ -2300,14 +2300,14 @@ module ysyx_24100012_AXI4LiteMem #(
       .mask(dw_mask),
       .mask_wide(dw_mask_wide)
   );
-  reg [7:0] mem [80000:0];
+  reg [7:0] mem [MEM_SIZE:0];
   reg [2047:0] path = 0;
   initial begin
     if (!$value$plusargs("image=%s", path)) begin
       path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
     end
     $display("Reading image from %s", path);
-    $readmemh( path, mem,0,40000);
+    $readmemh( path, mem,0,200000);
   
   end
     reg wen_reg;
@@ -2318,7 +2318,7 @@ module ysyx_24100012_AXI4LiteMem #(
     assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
     always @(posedge clock) begin
         if (dw_en && dw_addr ==  32'ha00003f8) begin
-            $write("%c",dw_data[7:0]);
+            $write(stdout,"%c",dw_data);
             dw_ready = 1'b1;
         end else if (dw_en && dw_addr >= 32'h80000000) begin
            rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
