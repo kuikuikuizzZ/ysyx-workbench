@@ -2335,7 +2335,7 @@ module ysyx_24100012_AXI4LiteMem #(
             wen_reg <= 1'b0;
             dw_ready = 1'b0;
             //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
-        end  else begin
+        end else begin
             dw_ready = 1'b0;
         end
     end
