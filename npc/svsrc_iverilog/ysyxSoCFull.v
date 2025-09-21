@@ -2328,6 +2328,9 @@ module ysyx_24100012_AXI4LiteMem #(
            wmask_wide_reg <= dw_mask_wide; 
            wen_reg <= 1'b1;
            dw_ready = 1'b1;
+        end else if (dw_en && ~wen_reg) begin
+            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
+            dw_ready = 1'b1;
         end else if (wen_reg) begin
             mem[dw_addr_aligned+3] <= wdata_masked[31:24];
             mem[dw_addr_aligned+2] <= wdata_masked[23:16];
@@ -2335,7 +2338,7 @@ module ysyx_24100012_AXI4LiteMem #(
             mem[dw_addr_aligned] <= wdata_masked[7:0];
             wen_reg <= 1'b0;
             dw_ready = 1'b0;
-            //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
+            
         end  else begin
             dw_ready = 1'b0;
         end
@@ -2345,7 +2348,7 @@ module ysyx_24100012_AXI4LiteMem #(
      if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
             dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
-            
+ 
      end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
          current_time = $time;
          dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
