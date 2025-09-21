@@ -16,7 +16,7 @@ class ysyxSoCFull extends Module
     })
    implicit val conf = Config()
     io := DontCare
-    val core = Module(new Core())
+    val core = Module(new ysyx_24100012())
     core.io := DontCare
 
 
