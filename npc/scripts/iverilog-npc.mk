@@ -26,5 +26,5 @@ sim-iverilog: iverilog-build
 # 	vvp $(BUILD_DIR)/iverilog/main.vvp  
 
 sim-iverilog-raw: iverilog-build
-	vvp $(BUILD_DIR)/iverilog/main.vvp  
+	vvp $(BUILD_DIR)/iverilog/main.vvp  -fst
 

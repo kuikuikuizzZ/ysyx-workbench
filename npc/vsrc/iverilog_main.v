@@ -36,7 +36,7 @@ module main ();
 
   initial begin
   // 初始化VCD波形文件
-  $dumpfile("wave.vcd");
+  $dumpfile("iverilog_wave.fst");
   $dumpvars(0, dut); // 记录所有信号
   
   
