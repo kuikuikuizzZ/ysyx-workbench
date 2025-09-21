@@ -1512,6 +1512,11 @@ module LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/
   assign io_to_ctl_mem_exception = io_exe_mem_bits_exception[0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :174:33]
   assign io_clintIO_dr_addr = io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
   assign io_clintIO_dr_en = ~io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :127:48]
+  always @(posedge clock) begin
+    if (io_exe_mem_bits_ctrl_mem_val) begin
+      $display("pc: %x, inst %x", io_exe_mem_bits_pc, io_exe_mem_bits_inst);
+    end 
+  end
 endmodule
 
 module WBU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/WBU.scala:25:7]
@@ -2337,7 +2342,7 @@ module ysyx_24100012_AXI4LiteMem #(
         if (dr_en) begin
             dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
- |          $display("read %x from %x",dr_data,dr_addr_aligned);
+            $display("read %x from %x",dr_data,dr_addr_aligned);
         end else begin
             dr_data = 32'b0;
             dr_ready = 1'b0;
