@@ -96,7 +96,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
    |    wire [31:0] dr_addr_aligned;
    |    reg [31:0] dw_addr_aligned; 
-   |    wire wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
+   |    wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |    always @(posedge clock) begin
    |        if (dw_en) begin
@@ -113,7 +113,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            mem[dw_addr_aligned] <= wdata_masked[7:0];
    |            wen_reg <= 1'b0;
    |            dw_ready = 1'b0;
-   |            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
+   |            //$display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
    |        end else begin
    |            dw_ready = 1'b0;
    |        end
@@ -123,7 +123,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |        if (dr_en) begin
    |            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |            dr_ready = 1'b1;
-   |            $display("read %x from %x",dr_data,dr_addr_aligned);
+   |            //$display("read %x from %x",dr_data,dr_addr_aligned);
    |        end else begin
    |            dr_data = 32'b0;
    |            dr_ready = 1'b0;
