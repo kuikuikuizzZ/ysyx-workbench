@@ -2302,6 +2302,7 @@ module ysyx_24100012_AXI4LiteMem #(
   );
   reg [7:0] mem [MEM_SIZE:0];
   reg [2047:0] path = 0;
+  wire [63:0] current_time;
   initial begin
     if (!$value$plusargs("image=%s", path)) begin
       path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
@@ -2345,8 +2346,9 @@ module ysyx_24100012_AXI4LiteMem #(
             dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
             //$display("read %x from %x",dr_data,dr_addr_aligned);
-     end else if (dr_en) begin
-         $display("read %x from %x",dr_data,dr_addr_aligned);
+     end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
+         current_time = $time;
+         dr_data = (dr_addr == 32'ha0000048) current_time[31:0]:current_time[63:32];
      end else begin 
          dr_data = 32'b0;
          dr_ready = 1'b0;

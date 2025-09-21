@@ -128,7 +128,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |            dr_ready = 1'b1;
    |            //$display("read %x from %x",dr_data,dr_addr_aligned);
    |     end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
-   |         current_time = $time
+   |         current_time = $time;
    |         dr_data = (dr_addr == 32'ha0000048) current_time[31:0]:current_time[63:32];
    |     end else begin 
    |         dr_data = 32'b0;
