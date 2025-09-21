@@ -13,6 +13,10 @@ verilog-iverilog:
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
+verilog-netlist:
+	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
+	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-netlist
+
 iverilog-config:
 	$(MAKE) riscv32e-iverilog_defconfig
 

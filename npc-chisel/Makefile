@@ -1,6 +1,7 @@
 BUILD_DIR = ./build/soc
 NPC_BUILD_DIR = ./build/npc
 IVERILOG_BUILD_DIR = ./build/iverilog
+NETLIST_BUILD_DIR = ./build/netlist
 PRJ = npc
 
 test:
@@ -25,6 +26,12 @@ verilog_iverilog_build:
 	mkdir -p $(NPC_HOME)/svsrc_iverilog
 	mill -i $(PRJ).runMain ElaborateIverilog 
 
+verilog_iverilog_netlist_build:
+	$(call git_commit, "generate verilog")
+	mkdir -p $(IVERILOG_BUILD_DIR)
+	mkdir -p $(NPC_HOME)/svsrc_netlist
+	mill -i $(PRJ).runMain ElaborateIverilogNetlist 
+
 
 verilog: verilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v
@@ -41,6 +48,12 @@ verilog-iverilog: verilog_iverilog_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_iverilog/
+
+verilog-netlist: verilog_iverilog_netlist_build
+# 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
+	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
+	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
+
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
@@ -62,6 +75,7 @@ clean:
 	-rm -rf $(NPC_HOME)/build
 	-rm -rf $(NPC_HOME)/svsrc_no_soc
 	-rm -rf $(NPC_HOME)/svsrc_iverilog
+	-rm -rf $(NPC_HOME)/svsrc_netlist
 
 # clean_npc:
 # 	-rm -rf $(NPC_BUILD_DIR)

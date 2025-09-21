@@ -77,6 +77,20 @@ object ElaborateIverilog extends App {
     firtoolOptions)
 }
 
+object ElaborateIverilogNetlist extends App {
+  val firtoolOptions = Array(
+    "--lowering-options=" + List(
+       "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket",
+    ).reduce(_ + "," + _),
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new ysyxSoCFull(),
+    Array("--target","verilog","--target-dir","build/netlist","--split-verilog"),
+    firtoolOptions)
+}
+
 
 
 // object Elaborate extends App {
