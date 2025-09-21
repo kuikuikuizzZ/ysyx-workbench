@@ -87,7 +87,7 @@ object ElaborateIverilogNetlist extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyxSoCFull(),
-    Array("--target","verilog","--target-dir","build/netlist","--split-verilog"),
+    Array("--target","verilog","--target-dir","build/netlist"),
     firtoolOptions)
 }
 

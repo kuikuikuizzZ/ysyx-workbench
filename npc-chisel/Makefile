@@ -30,7 +30,7 @@ verilog_iverilog_netlist_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(NETLIST_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_netlist
-	mill -i $(PRJ).runMain ElaborateIverilogNetlist 
+	mill -i $(PRJ).runMain ElaborateIverilogNetlist  --split-verilog
 
 
 verilog: verilog_build
