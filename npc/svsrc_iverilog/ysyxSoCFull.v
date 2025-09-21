@@ -2301,8 +2301,8 @@ module ysyx_24100012_AXI4LiteMem #(
       .mask_wide(dw_mask_wide)
   );
   reg [7:0] mem [80000:0];
+  reg [2047:0] path = 0;
   initial begin
-    reg [2047:0] path = 0;
     if (!$value$plusargs("image=%s", path)) begin
       path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
     end
@@ -2327,6 +2327,7 @@ module ysyx_24100012_AXI4LiteMem #(
             mem[dw_addr_aligned] = wdata_reg & wmask_wide_reg | rdata_reg & ~wmask_wide_reg;
             wen_reg <= 1'b0;
             dw_ready = 1'b0;
+            $display("write %x to %x",wdata_reg,dw_addr_aligned);
         end else begin
             dw_ready = 1'b0;
         end
@@ -2336,6 +2337,7 @@ module ysyx_24100012_AXI4LiteMem #(
         if (dr_en) begin
             dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
             dr_ready = 1'b1;
+ |            $display("read %x from %x",dr_data,dr_addr_aligned);
         end else begin
             dr_data = 32'b0;
             dr_ready = 1'b0;

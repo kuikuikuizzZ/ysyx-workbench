@@ -82,8 +82,8 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |      .mask_wide(dw_mask_wide)
    |  );
    |  reg [7:0] mem [80000:0];
+   |  reg [2047:0] path = 0;
    |  initial begin
-   |    reg [2047:0] path = 0;
    |    if (!$value$plusargs("image=%s", path)) begin
    |      path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
    |    end
@@ -118,7 +118,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |        if (dr_en) begin
    |            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |            dr_ready = 1'b1;
-   | |            $display("read %x from %x",dr_data,dr_addr_aligned);
+   | |          $display("read %x from %x",dr_data,dr_addr_aligned);
    |        end else begin
    |            dr_data = 32'b0;
    |            dr_ready = 1'b0;
