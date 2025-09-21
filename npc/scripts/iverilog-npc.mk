@@ -7,6 +7,7 @@ CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_DEBUG=false
 CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_IVERILOG=true
 
 IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
+NETLIST_FILES := $(shell find $(NPC_HOME)/netlist -name "*.v")
 
 verilog-iverilog: 
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
@@ -19,6 +20,10 @@ iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) iverilog-config
 	mkdir -p $(BUILD_DIR)/iverilog
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
+netlist-build: $(NETLIST_FILES) $(IVERILOG_MAIN_FILE) iverilog-config
+	mkdir -p $(BUILD_DIR)/netlist
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp  $(IVERILOG_MAIN_FILE) $(NETLIST_FILES) -g2012 
+
 sim-iverilog: iverilog-build
 	@echo $(ARGS) $(IMG)
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
@@ -28,3 +33,5 @@ sim-iverilog: iverilog-build
 sim-iverilog-raw: iverilog-build
 	vvp $(BUILD_DIR)/iverilog/main.vvp  -fst
 
+sim-iverilog-netlist: netlist-build
+	vvp $(BUILD_DIR)/netlist/main.vvp  -fst

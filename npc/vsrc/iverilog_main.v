@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000;
+  localparam CLK_PERIOD = 1000000000;
   reg clk, reset;
 
   ysyxSoCFull dut (
@@ -36,8 +36,8 @@ module main ();
 
   initial begin
   // 初始化VCD波形文件
-  $dumpfile("iverilog_wave.fst");
-  $dumpvars(0, dut); // 记录所有信号
+  // $dumpfile("iverilog_wave.fst");
+  // $dumpvars(0, dut); // 记录所有信号
   
   
   // 等待复位释放
