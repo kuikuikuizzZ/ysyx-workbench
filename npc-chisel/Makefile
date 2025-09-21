@@ -30,7 +30,7 @@ verilog_iverilog_netlist_build:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(NETLIST_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_netlist
-	mill -i $(PRJ).runMain ElaborateIverilogNetlist  --split-verilog
+	mill -i $(PRJ).runMain ElaborateIverilogNetlist 
 
 
 verilog: verilog_build
@@ -51,8 +51,8 @@ verilog-iverilog: verilog_iverilog_build
 
 verilog-netlist: verilog_iverilog_netlist_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
-	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
-	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
+	sed -i '/\.v/ s/.*//' $(NETLIST_BUILD_DIR)/*.v
+	cp  -r $(wildcard $(NETLIST_BUILD_DIR)/*.sv $(NETLIST_BUILD_DIRs)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
 
 
 help:
