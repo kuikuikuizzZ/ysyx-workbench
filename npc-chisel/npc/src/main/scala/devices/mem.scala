@@ -89,7 +89,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |      path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
    |    end
    |    $display("Reading image from %s", path);
-   |    $readmemh( path, mem,0,200000);
+   |    $readmemh( path, mem,0,4000000);
    |  end
    |    reg wen_reg;
    |    reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
