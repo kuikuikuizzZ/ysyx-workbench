@@ -2694,9 +2694,7 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
   end // always_comb
   assign io_axi_io_arready_0 = state == 3'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :298:23, :368:33]
   assign io_axi_io_awready_0 = state == 3'h3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :305:23, :369:33]
-  wire        io_out_dw_en_0 = state == 3'h4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :333:23, :372:33]
-  assign io_axi_io_wready_0 = io_out_dw_en_0 | io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:369:33, :372:{33,51}]
-  wire        io_out_dr_en_0 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :316:23, :375:27]
+  assign io_axi_io_wready_0 = state == 3'h4 | io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :333:23, :369:33, :372:{33,51}]
   wire [7:0]  _GEN_1 = {5'h0, burst_size};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:287:29, :352:30]
   wire [7:0]  burst_addr_size_bytes = 8'h1 << _GEN_1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:352:30]
   wire [15:0] _GEN_2 = {8'h0, burst_addr_size_bytes};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :352:30, :358:54]
@@ -2786,17 +2784,17 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
   assign io_axi_io_arready = io_axi_io_arready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :368:33]
-  assign io_axi_io_rvalid = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :375:27]
+  assign io_axi_io_rvalid = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :281:24, :316:23, :384:32]
   assign io_axi_io_rdata = io_out_dr_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
   assign io_axi_io_rlast = burst_counter == burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :284:32, :285:31, :387:39]
   assign io_axi_io_awready = io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :369:33]
   assign io_axi_io_wready = io_axi_io_wready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :372:51]
   assign io_axi_io_bvalid = state == 3'h5;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :281:24, :341:23, :390:32]
   assign io_out_dr_addr = burst_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :286:29]
-  assign io_out_dr_en = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :375:27]
+  assign io_out_dr_en = io_axi_io_arready_0 & io_axi_io_arvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :368:33, :375:40]
   assign io_out_dw_addr = burst_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :286:29]
   assign io_out_dw_data = io_axi_io_wdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
-  assign io_out_dw_en = io_out_dw_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :372:33]
+  assign io_out_dw_en = io_axi_io_awready_0 & io_axi_io_awvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :369:33, :378:40]
   assign io_out_dw_mask = io_axi_io_wstrb;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
 endmodule
 
