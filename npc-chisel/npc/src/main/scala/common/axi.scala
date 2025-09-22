@@ -372,10 +372,10 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
     io.axi_io.w.ready := (state === s_write_data) || (state === s_write_addr)
     
     // 内存接口连接
-    io.out.dr.en := state === s_read_data
+    io.out.dr.en := io.axi_io.ar.ready && io.axi_io.ar.valid
     io.out.dr.addr := burst_addr
     
-    io.out.dw.en := state === s_write_data
+    io.out.dw.en := io.axi_io.aw.ready && io.axi_io.aw.valid
     io.out.dw.addr := burst_addr
     io.out.dw.data := io.axi_io.w.data
     io.out.dw.mask := io.axi_io.w.strb
