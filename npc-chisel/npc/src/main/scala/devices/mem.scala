@@ -58,7 +58,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
    |    ORIGIN_ADDR=32'h80000000,
-   |    MEM_SIZE=32'h01000000
+   |    MEM_SIZE=32'h08000000
    |) (
    |    input clock,
    |    input reset,
@@ -90,7 +90,6 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    end
    |    $display("Reading image from %s", path);
    |    $readmemh( path, mem,0,200000);
-   |  
    |  end
    |    reg wen_reg;
    |    reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
@@ -99,10 +98,10 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |    always @(posedge clock) begin
-   |        if (dw_en && dw_addr ==  32'ha00003f8) begin
-   |            $write("%c",dw_data);
+   |        if (dw_en &&  !dw_ready && dw_addr ==  32'ha00003f8 ) begin
+   |            $write("%c",dw_data[7:0]);
    |            dw_ready = 1'b1;
-   |        end else if (dw_en && dw_addr >= 32'h80000000 && dw_addr < 32'h90000000) begin
+   |        end else if (dw_en && !dw_ready && dw_addr >= 32'h80000000 && dw_addr < 32'h90000000) begin
    |           rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
    |           wdata_reg <= dw_data;
    |           dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
@@ -110,7 +109,6 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |           wen_reg <= 1'b1;
    |           dw_ready = 1'b1;
    |        end else if (dw_en ) begin
-   |            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
    |            dw_ready = 1'b1;
    |        end else if (wen_reg) begin
    |            mem[dw_addr_aligned+3] <= wdata_masked[31:24];
@@ -126,10 +124,10 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    end
    |   
    |  always @(posedge clock) begin
-   |     if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
+   |     if (dr_en && !dw_ready && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
    |            dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |            dr_ready = 1'b1;
-   |     end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
+   |     end else if (dr_en && !dw_ready && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
    |         current_time = $time;
    |         dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
    |         dr_ready = 1'b1;

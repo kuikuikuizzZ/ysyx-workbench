@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000000;
+  localparam CLK_PERIOD = 10000;
   reg clk, reset;
 
   ysyxSoCFull dut (
@@ -22,7 +22,7 @@ module main ();
         reset = 0; // 释放复位
     end
 
-    wire a0 = dut.core.core.reg_file.regfile_mem_ext.Memory[10];
+    wire a0 = 0;
     reg halt; 
     // 5. 周期计数器
     always @(posedge clk) begin
@@ -30,14 +30,14 @@ module main ();
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
-            halt <= dut.core.core.lsu.csr_files.csr.insn_break;
+            // halt <= dut.core.core.lsu.csr_files.csr.insn_break;
         end
     end
 
   initial begin
   // 初始化VCD波形文件
-  // $dumpfile("iverilog_wave.fst");
-  // $dumpvars(0, dut); // 记录所有信号
+  $dumpfile("iverilog_wave.vcd");
+  $dumpvars(0, dut); // 记录所有信号
   
   
   // 等待复位释放
