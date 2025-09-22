@@ -2665,9 +2665,9 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
   output [3:0]  io_out_dw_mask	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16]
 );
 
-  wire        io_axi_io_wready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:375:51]
-  wire        io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:372:33]
-  wire        io_axi_io_arready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:371:33]
+  wire        io_axi_io_wready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:373:51]
+  wire        io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:370:33]
+  wire        io_axi_io_arready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:369:33]
   reg  [2:0]  state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24]
   reg  [7:0]  burst_counter;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32]
   reg  [7:0]  burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:285:31]
@@ -2676,42 +2676,45 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
   reg  [1:0]  burst_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:288:29]
   wire        _GEN = io_axi_io_awvalid & io_axi_io_wvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:304:43]
   wire        _GEN_0 = io_out_dr_ready & io_axi_io_rready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:321:34]
-  wire        _GEN_1 = io_axi_io_wready_0 & io_axi_io_wvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:338:36, :375:51]
   reg  [2:0]  casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:295:19, :297:38]
-  wire        _GEN_2 = burst_counter == burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :285:31, :325:36]
-  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
-    casez (state)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
+  wire        _GEN_1 = burst_counter == burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :285:31, :325:36]
+  always_comb begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
+    casez (state)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
       3'b000:
-        casez_tmp = io_axi_io_arvalid ? 3'h1 : _GEN ? 3'h3 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :298:23, :304:{43,65}, :305:23, :315:60, :321:56, :332:60, :338:59, :349:19]
+        casez_tmp = io_axi_io_arvalid ? 3'h1 : _GEN ? 3'h3 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :298:23, :304:{43,65}, :305:23, :315:60, :321:56, :332:103, :341:50, :347:19]
       3'b001:
-        casez_tmp = io_axi_io_arready_0 & io_axi_io_arvalid ? 3'h2 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:{37,60}, :316:23, :321:56, :332:60, :338:59, :349:19, :371:33]
+        casez_tmp = io_axi_io_arready_0 & io_axi_io_arvalid ? 3'h2 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:{37,60}, :316:23, :321:56, :332:103, :341:50, :347:19, :369:33]
       3'b010:
-        casez_tmp = _GEN_0 & _GEN_2 ? 3'h0 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19, :297:38, :315:60, :321:{34,56}, :325:{36,54}, :326:27, :332:60, :338:59, :349:19]
+        casez_tmp = _GEN_0 & _GEN_1 ? 3'h0 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19, :297:38, :315:60, :321:{34,56}, :325:{36,54}, :326:27, :332:103, :341:50, :347:19]
       3'b011:
-        casez_tmp = io_axi_io_awready_0 & io_axi_io_awvalid ? 3'h4 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:{37,60}, :333:23, :338:59, :349:19, :372:33]
+        casez_tmp =
+          io_axi_io_awready_0 & io_axi_io_awvalid & io_axi_io_wready_0
+          & io_axi_io_wvalid
+            ? 3'h4
+            : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:{80,103}, :333:23, :341:50, :347:19, :370:33, :373:51]
       3'b100:
-        casez_tmp = _GEN_1 & _GEN_2 ? 3'h5 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :325:36, :332:60, :338:{36,59}, :342:54, :343:27, :349:19]
+        casez_tmp = _GEN_1 ? 3'h5 : state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :325:36, :332:103, :341:50, :342:23, :347:19]
       3'b101:
-        casez_tmp = 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
+        casez_tmp = 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
       3'b110:
-        casez_tmp = state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
+        casez_tmp = state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
       default:
-        casez_tmp = state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
-    endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:60, :338:59, :349:19]
+        casez_tmp = state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
+    endcase	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38, :315:60, :321:56, :332:103, :341:50, :347:19]
   end // always_comb
-  assign io_axi_io_arready_0 = state == 3'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :298:23, :371:33]
-  assign io_axi_io_awready_0 = state == 3'h3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :305:23, :372:33]
-  wire        io_out_dw_en_0 = state == 3'h4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :333:23, :375:33]
-  assign io_axi_io_wready_0 = io_out_dw_en_0 | io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:372:33, :375:{33,51}]
-  wire        io_out_dr_en_0 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :316:23, :378:27]
-  wire [7:0]  _GEN_3 = {5'h0, burst_size};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:287:29, :355:30]
-  wire [7:0]  burst_addr_size_bytes = 8'h1 << _GEN_3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:355:30]
-  wire [15:0] _GEN_4 = {8'h0, burst_addr_size_bytes};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :355:30, :361:54]
-  wire [15:0] _burst_addr_addr_offset_T_2 = {8'h0, burst_length + 8'h1} * _GEN_4 - 16'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :285:31, :355:30, :361:{47,54}, :362:63]
-  wire [7:0]  burst_addr_size_bytes_1 = 8'h1 << _GEN_3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:355:30]
-  wire [15:0] _GEN_5 = {8'h0, burst_addr_size_bytes_1};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :355:30, :361:54]
-  wire [15:0] _burst_addr_addr_offset_T_6 = {8'h0, burst_length + 8'h1} * _GEN_5 - 16'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :285:31, :355:30, :361:{47,54}, :362:63]
-  wire        _GEN_6 = state == 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19]
+  assign io_axi_io_arready_0 = state == 3'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :298:23, :369:33]
+  assign io_axi_io_awready_0 = state == 3'h3;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :305:23, :370:33]
+  wire        io_out_dw_en_0 = state == 3'h4;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :333:23, :373:33]
+  assign io_axi_io_wready_0 = io_out_dw_en_0 | io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:370:33, :373:{33,51}]
+  wire        io_out_dr_en_0 = state == 3'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :316:23, :376:27]
+  wire [7:0]  _GEN_2 = {5'h0, burst_size};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:287:29, :353:30]
+  wire [7:0]  burst_addr_size_bytes = 8'h1 << _GEN_2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:353:30]
+  wire [15:0] _GEN_3 = {8'h0, burst_addr_size_bytes};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :353:30, :359:54]
+  wire [15:0] _burst_addr_addr_offset_T_2 = {8'h0, burst_length + 8'h1} * _GEN_3 - 16'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :285:31, :353:30, :359:{47,54}, :360:63]
+  wire [7:0]  burst_addr_size_bytes_1 = 8'h1 << _GEN_2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:353:30]
+  wire [15:0] _GEN_4 = {8'h0, burst_addr_size_bytes_1};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :353:30, :359:54]
+  wire [15:0] _burst_addr_addr_offset_T_6 = {8'h0, burst_length + 8'h1} * _GEN_4 - 16'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :285:31, :353:30, :359:{47,54}, :360:63]
+  wire        _GEN_5 = state == 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24, :295:19]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
     if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
       state <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :281:24]
@@ -2723,7 +2726,7 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
     end
     else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
       state <= casez_tmp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :297:38]
-      if (_GEN_6) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:295:19]
+      if (_GEN_5) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:295:19]
         if (io_axi_io_arvalid | _GEN)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :297:38, :303:31, :304:{43,65}, :310:31]
           burst_counter <= 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :284:32]
         if (io_axi_io_arvalid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16]
@@ -2740,30 +2743,30 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
       else if (~(state == 3'h1)) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :298:23]
         if (state == 3'h2) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :295:19, :316:23]
           if (_GEN_0) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:321:34]
-            burst_counter <= burst_counter + 8'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :322:48, :355:30]
-            if (burst_type == 2'h1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :358:25]
-              burst_addr <= burst_addr + {24'h0, burst_addr_size_bytes};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :355:30, :359:39]
-            else if (burst_type == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :360:31]
+            burst_counter <= burst_counter + 8'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :322:48, :353:30]
+            if (burst_type == 2'h1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :356:25]
+              burst_addr <= burst_addr + {24'h0, burst_addr_size_bytes};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :353:30, :357:39]
+            else if (burst_type == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :358:31]
               burst_addr <=
                 {16'h0,
                  burst_addr[15:0] & ~_burst_addr_addr_offset_T_2 | burst_addr[15:0]
-                   + _GEN_4 & _burst_addr_addr_offset_T_2};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :361:54, :362:{45,47,63}, :363:{45,59}, :364:39]
+                   + _GEN_3 & _burst_addr_addr_offset_T_2};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :359:54, :360:{45,47,63}, :361:{45,59}, :362:39]
           end
         end
-        else if (state == 3'h3 | ~(state == 3'h4 & _GEN_1)) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :284:32, :286:29, :295:19, :305:23, :333:23, :338:{36,59}, :339:31]
+        else if (state == 3'h3 | state != 3'h4) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:281:24, :284:32, :286:29, :295:19, :305:23, :333:23]
         end
         else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :295:19]
-          burst_counter <= burst_counter + 8'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :339:48, :355:30]
-          if (burst_type == 2'h1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :358:25]
-            burst_addr <= burst_addr + {24'h0, burst_addr_size_bytes_1};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :355:30, :359:39]
-          else if (burst_type == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :360:31]
+          burst_counter <= burst_counter + 8'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:284:32, :338:44, :353:30]
+          if (burst_type == 2'h1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :356:25]
+            burst_addr <= burst_addr + {24'h0, burst_addr_size_bytes_1};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :353:30, :357:39]
+          else if (burst_type == 2'h2)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :288:29, :358:31]
             burst_addr <=
               {16'h0,
-               burst_addr[15:0] & ~_burst_addr_addr_offset_T_6 | burst_addr[15:0] + _GEN_5
-                 & _burst_addr_addr_offset_T_6};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :361:54, :362:{45,47,63}, :363:{45,59}, :364:39]
+               burst_addr[15:0] & ~_burst_addr_addr_offset_T_6 | burst_addr[15:0] + _GEN_4
+                 & _burst_addr_addr_offset_T_6};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:286:29, :359:54, :360:{45,47,63}, :361:{45,59}, :362:39]
         end
       end
-      if (_GEN_6 & (io_axi_io_arvalid | _GEN))	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:285:31, :295:19, :297:38, :300:30, :304:{43,65}]
+      if (_GEN_5 & (io_axi_io_arvalid | _GEN))	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:285:31, :295:19, :297:38, :300:30, :304:{43,65}]
         burst_length <= 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:264:16, :285:31]
     end
   end // always @(posedge)
@@ -2792,18 +2795,18 @@ module AXI4BurstSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-
       `FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  assign io_axi_io_arready = io_axi_io_arready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :371:33]
-  assign io_axi_io_rvalid = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :378:27]
+  assign io_axi_io_arready = io_axi_io_arready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :369:33]
+  assign io_axi_io_rvalid = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :376:27]
   assign io_axi_io_rdata = io_out_dr_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
-  assign io_axi_io_rlast = burst_counter == burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :284:32, :285:31, :390:39]
-  assign io_axi_io_awready = io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :372:33]
-  assign io_axi_io_wready = io_axi_io_wready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :375:51]
-  assign io_axi_io_bvalid = state == 3'h5;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :281:24, :343:27, :393:32]
+  assign io_axi_io_rlast = burst_counter == burst_length;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :284:32, :285:31, :388:39]
+  assign io_axi_io_awready = io_axi_io_awready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :370:33]
+  assign io_axi_io_wready = io_axi_io_wready_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :373:51]
+  assign io_axi_io_bvalid = state == 3'h5;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :281:24, :342:23, :391:32]
   assign io_out_dr_addr = burst_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :286:29]
-  assign io_out_dr_en = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :378:27]
+  assign io_out_dr_en = io_out_dr_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :376:27]
   assign io_out_dw_addr = burst_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :286:29]
   assign io_out_dw_data = io_axi_io_wdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
-  assign io_out_dw_en = io_out_dw_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :375:33]
+  assign io_out_dw_en = io_out_dw_en_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7, :373:33]
   assign io_out_dw_mask = io_axi_io_wstrb;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:263:7]
 endmodule
 
