@@ -105,7 +105,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |           wmask_wide_reg <= dw_mask_wide; 
    |           wen_reg <= 1'b1;
    |           dw_ready = 1'b1;
-   |        end else if (wen_reg && dw_addr ==  32'ha00003f8) begin
+   |        end else if (wen_reg && dr_addr_aligned ==  32'h200003f8) begin
    |            $write("%c",dw_data[7:0]);
    |            dw_ready = 1'b0;
    |        end else if (wen_reg) begin

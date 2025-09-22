@@ -2365,6 +2365,7 @@ module ysyx_24100012_AXI4LiteMem #(
            dw_ready = 1'b1;
         end else if (wen_reg && dw_addr ==  32'ha00003f8) begin
             $write("%c",dw_data[7:0]);
+            dw_ready = 1'b0;
         end else if (wen_reg) begin
             mem[dw_addr_aligned+3] <= wdata_masked[31:24];
             mem[dw_addr_aligned+2] <= wdata_masked[23:16];
