@@ -318,7 +318,7 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
         }
         
         is(s_read_data) {
-            when(io.out.dr.ready ) {
+            when(io.out.dr.ready && io.axi_io.r.ready) {
                 burst_counter := burst_counter + 1.U
                 burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
                 
