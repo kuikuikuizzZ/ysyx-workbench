@@ -44,7 +44,7 @@ class Core(implicit val conf: Config)extends Module
       // thisIn.valid := validReg
       // thisIn.bits := RegEnable(prevOut.bits,prevOut.valid && thisIn.ready )
       thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
-      thisIn.valid := (prevOut.valid && thisIn.ready)
+      thisIn.valid := RegNext(prevOut.valid && thisIn.ready,false.B)
   }
   val io = IO(new CoreIo())
 
