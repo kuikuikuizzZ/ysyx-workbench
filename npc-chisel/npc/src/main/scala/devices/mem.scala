@@ -98,7 +98,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
    |    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
    |    always @(posedge clock) begin
-   |        if (dw_en && dw_addr ==  32'ha00003f8) begin
+   |        if (dw_en && dw_addr ==  32'ha00003f8 && !dw_ready) begin
    |            $write("%c",dw_data[7:0]);
    |            dw_ready = 1'b1;
    |        end else if (dw_en && dw_addr >= 32'h80000000 && dw_addr < 32'h90000000) begin
