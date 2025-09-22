@@ -127,7 +127,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |          dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
    |          dr_ready = 1'b1;
    |     end else if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
-   |         current_time = $time;
+   |         current_time = $time/1000;
    |         dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
    |         dr_ready = 1'b1;
    |     end else begin 
