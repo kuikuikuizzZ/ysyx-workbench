@@ -77,7 +77,7 @@ class ICache(implicit val conf: Config) extends Module {
         io.port.req.bits.fcn        := M_XRD
         io.port.req.bits.typ        := MT_WU
         io.port.req.bits.burst      := BURST_INCR
-        io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength,0.U)
+        io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
     }
 
         // 状态迁移

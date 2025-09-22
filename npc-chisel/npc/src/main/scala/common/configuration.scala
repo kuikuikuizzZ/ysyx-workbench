@@ -14,10 +14,10 @@ case class Config(
     val maskBits = xlen/8
     val perfCountBits = 32
     val AXIBurstLenBits = 8
-    val burstLength = 1.U   // burstLength = axlen - 1   
     val USE_FULL_BYPASSING = true
     val regfileDepth = 16
     
+    val burstLength = sys.env.get("BURST_LENGTH").map(_.toInt).getOrElse(1)   // burstLength = axlen - 1   
     val ICacheSizeBits = sys.env.get("ICACHE_SIZE_BITS").map(_.toInt).getOrElse(2)
     val ICacheBlockBits = sys.env.get("ICACHE_BLOCK_BITS").map(_.toInt).getOrElse(1)
     val EnableBurst = sys.env.get("ICACHE_ENABLE_BURST").map(java.lang.Boolean.parseBoolean).getOrElse(true)
