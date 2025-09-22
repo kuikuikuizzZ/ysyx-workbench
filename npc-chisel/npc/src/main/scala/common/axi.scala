@@ -335,7 +335,7 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
         }
         
         is(s_write_data) {
-            when(io.axi_io.w.ready && io.axi_io.w.valid) {
+            when(io.axi_io.w.ready && io.axi_io.w.valid ) {
                 burst_counter := burst_counter + 1.U
                 burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
                 
@@ -372,7 +372,7 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
     io.axi_io.aw.ready := state === s_write_addr
     
     // 写数据通道处理
-    io.axi_io.w.ready := state === s_write_data
+    io.axi_io.w.ready := (state === s_write_data) || (state === s_write_addr)
     
     // 内存接口连接
     io.out.dr.en := state === s_read_data
