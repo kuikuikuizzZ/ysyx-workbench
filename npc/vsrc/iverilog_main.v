@@ -22,7 +22,7 @@ module main ();
         reset = 0; // 释放复位
     end
 
-    wire a0 = dut.core.core.reg_file.regfile_mem_ext.Memory[10] == 32'b0;
+    wire [31:0] a0 = dut.core.core.reg_file.regfile_mem_ext.Memory[10];
     reg halt; 
     // 5. 周期计数器
     always @(posedge clk) begin
@@ -67,7 +67,7 @@ module main ();
   $display("Simulation completed");
   
   // 报告结束原因
-  if (halt && a0) begin
+  if (halt && a0 == 32'b0) begin
     $display("GOOD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0 );
   end else if (halt) begin
     $display("BAD! Terminated by HALT signal after %d cycles a0 %x",cycle_count,a0);
