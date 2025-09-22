@@ -2348,7 +2348,6 @@ module ysyx_24100012_AXI4LiteMem #(
     end
     $display("Reading image from %s", path);
     $readmemh( path, mem,0,200000);
-  
   end
     reg wen_reg;
     reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
@@ -2357,19 +2356,15 @@ module ysyx_24100012_AXI4LiteMem #(
     wire [31:0] wdata_masked = (wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg);
     assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
     always @(posedge clock) begin
-        if (dw_en && dw_addr ==  32'ha00003f8) begin
-            $write("%c",dw_data[7:0]);
-            dw_ready = 1'b1;
-        end else if (dw_en) begin
+        if (dw_en && dw_addr >= 32'h80000000 && dw_addr < 32'h90000000) begin
            rdata_reg = {mem[dw_addr_aligned+3],mem[dw_addr_aligned+2],mem[dw_addr_aligned+1],mem[dw_addr_aligned]};
            wdata_reg <= dw_data;
            dw_addr_aligned = {dw_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
            wmask_wide_reg <= dw_mask_wide; 
            wen_reg <= 1'b1;
            dw_ready = 1'b1;
-        end else if (dw_en ) begin
-            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
-            dw_ready = 1'b1;
+        end else if (wen_reg && dw_addr ==  32'ha00003f8) begin
+            $write("%c",dw_data[7:0]);
         end else if (wen_reg) begin
             mem[dw_addr_aligned+3] <= wdata_masked[31:24];
             mem[dw_addr_aligned+2] <= wdata_masked[23:16];
