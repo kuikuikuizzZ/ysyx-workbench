@@ -40,17 +40,17 @@ class InstFetch(implicit conf: Config) extends Module {
   val pc_next = Wire(UInt(conf.xprlen.W))
 
   val pc_reg = RegInit(conf.START_ADDR)
-  val pc_valid = RegInit(true.B)
+  val fetch_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
   val if_inst = Mux(cache.io.valid,cache.io.inst,RegEnable(inst,BUBBLE,cache.io.valid || io.ifu_dec.ready  ))
   val if_valid = Mux(cache.io.valid,cache.io.valid,RegEnable(cache.io.valid && !io.ifu_dec.ready,false.B,cache.io.valid || io.ifu_dec.ready))
   when((if_valid && io.ifu_dec.ready) || should_kill) {
       pc_reg := pc_next
-      pc_valid := true.B
+      fetch_valid := true.B
   }
   .otherwise {
-      pc_valid := false.B
+      fetch_valid := false.B
   }
   val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
 
@@ -67,7 +67,7 @@ class InstFetch(implicit conf: Config) extends Module {
    }
 
   // NOTE: when if_kill, should not take the old pc value
-  cache.io.req_valid  := pc_valid && !should_kill 
+  cache.io.req_valid  := fetch_valid && !should_kill 
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
