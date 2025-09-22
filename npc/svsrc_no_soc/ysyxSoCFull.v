@@ -221,8 +221,9 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
     end
     if (_GEN | _GEN_6 | _GEN_7 | ~(_GEN_8 & io_port_resp_valid)) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34, :84:19, :98:38, :99:41]
     end
-    else	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34, :84:19]
+    else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34, :84:19]
       cacheLineBuffer_0 <= io_port_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34]
+    end 
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7]
     `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7]
