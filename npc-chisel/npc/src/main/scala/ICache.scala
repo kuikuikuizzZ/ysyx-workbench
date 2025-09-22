@@ -46,7 +46,6 @@ class ICache(implicit val conf: Config) extends Module {
     val ren = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    dontTouch(cacheLineBuffer)
     val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
     val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
@@ -112,6 +111,8 @@ class ICache(implicit val conf: Config) extends Module {
                 }.otherwise {
                     io.exception  := EXC_NORMAL
                 }
+            }.otherwise {
+                cacheLineBuffer(offset) := cacheLineBuffer(offset)
             }
         }
         is(sComplete) { 
