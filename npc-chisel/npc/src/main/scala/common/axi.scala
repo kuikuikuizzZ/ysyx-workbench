@@ -357,20 +357,15 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
         val size_bytes = 1.U << size
         val next_addr = Wire(UInt(conf.xprlen.W))
         
-        switch(burst_type) {
-            is(0.U) { // FIXED
-                next_addr := current_addr
-            }
-            is(1.U) { // INCR
-                next_addr := current_addr + size_bytes
-            }
-            is(2.U) { // WRAP
-                val wrap_boundary = (burst_length + 1.U) * size_bytes
-                val aligned_addr = current_addr & ~(wrap_boundary - 1.U)
-                val addr_offset = (current_addr + size_bytes) & (wrap_boundary - 1.U)
-                next_addr := aligned_addr | addr_offset
-            }
-        }
+        when(burst_type === 1.U) { // INCR
+            next_addr := current_addr + size_bytes}
+        .elsewhen (burst_type === 2.U) { // WRAP
+            val wrap_boundary = (burst_length + 1.U) * size_bytes
+            val aligned_addr = current_addr & ~(wrap_boundary - 1.U)
+            val addr_offset = (current_addr + size_bytes) & (wrap_boundary - 1.U)
+            next_addr := aligned_addr | addr_offset}
+        .otherwise {
+            next_addr := current_addr}
         next_addr
     }
     
