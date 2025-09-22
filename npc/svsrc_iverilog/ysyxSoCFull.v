@@ -2367,7 +2367,6 @@ module ysyx_24100012_AXI4LiteMem #(
            wen_reg <= 1'b1;
            dw_ready = 1'b1;
         end else if (dw_en ) begin
-            $display("write %x to %x mask %x,read %x",(wdata_reg & wmask_wide_reg) | (rdata_reg & ~wmask_wide_reg),dw_addr_aligned,wmask_wide_reg,rdata_reg);
             dw_ready = 1'b1;
         end else if (wen_reg) begin
             mem[dw_addr_aligned+3] <= wdata_masked[31:24];
