@@ -2349,13 +2349,11 @@ module ysyx_24100012_AXI4LiteMem #(
     $display("Reading image from %s", path);
     $readmemh( path, mem,0,4000000);
   end
-    reg wen_reg;
-    reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
-    wire [31:0] dr_addr_aligned;
-    reg [31:0] dw_addr_aligned; 
-    wire [31:0] 
-    assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-ORIGIN_ADDR ;
-  
+  reg wen_reg;
+  reg [31:0] wdata_reg,wmask_wide_reg,rdata_reg;
+  wire [31:0] dr_addr_aligned;
+  reg [31:0] dw_addr_aligned; 
+  assign dr_addr_aligned = {dr_addr[ADDR_WIDTH-1:2],2'b0}-32'h80000000 ;
   always @(posedge clock) begin
       dw_ready <= 1'b0; // 默认值
       
