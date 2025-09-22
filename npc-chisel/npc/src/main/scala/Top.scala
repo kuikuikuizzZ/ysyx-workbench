@@ -4,7 +4,7 @@ package npc
 import chisel3._
 
 import npc.common.{Config, 
-                     AXI4LiteMaster,AXI4LiteSlave,
+                     AXI4LiteMaster,AXI4LiteSlave,AXI4BurstSlave
                      AXI4LiteArbiter}
 import npc._
 import npc.devices.{ysyx_24100012_AXI4LiteMem}
@@ -20,7 +20,7 @@ class ysyxSoCFull extends Module
     core.io := DontCare
 
 
-    val axi_mem_slave   = Module(new AXI4LiteSlave())
+    val axi_mem_slave   = Module(new AXI4BurstSlave())
     val axi_mem        = Module(new ysyx_24100012_AXI4LiteMem())
 
     axi_mem_slave.io := DontCare

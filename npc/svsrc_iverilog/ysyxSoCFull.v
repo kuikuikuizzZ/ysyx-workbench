@@ -2395,32 +2395,18 @@ module ysyx_24100012_AXI4LiteMem #(
   end
    
   always @(posedge clock) begin
-      dr_ready <= 1'b0;
-      dr_data <= 32'b0;
-      
-      if (dr_en && !dr_ready) begin
-          // 时间戳特殊处理
-          if (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c) begin
-              current_time <= $time/1000;
-              dr_data <= (dr_addr == 32'ha0000048) ? current_time[31:0] : current_time[63:32];
-              dr_ready <= 1'b1;
-          end 
-          // 内存范围读操作
-          else if (dr_addr >= ORIGIN_ADDR && dr_addr < ORIGIN_ADDR + MEM_SIZE) begin
-              // 计算对齐地址
-              reg [ADDR_WIDTH-1:0] aligned_addr = (dr_addr - ORIGIN_ADDR) & ~3;
-              
-              // 寄存器输出，避免组合逻辑问题
-              dr_data <= {mem[aligned_addr+3], mem[aligned_addr+2], 
-                          mem[aligned_addr+1], mem[aligned_addr]};
-              dr_ready <= 1'b1;
-          end 
-          // 其他地址读操作
-          else begin
-              dr_ready <= 1'b1;
-          end
-      end
-  end
+     if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
+         current_time = $time/1000;
+         dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
+         dr_ready =  1'b1;     
+     end else if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
+          dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
+          dr_ready =  1'b1;     
+     end else begin 
+         dr_data = 32'b0;
+         dr_ready = 1'b0;
+     end
+   end
 endmodule
     
 

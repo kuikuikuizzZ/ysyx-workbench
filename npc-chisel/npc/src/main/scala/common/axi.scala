@@ -260,3 +260,143 @@ class AXI4LiteSlave (implicit val conf: Config) extends Module{
 }
 
 
+class AXI4BurstSlave (implicit val conf: Config) extends Module {
+    val io = IO( new Bundle {
+        val clock   =   Input(Clock())
+        val reset   =   Input(Bool())
+        val axi_io  =   Flipped(new AXI4LiteIo())
+        val out     =   Flipped(new Bundle{
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+        })
+        val debug =   new Bundle{
+            val state = Output(UInt(3.W))
+            val burst_counter = Output(UInt(8.W))
+        }
+    })
+    io := DontCare
+
+    // 扩展状态机支持 Burst
+    val s_idle :: s_read_addr :: s_read_data :: s_write_addr :: s_write_data :: s_write_resp :: Nil = Enum(6)
+    val state = RegInit(s_idle)
+    
+    // Burst 控制寄存器
+    val burst_counter = RegInit(0.U(8.W))
+    val burst_length = RegInit(0.U(8.W))
+    val burst_addr = RegInit(0.U(conf.xprlen.W))
+    val burst_size = RegInit(0.U(3.W))
+    val burst_type = RegInit(0.U(2.W))
+    
+    // 调试输出
+    io.debug.state := state
+    io.debug.burst_counter := burst_counter
+
+    // 状态机控制
+    switch(state) {
+        is(s_idle) {
+            when(io.axi_io.ar.valid) {
+                state := s_read_addr
+                burst_addr := io.axi_io.ar.addr
+                burst_length := io.axi_io.ar.len
+                burst_size := io.axi_io.ar.size
+                burst_type := io.axi_io.ar.burst
+                burst_counter := 0.U
+            }.elsewhen(io.axi_io.aw.valid && io.axi_io.w.valid) {
+                state := s_write_addr
+                burst_addr := io.axi_io.aw.addr
+                burst_length := io.axi_io.aw.len
+                burst_size := io.axi_io.aw.size
+                burst_type := io.axi_io.aw.burst
+                burst_counter := 0.U
+            }
+        }
+        
+        is(s_read_addr) {
+            when(io.axi_io.ar.ready && io.axi_io.ar.valid) {
+                state := s_read_data
+            }
+        }
+        
+        is(s_read_data) {
+            when(io.out.dr.ready && io.axi_io.r.ready) {
+                burst_counter := burst_counter + 1.U
+                burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
+                
+                when(burst_counter === burst_length) {
+                    state := s_idle
+                }
+            }
+        }
+        
+        is(s_write_addr) {
+            when(io.axi_io.aw.ready && io.axi_io.aw.valid) {
+                state := s_write_data
+            }
+        }
+        
+        is(s_write_data) {
+            when(io.axi_io.w.ready && io.axi_io.w.valid) {
+                burst_counter := burst_counter + 1.U
+                burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
+                
+                when(burst_counter === burst_length) {
+                    state := s_write_resp
+                }
+            }
+        }
+        
+        is(s_write_resp) {
+            when(io.axi_io.b.ready) {
+                state := s_idle
+            }
+        }
+    }
+    
+    // Burst 地址计算函数
+    def next_burst_addr(current_addr: UInt, size: UInt, burst_type: UInt): UInt = {
+        val size_bytes = 1.U << size
+        val next_addr = Wire(UInt(conf.xprlen.W))
+        
+        switch(burst_type) {
+            is(0.U) { // FIXED
+                next_addr := current_addr
+            }
+            is(1.U) { // INCR
+                next_addr := current_addr + size_bytes
+            }
+            is(2.U) { // WRAP
+                val wrap_boundary = (burst_length + 1.U) * size_bytes
+                val aligned_addr = current_addr & ~(wrap_boundary - 1.U)
+                val addr_offset = (current_addr + size_bytes) & (wrap_boundary - 1.U)
+                next_addr := aligned_addr | addr_offset
+            }
+        }
+        next_addr
+    }
+    
+    // 地址通道处理
+    io.axi_io.ar.ready := state === s_read_addr
+    io.axi_io.aw.ready := state === s_write_addr
+    
+    // 写数据通道处理
+    io.axi_io.w.ready := state === s_write_data
+    
+    // 内存接口连接
+    io.out.dr.en := state === s_read_data
+    io.out.dr.addr := burst_addr
+    
+    io.out.dw.en := state === s_write_data
+    io.out.dw.addr := burst_addr
+    io.out.dw.data := io.axi_io.w.data
+    io.out.dw.mask := io.axi_io.w.strb
+    
+    // 读响应通道
+    io.axi_io.r.valid := state === s_read_data
+    io.axi_io.r.data := io.out.dr.data
+    io.axi_io.r.resp := 0.U // OKAY
+    io.axi_io.r.last := burst_counter === burst_length
+    
+    // 写响应通道
+    io.axi_io.b.valid := state === s_write_resp
+    io.axi_io.b.resp := 0.U // OKAY
+}
