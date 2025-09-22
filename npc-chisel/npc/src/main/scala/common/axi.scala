@@ -329,19 +329,17 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
         }
         
         is(s_write_addr) {
-            when(io.axi_io.aw.ready && io.axi_io.aw.valid) {
+            when(io.axi_io.aw.ready && io.axi_io.aw.valid && io.axi_io.w.ready && io.axi_io.w.valid ) {
                 state := s_write_data
             }
         }
         
         is(s_write_data) {
-            when(io.axi_io.w.ready && io.axi_io.w.valid ) {
-                burst_counter := burst_counter + 1.U
-                burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
-                
-                when(burst_counter === burst_length) {
-                    state := s_write_resp
-                }
+            burst_counter := burst_counter + 1.U
+            burst_addr := next_burst_addr(burst_addr, burst_size, burst_type)
+            
+            when(burst_counter === burst_length) {
+                state := s_write_resp
             }
         }
         
