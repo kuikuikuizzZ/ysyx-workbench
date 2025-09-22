@@ -346,9 +346,7 @@ class AXI4BurstSlave (implicit val conf: Config) extends Module {
         }
         
         is(s_write_resp) {
-            when(io.out.dw.ready) {
-                state := s_idle
-            }
+            state := s_idle
         }
     }
     

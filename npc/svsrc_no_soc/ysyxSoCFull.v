@@ -3045,26 +3045,22 @@ import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, ou
     always @(posedge clock) begin
         if (dw_en) begin
             pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
-            dw_ready = 1'b1;
-        end else begin
-            dw_ready = 1'b0;
-        end
+        end 
     end
      
     always @(posedge clock) begin
         if (dr_en) begin
             // -1 -> 1111
             pmem_mask_read(dr_addr_aligned, -1, dr_data);
-            dr_ready = 1'b1;
         end else begin
             dr_data = 32'b0;
-            dr_ready = 1'b0;
         end
 
     
     end
 
     assign dw_ready = 1'b1;
+    assign dr_ready = 1'b1;
 
 endmodule
     
