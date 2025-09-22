@@ -16,6 +16,7 @@ verilog_build:
 
 verilog_npc_build:
 	$(call git_commit, "generate verilog")
+	@echo BURST_LENGTH $(BURST_LENGTH)
 	mkdir -p $(NPC_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
 	mill -i $(PRJ).runMain ElaborateNPC 
