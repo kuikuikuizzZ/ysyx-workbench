@@ -223,6 +223,7 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
     end
     else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34, :84:19]
       cacheLineBuffer_0 <= io_port_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:48:34]
+      $display("cacheLineBuffer_0 %x",io_port_resp_bits_data);
     end 
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7]
