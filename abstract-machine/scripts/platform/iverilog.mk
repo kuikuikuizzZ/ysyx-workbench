@@ -35,12 +35,9 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 
-run: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+sim-iverilog: image
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) sim-iverilog  IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
-gdb: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb IMG=$(IMAGE).bin
-#$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb  ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 .PHONY: insert-arg

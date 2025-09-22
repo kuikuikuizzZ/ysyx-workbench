@@ -6,8 +6,8 @@ CHISEL_IVERILOG_CONFIG+=ENABLE_SOC=false
 CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_DEBUG=false
 CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_IVERILOG=true
 
-IVERILOG_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_main.v
-NETLIST_MAIN_FILE := $(NPC_HOME)/vsrc/iverilog_netlist_main.v
+IVERILOG_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_main.v
+NETLIST_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_netlist_main.v
 
 NETLIST_FILES := $(shell find $(NPC_HOME)/netlist -name "*.v")
 
