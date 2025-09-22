@@ -2389,7 +2389,8 @@ module ysyx_24100012_AXI4LiteMem #(
          dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
          dr_ready = 1'b1;
      end else if (dr_en ) begin
-            dr_ready = 1'b1;
+         $display("Reading from %x", dr_addr);
+         dr_ready = 1'b1;
      end else begin 
          dr_data = 32'b0;
          dr_ready = 1'b0;
