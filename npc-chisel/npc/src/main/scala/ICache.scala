@@ -111,8 +111,6 @@ class ICache(implicit val conf: Config) extends Module {
                 }.otherwise {
                     io.exception  := EXC_NORMAL
                 }
-            }.otherwise {
-                cacheLineBuffer(offset) := cacheLineBuffer(offset)
             }
         }
         is(sComplete) { 
