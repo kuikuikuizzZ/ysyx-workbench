@@ -5,7 +5,7 @@ import chisel3._
 
 import npc.common.{Config, 
                      AXI4LiteMaster,AXI4LiteSlave,
-                     AXI4LiteArbiter}
+                     AXI4BurstSlave,AXI4LiteArbiter}
 import npc._
 import npc.devices.{ysyx_24100012_AXI4LiteMem}
 
