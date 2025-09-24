@@ -1,8 +1,12 @@
 
 
 #include <nvboard.h>
-#include "VysyxSoCFull.h"
 #include <cpu/cpu.h>
+#ifdef CONFIG_SOC   
+#include "VysyxSoCFull.h"
+#else
+#include "VTop.h"
+#endif
 
 #ifdef CONFIG_NPC_CHISEL
 #include <cpu/top.h>
