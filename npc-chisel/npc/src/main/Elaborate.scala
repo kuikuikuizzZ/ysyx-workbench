@@ -31,7 +31,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new Top(),
+    new ysyx_24100012(),
     Array("--target","verilog","--target-dir","build/soc"),
     firtoolOptions)
 }
