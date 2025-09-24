@@ -37,7 +37,7 @@ verilog_iverilog_netlist_build:
 verilog: verilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v
 	sed -i '/\.v/ s/.*//' $(BUILD_DIR)/*.v
-	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v)  $(NPC_HOME)/build/
+	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v  $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v) $(NPC_HOME)/build/
 
 
 verilog-npc: verilog_npc_build

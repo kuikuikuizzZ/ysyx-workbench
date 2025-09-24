@@ -19,15 +19,16 @@ NAME = V$(TOP_NAME)
 
 
 # SV源文件
-ifdef CONFIG_IVERILOG
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_iverilog/*.v $(NPC_HOME)/svsrc_iverilog/*.sv)
-else 
-	ifdef CONFIG_SOC
-		SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
-	else
-		SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
-	endif
-endif
+SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
+# ifdef CONFIG_IVERILOG
+# 	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_iverilog/*.v $(NPC_HOME)/svsrc_iverilog/*.sv)
+# else 
+# 	ifdef CONFIG_SOC
+# 		SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
+# 	else
+# 		SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
+# 	endif
+# endif
 
 
 BINARY = $(BUILD_DIR)/$(NAME)
