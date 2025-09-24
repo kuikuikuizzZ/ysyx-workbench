@@ -205,7 +205,7 @@ uint32_t top_halt(){
     if (!_rootp) return 0;
     uint32_t result;
     IFNDEF(CONFIG_DIFFTEST,IFDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg));
-    IFNDEF(CONFIG_DIFFTEST,IFNDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__inst_fetch__DOT__pc_reg;))
+    IFNDEF(CONFIG_DIFFTEST,IFNDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__wbu_io_mem_wb_bits_rebreak;))
     IFDEF(CONFIG_DIFFTEST,result=halt);
     return result;
 }
