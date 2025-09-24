@@ -10,7 +10,7 @@ import npc.devices.{CLINT}
 class ysyx_24100012 extends Module { 
   implicit val conf = Config()
   val io = IO(new CoreIo())
-  DontTouch(io)
+  dontTouch(io)
   val core = Module(new Core())
   chisel3.experimental.annotate(
     new chisel3.experimental.ChiselAnnotation {
