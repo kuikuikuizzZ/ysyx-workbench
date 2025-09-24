@@ -46,7 +46,7 @@ class WBU(implicit val conf: Config) extends Module {
     io.to_ctl.wbaddr        := io.mem_wb.bits.wbaddr
     io.to_ctl.ctrl_rf_wen   := io.mem_wb.bits.ctrl_rf_wen
 
-    io.reg.valid         := io.mem_wb.valid
+    io.reg.valid         := io.mem_wb.valid && !io.mem_wb.bits.ebreak
     io.reg.bits.data     := io.mem_wb.bits.data
     io.reg.bits.wbaddr   := io.mem_wb.bits.wbaddr
     io.reg.bits.rf_wen   := io.mem_wb.bits.ctrl_rf_wen
