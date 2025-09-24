@@ -67,8 +67,10 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   input         io_port_req_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
   output        io_port_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
   output [31:0] io_port_req_bits_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
+  output [1:0]  io_port_req_bits_burst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
   input         io_port_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
-  input  [31:0] io_port_resp_bits_data	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
+  input  [31:0] io_port_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
+  input  [1:0]  io_port_resp_bits_resp	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:28:16]
 );
 
   reg  [2:0]  state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:34:38]
@@ -336,11 +338,13 @@ module ysyx_24100012_ICache(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbenc
   `endif // ENABLE_INITIAL_REG_
   assign io_inst = hit_reg ? cache_reg : 32'h4033;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :63:26, :64:28, :133:28]
   assign io_valid = hit_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :63:26]
-  assign io_exception = {_GEN & (|(io_pc[1:0])), 4'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :84:19, :87:{27,33,39,45}]
+  assign io_exception =
+    _GEN ? {|(io_pc[1:0]), 4'h0} : (|io_port_resp_bits_resp) ? 5'h11 : 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :84:19, :87:{27,33,39,45}, :109:{45,54}, :110:35, :112:35]
   assign io_port_req_valid =
     _io_port_req_valid_T_1 ? _io_port_req_valid_T_1 : state == 3'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :34:38, :67:{17,33}, :74:{16,38}, :75:37]
   assign io_port_req_bits_addr =
     {_io_port_req_valid_T_1 ? io_pc[31:2] : io_pc[31:2], 2'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :30:13, :67:33, :70:{39,45}, :74:{16,38}, :76:{37,43,49}]
+  assign io_port_req_bits_burst = {1'h0, _io_port_req_valid_T_1};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/ICache.scala:27:7, :46:22, :67:33, :74:{16,38}, :79:37]
 endmodule
 
 module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7]
@@ -353,9 +357,11 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
                 io_port_req_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   output        io_port_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   output [31:0] io_port_req_bits_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
+  output [1:0]  io_port_req_bits_burst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   input         io_port_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   input  [31:0] io_port_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
-                io_exu_in_exe_brjmp_target,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
+  input  [1:0]  io_port_resp_bits_resp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
+  input  [31:0] io_exu_in_exe_brjmp_target,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
                 io_exu_in_exe_jump_reg_target,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   input         io_ifu_dec_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
   output        io_ifu_dec_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:33:14]
@@ -442,8 +448,10 @@ module ysyx_24100012_InstFetch(	// @[home/uenui/code/github.com/OSCPU/ysyx-workb
     .io_port_req_ready      (io_port_req_ready),
     .io_port_req_valid      (io_port_req_valid),
     .io_port_req_bits_addr  (io_port_req_bits_addr),
+    .io_port_req_bits_burst (io_port_req_bits_burst),
     .io_port_resp_valid     (io_port_resp_valid),
-    .io_port_resp_bits_data (io_port_resp_bits_data)
+    .io_port_resp_bits_data (io_port_resp_bits_data),
+    .io_port_resp_bits_resp (io_port_resp_bits_resp)
   );
   assign io_ifu_dec_valid = should_kill | if_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :44:36, :47:21, :76:28]
   assign io_ifu_dec_bits_pc = pc_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/InstFetch.scala:32:7, :42:23]
@@ -460,8 +468,12 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
   output        io_axi_io_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   output [31:0] io_axi_io_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input         io_axi_io_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
-                io_axi_io_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output [2:0]  io_axi_io_arsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output [1:0]  io_axi_io_arburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  input         io_axi_io_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input  [31:0] io_axi_io_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  input  [1:0]  io_axi_io_rresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output        io_axi_io_rready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input         io_axi_io_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   output        io_axi_io_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   output [31:0] io_axi_io_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
@@ -470,15 +482,20 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
   output [31:0] io_axi_io_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   output [3:0]  io_axi_io_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input         io_axi_io_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
-                io_axi_io_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output        io_axi_io_wlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  input         io_axi_io_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  input  [1:0]  io_axi_io_bresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output        io_axi_io_bready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input  [31:0] io_req_raddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
                 io_req_waddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
                 io_req_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input  [3:0]  io_req_mask,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   input         io_req_ren,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
                 io_req_wen,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  input  [1:0]  io_req_burst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
   output        io_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
-  output [31:0] io_resp_bits_data	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output [31:0] io_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
+  output [1:0]  io_resp_bits_resp	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:106:16]
 );
 
   reg  [1:0]  rstate;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:118:25]
@@ -493,11 +510,15 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
   reg         bfire;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:129:24]
   wire        _bready_T = wstate == 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :120:25, :132:28]
   wire        _rready_T = rstate == 2'h2;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :135:28]
+  wire [1:0]  size = {|io_req_burst, 1'h0};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:123:24, :142:{22,36}]
   wire        arvalid = ~(arfire | _rready_T) & ((|rstate) ? is_read_r : accept_read);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:118:25, :122:{31,44}, :124:{22,68}, :128:25, :135:28, :143:{22,30}]
   reg  [31:0] araddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:144:57]
+  reg  [1:0]  arsize_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:146:50]
+  reg  [1:0]  arburst_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:147:57]
   reg  [31:0] awaddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:149:60]
   reg  [31:0] wdata_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:153:59]
   reg  [3:0]  wstrb_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:154:59]
+  wire        bready = _bready_T | wstate == 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :120:25, :132:28, :159:{47,58}]
   wire        io_axi_io_awvalid_0 =
     (|wstate) ? ~(awfire | _bready_T) & is_write_r : accept_write;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:120:25, :123:{48,61}, :125:70, :126:25, :132:28, :150:{24,31}, :181:36]
   wire        io_axi_io_wvalid_0 =
@@ -557,13 +578,17 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
       awfire <= ~_bready_T & (_wstate_T_2 | awfire);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:126:25, :132:{20,28,78,101}]
       wfire <= ~_bready_T & (io_axi_io_wvalid_0 & io_axi_io_wready | wfire);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:127:24, :132:{20,28}, :133:{20,77,99}, :182:36]
       arfire <= ~(_rready_T | io_axi_io_rlast) & (_rstate_T_3 | arfire);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:128:25, :135:{20,28,46,99,122}]
-      bfire <= (|wstate) & (io_axi_io_bvalid & (_bready_T | wstate == 2'h1) | bfire);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :120:25, :123:48, :129:24, :132:28, :134:{20,84,106}, :159:{47,58}]
+      bfire <= (|wstate) & (io_axi_io_bvalid & bready | bfire);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:120:25, :123:48, :129:24, :134:{20,84,106}, :159:47]
       if (accept_read | io_axi_io_arready)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:122:44, :144:91]
         araddr_r <= io_req_raddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:144:57]
       if (accept_write | io_axi_io_wready) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:123:61, :153:91]
         wdata_r <= io_req_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:153:59]
         wstrb_r <= io_req_mask;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:154:59]
       end
+    end
+    if (accept_read) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:122:44]
+      arsize_r <= size;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:142:22, :146:50]
+      arburst_r <= io_req_burst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:147:57]
     end
     if (accept_write | io_axi_io_awready)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:123:61, :149:87]
       awaddr_r <= io_req_waddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:149:60]
@@ -590,6 +615,8 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
         arfire = _RANDOM[2'h0][8];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :128:25]
         bfire = _RANDOM[2'h0][9];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :129:24]
         araddr_r = {_RANDOM[2'h0][31:11], _RANDOM[2'h1][10:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :144:57]
+        arsize_r = _RANDOM[2'h1][20:19];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :144:57, :146:50]
+        arburst_r = _RANDOM[2'h1][22:21];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :144:57, :147:57]
         awaddr_r = {_RANDOM[2'h1][31:23], _RANDOM[2'h2][22:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :144:57, :149:60]
         wdata_r = {_RANDOM[2'h2][31:23], _RANDOM[2'h3][22:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :149:60, :153:59]
         wstrb_r = _RANDOM[2'h3][26:23];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :153:59, :154:59]
@@ -601,13 +628,21 @@ module ysyx_24100012_AXI4LiteMaster(	// @[home/uenui/code/github.com/OSCPU/ysyx-
   `endif // ENABLE_INITIAL_REG_
   assign io_axi_io_arvalid = arvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :143:22]
   assign io_axi_io_araddr = ~(|rstate) | accept_read ? io_req_raddr : araddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :122:{31,44}, :144:{22,57}, :161:31]
+  assign io_axi_io_arsize = {1'h0, accept_read ? size : arsize_r};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :122:44, :123:24, :142:22, :146:{22,50}, :165:25]
+  assign io_axi_io_arburst = accept_read ? io_req_burst : arburst_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :122:44, :147:{22,57}]
+  assign io_axi_io_rready = _rready_T | rstate == 2'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :118:25, :135:28, :158:{46,57}]
   assign io_axi_io_awvalid = io_axi_io_awvalid_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :181:36]
   assign io_axi_io_awaddr = accept_write ? io_req_waddr : awaddr_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :123:61, :149:{24,60}]
   assign io_axi_io_wvalid = io_axi_io_wvalid_0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :182:36]
   assign io_axi_io_wdata = accept_write ? io_req_data : wdata_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :123:61, :153:{24,59}]
   assign io_axi_io_wstrb = accept_write ? io_req_mask : wstrb_r;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :123:61, :154:{24,59}]
+  assign io_axi_io_wlast =
+    ~(wfire | _bready_T) & ((|wstate) ? is_write_r : accept_write);	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :120:25, :123:{48,61}, :125:{23,70}, :127:24, :132:28, :152:{24,31}]
+  assign io_axi_io_bready = bready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :159:47]
   assign io_resp_valid = (|wstate) ? io_axi_io_bvalid : io_axi_io_rvalid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :120:25, :198:{25,33}]
   assign io_resp_bits_data = io_axi_io_rdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7]
+  assign io_resp_bits_resp =
+    io_axi_io_rvalid ? io_axi_io_rresp : io_axi_io_bvalid ? io_axi_io_bresp : 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:105:7, :199:30, :200:30]
 endmodule
 
 module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7]
@@ -620,16 +655,23 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
   input  [2:0]  io_ports_0_req_bits_typ,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output        io_ports_0_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output [31:0] io_ports_0_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output [1:0]  io_ports_0_resp_bits_resp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output        io_ports_1_req_ready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input         io_ports_1_req_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input  [31:0] io_ports_1_req_bits_addr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  input  [1:0]  io_ports_1_req_bits_burst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output        io_ports_1_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output [31:0] io_ports_1_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output [1:0]  io_ports_1_resp_bits_resp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output        io_axi_port_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output [31:0] io_axi_port_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input         io_axi_port_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
-                io_axi_port_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output [2:0]  io_axi_port_arsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output [1:0]  io_axi_port_arburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  input         io_axi_port_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input  [31:0] io_axi_port_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  input  [1:0]  io_axi_port_rresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output        io_axi_port_rready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input         io_axi_port_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output        io_axi_port_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output [31:0] io_axi_port_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
@@ -638,13 +680,17 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
   output [31:0] io_axi_port_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   output [3:0]  io_axi_port_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
   input         io_axi_port_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
-                io_axi_port_bvalid	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output        io_axi_port_wlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  input         io_axi_port_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  input  [1:0]  io_axi_port_bresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
+  output        io_axi_port_bready	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:121:16]
 );
 
   wire [31:0] resp_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:224:32, :225:17, :232:17]
   wire [31:0] _resp_data_T_21;	// @[src/main/scala/chisel3/util/Mux.scala:126:16]
   wire        _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:130:29]
   wire [31:0] _axi4lite_mem_io_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:130:29]
+  wire [1:0]  _axi4lite_mem_io_resp_bits_resp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:130:29]
   reg  [1:0]  state;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23]
   reg  [7:0]  burstlen_reg;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:129:30]
   reg         currentMaster;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:133:31]
@@ -689,13 +735,13 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
   wire        _GEN_3 = state == 2'h2 & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23, :130:29, :147:18, :150:25, :170:44, :171:19]
   always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7]
     if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7]
-      state <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23]
+      state <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :128:23, :130:29]
       burstlen_reg <= 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :129:30, :130:29, :151:{32,62}, :156:{32,59}]
       currentMaster <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :133:31]
     end
     else if (|state) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23, :147:18]
       if (_GEN_1 ? _GEN_2 : _GEN_3)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23, :147:18, :160:44, :163:41, :164:22, :170:44, :171:19]
-        state <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:128:23]
+        state <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :128:23, :130:29]
       if (_GEN_1 & _axi4lite_mem_io_resp_valid)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:129:30, :130:29, :147:18, :160:44, :162:26]
         burstlen_reg <= burstlen_reg - 8'h1;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:129:30, :162:42]
       if (_GEN_1)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:147:18]
@@ -739,8 +785,12 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
     .io_axi_io_arvalid (io_axi_port_arvalid),
     .io_axi_io_araddr  (io_axi_port_araddr),
     .io_axi_io_arready (io_axi_port_arready),
+    .io_axi_io_arsize  (io_axi_port_arsize),
+    .io_axi_io_arburst (io_axi_port_arburst),
     .io_axi_io_rvalid  (io_axi_port_rvalid),
     .io_axi_io_rdata   (io_axi_port_rdata),
+    .io_axi_io_rresp   (io_axi_port_rresp),
+    .io_axi_io_rready  (io_axi_port_rready),
     .io_axi_io_rlast   (io_axi_port_rlast),
     .io_axi_io_awvalid (io_axi_port_awvalid),
     .io_axi_io_awaddr  (io_axi_port_awaddr),
@@ -749,7 +799,10 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
     .io_axi_io_wdata   (io_axi_port_wdata),
     .io_axi_io_wstrb   (io_axi_port_wstrb),
     .io_axi_io_wready  (io_axi_port_wready),
+    .io_axi_io_wlast   (io_axi_port_wlast),
     .io_axi_io_bvalid  (io_axi_port_bvalid),
+    .io_axi_io_bresp   (io_axi_port_bresp),
+    .io_axi_io_bready  (io_axi_port_bready),
     .io_req_raddr       (req_addri),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:184:22]
     .io_req_waddr       (req_addri),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:184:22]
     .io_req_data        (_axi4lite_mem_io_req_data_T_2[31:0]),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:239:{32,44}]
@@ -759,17 +812,26 @@ module ysyx_24100012_AXI4LiteRRArbiter(	// @[home/uenui/code/github.com/OSCPU/ys
          : io_ports_0_req_bits_typ == 3'h2 ? _axi4lite_mem_io_req_mask_T_5[3:0] : 4'hF),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:184:22, :226:22, :227:22, :239:57, :240:{38,50,63}, :241:{34,46,59}]
     .io_req_ren         (req_valid & ~req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:178:22, :180:22, :214:{34,53}]
     .io_req_wen         (req_valid & req_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:178:22, :180:22, :213:34]
+    .io_req_burst
+      ((_GEN ? currentMaster : _GEN_0 & ~currentMaster)
+         ? io_ports_1_req_bits_burst
+         : 2'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :130:29, :133:31, :134:39, :149:50, :153:53, :178:22, :179:22, :189:20, :190:20]
     .io_resp_valid      (_axi4lite_mem_io_resp_valid),
-    .io_resp_bits_data  (_axi4lite_mem_io_resp_bits_data)
+    .io_resp_bits_data  (_axi4lite_mem_io_resp_bits_data),
+    .io_resp_bits_resp  (_axi4lite_mem_io_resp_bits_resp)
   );
   assign io_ports_0_resp_valid =
     _io_ports_0_resp_bits_resp_T & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :130:29, :197:48, :199:40]
   assign io_ports_0_resp_bits_data =
     _io_ports_0_resp_bits_resp_T ? _resp_data_T_21 : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :197:{41,48}, src/main/scala/chisel3/util/Mux.scala:126:16]
+  assign io_ports_0_resp_bits_resp =
+    _io_ports_0_resp_bits_resp_T ? _axi4lite_mem_io_resp_bits_resp : 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :130:29, :197:48, :201:41]
   assign io_ports_1_req_ready = ~(|state) & ~io_ports_0_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :128:23, :147:18, :203:{39,50,53}]
   assign io_ports_1_resp_valid =
     _io_ports_1_resp_bits_resp_T & _axi4lite_mem_io_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :130:29, :196:48, :198:40]
   assign io_ports_1_resp_bits_data = _io_ports_1_resp_bits_resp_T ? resp_data : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :196:{41,48}, :224:32, :225:17, :232:17]
+  assign io_ports_1_resp_bits_resp =
+    _io_ports_1_resp_bits_resp_T ? _axi4lite_mem_io_resp_bits_resp : 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/memory.scala:120:7, :121:16, :130:29, :196:48, :200:41]
 endmodule
 
 module ysyx_24100012_Decoder(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Decoder.scala:70:7]
@@ -1550,6 +1612,7 @@ module ysyx_24100012_LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
   output [2:0]  io_port_req_bits_typ,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   input         io_port_resp_valid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   input  [31:0] io_port_resp_bits_data,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
+  input  [1:0]  io_port_resp_bits_resp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output [31:0] io_exception_target,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output [4:0]  io_to_ctl_wbaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
   output [31:0] io_to_ctl_wbdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:95:16]
@@ -1573,14 +1636,20 @@ module ysyx_24100012_LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
           ? (in_clint ? io_clintIO_dr_data : io_port_resp_bits_data)
           : (&io_exe_mem_bits_ctrl_wb_sel)
               ? _csr_files_io_rdata
-              : io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:102:39, :103:27, :140:30, :148:48, :149:48, :150:48, :151:48, src/main/scala/chisel3/util/Mux.scala:126:16]
+              : io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:102:39, :103:27, :123:32, :140:30, :148:48, :149:48, :150:48, :151:48, src/main/scala/chisel3/util/Mux.scala:126:16]
+  wire [4:0]  exception =
+    io_exe_mem_bits_ctrl_mem_val & (|(in_clint ? 2'h0 : io_port_resp_bits_resp))
+      ? (io_exe_mem_bits_ctrl_mem_typ == 3'h0
+           ? 5'h15
+           : io_exe_mem_bits_ctrl_mem_typ == 3'h1 ? 5'h17 : 5'h0)
+      : io_exe_mem_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:102:39, :123:32, :139:30, :153:{21,29,46}, :154:{16,46}, :155:{16,46}]
   ysyx_24100012_CSRFiles csr_files (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:103:27]
     .clock               (clock),
     .io_inst             (io_exe_mem_bits_inst),
     .io_csr_cmd          (io_exe_mem_bits_ctrl_csr_cmd),
     .io_pc               (io_exe_mem_bits_pc),
     .io_alu_out          (io_exe_mem_bits_alu_out),
-    .io_exception        (io_exe_mem_bits_exception),
+    .io_exception        (exception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:153:21]
     .io_exception_target (io_exception_target),
     .io_rdata            (_csr_files_io_rdata),
     .io_ebreak           (io_mem_wb_bits_ebreak),
@@ -1599,7 +1668,7 @@ module ysyx_24100012_LSU(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/n
   assign io_to_ctl_wbaddr = io_exe_mem_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
   assign io_to_ctl_wbdata = wbdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, src/main/scala/chisel3/util/Mux.scala:126:16]
   assign io_to_ctl_ctrl_rf_wen = io_exe_mem_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
-  assign io_to_ctl_mem_exception = io_exe_mem_bits_exception[0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :174:33]
+  assign io_to_ctl_mem_exception = exception[0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :153:21, :174:33]
   assign io_clintIO_dr_addr = io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7]
   assign io_clintIO_dr_en = ~io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/LSU.scala:94:7, :127:48]
 endmodule
@@ -1671,323 +1740,342 @@ module ysyx_24100012_CLINT(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench
       : 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/devices/clint.scala:35:7, :44:28, :45:35, :46:46, :47:34, :48:39, :53:25]
 endmodule
 
-module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-  input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-                reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-  output        io_master_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output [31:0] io_master_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  input         io_master_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-                io_master_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  input  [31:0] io_master_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  input         io_master_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output        io_master_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output [31:0] io_master_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  input         io_master_awready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output        io_master_wvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output [31:0] io_master_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  output [3:0]  io_master_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-  input         io_master_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
-                io_master_bvalid	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:49:14]
+module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+  input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+                reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+  output        io_master_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [31:0] io_master_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [2:0]  io_master_arsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [1:0]  io_master_arburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input  [31:0] io_master_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input  [1:0]  io_master_rresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output        io_master_rready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output        io_master_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [31:0] io_master_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_awready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output        io_master_wvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [31:0] io_master_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output [3:0]  io_master_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output        io_master_wlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input         io_master_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  input  [1:0]  io_master_bresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
+  output        io_master_bready	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:50:14]
 );
 
-  wire [31:0] _clint_io_in_dr_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
-  wire        _wbu_io_reg_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire        _wbu_io_reg_bits_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire [31:0] _wbu_io_reg_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire [4:0]  _wbu_io_reg_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire [31:0] _wbu_io_to_ctl_wbdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire [4:0]  _wbu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire        _wbu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-  wire        _lsu_io_exe_mem_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_mem_wb_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_mem_wb_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_mem_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_mem_wb_bits_ebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_mem_wb_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_port_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_port_req_bits_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_port_req_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_port_req_bits_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [2:0]  _lsu_io_port_req_bits_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_exception_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [4:0]  _lsu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_to_ctl_wbdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_to_ctl_mem_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_to_ctl_csr_eret;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire [31:0] _lsu_io_clintIO_dr_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _lsu_io_clintIO_dr_en;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-  wire        _exu_io_dec_exe_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_exe_mem_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_exe_mem_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [4:0]  _exu_io_exe_mem_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_exe_mem_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [1:0]  _exu_io_exe_mem_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_exe_mem_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_exe_mem_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [2:0]  _exu_io_exe_mem_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [2:0]  _exu_io_exe_mem_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [4:0]  _exu_io_exe_mem_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_ifu_out_exe_brjmp_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_ifu_out_exe_jump_reg_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _exu_io_to_ctl_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [4:0]  _exu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_inst_is_load;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_is_csr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [3:0]  _exu_io_to_ctl_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_br_eq;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_br_lt;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire        _exu_io_to_ctl_br_ltu;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-  wire [31:0] _reg_file_io_out_rs1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
-  wire [31:0] _reg_file_io_out_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
-  wire [4:0]  _decoder_io_dec_reg_rs1_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [4:0]  _decoder_io_dec_reg_rs2_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [31:0] _decoder_io_dec_exe_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [31:0] _decoder_io_dec_exe_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [4:0]  _decoder_io_dec_exe_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [31:0] _decoder_io_dec_exe_bits_op1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [31:0] _decoder_io_dec_exe_bits_op2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [31:0] _decoder_io_dec_exe_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [3:0]  _decoder_io_dec_exe_bits_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [3:0]  _decoder_io_dec_exe_bits_alu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [1:0]  _decoder_io_dec_exe_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_dec_exe_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_dec_exe_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_dec_exe_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [2:0]  _decoder_io_dec_exe_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [2:0]  _decoder_io_dec_exe_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [4:0]  _decoder_io_dec_exe_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire [1:0]  _decoder_io_ctl_sign_exe_pc_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_ctl_sign_pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_ctl_sign_if_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _decoder_io_ctl_sign_fencei;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-  wire        _arbiter_io_ports_0_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-  wire [31:0] _arbiter_io_ports_0_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-  wire        _arbiter_io_ports_1_req_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-  wire        _arbiter_io_ports_1_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-  wire [31:0] _arbiter_io_ports_1_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-  wire        _inst_fetch_io_port_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-  wire [31:0] _inst_fetch_io_port_req_bits_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-  wire        _inst_fetch_io_ifu_dec_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-  wire [31:0] _inst_fetch_io_ifu_dec_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-  wire [31:0] _inst_fetch_io_ifu_dec_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-  wire [4:0]  _inst_fetch_io_ifu_dec_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
+  wire [31:0] _clint_io_in_dr_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:59:27]
+  wire        _wbu_io_reg_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire        _wbu_io_reg_bits_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire [31:0] _wbu_io_reg_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire [4:0]  _wbu_io_reg_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire [31:0] _wbu_io_to_ctl_wbdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire [4:0]  _wbu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire        _wbu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  wire        _lsu_io_exe_mem_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_mem_wb_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_mem_wb_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_mem_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_mem_wb_bits_ebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_mem_wb_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_port_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_port_req_bits_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_port_req_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_port_req_bits_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [2:0]  _lsu_io_port_req_bits_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_exception_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [4:0]  _lsu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_to_ctl_wbdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_to_ctl_mem_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_to_ctl_csr_eret;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire [31:0] _lsu_io_clintIO_dr_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _lsu_io_clintIO_dr_en;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+  wire        _exu_io_dec_exe_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_exe_mem_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_exe_mem_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [4:0]  _exu_io_exe_mem_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_exe_mem_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [1:0]  _exu_io_exe_mem_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_exe_mem_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_exe_mem_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [2:0]  _exu_io_exe_mem_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [2:0]  _exu_io_exe_mem_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [4:0]  _exu_io_exe_mem_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_ifu_out_exe_brjmp_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_ifu_out_exe_jump_reg_target;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _exu_io_to_ctl_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [4:0]  _exu_io_to_ctl_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_inst_is_load;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_is_csr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [3:0]  _exu_io_to_ctl_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_br_eq;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_br_lt;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire        _exu_io_to_ctl_br_ltu;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  wire [31:0] _reg_file_io_out_rs1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
+  wire [31:0] _reg_file_io_out_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
+  wire [4:0]  _decoder_io_dec_reg_rs1_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [4:0]  _decoder_io_dec_reg_rs2_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [31:0] _decoder_io_dec_exe_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [31:0] _decoder_io_dec_exe_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [4:0]  _decoder_io_dec_exe_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [31:0] _decoder_io_dec_exe_bits_op1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [31:0] _decoder_io_dec_exe_bits_op2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [31:0] _decoder_io_dec_exe_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [3:0]  _decoder_io_dec_exe_bits_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [3:0]  _decoder_io_dec_exe_bits_alu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [1:0]  _decoder_io_dec_exe_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_dec_exe_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_dec_exe_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_dec_exe_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [2:0]  _decoder_io_dec_exe_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [2:0]  _decoder_io_dec_exe_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [4:0]  _decoder_io_dec_exe_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire [1:0]  _decoder_io_ctl_sign_exe_pc_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_ctl_sign_pipeline_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_ctl_sign_if_kill;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _decoder_io_ctl_sign_fencei;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  wire        _arbiter_io_ports_0_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire [31:0] _arbiter_io_ports_0_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire [1:0]  _arbiter_io_ports_0_resp_bits_resp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire        _arbiter_io_ports_1_req_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire        _arbiter_io_ports_1_resp_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire [31:0] _arbiter_io_ports_1_resp_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire [1:0]  _arbiter_io_ports_1_resp_bits_resp;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  wire        _inst_fetch_io_port_req_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire [31:0] _inst_fetch_io_port_req_bits_addr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire [1:0]  _inst_fetch_io_port_req_bits_burst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire        _inst_fetch_io_ifu_dec_valid;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire [31:0] _inst_fetch_io_ifu_dec_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire [31:0] _inst_fetch_io_ifu_dec_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  wire [4:0]  _inst_fetch_io_ifu_dec_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
   wire        _decoder_io_ifu_dec_valid_T =
-    _inst_fetch_io_ifu_dec_valid & _decoder_io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:100, :51:27, :53:27]
-  reg  [31:0] decoder_io_ifu_dec_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] decoder_io_ifu_dec_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [4:0]  decoder_io_ifu_dec_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] exu_io_dec_exe_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] exu_io_dec_exe_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [4:0]  exu_io_dec_exe_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] exu_io_dec_exe_bits_rop1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] exu_io_dec_exe_bits_rop2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] exu_io_dec_exe_bits_rrs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [3:0]  exu_io_dec_exe_bits_rbr_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [3:0]  exu_io_dec_exe_bits_ralu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [1:0]  exu_io_dec_exe_bits_rctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         exu_io_dec_exe_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         exu_io_dec_exe_bits_rctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         exu_io_dec_exe_bits_rctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [2:0]  exu_io_dec_exe_bits_rctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [2:0]  exu_io_dec_exe_bits_rctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [4:0]  exu_io_dec_exe_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] lsu_io_exe_mem_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] lsu_io_exe_mem_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [4:0]  lsu_io_exe_mem_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] lsu_io_exe_mem_bits_rrs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] lsu_io_exe_mem_bits_ralu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [1:0]  lsu_io_exe_mem_bits_rctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         lsu_io_exe_mem_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         lsu_io_exe_mem_bits_rctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         lsu_io_exe_mem_bits_rctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [2:0]  lsu_io_exe_mem_bits_rctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [2:0]  lsu_io_exe_mem_bits_rctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [4:0]  lsu_io_exe_mem_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] wbu_io_mem_wb_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg  [31:0] wbu_io_mem_wb_bits_rdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         wbu_io_mem_wb_bits_rebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  reg         wbu_io_mem_wb_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-  always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-    if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-      decoder_io_ifu_dec_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      decoder_io_ifu_dec_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      decoder_io_ifu_dec_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-      exu_io_dec_exe_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rwbaddr <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-      exu_io_dec_exe_bits_rop1_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rop2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rrs2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rbr_type <= 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_ralu_fun <= 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_wb_sel <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_mem_val <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_mem_fcn <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_mem_typ <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rctrl_csr_cmd <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      exu_io_dec_exe_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-      lsu_io_exe_mem_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rwbaddr <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-      lsu_io_exe_mem_bits_rrs2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_ralu_out <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_wb_sel <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_mem_val <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_mem_fcn <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_mem_typ <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rctrl_csr_cmd <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      lsu_io_exe_mem_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-      wbu_io_mem_wb_bits_rwbaddr <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      wbu_io_mem_wb_bits_rdata <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      wbu_io_mem_wb_bits_rebreak <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
-      wbu_io_mem_wb_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:{31,57}]
+    _inst_fetch_io_ifu_dec_valid & _decoder_io_ifu_dec_ready;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:100, :52:27, :54:27]
+  reg  [31:0] decoder_io_ifu_dec_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] decoder_io_ifu_dec_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [4:0]  decoder_io_ifu_dec_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] exu_io_dec_exe_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] exu_io_dec_exe_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [4:0]  exu_io_dec_exe_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] exu_io_dec_exe_bits_rop1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] exu_io_dec_exe_bits_rop2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] exu_io_dec_exe_bits_rrs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [3:0]  exu_io_dec_exe_bits_rbr_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [3:0]  exu_io_dec_exe_bits_ralu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [1:0]  exu_io_dec_exe_bits_rctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         exu_io_dec_exe_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         exu_io_dec_exe_bits_rctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         exu_io_dec_exe_bits_rctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [2:0]  exu_io_dec_exe_bits_rctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [2:0]  exu_io_dec_exe_bits_rctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [4:0]  exu_io_dec_exe_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] lsu_io_exe_mem_bits_rinst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] lsu_io_exe_mem_bits_rpc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [4:0]  lsu_io_exe_mem_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] lsu_io_exe_mem_bits_rrs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] lsu_io_exe_mem_bits_ralu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [1:0]  lsu_io_exe_mem_bits_rctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         lsu_io_exe_mem_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         lsu_io_exe_mem_bits_rctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         lsu_io_exe_mem_bits_rctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [2:0]  lsu_io_exe_mem_bits_rctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [2:0]  lsu_io_exe_mem_bits_rctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [4:0]  lsu_io_exe_mem_bits_rexception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] wbu_io_mem_wb_bits_rwbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg  [31:0] wbu_io_mem_wb_bits_rdata;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         wbu_io_mem_wb_bits_rebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  reg         wbu_io_mem_wb_bits_rctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+  always @(posedge clock) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+    if (reset) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+      decoder_io_ifu_dec_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      decoder_io_ifu_dec_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      decoder_io_ifu_dec_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+      exu_io_dec_exe_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rwbaddr <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+      exu_io_dec_exe_bits_rop1_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rop2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rrs2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rbr_type <= 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_ralu_fun <= 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_wb_sel <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_mem_val <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_mem_fcn <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_mem_typ <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rctrl_csr_cmd <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      exu_io_dec_exe_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+      lsu_io_exe_mem_bits_rinst <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rpc <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rwbaddr <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+      lsu_io_exe_mem_bits_rrs2_data <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_ralu_out <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_wb_sel <= 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_mem_val <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_mem_fcn <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_mem_typ <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rctrl_csr_cmd <= 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      lsu_io_exe_mem_bits_rexception <= 5'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+      wbu_io_mem_wb_bits_rwbaddr <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      wbu_io_mem_wb_bits_rdata <= 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      wbu_io_mem_wb_bits_rebreak <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
+      wbu_io_mem_wb_bits_rctrl_rf_wen <= 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:{31,57}]
     end
-    else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-      if (_decoder_io_ifu_dec_valid_T) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:100]
-        decoder_io_ifu_dec_bits_rpc <= _inst_fetch_io_ifu_dec_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :51:27]
-        decoder_io_ifu_dec_bits_rinst <= _inst_fetch_io_ifu_dec_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :51:27]
-        decoder_io_ifu_dec_bits_rexception <= _inst_fetch_io_ifu_dec_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :51:27]
+    else begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+      if (_decoder_io_ifu_dec_valid_T) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:100]
+        decoder_io_ifu_dec_bits_rpc <= _inst_fetch_io_ifu_dec_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :52:27]
+        decoder_io_ifu_dec_bits_rinst <= _inst_fetch_io_ifu_dec_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :52:27]
+        decoder_io_ifu_dec_bits_rexception <= _inst_fetch_io_ifu_dec_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :52:27]
       end
-      if (_exu_io_dec_exe_ready) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-        exu_io_dec_exe_bits_rinst <= _decoder_io_dec_exe_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rpc <= _decoder_io_dec_exe_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rwbaddr <= _decoder_io_dec_exe_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rop1_data <= _decoder_io_dec_exe_bits_op1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rop2_data <= _decoder_io_dec_exe_bits_op2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rrs2_data <= _decoder_io_dec_exe_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rbr_type <= _decoder_io_dec_exe_bits_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_ralu_fun <= _decoder_io_dec_exe_bits_alu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_wb_sel <= _decoder_io_dec_exe_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_rf_wen <= _decoder_io_dec_exe_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_mem_val <= _decoder_io_dec_exe_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_mem_fcn <= _decoder_io_dec_exe_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_mem_typ <= _decoder_io_dec_exe_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rctrl_csr_cmd <= _decoder_io_dec_exe_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
-        exu_io_dec_exe_bits_rexception <= _decoder_io_dec_exe_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :53:27]
+      if (_exu_io_dec_exe_ready) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+        exu_io_dec_exe_bits_rinst <= _decoder_io_dec_exe_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rpc <= _decoder_io_dec_exe_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rwbaddr <= _decoder_io_dec_exe_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rop1_data <= _decoder_io_dec_exe_bits_op1_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rop2_data <= _decoder_io_dec_exe_bits_op2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rrs2_data <= _decoder_io_dec_exe_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rbr_type <= _decoder_io_dec_exe_bits_br_type;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_ralu_fun <= _decoder_io_dec_exe_bits_alu_fun;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_wb_sel <= _decoder_io_dec_exe_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_rf_wen <= _decoder_io_dec_exe_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_mem_val <= _decoder_io_dec_exe_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_mem_fcn <= _decoder_io_dec_exe_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_mem_typ <= _decoder_io_dec_exe_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rctrl_csr_cmd <= _decoder_io_dec_exe_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
+        exu_io_dec_exe_bits_rexception <= _decoder_io_dec_exe_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :54:27]
       end
-      if (_lsu_io_exe_mem_ready) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-        lsu_io_exe_mem_bits_rinst <= _exu_io_exe_mem_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rpc <= _exu_io_exe_mem_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rwbaddr <= _exu_io_exe_mem_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rrs2_data <= _exu_io_exe_mem_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_ralu_out <= _exu_io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_wb_sel <= _exu_io_exe_mem_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_rf_wen <= _exu_io_exe_mem_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_mem_val <= _exu_io_exe_mem_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_mem_fcn <= _exu_io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_mem_typ <= _exu_io_exe_mem_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rctrl_csr_cmd <= _exu_io_exe_mem_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
-        lsu_io_exe_mem_bits_rexception <= _exu_io_exe_mem_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :55:27]
+      if (_lsu_io_exe_mem_ready) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+        lsu_io_exe_mem_bits_rinst <= _exu_io_exe_mem_bits_inst;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rpc <= _exu_io_exe_mem_bits_pc;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rwbaddr <= _exu_io_exe_mem_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rrs2_data <= _exu_io_exe_mem_bits_rs2_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_ralu_out <= _exu_io_exe_mem_bits_alu_out;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_wb_sel <= _exu_io_exe_mem_bits_ctrl_wb_sel;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_rf_wen <= _exu_io_exe_mem_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_mem_val <= _exu_io_exe_mem_bits_ctrl_mem_val;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_mem_fcn <= _exu_io_exe_mem_bits_ctrl_mem_fcn;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_mem_typ <= _exu_io_exe_mem_bits_ctrl_mem_typ;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rctrl_csr_cmd <= _exu_io_exe_mem_bits_ctrl_csr_cmd;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
+        lsu_io_exe_mem_bits_rexception <= _exu_io_exe_mem_bits_exception;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :56:27]
       end
-      if (_lsu_io_mem_wb_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-        wbu_io_mem_wb_bits_rwbaddr <= _lsu_io_mem_wb_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :56:27]
-        wbu_io_mem_wb_bits_rdata <= _lsu_io_mem_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :56:27]
-        wbu_io_mem_wb_bits_rebreak <= _lsu_io_mem_wb_bits_ebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :56:27]
-        wbu_io_mem_wb_bits_rctrl_rf_wen <= _lsu_io_mem_wb_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31, :56:27]
+      if (_lsu_io_mem_wb_valid) begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+        wbu_io_mem_wb_bits_rwbaddr <= _lsu_io_mem_wb_bits_wbaddr;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :57:27]
+        wbu_io_mem_wb_bits_rdata <= _lsu_io_mem_wb_bits_data;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :57:27]
+        wbu_io_mem_wb_bits_rebreak <= _lsu_io_mem_wb_bits_ebreak;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :57:27]
+        wbu_io_mem_wb_bits_rctrl_rf_wen <= _lsu_io_mem_wb_bits_ctrl_rf_wen;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31, :57:27]
       end
     end
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-    `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-      `FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
+  `ifdef ENABLE_INITIAL_REG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+    `ifdef FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+      `FIRRTL_BEFORE_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
     `endif // FIRRTL_BEFORE_INITIAL
-    logic [31:0] _RANDOM[0:19];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-    initial begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-      `ifdef INIT_RANDOM_PROLOG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-        `INIT_RANDOM_PROLOG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
+    logic [31:0] _RANDOM[0:19];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+    initial begin	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+      `ifdef INIT_RANDOM_PROLOG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+        `INIT_RANDOM_PROLOG_	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
+      `ifdef RANDOMIZE_REG_INIT	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
         for (logic [4:0] i = 5'h0; i < 5'h14; i += 5'h1) begin
-          _RANDOM[i] = `RANDOM;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-        end	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-        decoder_io_ifu_dec_bits_rpc = _RANDOM[5'h0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        decoder_io_ifu_dec_bits_rinst = _RANDOM[5'h1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        decoder_io_ifu_dec_bits_rexception = _RANDOM[5'h2][5:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rinst = {_RANDOM[5'h2][31:6], _RANDOM[5'h3][5:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rpc = {_RANDOM[5'h3][31:6], _RANDOM[5'h4][5:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rwbaddr = _RANDOM[5'h4][11:7];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rop1_data = {_RANDOM[5'h4][31:22], _RANDOM[5'h5][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rop2_data = {_RANDOM[5'h5][31:22], _RANDOM[5'h6][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rrs2_data = {_RANDOM[5'h6][31:22], _RANDOM[5'h7][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rbr_type = _RANDOM[5'h7][25:22];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_ralu_fun = {_RANDOM[5'h7][31:29], _RANDOM[5'h8][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_wb_sel = _RANDOM[5'h8][2:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_rf_wen = _RANDOM[5'h8][3];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_mem_val = _RANDOM[5'h8][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_mem_fcn = _RANDOM[5'h8][5];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_mem_typ = _RANDOM[5'h8][8:6];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rctrl_csr_cmd = _RANDOM[5'h8][11:9];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        exu_io_dec_exe_bits_rexception = _RANDOM[5'h8][16:12];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rinst = {_RANDOM[5'h8][31:17], _RANDOM[5'h9][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rpc = {_RANDOM[5'h9][31:17], _RANDOM[5'hA][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rwbaddr = _RANDOM[5'hA][22:18];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rrs2_data = {_RANDOM[5'hD][31:1], _RANDOM[5'hE][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_ralu_out = {_RANDOM[5'hE][31:1], _RANDOM[5'hF][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_wb_sel = _RANDOM[5'hF][2:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_rf_wen = _RANDOM[5'hF][3];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_mem_val = _RANDOM[5'hF][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_mem_fcn = _RANDOM[5'hF][5];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_mem_typ = _RANDOM[5'hF][8:6];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rctrl_csr_cmd = _RANDOM[5'hF][11:9];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        lsu_io_exe_mem_bits_rexception = _RANDOM[5'hF][16:12];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        wbu_io_mem_wb_bits_rwbaddr = {_RANDOM[5'hF][31:17], _RANDOM[5'h10][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        wbu_io_mem_wb_bits_rdata = {_RANDOM[5'h10][31:17], _RANDOM[5'h11][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        wbu_io_mem_wb_bits_rebreak = _RANDOM[5'h13][19];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
-        wbu_io_mem_wb_bits_rctrl_rf_wen = _RANDOM[5'h13][20];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7, :46:31]
+          _RANDOM[i] = `RANDOM;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+        end	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+        decoder_io_ifu_dec_bits_rpc = _RANDOM[5'h0];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        decoder_io_ifu_dec_bits_rinst = _RANDOM[5'h1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        decoder_io_ifu_dec_bits_rexception = _RANDOM[5'h2][5:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rinst = {_RANDOM[5'h2][31:6], _RANDOM[5'h3][5:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rpc = {_RANDOM[5'h3][31:6], _RANDOM[5'h4][5:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rwbaddr = _RANDOM[5'h4][11:7];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rop1_data = {_RANDOM[5'h4][31:22], _RANDOM[5'h5][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rop2_data = {_RANDOM[5'h5][31:22], _RANDOM[5'h6][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rrs2_data = {_RANDOM[5'h6][31:22], _RANDOM[5'h7][21:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rbr_type = _RANDOM[5'h7][25:22];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_ralu_fun = {_RANDOM[5'h7][31:29], _RANDOM[5'h8][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_wb_sel = _RANDOM[5'h8][2:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_rf_wen = _RANDOM[5'h8][3];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_mem_val = _RANDOM[5'h8][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_mem_fcn = _RANDOM[5'h8][5];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_mem_typ = _RANDOM[5'h8][8:6];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rctrl_csr_cmd = _RANDOM[5'h8][11:9];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        exu_io_dec_exe_bits_rexception = _RANDOM[5'h8][16:12];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rinst = {_RANDOM[5'h8][31:17], _RANDOM[5'h9][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rpc = {_RANDOM[5'h9][31:17], _RANDOM[5'hA][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rwbaddr = _RANDOM[5'hA][22:18];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rrs2_data = {_RANDOM[5'hD][31:1], _RANDOM[5'hE][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_ralu_out = {_RANDOM[5'hE][31:1], _RANDOM[5'hF][0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_wb_sel = _RANDOM[5'hF][2:1];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_rf_wen = _RANDOM[5'hF][3];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_mem_val = _RANDOM[5'hF][4];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_mem_fcn = _RANDOM[5'hF][5];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_mem_typ = _RANDOM[5'hF][8:6];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rctrl_csr_cmd = _RANDOM[5'hF][11:9];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        lsu_io_exe_mem_bits_rexception = _RANDOM[5'hF][16:12];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        wbu_io_mem_wb_bits_rwbaddr = {_RANDOM[5'hF][31:17], _RANDOM[5'h10][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        wbu_io_mem_wb_bits_rdata = {_RANDOM[5'h10][31:17], _RANDOM[5'h11][16:0]};	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        wbu_io_mem_wb_bits_rebreak = _RANDOM[5'h13][19];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
+        wbu_io_mem_wb_bits_rctrl_rf_wen = _RANDOM[5'h13][20];	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7, :47:31]
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
-      `FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:30:7]
+    `ifdef FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
+      `FIRRTL_AFTER_INITIAL	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:31:7]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  ysyx_24100012_InstFetch inst_fetch (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
+  ysyx_24100012_InstFetch inst_fetch (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
     .clock                         (clock),
     .reset                         (reset),
-    .io_ctl_exe_pc_sel             (_decoder_io_ctl_sign_exe_pc_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-    .io_ctl_pipeline_kill          (_decoder_io_ctl_sign_pipeline_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-    .io_ctl_if_kill                (_decoder_io_ctl_sign_if_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-    .io_ctl_fencei                 (_decoder_io_ctl_sign_fencei),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-    .io_port_req_ready             (_arbiter_io_ports_1_req_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+    .io_ctl_exe_pc_sel             (_decoder_io_ctl_sign_exe_pc_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_ctl_pipeline_kill          (_decoder_io_ctl_sign_pipeline_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_ctl_if_kill                (_decoder_io_ctl_sign_if_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_ctl_fencei                 (_decoder_io_ctl_sign_fencei),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_port_req_ready             (_arbiter_io_ports_1_req_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
     .io_port_req_valid             (_inst_fetch_io_port_req_valid),
     .io_port_req_bits_addr         (_inst_fetch_io_port_req_bits_addr),
-    .io_port_resp_valid            (_arbiter_io_ports_1_resp_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-    .io_port_resp_bits_data        (_arbiter_io_ports_1_resp_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-    .io_exu_in_exe_brjmp_target    (_exu_io_ifu_out_exe_brjmp_target),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exu_in_exe_jump_reg_target (_exu_io_ifu_out_exe_jump_reg_target),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_ifu_dec_ready              (_decoder_io_ifu_dec_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_port_req_bits_burst        (_inst_fetch_io_port_req_bits_burst),
+    .io_port_resp_valid            (_arbiter_io_ports_1_resp_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_port_resp_bits_data        (_arbiter_io_ports_1_resp_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_port_resp_bits_resp        (_arbiter_io_ports_1_resp_bits_resp),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_exu_in_exe_brjmp_target    (_exu_io_ifu_out_exe_brjmp_target),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exu_in_exe_jump_reg_target (_exu_io_ifu_out_exe_jump_reg_target),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_ifu_dec_ready              (_decoder_io_ifu_dec_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
     .io_ifu_dec_valid              (_inst_fetch_io_ifu_dec_valid),
     .io_ifu_dec_bits_pc            (_inst_fetch_io_ifu_dec_bits_pc),
     .io_ifu_dec_bits_inst          (_inst_fetch_io_ifu_dec_bits_inst),
     .io_ifu_dec_bits_exception     (_inst_fetch_io_ifu_dec_bits_exception),
-    .io_exception_target           (_lsu_io_exception_target)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exception_target           (_lsu_io_exception_target)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
   );
-  ysyx_24100012_AXI4LiteRRArbiter arbiter (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+  ysyx_24100012_AXI4LiteRRArbiter arbiter (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
     .clock                     (clock),
     .reset                     (reset),
-    .io_ports_0_req_valid      (_lsu_io_port_req_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_ports_0_req_bits_addr  (_lsu_io_port_req_bits_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_ports_0_req_bits_data  (_lsu_io_port_req_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_ports_0_req_bits_fcn   (_lsu_io_port_req_bits_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_ports_0_req_bits_typ   (_lsu_io_port_req_bits_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_ports_0_req_valid      (_lsu_io_port_req_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_ports_0_req_bits_addr  (_lsu_io_port_req_bits_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_ports_0_req_bits_data  (_lsu_io_port_req_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_ports_0_req_bits_fcn   (_lsu_io_port_req_bits_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_ports_0_req_bits_typ   (_lsu_io_port_req_bits_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
     .io_ports_0_resp_valid     (_arbiter_io_ports_0_resp_valid),
     .io_ports_0_resp_bits_data (_arbiter_io_ports_0_resp_bits_data),
+    .io_ports_0_resp_bits_resp (_arbiter_io_ports_0_resp_bits_resp),
     .io_ports_1_req_ready      (_arbiter_io_ports_1_req_ready),
-    .io_ports_1_req_valid      (_inst_fetch_io_port_req_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
-    .io_ports_1_req_bits_addr  (_inst_fetch_io_port_req_bits_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:51:27]
+    .io_ports_1_req_valid      (_inst_fetch_io_port_req_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+    .io_ports_1_req_bits_addr  (_inst_fetch_io_port_req_bits_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+    .io_ports_1_req_bits_burst (_inst_fetch_io_port_req_bits_burst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
     .io_ports_1_resp_valid     (_arbiter_io_ports_1_resp_valid),
     .io_ports_1_resp_bits_data (_arbiter_io_ports_1_resp_bits_data),
+    .io_ports_1_resp_bits_resp (_arbiter_io_ports_1_resp_bits_resp),
     .io_axi_port_arvalid      (io_master_arvalid),
     .io_axi_port_araddr       (io_master_araddr),
     .io_axi_port_arready      (io_master_arready),
+    .io_axi_port_arsize       (io_master_arsize),
+    .io_axi_port_arburst      (io_master_arburst),
     .io_axi_port_rvalid       (io_master_rvalid),
     .io_axi_port_rdata        (io_master_rdata),
+    .io_axi_port_rresp        (io_master_rresp),
+    .io_axi_port_rready       (io_master_rready),
     .io_axi_port_rlast        (io_master_rlast),
     .io_axi_port_awvalid      (io_master_awvalid),
     .io_axi_port_awaddr       (io_master_awaddr),
@@ -1996,19 +2084,22 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_axi_port_wdata        (io_master_wdata),
     .io_axi_port_wstrb        (io_master_wstrb),
     .io_axi_port_wready       (io_master_wready),
-    .io_axi_port_bvalid       (io_master_bvalid)
+    .io_axi_port_wlast        (io_master_wlast),
+    .io_axi_port_bvalid       (io_master_bvalid),
+    .io_axi_port_bresp        (io_master_bresp),
+    .io_axi_port_bready       (io_master_bready)
   );
-  ysyx_24100012_Decoder decoder (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+  ysyx_24100012_Decoder decoder (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
     .clock                        (clock),
     .reset                        (reset),
     .io_dec_reg_rs1_addr          (_decoder_io_dec_reg_rs1_addr),
     .io_dec_reg_rs2_addr          (_decoder_io_dec_reg_rs2_addr),
     .io_ifu_dec_ready             (_decoder_io_ifu_dec_ready),
-    .io_ifu_dec_valid             (_decoder_io_ifu_dec_valid_T),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:100]
-    .io_ifu_dec_bits_pc           (decoder_io_ifu_dec_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_ifu_dec_bits_inst         (decoder_io_ifu_dec_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_ifu_dec_bits_exception    (decoder_io_ifu_dec_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_ready             (_exu_io_dec_exe_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
+    .io_ifu_dec_valid             (_decoder_io_ifu_dec_valid_T),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:100]
+    .io_ifu_dec_bits_pc           (decoder_io_ifu_dec_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_ifu_dec_bits_inst         (decoder_io_ifu_dec_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_ifu_dec_bits_exception    (decoder_io_ifu_dec_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_ready             (_exu_io_dec_exe_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
     .io_dec_exe_bits_inst         (_decoder_io_dec_exe_bits_inst),
     .io_dec_exe_bits_pc           (_decoder_io_dec_exe_bits_pc),
     .io_dec_exe_bits_wbaddr       (_decoder_io_dec_exe_bits_wbaddr),
@@ -2024,59 +2115,59 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_dec_exe_bits_ctrl_mem_typ (_decoder_io_dec_exe_bits_ctrl_mem_typ),
     .io_dec_exe_bits_ctrl_csr_cmd (_decoder_io_dec_exe_bits_ctrl_csr_cmd),
     .io_dec_exe_bits_exception    (_decoder_io_dec_exe_bits_exception),
-    .io_reg_in_rs1_data           (_reg_file_io_out_rs1_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
-    .io_reg_in_rs2_data           (_reg_file_io_out_rs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_reg_in_rs1_data           (_reg_file_io_out_rs1_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
+    .io_reg_in_rs2_data           (_reg_file_io_out_rs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
     .io_ctl_sign_exe_pc_sel       (_decoder_io_ctl_sign_exe_pc_sel),
     .io_ctl_sign_pipeline_kill    (_decoder_io_ctl_sign_pipeline_kill),
     .io_ctl_sign_if_kill          (_decoder_io_ctl_sign_if_kill),
     .io_ctl_sign_fencei           (_decoder_io_ctl_sign_fencei),
-    .io_lsu_ctl_wbaddr            (_lsu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_lsu_ctl_wbdata            (_lsu_io_to_ctl_wbdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_lsu_ctl_ctrl_rf_wen       (_lsu_io_to_ctl_ctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_lsu_ctl_mem_exception     (_lsu_io_to_ctl_mem_exception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_lsu_ctl_csr_eret          (_lsu_io_to_ctl_csr_eret),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_exe_ctl_alu_out           (_exu_io_to_ctl_alu_out),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_wbaddr            (_exu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_inst_is_load      (_exu_io_to_ctl_inst_is_load),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_ctrl_rf_wen       (_exu_io_to_ctl_ctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_is_csr            (_exu_io_to_ctl_is_csr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_br_type           (_exu_io_to_ctl_br_type),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_br_eq             (_exu_io_to_ctl_br_eq),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_br_lt             (_exu_io_to_ctl_br_lt),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_exe_ctl_br_ltu            (_exu_io_to_ctl_br_ltu),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
-    .io_wb_ctl_wbdata             (_wbu_io_to_ctl_wbdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_wb_ctl_wbaddr             (_wbu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_wb_ctl_ctrl_rf_wen        (_wbu_io_to_ctl_ctrl_rf_wen)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_lsu_ctl_wbaddr            (_lsu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_lsu_ctl_wbdata            (_lsu_io_to_ctl_wbdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_lsu_ctl_ctrl_rf_wen       (_lsu_io_to_ctl_ctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_lsu_ctl_mem_exception     (_lsu_io_to_ctl_mem_exception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_lsu_ctl_csr_eret          (_lsu_io_to_ctl_csr_eret),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_exe_ctl_alu_out           (_exu_io_to_ctl_alu_out),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_wbaddr            (_exu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_inst_is_load      (_exu_io_to_ctl_inst_is_load),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_ctrl_rf_wen       (_exu_io_to_ctl_ctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_is_csr            (_exu_io_to_ctl_is_csr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_br_type           (_exu_io_to_ctl_br_type),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_br_eq             (_exu_io_to_ctl_br_eq),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_br_lt             (_exu_io_to_ctl_br_lt),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_exe_ctl_br_ltu            (_exu_io_to_ctl_br_ltu),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_wb_ctl_wbdata             (_wbu_io_to_ctl_wbdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_wb_ctl_wbaddr             (_wbu_io_to_ctl_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_wb_ctl_ctrl_rf_wen        (_wbu_io_to_ctl_ctrl_rf_wen)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
   );
-  ysyx_24100012_RegFile reg_file (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+  ysyx_24100012_RegFile reg_file (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
     .clock             (clock),
     .io_out_rs1_data   (_reg_file_io_out_rs1_data),
     .io_out_rs2_data   (_reg_file_io_out_rs2_data),
-    .io_wb_valid       (_wbu_io_reg_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_wb_bits_rf_wen (_wbu_io_reg_bits_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_wb_bits_data   (_wbu_io_reg_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_wb_bits_wbaddr (_wbu_io_reg_bits_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_dec_rs1_addr   (_decoder_io_dec_reg_rs1_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
-    .io_dec_rs2_addr   (_decoder_io_dec_reg_rs2_addr)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_wb_valid       (_wbu_io_reg_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_wb_bits_rf_wen (_wbu_io_reg_bits_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_wb_bits_data   (_wbu_io_reg_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_wb_bits_wbaddr (_wbu_io_reg_bits_wbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_dec_rs1_addr   (_decoder_io_dec_reg_rs1_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
+    .io_dec_rs2_addr   (_decoder_io_dec_reg_rs2_addr)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
   );
-  ysyx_24100012_EXU exu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:55:27]
+  ysyx_24100012_EXU exu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
     .io_dec_exe_ready               (_exu_io_dec_exe_ready),
-    .io_dec_exe_bits_inst           (exu_io_dec_exe_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_pc             (exu_io_dec_exe_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_wbaddr         (exu_io_dec_exe_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_op1_data       (exu_io_dec_exe_bits_rop1_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_op2_data       (exu_io_dec_exe_bits_rop2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_rs2_data       (exu_io_dec_exe_bits_rrs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_br_type        (exu_io_dec_exe_bits_rbr_type),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_alu_fun        (exu_io_dec_exe_bits_ralu_fun),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_wb_sel    (exu_io_dec_exe_bits_rctrl_wb_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_rf_wen    (exu_io_dec_exe_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_mem_val   (exu_io_dec_exe_bits_rctrl_mem_val),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_mem_fcn   (exu_io_dec_exe_bits_rctrl_mem_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_mem_typ   (exu_io_dec_exe_bits_rctrl_mem_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_ctrl_csr_cmd   (exu_io_dec_exe_bits_rctrl_csr_cmd),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_dec_exe_bits_exception      (exu_io_dec_exe_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_ready               (_lsu_io_exe_mem_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_dec_exe_bits_inst           (exu_io_dec_exe_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_pc             (exu_io_dec_exe_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_wbaddr         (exu_io_dec_exe_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_op1_data       (exu_io_dec_exe_bits_rop1_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_op2_data       (exu_io_dec_exe_bits_rop2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_rs2_data       (exu_io_dec_exe_bits_rrs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_br_type        (exu_io_dec_exe_bits_rbr_type),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_alu_fun        (exu_io_dec_exe_bits_ralu_fun),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_wb_sel    (exu_io_dec_exe_bits_rctrl_wb_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_rf_wen    (exu_io_dec_exe_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_mem_val   (exu_io_dec_exe_bits_rctrl_mem_val),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_mem_fcn   (exu_io_dec_exe_bits_rctrl_mem_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_mem_typ   (exu_io_dec_exe_bits_rctrl_mem_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_ctrl_csr_cmd   (exu_io_dec_exe_bits_rctrl_csr_cmd),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_dec_exe_bits_exception      (exu_io_dec_exe_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_ready               (_lsu_io_exe_mem_ready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
     .io_exe_mem_bits_inst           (_exu_io_exe_mem_bits_inst),
     .io_exe_mem_bits_pc             (_exu_io_exe_mem_bits_pc),
     .io_exe_mem_bits_wbaddr         (_exu_io_exe_mem_bits_wbaddr),
@@ -2089,7 +2180,7 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_exe_mem_bits_ctrl_mem_typ   (_exu_io_exe_mem_bits_ctrl_mem_typ),
     .io_exe_mem_bits_ctrl_csr_cmd   (_exu_io_exe_mem_bits_ctrl_csr_cmd),
     .io_exe_mem_bits_exception      (_exu_io_exe_mem_bits_exception),
-    .io_ctl_pipeline_kill           (_decoder_io_ctl_sign_pipeline_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_ctl_pipeline_kill           (_decoder_io_ctl_sign_pipeline_kill),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:54:27]
     .io_ifu_out_exe_brjmp_target    (_exu_io_ifu_out_exe_brjmp_target),
     .io_ifu_out_exe_jump_reg_target (_exu_io_ifu_out_exe_jump_reg_target),
     .io_to_ctl_alu_out              (_exu_io_to_ctl_alu_out),
@@ -2102,21 +2193,21 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_to_ctl_br_lt                (_exu_io_to_ctl_br_lt),
     .io_to_ctl_br_ltu               (_exu_io_to_ctl_br_ltu)
   );
-  ysyx_24100012_LSU lsu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+  ysyx_24100012_LSU lsu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
     .clock                        (clock),
     .io_exe_mem_ready             (_lsu_io_exe_mem_ready),
-    .io_exe_mem_bits_inst         (lsu_io_exe_mem_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_pc           (lsu_io_exe_mem_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_wbaddr       (lsu_io_exe_mem_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_rs2_data     (lsu_io_exe_mem_bits_rrs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_alu_out      (lsu_io_exe_mem_bits_ralu_out),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_wb_sel  (lsu_io_exe_mem_bits_rctrl_wb_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_rf_wen  (lsu_io_exe_mem_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_mem_val (lsu_io_exe_mem_bits_rctrl_mem_val),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_mem_fcn (lsu_io_exe_mem_bits_rctrl_mem_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_mem_typ (lsu_io_exe_mem_bits_rctrl_mem_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_ctrl_csr_cmd (lsu_io_exe_mem_bits_rctrl_csr_cmd),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_exe_mem_bits_exception    (lsu_io_exe_mem_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
+    .io_exe_mem_bits_inst         (lsu_io_exe_mem_bits_rinst),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_pc           (lsu_io_exe_mem_bits_rpc),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_wbaddr       (lsu_io_exe_mem_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_rs2_data     (lsu_io_exe_mem_bits_rrs2_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_alu_out      (lsu_io_exe_mem_bits_ralu_out),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_wb_sel  (lsu_io_exe_mem_bits_rctrl_wb_sel),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_rf_wen  (lsu_io_exe_mem_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_mem_val (lsu_io_exe_mem_bits_rctrl_mem_val),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_mem_fcn (lsu_io_exe_mem_bits_rctrl_mem_fcn),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_mem_typ (lsu_io_exe_mem_bits_rctrl_mem_typ),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_ctrl_csr_cmd (lsu_io_exe_mem_bits_rctrl_csr_cmd),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_exe_mem_bits_exception    (lsu_io_exe_mem_bits_rexception),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
     .io_mem_wb_valid              (_lsu_io_mem_wb_valid),
     .io_mem_wb_bits_wbaddr        (_lsu_io_mem_wb_bits_wbaddr),
     .io_mem_wb_bits_data          (_lsu_io_mem_wb_bits_data),
@@ -2127,8 +2218,9 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_port_req_bits_data        (_lsu_io_port_req_bits_data),
     .io_port_req_bits_fcn         (_lsu_io_port_req_bits_fcn),
     .io_port_req_bits_typ         (_lsu_io_port_req_bits_typ),
-    .io_port_resp_valid           (_arbiter_io_ports_0_resp_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
-    .io_port_resp_bits_data       (_arbiter_io_ports_0_resp_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:52:27]
+    .io_port_resp_valid           (_arbiter_io_ports_0_resp_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_port_resp_bits_data       (_arbiter_io_ports_0_resp_bits_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
+    .io_port_resp_bits_resp       (_arbiter_io_ports_0_resp_bits_resp),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:53:27]
     .io_exception_target          (_lsu_io_exception_target),
     .io_to_ctl_wbaddr             (_lsu_io_to_ctl_wbaddr),
     .io_to_ctl_wbdata             (_lsu_io_to_ctl_wbdata),
@@ -2136,15 +2228,15 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_to_ctl_mem_exception      (_lsu_io_to_ctl_mem_exception),
     .io_to_ctl_csr_eret           (_lsu_io_to_ctl_csr_eret),
     .io_clintIO_dr_addr           (_lsu_io_clintIO_dr_addr),
-    .io_clintIO_dr_data           (_clint_io_in_dr_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_clintIO_dr_data           (_clint_io_in_dr_data),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:59:27]
     .io_clintIO_dr_en             (_lsu_io_clintIO_dr_en)
   );
-  ysyx_24100012_WBU wbu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
-    .io_mem_wb_valid            (_lsu_io_mem_wb_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
-    .io_mem_wb_bits_wbaddr      (wbu_io_mem_wb_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_mem_wb_bits_data        (wbu_io_mem_wb_bits_rdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_mem_wb_bits_ebreak      (wbu_io_mem_wb_bits_rebreak),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
-    .io_mem_wb_bits_ctrl_rf_wen (wbu_io_mem_wb_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:46:31]
+  ysyx_24100012_WBU wbu (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+    .io_mem_wb_valid            (_lsu_io_mem_wb_valid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
+    .io_mem_wb_bits_wbaddr      (wbu_io_mem_wb_bits_rwbaddr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_mem_wb_bits_data        (wbu_io_mem_wb_bits_rdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_mem_wb_bits_ebreak      (wbu_io_mem_wb_bits_rebreak),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
+    .io_mem_wb_bits_ctrl_rf_wen (wbu_io_mem_wb_bits_rctrl_rf_wen),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:47:31]
     .io_reg_valid               (_wbu_io_reg_valid),
     .io_reg_bits_rf_wen         (_wbu_io_reg_bits_rf_wen),
     .io_reg_bits_data           (_wbu_io_reg_bits_data),
@@ -2153,42 +2245,91 @@ module ysyx_24100012_Core(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/
     .io_to_ctl_wbaddr           (_wbu_io_to_ctl_wbaddr),
     .io_to_ctl_ctrl_rf_wen      (_wbu_io_to_ctl_ctrl_rf_wen)
   );
-  ysyx_24100012_CLINT clint (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:58:27]
+  ysyx_24100012_CLINT clint (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:59:27]
     .clock         (clock),
     .reset         (reset),
-    .io_in_dr_addr (_lsu_io_clintIO_dr_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_in_dr_addr (_lsu_io_clintIO_dr_addr),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
     .io_in_dr_data (_clint_io_in_dr_data),
-    .io_in_dr_en   (_lsu_io_clintIO_dr_en)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:56:27]
+    .io_in_dr_en   (_lsu_io_clintIO_dr_en)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:57:27]
   );
 endmodule
 
 module ysyx_24100012(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7]
   input         clock,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7]
                 reset,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7]
+                io_interrupt,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output        io_master_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output [31:0] io_master_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   input         io_master_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
-                io_master_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [3:0]  io_master_arid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [7:0]  io_master_arlen,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [2:0]  io_master_arsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [1:0]  io_master_arburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_master_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   input  [31:0] io_master_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [1:0]  io_master_rresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_master_rready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [3:0]  io_master_rid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   input         io_master_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output        io_master_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output [31:0] io_master_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   input         io_master_awready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [3:0]  io_master_awid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [7:0]  io_master_awlen,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [2:0]  io_master_awsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [1:0]  io_master_awburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output        io_master_wvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output [31:0] io_master_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   output [3:0]  io_master_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
   input         io_master_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
-                io_master_bvalid	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_master_wlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_master_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [1:0]  io_master_bresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_master_bready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [3:0]  io_master_bid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_arvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [31:0] io_slave_araddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_arready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [3:0]  io_slave_arid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [7:0]  io_slave_arlen,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [2:0]  io_slave_arsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [1:0]  io_slave_arburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_rvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [31:0] io_slave_rdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [1:0]  io_slave_rresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_rready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [3:0]  io_slave_rid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_rlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_awvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [31:0] io_slave_awaddr,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_awready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [3:0]  io_slave_awid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [7:0]  io_slave_awlen,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [2:0]  io_slave_awsize,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [1:0]  io_slave_awburst,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_wvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [31:0] io_slave_wdata,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input  [3:0]  io_slave_wstrb,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_wready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_wlast,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output        io_slave_bvalid,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [1:0]  io_slave_bresp,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  input         io_slave_bready,	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
+  output [3:0]  io_slave_bid	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:12:14]
 );
 
-  ysyx_24100012_Core core (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:13:20]
+  ysyx_24100012_Core core (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:14:20]
     .clock              (clock),
     .reset              (reset),
     .io_master_arvalid (io_master_arvalid),
     .io_master_araddr  (io_master_araddr),
     .io_master_arready (io_master_arready),
+    .io_master_arsize  (io_master_arsize),
+    .io_master_arburst (io_master_arburst),
     .io_master_rvalid  (io_master_rvalid),
     .io_master_rdata   (io_master_rdata),
+    .io_master_rresp   (io_master_rresp),
+    .io_master_rready  (io_master_rready),
     .io_master_rlast   (io_master_rlast),
     .io_master_awvalid (io_master_awvalid),
     .io_master_awaddr  (io_master_awaddr),
@@ -2197,8 +2338,28 @@ module ysyx_24100012(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-c
     .io_master_wdata   (io_master_wdata),
     .io_master_wstrb   (io_master_wstrb),
     .io_master_wready  (io_master_wready),
-    .io_master_bvalid  (io_master_bvalid)
+    .io_master_wlast   (io_master_wlast),
+    .io_master_bvalid  (io_master_bvalid),
+    .io_master_bresp   (io_master_bresp),
+    .io_master_bready  (io_master_bready)
   );
+  assign io_master_arid = 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_master_arlen = 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_master_awid = 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_master_awlen = 8'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_master_awsize = 3'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_master_awburst = 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_arready = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_rvalid = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_rdata = 32'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_rresp = 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_rid = 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_rlast = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_awready = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_wready = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_bvalid = 1'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_bresp = 2'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
+  assign io_slave_bid = 4'h0;	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Core.scala:10:7, :14:20]
 endmodule
 
 module AXI4LiteSlave(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/common/axi.scala:205:7]
@@ -2349,20 +2510,65 @@ module Top(	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/
   ysyx_24100012 core (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22]
     .clock              (clock),
     .reset              (reset),
+    .io_interrupt       (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
     .io_master_arvalid (_core_io_master_arvalid),
     .io_master_araddr  (_core_io_master_araddr),
     .io_master_arready (_axi_mem_slave_io_axi_io_arready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
+    .io_master_arid    (/* unused */),
+    .io_master_arlen   (/* unused */),
+    .io_master_arsize  (/* unused */),
+    .io_master_arburst (/* unused */),
     .io_master_rvalid  (_axi_mem_slave_io_axi_io_rvalid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
     .io_master_rdata   (_axi_mem_slave_io_axi_io_rdata),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
+    .io_master_rresp   (2'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_master_rready  (/* unused */),
+    .io_master_rid     (4'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
     .io_master_rlast   (_axi_mem_slave_io_axi_io_rlast),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
     .io_master_awvalid (_core_io_master_awvalid),
     .io_master_awaddr  (_core_io_master_awaddr),
     .io_master_awready (_axi_mem_slave_io_axi_io_awready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
+    .io_master_awid    (/* unused */),
+    .io_master_awlen   (/* unused */),
+    .io_master_awsize  (/* unused */),
+    .io_master_awburst (/* unused */),
     .io_master_wvalid  (_core_io_master_wvalid),
     .io_master_wdata   (_core_io_master_wdata),
     .io_master_wstrb   (_core_io_master_wstrb),
     .io_master_wready  (_axi_mem_slave_io_axi_io_wready),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
-    .io_master_bvalid  (_axi_mem_slave_io_axi_io_bvalid)	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
+    .io_master_wlast   (/* unused */),
+    .io_master_bvalid  (_axi_mem_slave_io_axi_io_bvalid),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
+    .io_master_bresp   (2'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_master_bready  (/* unused */),
+    .io_master_bid     (4'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_arvalid  (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_araddr   (32'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_arready  (/* unused */),
+    .io_slave_arid     (4'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_arlen    (8'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_arsize   (3'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_arburst  (2'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_rvalid   (/* unused */),
+    .io_slave_rdata    (/* unused */),
+    .io_slave_rresp    (/* unused */),
+    .io_slave_rready   (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_rid      (/* unused */),
+    .io_slave_rlast    (/* unused */),
+    .io_slave_awvalid  (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_awaddr   (32'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_awready  (/* unused */),
+    .io_slave_awid     (4'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_awlen    (8'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_awsize   (3'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_awburst  (2'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_wvalid   (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_wdata    (32'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_wstrb    (4'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:19:22, :23:33]
+    .io_slave_wready   (/* unused */),
+    .io_slave_wlast    (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_bvalid   (/* unused */),
+    .io_slave_bresp    (/* unused */),
+    .io_slave_bready   (1'h0),	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:20:13]
+    .io_slave_bid      (/* unused */)
   );
   AXI4LiteSlave axi_mem_slave (	// @[home/uenui/code/github.com/OSCPU/ysyx-workbench/npc-chisel/npc/src/main/scala/Top.scala:23:33]
     .clock              (clock),
