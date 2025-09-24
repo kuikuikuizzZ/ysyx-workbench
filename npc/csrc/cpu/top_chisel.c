@@ -166,8 +166,8 @@ uint32_t top_csr(int i) {
 uint32_t top_pc() {
     if (!_rootp) return 0;
     uint32_t tpc ;
-    IFNDEF(CONFIG_DIFFTEST,IFDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg));
-    IFNDEF(CONFIG_DIFFTEST,IFNDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__inst_fetch__DOT__pc_reg;))
+    IFDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
+    IFNDEF(CONFIG_SOC,tpc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
     IFDEF(CONFIG_DIFFTEST,tpc=top_wb_pc());
     return tpc;
 }
@@ -175,17 +175,15 @@ uint32_t top_pc() {
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
     uint32_t pc;
-    // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__casez_tmp);
-    // IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__lsu_io_exe_mem_bits_rpc);
-    IFDEF(CONFIG_PIPELINE_PC,pc=top_mem_pc());
+    IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg);
+    IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__inst_fetch__DOT__pc_reg);
+    IFDEF(CONFIG_DIFFTEST,pc=top_mem_pc());
     return pc;
 }
-
 uint32_t top_decode_pc() {
     if (!_rootp) return 0;
     uint32_t decode_pc ;
     IFDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
-    // IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_REG_pc);
     IFNDEF(CONFIG_SOC,decode_pc=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
     return decode_pc;
 }
@@ -204,7 +202,7 @@ uint32_t top_wb_inst() {
 uint32_t top_halt(){
     if (!_rootp) return 0;
     uint32_t result;
-    IFNDEF(CONFIG_DIFFTEST,IFDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg));
+    IFNDEF(CONFIG_DIFFTEST,IFDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__wbu_io_mem_wb_bits_rebreak));
     IFNDEF(CONFIG_DIFFTEST,IFNDEF(CONFIG_SOC,result=(uint32_t)_rootp->ysyxSoCFull__DOT__core__DOT__core__DOT__wbu_io_mem_wb_bits_rebreak;))
     IFDEF(CONFIG_DIFFTEST,result=halt);
     return result;

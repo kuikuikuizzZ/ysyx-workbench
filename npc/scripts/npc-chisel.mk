@@ -9,7 +9,12 @@ else
 	endif
 endif
 
-TOP_NAME = ysyxSoCFull
+ifdef CONFIG_SOC
+	TOP_NAME = ysyxSoCFull
+else 
+	TOP_NAME = Top
+endif
+
 NAME = V$(TOP_NAME)
 
 

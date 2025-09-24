@@ -9,7 +9,7 @@ import npc.common.{Config,
 import npc._
 import npc.devices.{ysyx_24100012_AXI4LiteMem}
 
-class ysyxSoCFull extends Module 
+class Top extends Module 
 {
     val io = IO(new Bundle{
         // val halt = Output(Bool())
