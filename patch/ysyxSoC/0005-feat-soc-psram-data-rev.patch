@@ -1,7 +1,7 @@
 From cde1cc636f281ce9b6aab53bbead1dc2251cf055 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Thu, 31 Jul 2025 14:49:26 +0800
-Subject: [PATCH 05/18] feat(soc): psram data rev
+Subject: [PATCH 05/19] feat(soc): psram data rev
 
 ---
  src/device/PSRAM.scala | 11 +++++++++--

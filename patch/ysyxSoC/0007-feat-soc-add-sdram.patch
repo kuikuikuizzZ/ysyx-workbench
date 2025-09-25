@@ -1,7 +1,7 @@
 From 7444f7f942b89454fb8982a8677dbde923edd3c8 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Mon, 4 Aug 2025 14:23:50 +0800
-Subject: [PATCH 07/18] feat(soc) add sdram
+Subject: [PATCH 07/19] feat(soc) add sdram
 
 ---
  src/SoC.scala          |   2 +-
