@@ -102,7 +102,7 @@ perf: build
 	$(NPC_PERF)
 	@cat $(PERF_FILE_PATH)
 
-verilog: verilog-npc verilog-soc
+verilog: verilog-npc verilog-soc verilog-iverilog
 	@echo "Build verilog done"
 
 
