@@ -21,7 +21,7 @@ class AXI4CLINT(implicit val conf: Config) extends Module {
     })
 
     val clint = Module(new CLINT())
-    val node = Module(new AXI4LiteSlave())
+    val node = Module(new TopAXI4LiteSlave())
     
     clint.io.clock := io.clock
     clint.io.reset := io.reset
