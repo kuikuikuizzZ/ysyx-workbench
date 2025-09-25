@@ -14,7 +14,7 @@
 #**************************************************************************************/
 
 SRCS-y += csrc/main.cpp
-DIRS-y += csrc/cpu csrc/monitor csrc/utils
+DIRS-y += csrc/utils csrc/cpu csrc/monitor
 DIRS-y += csrc/memory
 # DIRS-BLACKLIST-$(CONFIG_TARGET_AM) += csrc/monitor/sdb
 

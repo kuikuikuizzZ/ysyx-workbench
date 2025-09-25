@@ -12,7 +12,6 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
 #include <dlfcn.h>
 #include <capstone/capstone.h>
 #include <common.h>
