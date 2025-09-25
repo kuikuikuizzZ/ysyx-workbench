@@ -3,7 +3,7 @@ module main ();
   localparam CLK_PERIOD = 10000;
   reg clk, reset;
 
-  ysyxSoCFull dut (
+  IverilogTop dut (
       .clock(clk),	// home/uenui/code
       .reset(reset)	// home/uenui/code
   );
@@ -36,8 +36,8 @@ module main ();
 
   initial begin
   // 初始化VCD波形文件
-  $dumpfile("iverilog_wave.vcd");
-  $dumpvars(0, dut); // 记录所有信号
+  // $dumpfile("iverilog_wave.vcd");
+  // $dumpvars(0, dut); // 记录所有信号
   
   
   // 等待复位释放
