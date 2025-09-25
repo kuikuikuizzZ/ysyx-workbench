@@ -29,7 +29,7 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
 }
 
 
-class InstFetch(START_ADDR: BigInt)(implicit conf: Config) extends Module {
+class InstFetch(val START_ADDR: BigInt)(implicit conf: Config) extends Module {
   val io = IO(
     new InstFetchIo()
   )
