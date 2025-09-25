@@ -1,5 +1,5 @@
 # Chisel专用配置
-
+SOC_HOME = $(YSYX_HOME)/ysyxSoC
 ifdef CONFIG_IVERILOG
 	BUILD_DIR = $(BUILD_DIR_BASE)/npc-chisel-iverilog
 else
