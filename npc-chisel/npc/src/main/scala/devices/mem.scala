@@ -153,8 +153,8 @@ class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBo
     """.stripMargin)
    } else {
       
-   setInline("ysyx_24100012_AXI4LiteMem.v",
-   """module ysyx_24100012_AXI4LiteMem #(
+   setInline("TopAXI4LiteMem.v",
+   """module TopAXI4LiteMem #(
    |    ADDR_WIDTH = 32,
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
