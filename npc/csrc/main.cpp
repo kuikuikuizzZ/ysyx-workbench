@@ -1,4 +1,7 @@
+#ifdef CONFIG_NVBOARD
 #include <nvboard.h>
+#endif  
+
 #include <common.h>
 #include <memory/memory.h>
 #include <device/device.h>

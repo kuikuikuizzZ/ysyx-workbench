@@ -3,9 +3,12 @@
 #include <cpu/difftest.h>
 #include <npc.h>
 #include <ringbuffer.h>
-#include <nvboard.h>
 
+#ifdef CONFIG_NVBOARD
+#include <nvboard.h>
 void nvboard_bind_all_pins(Top* _top);
+#endif
+
 void perf_event_display();
 void trace_and_difftest(Decode* s, vaddr_t dnpc);
 

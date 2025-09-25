@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 #include <cpu/cpu.h>
 #include <npc.h>
-
+#ifdef CONFIG_TRACE 
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -16,8 +17,10 @@ int new_wp(word_t addr, char* args,int type);
 int delete_wp(int wp);
 WP* get_head();
 word_t expr(char *e, bool *success);
+
 static char* rl_gets() {
   static char *line_read = NULL;
+  #ifdef CONFIG_TRACE 
 
   if (line_read) {
     free(line_read);
@@ -29,7 +32,7 @@ static char* rl_gets() {
   if (line_read && *line_read) {
     add_history(line_read);
   }
-
+  #endif
   return line_read;
 }
 
@@ -144,6 +147,8 @@ void sdb_mainloop(){
     return;
   }
 
+  #ifdef CONFIG_TRACE 
+  
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
 
@@ -169,6 +174,7 @@ void sdb_mainloop(){
 
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
   }
+  #endif
   return;
 }
 

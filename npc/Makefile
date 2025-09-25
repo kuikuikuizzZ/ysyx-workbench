@@ -28,10 +28,10 @@ CFLAGS+= -O3
 
 # nvboard.a should be linked before include nvboard.mk
 # because nvboard.a need LDFLAGS in nvboard.mk
-LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
-LDFLAGS += -lreadline 
+# LDFLAGS += "-L$(NVBOARD_HOME)/build -lnvboard"
+# LDFLAGS += -lreadline 
 
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+# include $(NVBOARD_HOME)/scripts/nvboard.mk
 # verilog generate
 include $(NPC_HOME)/scripts/verilog-npc.mk
 include $(NPC_HOME)/scripts/verilog-soc.mk

@@ -49,7 +49,8 @@ VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 
-build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
+# build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
+build: $(SVSOURCES) $(SOURCES) 
 	mkdir -p $(BUILD_DIR)
 	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g' $(NPC_HOME)/build/ysyx_24100012.v
 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
@@ -58,6 +59,6 @@ build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 verilator-build:
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
-lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
+lint:$(SVSOURCES) $(SOURCES) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 
 

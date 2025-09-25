@@ -49,6 +49,8 @@ void device_update() {
   last = now;
 
   IFDEF(CONFIG_HAS_VGA, vga_update_screen());
+#ifdef CONFIG_NVBOARD
+
 #ifndef CONFIG_TARGET_AM
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
@@ -70,13 +72,17 @@ void device_update() {
     }
   }
 #endif
+#endif
 }
 
 void sdl_clear_event_queue() {
+#ifdef CONFIG_NVBOARD
 #ifndef CONFIG_TARGET_AM
   SDL_Event event;
   while (SDL_PollEvent(&event));
 #endif
+#endif
+
 }
 
 void init_device() {
