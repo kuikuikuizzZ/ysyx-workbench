@@ -30,7 +30,6 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
 
 
 class InstFetch(implicit conf: Config) extends Module {
-  chisel3.experimental.annotate(VerilogMacroAnnotation("BASE_ADDR", "32'h80000000"))
 
   val io = IO(
     new InstFetchIo()
