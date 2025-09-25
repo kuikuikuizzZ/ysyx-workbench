@@ -1,4 +1,4 @@
-module top_mask_expander #(parameter DATA_WIDTH = 32) (
+module Top_mask_expander #(parameter DATA_WIDTH = 32) (
     input [DATA_WIDTH/8-1:0] mask,
     output [DATA_WIDTH-1:0] mask_wide
 );
