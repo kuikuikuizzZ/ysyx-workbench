@@ -16,6 +16,8 @@ else
 endif
 
 NAME = V$(TOP_NAME)
+SED = sed
+# START_ADDR change manually
 
 
 # SV源文件
@@ -27,6 +29,12 @@ else
 	else
 		SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v wildcard $(NPC_HOME)/build/Top*.sv $(NPC_HOME)/build/ysyx_24100012.v)
 	endif
+endif
+
+ifdef CONFIG_SOC
+	START_ADDR=0x30000000
+else 
+	START_ADDR=0x80000000
 endif
 
 
@@ -43,6 +51,7 @@ VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 
 build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
+	sed -i 's/pc_reg[[:space:]]*=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg = 32'\''h${START_ADDR}/g' ysyx_24100012.v
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 

@@ -24,6 +24,7 @@ iverilog-config:
 
 iverilog-build: iverilog-config  $(SVSOURCES) $(IVERILOG_MAIN_FILE) 
 	mkdir -p $(BUILD_DIR)/iverilog
+	sed -i 's/pc_reg[[:space:]]*=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg = 32'\''h${START_ADDR}/g' ysyx_24100012.v
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
 netlist-build: $(NETLIST_FILES) $(NETLIST_MAIN_FILE) iverilog-config

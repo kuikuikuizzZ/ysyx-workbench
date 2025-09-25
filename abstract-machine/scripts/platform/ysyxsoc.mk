@@ -33,8 +33,6 @@ image: image-dep
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 # 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
-# 	START_ADDR change manually to 0x30000000
-	sed -i -E 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h80000000/pc_reg <= 32'\''h30000000/g' $(NPC_HOME)/build/ysyx_24100012.v
 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 
 run: insert-arg
