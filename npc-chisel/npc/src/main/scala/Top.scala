@@ -4,10 +4,10 @@ package npc
 import chisel3._
 
 import npc.common.{Config, 
-                     AXI4LiteMaster,AXI4LiteSlave,
+                     AXI4LiteMaster,TopAXI4LiteSlave,
                      AXI4BurstSlave,AXI4LiteArbiter}
 import npc._
-import npc.devices.{ysyx_24100012_AXI4LiteMem}
+import npc.devices.{TopAXI4LiteMem}
 
 class Top extends Module 
 {
@@ -20,8 +20,8 @@ class Top extends Module
     core.io := DontCare
 
 
-    val axi_mem_slave   = Module(new AXI4LiteSlave())
-    val axi_mem        = Module(new ysyx_24100012_AXI4LiteMem())
+    val axi_mem_slave   = Module(new TopAXI4LiteSlave())
+    val axi_mem        = Module(new TopAXI4LiteMem())
 
     axi_mem_slave.io := DontCare
     axi_mem.io.clock := clock

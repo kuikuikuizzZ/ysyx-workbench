@@ -44,7 +44,7 @@ class AsyncMem(val addrWidth: Int) extends BlackBox with HasBlackBoxPath {
 }
 
 
-class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBoxInline  {
+class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBoxInline  {
    val io = IO(new Bundle{
       val dr = new AXIRport(conf.xprlen, conf.xlen)
       val dw = new AXIWport(conf.xprlen, conf.xlen)
@@ -52,8 +52,8 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
       val reset = Input(Bool())
    }) 
    if (conf.ENABLE_IVERILOG){
-            setInline("ysyx_24100012_AXI4LiteMem.v",
-   """module ysyx_24100012_AXI4LiteMem #(
+            setInline("TopAXI4LiteMem.v",
+   """module TopAXI4LiteMem #(
    |    ADDR_WIDTH = 32,
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
@@ -77,7 +77,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |    output  reg                     dw_ready
    |);
    |  wire [DATA_WIDTH-1:0] dw_mask_wide;
-   |  ysyx_24100012_mask_expander me (
+   |  Top_mask_expander me (
    |      .mask(dw_mask),
    |      .mask_wide(dw_mask_wide)
    |  );
@@ -182,7 +182,7 @@ class ysyx_24100012_AXI4LiteMem(implicit val conf: Config) extends BlackBox with
    |import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, output int dout);
    |
    |    wire [DATA_WIDTH-1:0] dw_mask_wide;
-   |    ysyx_24100012_mask_expander me (
+   |    Top_mask_expander me (
    |        .mask(dw_mask),
    |        .mask_wide(dw_mask_wide)
    |    );
