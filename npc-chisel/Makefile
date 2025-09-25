@@ -38,23 +38,23 @@ verilog_iverilog_netlist_build:
 verilog: verilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v
 	sed -i '/\.v/ s/.*//' $(BUILD_DIR)/*.v
-	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v  $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v) $(NPC_HOME)/build/
+	cp  -r $(wildcard $(BUILD_DIR)/*.sv $(BUILD_DIR)/*.v  ./npc/src/main/resources/*.v) $(NPC_HOME)/build/
 
 
 verilog-npc: verilog_npc_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(NPC_BUILD_DIR)/*.v  $(NPC_BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(NPC_BUILD_DIR)/*.v
-	cp  -r $(wildcard $(NPC_BUILD_DIR)/Top*.sv $(NPC_BUILD_DIR)/Top*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/Top*.v)  $(NPC_HOME)/build/
+	cp  -r $(wildcard $(NPC_BUILD_DIR)/Top*.sv $(NPC_BUILD_DIR)/Top*.v ./npc/src/main/resources/Top*.v)  $(NPC_HOME)/build/
 
 verilog-iverilog: verilog_iverilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(IVERILOG_BUILD_DIR)/*.v $(IVERILOG_BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
-	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/Iverilog*.sv $(IVERILOG_BUILD_DIR)/Iverilog*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/build/
+	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/Iverilog*.sv $(IVERILOG_BUILD_DIR)/Iverilog*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/build/
 
 verilog-netlist: verilog_iverilog_netlist_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(NETLIST_BUILD_DIR)/*.v
-	cp  -r $(wildcard $(NETLIST_BUILD_DIR)/*.sv $(NETLIST_BUILD_DIRs)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
+	cp  -r $(wildcard $(NETLIST_BUILD_DIR)/*.sv $(NETLIST_BUILD_DIRs)/*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
 
 
 help:
