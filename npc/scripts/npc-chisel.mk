@@ -20,7 +20,7 @@ NAME = V$(TOP_NAME)
 
 # SV源文件
 ifdef CONFIG_IVERILOG
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_iverilog/*.v $(NPC_HOME)/svsrc_iverilog/*.sv)
+	SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v wildcard $(NPC_HOME)/build/Top*.sv $(NPC_HOME)/build/ysyx_24100012.v)
 else 
 	ifdef CONFIG_SOC
 		SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)

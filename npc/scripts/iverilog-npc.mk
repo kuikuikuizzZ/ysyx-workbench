@@ -22,7 +22,7 @@ verilog-netlist:
 iverilog-config:
 	$(MAKE) riscv32e-iverilog_defconfig
 
-iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) iverilog-config
+iverilog-build: iverilog-config  $(SVSOURCES) $(IVERILOG_MAIN_FILE) 
 	mkdir -p $(BUILD_DIR)/iverilog
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 

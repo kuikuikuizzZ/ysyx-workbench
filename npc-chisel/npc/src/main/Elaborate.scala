@@ -59,8 +59,8 @@ object ElaborateIverilog extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new Top(),
-    Array("--target","verilog","--target-dir","build/iverilog"),
+    new IverilogTop(),
+    Array("--split-verilog","--target","verilog","--target-dir","build/iverilog"),
     firtoolOptions)
 }
 
