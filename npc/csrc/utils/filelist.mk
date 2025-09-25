@@ -14,12 +14,12 @@
 #**************************************************************************************/
 
 # ifeq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
-# SRCS-BLACKLIST-y += csrc/utils/disasm.c
-# else
+ifndef CONFIG_ITRACE
+SRCS-BLACKLIST-y += csrc/utils/disasm.c
+endif
 LIBCAPSTONE = tools/capstone/repo/libcapstone.so.5
 INC_PATH += $(WORK_DIR)/tools/capstone/repo/include
 
 csrc/utils/disasm.c: $(LIBCAPSTONE)
 $(LIBCAPSTONE):
 	$(MAKE) -C $(WORK_DIR)/tools/capstone
-# endif

@@ -22,7 +22,7 @@ static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
 static void (*cs_free_dl)(cs_insn *insn, size_t count);
 
 static csh handle;
-
+#ifdef CONFIG_ITRACE
 void init_disasm() {
   void *dl_handle;
   #if defined(__APPLE__)
@@ -63,3 +63,4 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte, cha
   cs_free_dl(insn, count);
   strcpy(inst_name, insn->mnemonic);
 }
+#endif
