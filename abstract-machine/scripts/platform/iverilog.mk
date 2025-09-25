@@ -33,9 +33,10 @@ iverilog-image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
+# 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 
-sim-iverilog: image
+sim-iverilog: iverilog-image
+# 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) sim-iverilog  IMG=$(IMAGE).bin
 #$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 

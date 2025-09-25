@@ -16,9 +16,6 @@ else
 endif
 
 NAME = V$(TOP_NAME)
-SED = sed
-# START_ADDR change manually
-
 
 # SV源文件
 ifdef CONFIG_IVERILOG
@@ -32,9 +29,9 @@ else
 endif
 
 ifdef CONFIG_SOC
-	START_ADDR=0x30000000
+	START_ADDR = 30000000
 else 
-	START_ADDR=0x80000000
+	START_ADDR = 80000000
 endif
 
 
@@ -51,7 +48,8 @@ VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 
 build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
-	sed -i 's/pc_reg[[:space:]]*=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg = 32'\''h${START_ADDR}/g' ysyx_24100012.v
+	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g' $(NPC_HOME)/build/ysyx_24100012.v
+	@echo START_ADDR $(START_ADDR)
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
