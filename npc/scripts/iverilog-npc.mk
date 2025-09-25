@@ -13,11 +13,11 @@ NETLIST_FILES := $(shell find $(NPC_HOME)/netlist -name "*.v")
 
 verilog-iverilog: 
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
-	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
+	$(MAKE) -C ../npc-chisel $(CHISEL_IVERILOG_CONFIG) verilog-iverilog
 
 verilog-netlist:
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
-	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-netlist
+	$(MAKE) -C ../npc-chisel $(CHISEL_IVERILOG_CONFIG) verilog-netlist
 
 iverilog-config:
 	$(MAKE) -C $(NPC_HOME) riscv32e-iverilog_defconfig
