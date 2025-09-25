@@ -46,7 +46,7 @@ object ElaborateNPC extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new Top(),
-    Array("--target","verilog","--split-verilog","--target-dir","build/npc"),
+    Array("--split-verilog","--target","verilog","--target-dir","build/npc"),
     firtoolOptions)
 }
 

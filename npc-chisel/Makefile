@@ -72,7 +72,7 @@ idea:
 	mill -i mill.idea.GenIdea/idea
 
 clean:
-	-rm -rf $(BUILD_DIR)
+	-rm -rf ./build
 	-rm -rf $(NPC_HOME)/build
 	-rm -rf $(NPC_HOME)/svsrc_no_soc
 	-rm -rf $(NPC_HOME)/svsrc_iverilog
