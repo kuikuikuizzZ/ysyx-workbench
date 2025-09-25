@@ -9,12 +9,12 @@ import npc.Constants._
 import javax.xml.transform.OutputKeys
 
 class LSUPipeIO(implicit val conf: Config) extends Bundle() {
-    val wbaddr          = Output(UInt(conf.xprlen.W))
+    val wbaddr          = Output(UInt(5.W))
     val data            = Output(UInt(conf.xprlen.W))
     val pc              = Output(UInt(conf.xprlen.W))
     val pc_valid        = Output(Bool())
     val mem_resp_valid  = Output(Bool())
-    val inst            = Output(UInt(conf.xlen.W))
+    // val inst            = Output(UInt(12.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
     val debug           = Output(new LSUDebugPort)
@@ -50,7 +50,7 @@ class LSUDebugPort(implicit val conf: Config) extends Bundle {
 
 class CSRFiles(implicit val conf: Config) extends Module {
     val io = IO(new Bundle{
-        val inst                = Input(UInt(conf.xlen.W))
+        val csr_inst            = Input(UInt(12.W))
         val csr_cmd             = Input(UInt(CSR.N.getWidth.W))
         val pc                  = Input(UInt(conf.xprlen.W))
         val alu_out             = Input(UInt(conf.xlen.W))
@@ -63,7 +63,7 @@ class CSRFiles(implicit val conf: Config) extends Module {
     // Control Status Registers
     val csr = Module(new CSRFile())
     csr.io := DontCare
-    csr.io.decode.csr   := io.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
+    csr.io.decode.csr   := io.csr_inst
     csr.io.rw.cmd       := io.csr_cmd
     csr.io.rw.wdata     := io.alu_out
     // csr.io.retire    := !(io.exe_mem.bits.stall || io.exe_mem.bits.exception)
@@ -103,7 +103,7 @@ class LSU(implicit val conf: Config) extends Module {
     val csr_files = Module(new CSRFiles)
     
     csr_files.io.pc         := io.exe_mem.bits.pc   
-    csr_files.io.inst       := io.exe_mem.bits.inst
+    csr_files.io.csr_inst   := io.exe_mem.bits.csr_inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
     csr_files.io.alu_out    := io.exe_mem.bits.alu_out
     csr_files.io.exception  := exception
@@ -159,7 +159,7 @@ class LSU(implicit val conf: Config) extends Module {
     io.mem_wb.bits.ebreak           := csr_files.io.ebreak
     io.mem_wb.bits.pc               := io.exe_mem.bits.pc
     io.mem_wb.bits.ctrl_rf_wen      := io.exe_mem.bits.ctrl_rf_wen
-    io.mem_wb.bits.inst             := io.exe_mem.bits.inst
+    // io.mem_wb.bits.inst             := io.exe_mem.bits.inst
     io.mem_wb.bits.pc_valid         := io.exe_mem.bits.pc_valid 
     io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
     io.mem_wb.bits.debug            := io.debug

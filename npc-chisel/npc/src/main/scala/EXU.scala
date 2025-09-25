@@ -10,15 +10,11 @@ import npc.Constants._
 
 class EXEPipeIO(implicit val conf: Config) extends Bundle() {
    // Memory State
-   val inst             = Output(UInt(conf.xlen.W))
+   val csr_inst         = Output(UInt(12.W))
    val pc               = Output(UInt(conf.xprlen.W))
    val pc_valid         = Output(Bool())
    val wbaddr           = Output(UInt(5.W))
-   val rs1_addr         = Output(UInt(5.W))
-   val rs2_addr         = Output(UInt(5.W))
-   val op1_data         = Output(UInt(conf.xprlen.W))
-   val op2_data         = Output(UInt(conf.xprlen.W))
-   val rs2_data         = Output(UInt(conf.xprlen.W))
+   val rs2_data         = Output(UInt(conf.xlen.W))
    val alu_out          = Output(UInt(conf.xlen.W))
    val ctrl_wb_sel      = Output(UInt(WB_X.getWidth.W))
    val ctrl_rf_wen      = Output(Bool())
@@ -94,7 +90,7 @@ class EXU(implicit conf: Config) extends Module
 
    when (io.ctl.pipeline_kill){
       io.exe_mem.bits.pc_valid         := false.B
-      io.exe_mem.bits.inst             := BUBBLE
+      io.exe_mem.bits.csr_inst         := 0.U
       io.exe_mem.bits.ctrl_rf_wen      := false.B
       io.exe_mem.bits.ctrl_mem_val     := false.B
       io.exe_mem.bits.ctrl_csr_cmd     := false.B
@@ -106,13 +102,9 @@ class EXU(implicit conf: Config) extends Module
       io.exe_mem.valid              := true.B
       io.exe_mem.bits.pc            := io.dec_exe.bits.pc
       io.exe_mem.bits.pc_valid      := io.dec_exe.bits.pc_valid
-      io.exe_mem.bits.inst          := io.dec_exe.bits.inst
+      io.exe_mem.bits.csr_inst      := io.dec_exe.bits.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
       io.exe_mem.bits.alu_out       := Mux((io.dec_exe.bits.ctrl_wb_sel === WB_PC4), pc_plus4, alu_out)
       io.exe_mem.bits.wbaddr        := io.dec_exe.bits.wbaddr
-      io.exe_mem.bits.rs1_addr      := io.dec_exe.bits.rs1_addr
-      io.exe_mem.bits.rs2_addr      := io.dec_exe.bits.rs2_addr
-      io.exe_mem.bits.op1_data      := io.dec_exe.bits.op1_data
-      io.exe_mem.bits.op2_data      := io.dec_exe.bits.op2_data
       io.exe_mem.bits.rs2_data      := io.dec_exe.bits.rs2_data
       io.exe_mem.bits.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
       io.exe_mem.bits.ctrl_mem_val  := io.dec_exe.bits.ctrl_mem_val

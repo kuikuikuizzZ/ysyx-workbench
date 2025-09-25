@@ -48,7 +48,6 @@ class Core(implicit val conf: Config)extends Module
       thisIn.valid := prevOut.valid && thisIn.ready
   }
   val io = IO(new CoreIo())
-  dontTouch(io)
   val inst_fetch  = Module(new InstFetch())
   val arbiter     = Module(new AXI4LiteRRArbiter(2))
   val decoder     = Module(new Decoder())
@@ -74,7 +73,6 @@ class Core(implicit val conf: Config)extends Module
   
   decoder.io.reg_in <> reg_file.io.out
   decoder.io.dec_reg <> reg_file.io.dec
-  decoder.io.icache_valid := inst_fetch.io.icache_valid 
 
   exu.io.ctl <> decoder.io.ctl_sign
   exu.io.to_ctl <> decoder.io.exe_ctl 
@@ -116,9 +114,9 @@ class Core(implicit val conf: Config)extends Module
     debug.io.mem_pc := lsu.io.mem_wb.bits.pc
     debug.io.wb_pc := wbu.io.wb_pc 
     debug.io.inst := exu.io.dec_exe.bits.inst
-    debug.io.wb_inst := wbu.io.wb_inst
     debug.io.wb_valid := wbu.io.mem_wb.bits.mem_resp_valid
     debug.io.lsu_port := wbu.io.mem_wb.bits.debug
+    debug.io.wb_inst := 0.U
     
     perfEvent.io.clock      := clock
     perfEvent.io.reset      := reset

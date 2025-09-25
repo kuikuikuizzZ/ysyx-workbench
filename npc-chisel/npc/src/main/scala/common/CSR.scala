@@ -107,111 +107,30 @@ class CSRFile(implicit val conf: Config) extends Module
   val io = IO(new CSRFileIO)
   io := DontCare
 
-  // val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
-  // reset_mstatus.mpp := PRV.M
-  // reset_mstatus.prv := PRV.M
-  // val reg_mstatus = RegInit(reset_mstatus)
-  // to simplify the design, we use a single register for mstatus
   val reg_mstatus = Reg(UInt(conf.xprlen.W))
-  
   val reg_mepc = Reg(UInt(conf.xprlen.W))
-  val reg_mcause = Reg(UInt(conf.xprlen.W))
-  val reg_mtval = Reg(UInt(conf.xprlen.W))
+  val reg_mcause = Reg(UInt(5.W))
+  // val reg_mtval = Reg(UInt(conf.xprlen.W))
   val reg_mtvec = Reg(UInt(conf.xprlen.W))
-  // val reg_mscratch = Reg(UInt(conf.xprlen.W))
-  // val reg_mtimecmp = Reg(UInt(conf.xprlen.W))
-  // val reg_medeleg = Reg(UInt(conf.xprlen.W))
 
-  // val reg_mip = RegInit(0.U.asTypeOf(new MIP()))
-  // val reg_mie = RegInit(0.U.asTypeOf(new MIP()))
-  val reg_wfi = RegInit(false.B)
-
-  // val reg_time = WideCounter(64)
-  // val reg_instret = WideCounter(64, io.retire)
-
-  // val reg_mcounteren = Reg(UInt(32.W))
-  //val reg_hpmevent = io.counters.map(c => Reg(init = 0.asUInt(conf.xprlen.W)))
-  //(io.counters zip reg_hpmevent) foreach { case (c, e) => c.eventSel := e }
-  // val reg_hpmcounter = io.counters.map(c => WideCounter(CSR.hpmWidth, c.inc, reset = false))
-
-  // val new_prv = WireInit(reg_mstatus.prv)
-  // reg_mstatus.prv := new_prv
-
-  // val reg_debug = RegInit(false.B)
-  // val reg_dpc = Reg(UInt(conf.xprlen.W))
-  // val reg_dscratch = Reg(UInt(conf.xprlen.W))
-  // val reg_singleStepped = Reg(Bool())
-  // val reset_dcsr = WireInit(0.U.asTypeOf(new DCSR()))
-  // reset_dcsr.xdebugver := 1
-  // reset_dcsr.prv := PRV.M
-  // val reg_dcsr = RegInit(reset_dcsr)
 
   val system_insn = io.rw.cmd === CSR.I
   val cpu_ren = io.rw.cmd =/= CSR.N && !system_insn
 
   val read_mstatus = io.status.asUInt
   val isa_string = "I"
-  val misa = BigInt(0) | isa_string.map(x => 1 << (x - 'A')).reduce(_|_)
-  val impid = 0x8000 // indicates an anonymous source, which can be used
-                     // during development before a Source ID is allocated.
 
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
-    // CSRs.mcycle -> reg_time,
-    // CSRs.minstret -> reg_instret,
-    CSRs.mimpid -> 0.U,
-    // ysyx_24100012 id 
+
     CSRs.marchid ->   24100012.U,
     CSRs.mvendorid -> 0x78797379.U,
-    // CSRs.misa -> misa.U,
-    // CSRs.mimpid -> impid.U,
     CSRs.mstatus -> read_mstatus,
-    // CSRs.mtvec -> MTVEC.U,
     CSRs.mtvec -> reg_mtvec,      // kui: MTVEC is defined in constants.scala
 
-    // CSRs.mip -> reg_mip.asUInt(),
-    // CSRs.mie -> reg_mie.asUInt(),
-    // CSRs.mscratch -> reg_mscratch,
     CSRs.mepc -> reg_mepc,
-    CSRs.mtval -> reg_mtval,
+    // CSRs.mtval -> reg_mtval,
     CSRs.mcause -> reg_mcause,
-    // CSRs.mhartid -> io.hartid,
-    // CSRs.dcsr -> reg_dcsr.asUInt,
-    // CSRs.dpc -> reg_dpc,
-    // CSRs.dscratch -> reg_dscratch,
-    // CSRs.medeleg -> reg_medeleg
     )
-
-  // for (i <- 0 until CSR.nCtr)
-  // {
-  //   read_mapping += (i + CSR.firstMHPC) -> reg_hpmcounter(i)
-  //   read_mapping += (i + CSR.firstMHPCH) -> reg_hpmcounter(i)
-  // }
-
-/*  for (((e, c), i) <- (reg_hpmevent.padTo(CSR.nHPM, 0.U)
-                       zip reg_hpmcounter.map(x => x: UInt).padTo(CSR.nHPM, 0.U)) zipWithIndex) {
-    read_mapping += (i + CSR.firstHPE) -> e // mhpmeventN
-    read_mapping += (i + CSR.firstMHPC) -> c // mhpmcounterN
-    if (conf.usingUser) read_mapping += (i + CSR.firstHPC) -> c // hpmcounterN
-    if (conf.xprlen == 32) {
-      read_mapping += (i + CSR.firstMHPCH) -> c // mhpmcounterNh
-      if (conf.usingUser) read_mapping += (i + CSR.firstHPCH) -> c // hpmcounterNh
-    }
-  }
-*/
-  // if (conf.usingUser) {
-  //   read_mapping += CSRs.mcounteren -> reg_mcounteren
-  //   read_mapping += CSRs.cycle -> reg_time
-  //   read_mapping += CSRs.instret -> reg_instret
-  // }
-
-  // if (conf.xprlen == 32) {
-  //   read_mapping += CSRs.mcycleh -> 0.U //(reg_time >> 32)
-  //   read_mapping += CSRs.minstreth -> 0.U //(reg_instret >> 32)
-  //   if (conf.usingUser) {
-  //     read_mapping += CSRs.cycleh -> 0.U //(reg_time >> 32)
-  //     read_mapping += CSRs.instreth -> 0.U //(reg_instret >> 32)
-  //   }
-  // }
 
   val decoded_addr = read_mapping map { case (k, v) => k -> (io.decode.csr === k) }
 
@@ -242,7 +161,7 @@ class CSRFile(implicit val conf: Config) extends Module
   // ILLEGAL INSTR
   // TODO: Support misaligned address exceptions
   when (io.exception =/= 0.U) {
-    reg_mcause :=  Cat(0.U(28.W),io.exception(3,0))
+    reg_mcause :=  Cat(0.U(1.W),io.exception(3,0))
   }
 
   // assert(PopCount(insn_ret :: io.exception =/=0.U :: Nil) <= 1, "these conditions must be mutually exclusive")
@@ -291,69 +210,20 @@ class CSRFile(implicit val conf: Config) extends Module
   // io.time := reg_time
   // io.csr_stall := reg_wfi || insn_break
   io.insn_break := insn_break
-
   io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
 
   when (wen) {
-    // debug csr
-    // when (decoded_addr(CSRs.dcsr)) {
-    //     val new_dcsr = wdata.asTypeOf(new DCSR())
-    //     reg_dcsr.step := new_dcsr.step
-    //     reg_dcsr.ebreakm := new_dcsr.ebreakm
-    //     if (conf.usingUser) reg_dcsr.ebreaku := new_dcsr.ebreaku
-    //   }
 
     when (decoded_addr(CSRs.mstatus)) {
-      // val new_mstatus = wdata.asTypeOf(new MStatus())
       val new_mstatus = wdata.asUInt // using UInt for simplicity, can be changed to MStatus if needed
-      // reg_mstatus.mie := new_mstatus.mie
-      // reg_mstatus.mpie := new_mstatus.mpie
       reg_mstatus := new_mstatus
     }
-    // when (decoded_addr(CSRs.mip)) {
-    //   val new_mip = wdata.asTypeOf(new MIP())
-    //   reg_mip.msip := new_mip.msip
-    // }
-    // when (decoded_addr(CSRs.mie)) {
-    //   val new_mie = wdata.asTypeOf(new MIP())
-    //   reg_mie.msip := new_mie.msip
-    //   reg_mie.mtip := new_mie.mtip
-    // }
-    // for (i <- 0 until CSR.nCtr)
-    // {
-    //   writeCounter(i + CSR.firstMHPC, reg_hpmcounter(i), wdata)
-    // }
-/*    for (((e, c), i) <- (reg_hpmevent zip reg_hpmcounter) zipWithIndex) {
-      writeCounter(i + CSR.firstMHPC, c, wdata)
-      //when (decoded_addr(i + CSR.firstHPE)) { e := perfEventSets.maskEventSelector(wdata) }
-    }*/
-    // writeCounter(CSRs.mcycle, reg_time, wdata)
-    // writeCounter(CSRs.minstret, reg_instret, wdata)
-
-    // when (decoded_addr(CSRs.dpc))      { reg_dpc := wdata }
-    // when (decoded_addr(CSRs.dscratch)) { reg_dscratch := wdata }
     when (decoded_addr(CSRs.mtvec))    { reg_mtvec := wdata }
     when (decoded_addr(CSRs.mepc))     { reg_mepc := (wdata(conf.xprlen-1,0) >> 2.U) << 2.U }
-    when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata & ((BigInt(1) << (conf.xprlen-1)) + 31).U /* only implement 5 LSBs and MSB */ }
-    when (decoded_addr(CSRs.mtval))    { reg_mtval := wdata(conf.xprlen-1,0) }
-    // when (decoded_addr(CSRs.mscratch)) { reg_mscratch := wdata }
-    // when (decoded_addr(CSRs.medeleg))    { reg_medeleg := wdata(conf.xprlen-1,0) }
-
-    // if(conf.usingUser){
-    //   when (decoded_addr(CSRs.cycleh))   { reg_time := wdata }
-    //   when (decoded_addr(CSRs.instreth)) { reg_instret := wdata }
-    // }
+    when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata(4,0)  /* only implement 5 LSBs and MSB */ }
+    // when (decoded_addr(CSRs.mtval))    { reg_mtval := wdata(conf.xprlen-1,0) }
   }
 
-  // if (!conf.usingUser) {
-  //   reg_mcounteren := 0
-  // }
-
-  // def writeCounter(lo: Int, ctr: WideCounter, wdata: UInt) = {
-  //   val hi = lo + CSRs.mcycleh - CSRs.mcycle
-  //   when (decoded_addr(hi)) { ctr := Cat(wdata(ctr.getWidth-33, 0), ctr(31, 0)) }
-  //   when (decoded_addr(lo)) { ctr := Cat(ctr(ctr.getWidth-1, 32), wdata) }
-  // }
   def readModifyWriteCSR(cmd: UInt, rdata: UInt, wdata: UInt) =
     (Mux(cmd.isOneOf(CSR.S, CSR.C), rdata, 0.U) | wdata) & ~Mux(cmd === CSR.C, wdata, 0.U)
 }

@@ -25,7 +25,6 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
   val ifu_dec          = new DecoupledIO(new IFUPipeIO())
   val exception_target  = Input(UInt(conf.xprlen.W))
   val debug             = Output(new IFUDebugPort)
-  val icache_valid      = Output(Bool())
 }
 
 
@@ -79,7 +78,6 @@ class InstFetch(implicit conf: Config) extends Module {
   io.ifu_dec.bits.pc := pc_reg
   io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
   io.ifu_dec.bits.exception := cache.io.exception
-  io.icache_valid := cache.io.valid
   
 
   ////////// debug

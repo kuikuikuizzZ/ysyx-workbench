@@ -155,13 +155,11 @@ uint32_t top_csr(int i) {
     uint32_t mtvec      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtvec;
     uint32_t mepc       = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mepc;
     uint32_t mcause     = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mcause;
-    uint32_t mtval      = _rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtval;
 #else 
     uint32_t mstatus    = _rootp->Top__DOT__core__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mstatus;
     uint32_t mtvec      = _rootp->Top__DOT__core__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtvec;
     uint32_t mepc       = _rootp->Top__DOT__core__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mepc;
     uint32_t mcause     = _rootp->Top__DOT__core__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mcause;
-    uint32_t mtval      = _rootp->Top__DOT__core__DOT__core__DOT__lsu__DOT__csr_files__DOT__csr__DOT__reg_mtval;
 #endif
 
     
