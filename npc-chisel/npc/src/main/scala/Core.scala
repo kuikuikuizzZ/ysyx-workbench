@@ -49,7 +49,7 @@ class Core(implicit val conf: Config)extends Module
   }
   val io = IO(new CoreIo())
   dontTouch(io)
-  val inst_fetch  = Module(new InstFetch())
+  val inst_fetch  = Module(new InstFetch(conf.START_ADDR))
   val arbiter     = Module(new AXI4LiteRRArbiter(2))
   val decoder     = Module(new Decoder())
   val reg_file    = Module(new RegFile())

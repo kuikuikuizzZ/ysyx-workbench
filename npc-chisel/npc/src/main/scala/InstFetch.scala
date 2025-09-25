@@ -29,7 +29,7 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
 }
 
 
-class InstFetch(implicit conf: Config) extends Module {
+class InstFetch(START_ADDR: BigInt)(implicit conf: Config) extends Module {
   val io = IO(
     new InstFetchIo()
   )
@@ -39,7 +39,7 @@ class InstFetch(implicit conf: Config) extends Module {
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
-  val pc_reg = RegInit(conf.START_ADDR)
+  val pc_reg = RegInit(START_ADDR.U)
   val fetch_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
