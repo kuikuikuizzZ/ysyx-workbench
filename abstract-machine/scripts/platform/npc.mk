@@ -33,7 +33,8 @@ image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-# 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
+    sed -i -E 's/pc_reg[[:space:]]*=[[:space:]]*32'\''h30000000/pc_reg = 32'\''h80000000/g' $(NPC_HOME)/build/ysyx_24100012.v
+	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
