@@ -29,7 +29,9 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
 }
 
 
-class InstFetch(START_ADDR: BigInt = 0x80000000L)(implicit conf: Config) extends Module {
+class InstFetch(implicit conf: Config) extends Module {
+  chisel3.experimental.annotate(VerilogMacroAnnotation("BASE_ADDR", "32'h80000000"))
+
   val io = IO(
     new InstFetchIo()
   )
@@ -39,7 +41,7 @@ class InstFetch(START_ADDR: BigInt = 0x80000000L)(implicit conf: Config) extends
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
-  val pc_reg = RegInit(START_ADDR.U(conf.xprlen.W))
+  val pc_reg = RegInit(conf.START_ADDR)
   val fetch_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)

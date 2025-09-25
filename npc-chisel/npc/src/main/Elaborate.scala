@@ -31,7 +31,7 @@ object Elaborate extends App {
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
-    new Top(),
+    new ysyx_24100012(),
     Array("--target","verilog","--target-dir","build/soc"),
     firtoolOptions)
 }
@@ -46,7 +46,7 @@ object ElaborateNPC extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new Top(),
-    Array("--target","verilog","--target-dir","build/npc"),
+    Array("--target","verilog","--split-verilog","--target-dir","build/npc"),
     firtoolOptions)
 }
 
