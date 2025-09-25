@@ -25,7 +25,7 @@ else
 	ifdef CONFIG_SOC
 		SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
 	else
-		SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v $(NPC_HOME)/build/ysyx_24100012.v)
+		SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v wildcard $(NPC_HOME)/build/Top*.sv $(NPC_HOME)/build/ysyx_24100012.v)
 	endif
 endif
 

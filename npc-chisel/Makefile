@@ -41,12 +41,12 @@ verilog: verilog_build
 
 
 verilog-npc: verilog_npc_build
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(NPC_BUILD_DIR)/*.v
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(NPC_BUILD_DIR)/*.v  $(NPC_BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(NPC_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(NPC_BUILD_DIR)/Top*.sv $(NPC_BUILD_DIR)/Top*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/Top*.v)  $(NPC_HOME)/svsrc_no_soc/
 
 verilog-iverilog: verilog_iverilog_build
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(IVERILOG_BUILD_DIR)/*.v
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(IVERILOG_BUILD_DIR)/*.v $(IVERILOG_BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv $(IVERILOG_BUILD_DIR)/*.v $(NPC_CHISEL_HOME)/npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_iverilog/
 
