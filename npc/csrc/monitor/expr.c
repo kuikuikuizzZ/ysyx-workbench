@@ -340,9 +340,10 @@ int eval(int p,int q){
     } else{
         Log("unary operator invalid %s, callee %s",tokens[p].str,tokens[p+1].str);
     }
+    uintptr_t res_ptr = res;
     switch (tokens[p].type){
       case TK_DEREF : 
-          res=host_read((void*) res,4);
+          res=host_read((void*)res_ptr,4);
           break; 
       case TK_NEG: 
           res = -res;
