@@ -9,19 +9,29 @@ else
 	endif
 endif
 
-TOP_NAME = ysyxSoCFull
-NAME = V$(TOP_NAME)
+ifdef CONFIG_SOC
+	TOP_NAME = ysyxSoCFull
+else 
+	TOP_NAME = Top
+endif
 
+NAME = V$(TOP_NAME)
 
 # SV源文件
 ifdef CONFIG_IVERILOG
-	SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_iverilog/*.v $(NPC_HOME)/svsrc_iverilog/*.sv)
+	SVSOURCES = $(wildcard $(NPC_HOME)/build/Iverilog*.v wildcard $(NPC_HOME)/build/Iverilog*.sv  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v $(NPC_HOME)/build/ysyx_24100012.v)
 else 
 	ifdef CONFIG_SOC
 		SVSOURCES = $(wildcard $(NPC_HOME)/build/*.v $(NPC_HOME)/build/*.sv)
 	else
-		SVSOURCES = $(wildcard $(NPC_HOME)/svsrc_no_soc/*.v $(NPC_HOME)/svsrc_no_soc/*.sv)
+		SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v wildcard $(NPC_HOME)/build/Top*.sv $(NPC_HOME)/build/ysyx_24100012.v)
 	endif
+endif
+
+ifdef CONFIG_SOC
+	START_ADDR = 30000000
+else 
+	START_ADDR = 80000000
 endif
 
 
@@ -38,6 +48,8 @@ VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 
 build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
+	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g' $(NPC_HOME)/build/ysyx_24100012.v
+	@echo START_ADDR $(START_ADDR)
 	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
 lint:$(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 

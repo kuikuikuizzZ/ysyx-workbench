@@ -18,7 +18,6 @@ FILELIST_MK = $(shell find -L ./csrc -name "filelist.mk")
 include $(FILELIST_MK)
 
 
-$(info FILELIST_MK = $(FILELIST_MK))
 # 参数设置
 override ARGS ?= --log=$(BUILD_DIR_BASE)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -54,9 +53,6 @@ SRCS-y += $(shell find -L $(DIRS-y) -name "*.c")
 SRCS = $(filter-out $(SRCS-BLACKLIST-y), $(SRCS-y))
 SOURCES += $(addprefix ${NPC_HOME}/, $(SRCS))
 
-$(info "SOURCES: $(SOURCES)")
-$(info "ARGS: $(ARGS)")
-$(info "LDFLAGS: $(LDFLAGS)")
 
 # Verilator基础配置
 VERILATOR_BASE_FLAGS := --cc --exe --build -j 8 --vpi --timescale "1ns/1ns" --no-timing --autoflush

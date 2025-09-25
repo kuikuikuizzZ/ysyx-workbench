@@ -202,7 +202,7 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
 
 
 
-class AXI4LiteSlave (implicit val conf: Config) extends Module{
+class TopAXI4LiteSlave (implicit val conf: Config) extends Module{
     val io = IO( new Bundle {
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())

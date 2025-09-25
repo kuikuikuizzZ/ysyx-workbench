@@ -3,7 +3,7 @@ module main ();
   localparam CLK_PERIOD = 100000000;
   reg clk, reset;
 
-  ysyxSoCFull dut (
+  IverilogTop dut (
       .clock(clk),	// home/uenui/code
       .reset(reset)	// home/uenui/code
   );
@@ -30,7 +30,7 @@ module main ();
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
-            halt <= dut.core.core.lsu.csr_files.csr.insn_break;
+            halt <= dut.core.core.wbu.io_mem_wb_bits_ebreak;
         end
     end
 

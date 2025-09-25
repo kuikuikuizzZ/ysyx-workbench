@@ -30,6 +30,7 @@ class InstFetchIo(implicit val conf: Config) extends Bundle() {
 
 
 class InstFetch(implicit conf: Config) extends Module {
+
   val io = IO(
     new InstFetchIo()
   )

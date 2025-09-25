@@ -20,10 +20,13 @@ verilog-netlist:
 	$(MAKE) -C $(NPC_CHISEL_HOME) $(CHISEL_IVERILOG_CONFIG) verilog-netlist
 
 iverilog-config:
-	$(MAKE) riscv32e-iverilog_defconfig
+	$(MAKE) -C $(NPC_HOME) riscv32e-iverilog_defconfig
 
-iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) iverilog-config
+iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) 
 	mkdir -p $(BUILD_DIR)/iverilog
+	$(MAKE) -C $(NPC_HOME) iverilog-config
+	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g' $(NPC_HOME)/build/ysyx_24100012.v
+	
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
 netlist-build: $(NETLIST_FILES) $(NETLIST_MAIN_FILE) iverilog-config
@@ -31,11 +34,14 @@ netlist-build: $(NETLIST_FILES) $(NETLIST_MAIN_FILE) iverilog-config
 	mkdir -p $(BUILD_DIR)/netlist
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp  $(NETLIST_MAIN_FILE) $(NETLIST_FILES) -g2012 
 
-sim-iverilog: iverilog-build
+sim-iverilog: 
 	@echo $(ARGS) $(IMG)
+	$(MAKE) -C $(NPC_HOME) iverilog-config
+	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
+
+iverilog-run:iverilog-build
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
 	vvp $(BUILD_DIR)/iverilog/main.vvp  +image=$(IMG).hex
-# 	vvp $(BUILD_DIR)/iverilog/main.vvp  
 
 sim-iverilog-raw: iverilog-build
 	vvp $(BUILD_DIR)/iverilog/main.vvp
