@@ -1,7 +1,7 @@
 From b5016c094aa2e1d5c58167574dd38bca35bede7e Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Wed, 30 Jul 2025 21:29:34 +0800
-Subject: [PATCH 04/19] feat(soc): support psram qpi
+Subject: [PATCH 04/20] feat(soc): support psram qpi
 
 ---
  perip/psram/efabless/EF_PSRAM_CTRL.v    |  50 ++++++++--

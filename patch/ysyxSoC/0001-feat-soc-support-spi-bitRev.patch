@@ -1,7 +1,7 @@
 From 9429b86b7868c8291939cf55618281bab149920e Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Thu, 24 Jul 2025 11:20:18 +0800
-Subject: [PATCH 01/19] feat(soc): support spi bitRev
+Subject: [PATCH 01/20] feat(soc): support spi bitRev
 
 ---
  Makefile                    |  7 +++++--

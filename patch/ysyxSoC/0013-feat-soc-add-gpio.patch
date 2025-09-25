@@ -1,7 +1,7 @@
 From 46d450d342e727e33893ce7e7476628e5181d415 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Fri, 8 Aug 2025 10:46:39 +0800
-Subject: [PATCH 13/19] feat(soc): add gpio
+Subject: [PATCH 13/20] feat(soc): add gpio
 
 ---
  src/device/Const.scala |  7 ++++

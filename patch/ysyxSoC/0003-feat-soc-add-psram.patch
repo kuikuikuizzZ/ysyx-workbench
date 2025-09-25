@@ -1,7 +1,7 @@
 From fd5d5ad62df69c5874642e9de3542b12b3bcb6b8 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Wed, 30 Jul 2025 15:43:21 +0800
-Subject: [PATCH 03/19] feat(soc): add psram
+Subject: [PATCH 03/20] feat(soc): add psram
 
 ---
  src/SoC.scala          |   2 +-

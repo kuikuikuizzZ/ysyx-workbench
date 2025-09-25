@@ -1,7 +1,7 @@
 From a18589784ccf12a30000449815620c45a075db25 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Sun, 27 Jul 2025 20:19:11 +0800
-Subject: [PATCH 02/19] feat(soc): support flash xip
+Subject: [PATCH 02/20] feat(soc): support flash xip
 
 ---
  perip/spi/rtl/spi_defines.v |   6 +-
