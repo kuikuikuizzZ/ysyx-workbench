@@ -1,8 +1,5 @@
 
-#ifdef CONFIG_NVBOARD
 #include <nvboard.h>
-#endif
-
 #include <cpu/cpu.h>
 #ifdef CONFIG_SOC   
 #include "VysyxSoCFull.h"

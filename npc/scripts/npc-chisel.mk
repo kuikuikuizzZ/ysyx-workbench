@@ -50,7 +50,7 @@ VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
 
 # build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
-build: $(SVSOURCES) $(SOURCES) 
+build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
 	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g' $(NPC_HOME)/build/ysyx_24100012.v
 	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig

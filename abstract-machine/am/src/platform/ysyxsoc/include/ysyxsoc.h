@@ -11,7 +11,7 @@
 
 #define MMIO_BASE     0xa0000000
 #define FLASH_BASE    0x30000000 
-#define UART_BASE     0x10000000 
+#define UART_BASE     0x10000000L 
 #define KEYBOARD_BASE 0x10011000
 #define CLINT_BASE    0x02000000
 #define FB_BASE      0x21000000

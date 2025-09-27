@@ -15,10 +15,10 @@ void __am_audio_config(AM_AUDIO_CONFIG_T *);
 void __am_audio_ctrl(AM_AUDIO_CTRL_T *);
 void __am_audio_status(AM_AUDIO_STATUS_T *);
 void __am_audio_play(AM_AUDIO_PLAY_T *);
-
+void __am_uart_rx(AM_UART_RX_T *);
 static void __am_timer_config(AM_TIMER_CONFIG_T *cfg) { cfg->present = true; cfg->has_rtc = true; }
 static void __am_input_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
-static void __am_uart_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = false;  }
+static void __am_uart_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
 
 typedef void (*handler_t)(void *buf);
 static void *lut[128] = {
@@ -35,6 +35,8 @@ static void *lut[128] = {
   [AM_AUDIO_CTRL  ] = __am_audio_ctrl,
   [AM_AUDIO_STATUS] = __am_audio_status,
   [AM_AUDIO_PLAY  ] = __am_audio_play,
+  [AM_UART_RX]      = __am_uart_rx,
+
 };
 
 static void fail(void *buf) { panic("access nonexist register"); }

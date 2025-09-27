@@ -33,7 +33,7 @@ __attribute__ ((section(".sec_boost"))) void _sec_boost(){
     // print_hex((unsigned )&_text_start);
     // putch('\n');
 
-
+    
     // load code from LMA to VMA
     unsigned *src = (unsigned*)&_lma_code_start;
     unsigned *dst = (unsigned*)&_text_start;

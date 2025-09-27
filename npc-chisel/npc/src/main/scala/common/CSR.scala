@@ -110,7 +110,6 @@ class CSRFile(implicit val conf: Config) extends Module
   val reg_mstatus = Reg(UInt(conf.xprlen.W))
   val reg_mepc = Reg(UInt(conf.xprlen.W))
   val reg_mcause = Reg(UInt(5.W))
-  // val reg_mtval = Reg(UInt(conf.xprlen.W))
   val reg_mtvec = Reg(UInt(conf.xprlen.W))
 
 
@@ -128,7 +127,6 @@ class CSRFile(implicit val conf: Config) extends Module
     CSRs.mtvec -> reg_mtvec,      // kui: MTVEC is defined in constants.scala
 
     CSRs.mepc -> reg_mepc,
-    // CSRs.mtval -> reg_mtval,
     CSRs.mcause -> reg_mcause,
     )
 
@@ -175,18 +173,9 @@ class CSRFile(implicit val conf: Config) extends Module
   // ?????????? should be set to another value?
   io.evec := 1000.U
 
-  //DRET
-  // when(insn_ret && io.decode.csr(10)){
-  //   new_prv := reg_dcsr.prv
-  //   reg_debug := false
-  //   io.evec := reg_dpc
-  // }
 
   //MRET
   when (insn_ret && !io.decode.csr(10)) {
-    // reg_mstatus.mie := reg_mstatus.mpie
-    // reg_mstatus.mpie := true
-    // new_prv := reg_mstatus.mpp
     io.evec := reg_mepc
   }
 
@@ -207,8 +196,6 @@ class CSRFile(implicit val conf: Config) extends Module
     reg_mepc := io.pc
   }
 
-  // io.time := reg_time
-  // io.csr_stall := reg_wfi || insn_break
   io.insn_break := insn_break
   io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
 
@@ -220,7 +207,7 @@ class CSRFile(implicit val conf: Config) extends Module
     }
     when (decoded_addr(CSRs.mtvec))    { reg_mtvec := wdata }
     when (decoded_addr(CSRs.mepc))     { reg_mepc := (wdata(conf.xprlen-1,0) >> 2.U) << 2.U }
-    when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata(4,0)  /* only implement 5 LSBs and MSB */ }
+    // when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata(4,0)  /* only implement 5 LSBs and MSB */ }
     // when (decoded_addr(CSRs.mtval))    { reg_mtval := wdata(conf.xprlen-1,0) }
   }
 

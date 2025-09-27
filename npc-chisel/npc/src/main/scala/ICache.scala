@@ -43,7 +43,7 @@ class ICache(implicit val conf: Config) extends Module {
     // valid bits = 1, tag bits = 25, b_bits = 1 
     // 1+ 25 +32 = 58
     
-    val ren = RegInit(false.B)
+    val ren                 = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
     val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
@@ -51,10 +51,10 @@ class ICache(implicit val conf: Config) extends Module {
     val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
 
     val group_index = if (b_bits >0) io.pc(b_bits+2-1,2) else 0.U
-    val cache_block = Mux(ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    val cache_block = Mux( ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cache_data = cache_block_vec(group_index)
-    val cache_valid =Mux(ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    val cache_valid =Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
     val tag =  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
     val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
     
