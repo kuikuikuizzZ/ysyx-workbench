@@ -1,7 +1,7 @@
 From ceaa05dcc984690dfde2063bd522ba586114f7e0 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Thu, 25 Sep 2025 15:59:22 +0800
-Subject: [PATCH 2/2] feat(bsp): update Makefile
+Subject: [PATCH 2/3] feat(bsp): update Makefile
 
 ---
  bsp/abstract-machine/Makefile | 4 +++-
