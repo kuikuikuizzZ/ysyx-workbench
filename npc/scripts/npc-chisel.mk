@@ -19,6 +19,10 @@ endif
 NAME = V$(TOP_NAME)
 ARCH ?= riscv32e-ysyxsoc
 
+VERILATOR_DEFS = $(foreach v, \
+    $(filter CONFIG_%, $(.VARIABLES)), \
+    -D$(v)=1)
+
 # SV源文件
 ifdef CONFIG_IVERILOG
 	SVSOURCES = $(wildcard $(NPC_HOME)/build/Iverilog*.v wildcard $(NPC_HOME)/build/Iverilog*.sv  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v)
@@ -48,6 +52,7 @@ VINCLUDES = $(addprefix -I, $(VSINC_PATH))
 VERILATOR_BASE_FLAGS += $(VINCLUDES)
 VERILATOR_BASE_FLAGS += --top-module $(TOP_NAME)
 VERILATOR_FLAGS = $(VERILATOR_BASE_FLAGS) --Mdir $(BUILD_DIR)
+VERILATOR_FLAGS +=  $(VERILATOR_DEFS) 
 
 # build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
@@ -57,7 +62,8 @@ build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 	$(MAKE) -C $(NPC_HOME) verilator-build 
 
 verilator-build:
-	verilator -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
+	@echo VERILATOR_DEFS $(VERILATOR_DEFS)
+	verilator -Wno-DECLFILENAME $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
 lint:$(SVSOURCES) $(SOURCES) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 

@@ -212,6 +212,9 @@ uint32_t top_halt(){
 
 uint32_t top_inst() {
     if (!_rootp) return 0;
+    IFDEF(CONFIG_SOC,inst=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
+    IFNDEF(CONFIG_SOC,inst=(uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
+ 
     return inst;
 }
 uint32_t top_alu_out() {
@@ -275,7 +278,7 @@ void watch_top(){
             top_pc(),
             top_decode_pc(),
             top_dnpc(),
-            top_wb_inst(),
+            top_inst(),
             top_gpr(10),
             top_op1(),
             top_op2(),

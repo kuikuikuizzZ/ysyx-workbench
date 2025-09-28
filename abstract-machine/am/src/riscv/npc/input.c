@@ -15,7 +15,3 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
     kbd->keycode = (kbd->keydown)?key-KEYDOWN_MASK:key;
   }
 }
-
-void __am_uart_read(AM_UART_RX_T *recv) {
-  recv->data = (inb(UART_LSR) & 0x01) ? inb(UART_RBR) : -1;
-}

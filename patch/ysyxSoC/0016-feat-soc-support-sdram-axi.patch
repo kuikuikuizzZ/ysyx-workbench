@@ -1,7 +1,7 @@
 From 9666b3b90d1373daede13b91532470a0a392c57e Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Tue, 19 Aug 2025 20:32:17 +0800
-Subject: [PATCH 16/20] feat(soc): support sdram axi
+Subject: [PATCH 16/21] feat(soc): support sdram axi
 
 ---
  perip/sdram/core_sdram_axi4/sdram_axi.v      | 12 ++---

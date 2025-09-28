@@ -9,6 +9,7 @@
 static uint32_t pc_repeat_count = 0;
 static paddr_t  pc_old = 0;
 #endif
+bool wps_diff();
 
 #ifdef CONFIG_ITRACE
 char itrace_buff [ITRACE_SIZE];
