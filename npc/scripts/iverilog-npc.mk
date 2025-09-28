@@ -35,6 +35,7 @@ netlist-build: $(NETLIST_FILES) $(NETLIST_MAIN_FILE)
 
 sim-iverilog: 
 	@echo $(ARGS) $(IMG)
+	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
 
@@ -50,6 +51,7 @@ sim-iverilog-raw: iverilog-build
 	vvp $(BUILD_DIR)/iverilog/main.vvp
 
 sim-iverilog-netlist: netlist-build
+	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) CELLS=$(CELLS) NETLIST=$(NETLIST)
 
