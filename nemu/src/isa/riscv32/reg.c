@@ -44,7 +44,7 @@ void isa_reg_display() {
 
 
 word_t isa_reg_str2val(const char *s, bool *success) {
-  word_t val;
+  word_t val=0;
   if(strstr(s,"$pc")){
     return cpu.pc;
   }

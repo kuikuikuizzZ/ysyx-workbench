@@ -28,7 +28,7 @@ iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE)
 	sed -i 's/pc_reg[[:space:]]*<=[[:space:]]*32'\''h[0-9a-fA-F]\{8\}/pc_reg <= 32'\''h${START_ADDR}/g'  $(NPC_HOME)/build/Iverilog_ysyx_24100012.v  
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
 
-netlist-build: $(NETLIST_FILES) $(NETLIST_MAIN_FILE) 
+netlist-build: $(SVSOURCES) $(NETLIST_MAIN_FILE) 
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(NPC_HOME)/build/*.v
 	mkdir -p $(BUILD_DIR)/netlist
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp  $(NETLIST_MAIN_FILE) $(NETLIST_FILES) $(NETLIST) $(CELLS) -g2012 
@@ -40,7 +40,9 @@ sim-iverilog:
 	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
 
 iverilog-run:iverilog-build
+	@echo python translating $(IMG)
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
+	@echo python translating $(IMG) done
 	vvp $(BUILD_DIR)/iverilog/main.vvp  +image=$(IMG).hex
 
 netlist-run:netlist-build
