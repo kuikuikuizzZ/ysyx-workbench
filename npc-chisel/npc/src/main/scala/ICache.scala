@@ -26,8 +26,14 @@ class ICacheIO(implicit val conf: Config) extends Bundle {
 
 class ICache(implicit val conf: Config) extends Module { 
     val io = IO(new ICacheIO)
-    io := DontCare
-    io.port := DontCare
+    io.exception := WireDefault(EXC_NORMAL)
+    io.port.req.valid := WireDefault(false.B)
+    io.port.req.bits.addr := WireDefault(0.U)
+    io.port.req.bits.fcn := WireDefault(M_XRD)  
+    io.port.req.bits.typ := WireDefault(MT_WU)
+    io.port.req.bits.data := WireDefault(0.U)
+    io.port.req.bits.burst := WireDefault(BURST_FIXED)
+    io.port.req.bits.burstlen := WireDefault(0.U)
 
 
     val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)

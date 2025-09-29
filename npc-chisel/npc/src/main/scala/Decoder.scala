@@ -36,7 +36,6 @@ class CtrlSignalIO(implicit val conf: Config) extends Bundle() {
   val pipeline_kill        =   Input(Bool())
   val if_kill              =   Input(Bool())
   val dec_kill             =   Input(Bool())
-  val mem_exception        =   Input(Bool())
   val fencei               =   Input(Bool())
 }
 
@@ -59,7 +58,6 @@ class CpathIo(implicit val conf: Config) extends Bundle()
    val dec_exe       =  new DecoupledIO( new DecPipeIO)
    val reg_in        =  Flipped(new RegFileOut())
    val ctl_sign      =  Flipped(new CtrlSignalIO)
-   val ctl_lsu       =  new CtlToLSUlIO
    val lsu_ctl       =  Flipped(new LSUTOCtlIO)
    val exe_ctl       =  Flipped(new EXUToCTLIO())
    val wb_ctl        =  Flipped(new WBToCTLIO)
@@ -69,7 +67,6 @@ class CpathIo(implicit val conf: Config) extends Bundle()
 class Decoder(implicit val conf: Config) extends Module
 {
    val io = IO(new CpathIo())
-   io := DontCare
    val dec_reg_inst = io.ifu_dec.bits.inst
    val dec_reg_pc = io.ifu_dec.bits.pc
 
@@ -197,7 +194,6 @@ class Decoder(implicit val conf: Config) extends Module
    io.ctl_sign.if_kill := ifkill
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill
-   io.ctl_sign.mem_exception := mem_exception
    io.ctl_sign.fencei := cs_fencei || reg_fencei
 
    // immediates
@@ -284,6 +280,15 @@ class Decoder(implicit val conf: Config) extends Module
       io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
       io.dec_exe.bits.br_type       := BR_N
       io.dec_exe.bits.exception     := false.B
+      io.dec_exe.bits.rs1_addr      := 0.U
+      io.dec_exe.bits.rs2_addr      := 0.U
+      io.dec_exe.bits.op1_data      := 0.U
+      io.dec_exe.bits.op2_data      := 0.U
+      io.dec_exe.bits.rs2_data      := 0.U
+      io.dec_exe.bits.op2_sel       := OP2_X
+      io.dec_exe.bits.alu_fun       := ALU_X
+      io.dec_exe.bits.ctrl_wb_sel   := WB_X
+      io.dec_exe.bits.ctrl_mem_typ  := MT_X
 
    } .otherwise {
       io.dec_exe.bits.pc            := dec_reg_pc
@@ -307,6 +312,8 @@ class Decoder(implicit val conf: Config) extends Module
          io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
          io.dec_exe.bits.br_type       := BR_N  
          io.dec_exe.bits.exception     := false.B
+         io.dec_exe.bits.ctrl_mem_typ  := MT_X
+
       }
       .otherwise{
          io.dec_exe.valid              := true.B

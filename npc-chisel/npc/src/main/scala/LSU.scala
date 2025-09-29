@@ -83,7 +83,6 @@ class LSUIO(implicit val conf: Config) extends Bundle {
     val port                = new MemPortIo(conf.xprlen)
     val debug               = new LSUDebugPort
     val exception_target    = Output(UInt(conf.xprlen.W))
-    val ctl                 = Flipped(new CtlToLSUlIO)
     val to_ctl             = new LSUTOCtlIO
     
     val clintIO = Flipped(  new Bundle{

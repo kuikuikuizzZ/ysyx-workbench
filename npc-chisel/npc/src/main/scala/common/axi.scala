@@ -163,6 +163,8 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     io.axi_io.ar.burst  := arburst   
     io.axi_io.ar.len    := arlen
     io.axi_io.ar.size   := arsize
+    io.axi_io.ar.id     := 0.U
+
     io.axi_io.r.ready   := rready
     io.axi_io.b.ready   := bready
     switch(rstate){
@@ -179,14 +181,18 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     
     //////  AXI4Lite write master
     io.axi_io.aw.valid      :=  Mux(wstate===ws_idle, accept_write,awvalid)
-    io.axi_io.w.valid       :=  Mux(wstate===ws_idle, accept_write,wvalid)
     io.axi_io.aw.addr       :=  awaddr
+    io.axi_io.aw.burst      :=  0.U
+    io.axi_io.aw.size       :=  size
+    io.axi_io.aw.id         :=  0.U
+    io.axi_io.aw.len        :=  0.U
+
+    io.axi_io.w.valid       :=  Mux(wstate===ws_idle, accept_write,wvalid)
     io.axi_io.w.data        :=  wdata
     io.axi_io.w.strb        :=  wstrb
     io.axi_io.w.last        :=  wlast
     // write not support burst 
     // io.axi_io.aw.burst      :=  awburst
-    io.axi_io.aw.len        :=  0.U
     
     switch(wstate){
         is(ws_idle)         { wstate := Mux(accept_write, ws_wait_ready, ws_idle)}

@@ -10,6 +10,7 @@ import npc.devices.{CLINT}
 class ysyx_24100012 extends Module { 
   implicit val conf = Config()
   val io = IO(new CoreIo())
+
   dontTouch(io)
   val core = Module(new Core())
   chisel3.experimental.annotate(
@@ -18,7 +19,7 @@ class ysyx_24100012 extends Module {
         .NestedPrefixModulesAnnotation(core.toTarget, "ysyx_24100012_", true)
     }
   )
-  core.io <> io
+  core.io.core <> io
 }
 
 class CoreIo(implicit val conf: Config) extends Bundle 
@@ -47,7 +48,10 @@ class Core(implicit val conf: Config)extends Module
       thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
       thisIn.valid := prevOut.valid && thisIn.ready
   }
-  val io = IO(new CoreIo())
+  val io = IO(new Bundle {
+    val ebreak = Output(Bool())
+    val core =  new CoreIo()
+  })
   val inst_fetch  = Module(new InstFetch())
   val arbiter     = Module(new AXI4LiteRRArbiter(2))
   val decoder     = Module(new Decoder())
@@ -56,14 +60,14 @@ class Core(implicit val conf: Config)extends Module
   val lsu         = Module(new LSU())
   val wbu         = Module(new WBU())
   val clint       = Module(new CLINT())
-
+  // dontTouch(io.ebreak)
 
 
   clint.io.clock := clock
   clint.io.reset := reset
   clint.io.in <> lsu.io.clintIO  
 
-  arbiter.io.axi_port <> io.master
+  arbiter.io.axi_port <> io.core.master
   arbiter.io.ports(DPORT) <> lsu.io.port  
   arbiter.io.ports(IPORT) <> inst_fetch.io.port 
 
@@ -77,12 +81,12 @@ class Core(implicit val conf: Config)extends Module
   exu.io.ctl <> decoder.io.ctl_sign
   exu.io.to_ctl <> decoder.io.exe_ctl 
 
-  lsu.io.ctl <> decoder.io.ctl_lsu
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
   wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
   wbu.io.to_ctl <> decoder.io.wb_ctl
+  io.ebreak := wbu.io.ebreak
 
   pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec, decoder.io.dec_exe)
   pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
@@ -91,17 +95,18 @@ class Core(implicit val conf: Config)extends Module
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)
-  io.slave.ar.ready := false.B
-  io.slave.r.data := 0.U
-  io.slave.r.resp := 0.U
-  io.slave.r.valid := false.B
-  io.slave.r.last := false.B
-  io.slave.r.id := 0.U
-  io.slave.aw.ready := false.B
-  io.slave.w.ready := false.B
-  io.slave.b.valid := false.B
-  io.slave.b.resp := 0.U
-  io.slave.b.id := 0.U
+  io.core.slave.ar.ready := false.B
+  io.core.slave.r.data := 0.U
+  io.core.slave.r.resp := 0.U
+  io.core.slave.r.valid := false.B
+  io.core.slave.r.last := false.B
+  io.core.slave.r.id := 0.U
+  io.core.slave.aw.ready := false.B
+  io.core.slave.w.ready := false.B
+  io.core.slave.b.valid := false.B
+  io.core.slave.b.resp := 0.U
+  io.core.slave.b.id := 0.U
+  io.core.master.ar.id := 0.U
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
