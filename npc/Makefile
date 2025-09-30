@@ -104,7 +104,7 @@ verilog: verilog-npc verilog-soc verilog-iverilog
 	@echo "Build verilog done"
 
 
-.PHONY: run build clean sim verilog iverilog-run iverilog-build
+.PHONY: run build clean sim verilog iverilog-run iverilog-build sim-iverilog sim-iverilog-netlist
 
 # 包含上级Makefile（保持原有依赖）
 include ../Makefile

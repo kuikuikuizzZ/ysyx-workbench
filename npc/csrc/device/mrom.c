@@ -5,7 +5,7 @@
 
 static uint8_t *npc_mrom = NULL;
 
-
+static int count_read = 0;
 void init_mrom() {
     npc_mrom = (uint8_t*)malloc(CONFIG_MROM_SIZE);
 }
@@ -23,8 +23,13 @@ extern "C" {
         addr < CONFIG_MROM_BASE + CONFIG_MROM_SIZE)
             *data = host_read(guest_to_host(addr), 4);
             // *data = 0x00100073;
-        else 
-            printf("mrom_read: invalid address %x\n", addr);
+        else {
+            if (count_read % 0x1000 == 0){
+                printf("mrom_read: invalid address %x, 0x%x times\n", addr,count_read % 1000 );
+            }
+            count_read++;
+            *data= 0xffffffff;
+        }
     }
 #endif
 
