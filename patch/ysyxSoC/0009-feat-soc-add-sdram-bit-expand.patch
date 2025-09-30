@@ -1,7 +1,7 @@
 From f56bf1b1b2f036870d193dca33f4ae68097faa8a Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Mon, 4 Aug 2025 22:06:12 +0800
-Subject: [PATCH 09/21] feat(soc): add sdram bit expand
+Subject: [PATCH 09/22] feat(soc): add sdram bit expand
 
 ---
  perip/sdram/core_sdram_axi4/sdram_axi_core.v  | 105 +--

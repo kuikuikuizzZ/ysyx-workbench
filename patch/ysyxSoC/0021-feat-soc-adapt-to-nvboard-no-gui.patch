@@ -1,7 +1,7 @@
 From 51b87a30401daa838103bac8e447d09c75ccdb82 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Sun, 28 Sep 2025 13:09:45 +0800
-Subject: [PATCH 21/21] feat(soc): adapt to nvboard no gui
+Subject: [PATCH 21/22] feat(soc): adapt to nvboard no gui
 
 ---
  perip/uart16550/rtl/uart_tfifo.v | 8 ++++++--

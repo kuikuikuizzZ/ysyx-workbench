@@ -1,7 +1,7 @@
 From 6b82ec13b18a185b5bf2d9a565966fc6974ea538 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Thu, 25 Sep 2025 21:01:07 +0800
-Subject: [PATCH 19/21] chore(soc): update update-firtool.sh
+Subject: [PATCH 19/22] chore(soc): update update-firtool.sh
 
 ---
  Makefile                | 4 ++--

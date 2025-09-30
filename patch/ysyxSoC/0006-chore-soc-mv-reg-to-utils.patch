@@ -1,7 +1,7 @@
 From fb1ebbf2b1c408e8566523bb8441dcddfe9800a7 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Sat, 2 Aug 2025 12:50:32 +0800
-Subject: [PATCH 06/21] chore(soc): mv reg to utils
+Subject: [PATCH 06/22] chore(soc): mv reg to utils
 
 ---
  src/device/Const.scala | 18 ++++++++++++++++--
