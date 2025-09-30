@@ -55,7 +55,7 @@ netlist-run:
 
 
 sim-iverilog-netlist: 
-# 	$(MAKE) -C $(NPC_HOME) verilog
+	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) CELLS=$(CELLS) NETLIST=$(NETLIST)
 

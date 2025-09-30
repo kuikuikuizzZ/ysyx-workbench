@@ -40,13 +40,9 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)
   } > sdram AT> flash
-  . = . ;
-  _erodata = .;
   
-  _lma_data_start = LOADADDR (.data.extra);
   . = ALIGN(4);
   .data.extra : ALIGN(8){
-    _data_start = .;
     /* section information for finsh shell */
     __fsymtab_start = .;
     KEEP(*(FSymTab))
@@ -75,8 +71,13 @@ SECTIONS {
     __am_apps_data_end = .;
     . = ALIGN(8);
   } > sdram AT> flash
-
-  .data :ALIGN(8) {
+  . = . ;
+  _erodata = .;
+  
+  . = ALIGN(4);
+  _lma_data_start = LOADADDR (.data);
+  .data :ALIGN(4) {
+    _data_start = .;
     *(.data*)
     *(.data.*)
     *(.sdata*)

@@ -1,6 +1,6 @@
 `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000000;
+  localparam CLK_PERIOD = 100000;
   reg clk, reset;
 
   IverilogTop dut (
@@ -30,14 +30,14 @@ module main ();
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
-            // halt <= dut.core.core.lsu.csr_files.csr.insn_break;
+            halt <= dut.core.\core.wbu.io_mem_wb_bits_ebreak ; //转义标识符（escaped identifier）。转义标识符以反斜杠开始，以空格结束 
         end
     end
 
   initial begin
   // 初始化VCD波形文件
-  // $dumpfile("iverilog_wave.vcd");
-  // $dumpvars(0, dut); // 记录所有信号
+  $dumpfile("iverilog_wave.vcd");
+  $dumpvars(0, dut); // 记录所有信号
   
   
   // 等待复位释放
