@@ -20,6 +20,10 @@ class ysyx_24100012 extends Module {
     }
   )
   core.io.core <> io
+  val halt = RegInit(false.B)
+  halt := core.io.ebreak
+  dontTouch(halt)
+
 }
 
 class CoreIo(implicit val conf: Config) extends Bundle 
@@ -60,7 +64,6 @@ class Core(implicit val conf: Config)extends Module
   val lsu         = Module(new LSU())
   val wbu         = Module(new WBU())
   val clint       = Module(new CLINT())
-  // dontTouch(io.ebreak)
 
 
   clint.io.clock := clock
@@ -87,6 +90,7 @@ class Core(implicit val conf: Config)extends Module
   wbu.io.reg <> reg_file.io.wb
   wbu.io.to_ctl <> decoder.io.wb_ctl
   io.ebreak := wbu.io.ebreak
+  dontTouch(io.ebreak)
 
   pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec, decoder.io.dec_exe)
   pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)

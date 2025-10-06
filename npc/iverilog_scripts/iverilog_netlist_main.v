@@ -1,7 +1,7 @@
 // `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
-  localparam CLK_PERIOD = 100000000;
-  reg clk, reset;
+  localparam CLK_PERIOD = 10000000;
+  reg clk, reset;         
 
   IverilogTop dut (
       .clock(clk),	// home/uenui/code
@@ -30,7 +30,7 @@ module main ();
             cycle_count <= 0; // 复位时清零
         end else begin
             cycle_count <= cycle_count + 1; // 每个时钟上升沿计数
-            halt <= dut.core.\core.wbu.io_mem_wb_bits_ebreak ; //转义标识符（escaped identifier）。转义标识符以反斜杠开始，以空格结束 
+            halt <= dut.core._core_io_ebreak; //转义标识符（escaped identifier）。转义标识符以反斜杠开始，以空格结束 
         end
     end
 
