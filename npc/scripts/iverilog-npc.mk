@@ -55,7 +55,6 @@ iverilog-run:iverilog-build
 	vvp $(BUILD_DIR)/iverilog/main.vvp  +image=$(IMG).hex
 
 netlist-run:
-	$(MAKE) -C $(NPC_HOME) netlist-build CELLS=$(CELLS) NETLIST=$(NETLIST)
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
 	vvp $(BUILD_DIR)/netlist/main.vvp  +image=$(IMG).hex
 
@@ -63,7 +62,8 @@ netlist-run:
 sim-iverilog-netlist: 
 	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
-	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) CELLS=$(CELLS) NETLIST=$(NETLIST)
+	$(MAKE) -C $(NPC_HOME) netlist-build CELLS=$(CELLS) NETLIST=$(NETLIST)
+	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) 
 
 sim-iverilog-netlist-raw: netlist-build
 	vvp $(BUILD_DIR)/netlist/main.vvp  
