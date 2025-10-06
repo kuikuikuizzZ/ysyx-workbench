@@ -33,20 +33,11 @@ iverilog-prepare:
 iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) 
 	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 -Wall 
 
-netlist-build: $(NETLIST_MAIN_FILE) $(NETLIST_FILES)
+netlist-build: $(NETLIST_MAIN_FILE) $(NETLIST_FILES) 
 	mkdir -p $(BUILD_DIR)/netlist
-	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp   $(CELLS) $(NETLIST)  $(NETLIST_FILES) $(NETLIST_MAIN_FILE) -g2012  -Wall 
-
-
-sim-iverilog: 
-	@echo $(ARGS) $(IMG)
-	$(MAKE) -C $(NPC_HOME) verilog
-	$(MAKE) -C $(NPC_HOME) iverilog-config
-	$(MAKE) -C $(NPC_HOME) iverilog-prepare
-	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
-
-sim-iverilog-raw: iverilog-build
-	vvp $(BUILD_DIR)/iverilog/main.vvp
+	@echo iverilog  $(NETLIST_MAIN_FILE) $(NETLIST_FILES)  $(CELLS) $(NETLIST) 
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp   $(NETLIST_MAIN_FILE)  $(CELLS) $(NETLIST)  $(NETLIST_FILES) -g2012 
+	@echo iverilog finished
 
 iverilog-run:iverilog-build
 	@echo python translating $(IMG)
@@ -59,11 +50,21 @@ netlist-run:
 	vvp $(BUILD_DIR)/netlist/main.vvp  +image=$(IMG).hex
 
 
+sim-iverilog: 
+	@echo $(ARGS) $(IMG)
+	$(MAKE) -C $(NPC_HOME) verilog
+	$(MAKE) -C $(NPC_HOME) iverilog-config
+	$(MAKE) -C $(NPC_HOME) iverilog-prepare
+	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
+
 sim-iverilog-netlist: 
 	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) netlist-build CELLS=$(CELLS) NETLIST=$(NETLIST)
 	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) 
+
+sim-iverilog-raw: iverilog-build
+	vvp $(BUILD_DIR)/iverilog/main.vvp
 
 sim-iverilog-netlist-raw: netlist-build
 	vvp $(BUILD_DIR)/netlist/main.vvp  
