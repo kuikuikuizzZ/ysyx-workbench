@@ -35,11 +35,11 @@ class InstFetch(implicit conf: Config) extends Module {
   )
   io := DontCare
   val cache       = Module(new ICache)
-
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
   val pc_reg = RegInit(conf.START_ADDR)
+  dontTouch(pc_reg)
   val fetch_valid = RegInit(true.B)
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
   val inst = Mux(should_kill, BUBBLE,cache.io.inst)
@@ -67,6 +67,7 @@ class InstFetch(implicit conf: Config) extends Module {
    }
 
   // NOTE: when if_kill, should not take the old pc value
+  cache.io := DontCare
   cache.io.req_valid  := fetch_valid && !should_kill 
   cache.io.pc         := pc_reg
   cache.io.port       <> io.port
@@ -74,11 +75,11 @@ class InstFetch(implicit conf: Config) extends Module {
   cache.io.fencei     := io.ctl.fencei
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
-  io.ifu_dec.bits.inst :=  Mux(should_kill || cache.io.exception =/= EXC_NORMAL, BUBBLE,if_inst)
-  io.ifu_dec.bits.pc := pc_reg
+  io.ifu_dec.bits.inst :=  Mux(should_kill , BUBBLE,if_inst)
+  io.ifu_dec.bits.pc := Cat(pc_reg(conf.xprlen-1,2),0.U(2.W))
   io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
   io.ifu_dec.bits.exception := cache.io.exception
-  
+
 
   ////////// debug
   val instFetchCount = RegInit(0.U(conf.perfCountBits.W))

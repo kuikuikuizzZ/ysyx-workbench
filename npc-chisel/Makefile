@@ -50,6 +50,7 @@ verilog-iverilog: verilog_iverilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(IVERILOG_BUILD_DIR)/*.v $(IVERILOG_BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(IVERILOG_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/Iverilog*.sv $(IVERILOG_BUILD_DIR)/Iverilog*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/build/
+	cp  -r $(wildcard $(IVERILOG_BUILD_DIR)/*.sv  $(IVERILOG_BUILD_DIR)/*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_iverilog/
 
 verilog-netlist: verilog_iverilog_netlist_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
@@ -58,7 +59,7 @@ verilog-netlist: verilog_iverilog_netlist_build
 
 
 help:
-	mill -i $(PRJ).runMain Elaborate --help
+	mill -i $(PRJ).runMain ElaborateHelp
 
 reformat:
 	mill -i __.reformat

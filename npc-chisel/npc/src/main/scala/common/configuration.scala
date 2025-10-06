@@ -20,7 +20,7 @@ case class Config(
     val burstLength = sys.env.get("BURST_LENGTH").map(_.toInt).getOrElse(1)   // burstLength = axlen - 1   
     val ICacheSizeBits = sys.env.get("ICACHE_SIZE_BITS").map(_.toInt).getOrElse(2)
     val ICacheBlockBits = sys.env.get("ICACHE_BLOCK_BITS").map(_.toInt).getOrElse(1)
-    val EnableBurst = sys.env.get("ICACHE_ENABLE_BURST").map(java.lang.Boolean.parseBoolean).getOrElse(true)
+    val EnableBurst = sys.env.get("ICACHE_ENABLE_BURST").map(java.lang.Boolean.parseBoolean).getOrElse(false)
     val ICacheEnableBurst = if (EnableBurst) true.B else false.B
     val EnableSOC = sys.env.get("ENABLE_SOC").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val ENABLE_DEBUG =  sys.env.get("NPC_ENABLE_DEBUG").map(java.lang.Boolean.parseBoolean).getOrElse(false)

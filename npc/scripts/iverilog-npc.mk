@@ -9,7 +9,9 @@ CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_IVERILOG=true
 IVERILOG_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_main.v
 NETLIST_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_netlist_main.v
 
-NETLIST_FILES := $(NPC_HOME)/build/IverilogTop.sv $(NPC_HOME)/build/IverilogAXI4LiteMem.v  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v
+# NETLIST_FILES := $(NPC_HOME)/build/IverilogTop.sv $(NPC_HOME)/build/IverilogAXI4LiteMem.v  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v
+NETLIST_FILES := $(NPC_HOME)/svsrc_iverilog_netlist/*.sv $(NPC_HOME)/svsrc_iverilog_netlist/*.v
+# NETLIST_FILES := $(NPC_HOME)/svsrc_iverilog/*.sv $(NPC_HOME)/svsrc_iverilog/*.v
 
 verilog-iverilog: 
 	@echo CHISEL_IVERILOG_CONFIG $(CHISEL_IVERILOG_CONFIG) 
@@ -29,16 +31,16 @@ iverilog-prepare:
 
 
 iverilog-build:  $(SVSOURCES) $(IVERILOG_MAIN_FILE) 
-	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/iverilog/main.vvp  $(IVERILOG_MAIN_FILE) $(SVSOURCES) -g2012 -Wall 
 
 netlist-build: $(NETLIST_MAIN_FILE) $(NETLIST_FILES)
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(NPC_HOME)/build/*.v
 	mkdir -p $(BUILD_DIR)/netlist
-	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp  $(NETLIST_MAIN_FILE) $(NETLIST_FILES) $(NETLIST) $(CELLS) -g2012 
+	iverilog $(VINCLUDES) -o $(BUILD_DIR)/netlist/main.vvp   $(CELLS) $(NETLIST)  $(NETLIST_FILES) $(NETLIST_MAIN_FILE) -g2012  -Wall 
+
 
 sim-iverilog: 
 	@echo $(ARGS) $(IMG)
-	$(MAKE) -C $(NPC_HOME) verilog
+# 	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) iverilog-prepare
 	$(MAKE) -C $(NPC_HOME) iverilog-run IMG=$(IMG)
@@ -59,7 +61,7 @@ netlist-run:
 
 
 sim-iverilog-netlist: 
-	$(MAKE) -C $(NPC_HOME) verilog
+# 	$(MAKE) -C $(NPC_HOME) verilog
 	$(MAKE) -C $(NPC_HOME) iverilog-config
 	$(MAKE) -C $(NPC_HOME) netlist-run IMG=$(IMG) CELLS=$(CELLS) NETLIST=$(NETLIST)
 

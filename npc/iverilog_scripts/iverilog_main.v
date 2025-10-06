@@ -1,4 +1,4 @@
-`timescale 1ns/1ps  // 时间单位/时间精度
+// `timescale 1ns/1ps  // 时间单位/时间精度
 module main ();
   localparam CLK_PERIOD = 100000000;
   reg clk, reset;
@@ -18,7 +18,7 @@ module main ();
     // 4. 复位控制
     initial begin
         reset = 1; // 初始复位有效
-        #1;       // 保持20ns（2个时钟周期）
+        #10;       // 保持20ns（2个时钟周期）
         reset = 0; // 释放复位
     end
 

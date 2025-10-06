@@ -23,6 +23,9 @@ package sifive {
 
 object Elaborate extends App {
   val firtoolOptions = Array(
+    "--disable-all-randomization",
+    "--disable-mem-randomization",
+    "--disable-reg-randomization",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
@@ -38,10 +41,14 @@ object Elaborate extends App {
 
 object ElaborateNPC extends App {
   val firtoolOptions = Array(
+    "--disable-all-randomization",
+    "--disable-mem-randomization",
+    "--disable-reg-randomization",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb",
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
@@ -52,10 +59,14 @@ object ElaborateNPC extends App {
 
 object ElaborateIverilog extends App {
   val firtoolOptions = Array(
+    "--disable-all-randomization",
+    "--disable-mem-randomization",
+    "--disable-reg-randomization",
     "--lowering-options=" + List(
-       "disallowLocalVariables",
+      "disallowLocalVariables",
       "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb",
     ).reduce(_ + "," + _),
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(
@@ -66,6 +77,8 @@ object ElaborateIverilog extends App {
 
 object ElaborateIverilogNetlist extends App {
   val firtoolOptions = Array(
+    // "--disable-all-randomization",
+    // "--disable-mem-randomization",
     "--lowering-options=" + List(
        "disallowLocalVariables",
       "disallowPackedArrays",
@@ -78,6 +91,15 @@ object ElaborateIverilogNetlist extends App {
     firtoolOptions)
 }
 
+object ElaborateHelp extends App {
+  val firtoolOptions = Array(
+    "--help",
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new Top(),
+     Array("--target","verilog","--target-dir","build/help"),
+    firtoolOptions)
+}
 
 
 // object Elaborate extends App {
