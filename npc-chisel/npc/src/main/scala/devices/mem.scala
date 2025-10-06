@@ -58,7 +58,8 @@ class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBo
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
    |    ORIGIN_ADDR=32'h80000000,
-   |    MEM_SIZE=32'h08000000
+   |    MEM_SIZE=32'h08000000,
+   |    LOADER_MEM_SIZE = 32'h100
    |) (
    |    input clock,
    |    input reset,
@@ -80,6 +81,7 @@ class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBo
    |import "DPI-C" function void pmem_mask_write(input int inaddr,input int mask, input int din);
    |import "DPI-C" function void pmem_mask_read(input int outaddr,input int mask, output int dout);
    |
+   |    reg [7:0] mem_start[LOADER_MEM_SIZE-1:0];
    |    wire [DATA_WIDTH-1:0] dw_mask_wide;
    |    Top_mask_expander me (
    |        .mask(dw_mask),
@@ -93,9 +95,23 @@ class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBo
    |            pmem_mask_write(dw_addr_aligned, dw_mask_wide, dw_data);
    |        end 
    |    end
-   |     
+   |    initial begin
+   |    integer j;
+   |    for (j = 0; j < 128; j = j + 4) begin
+   |         // 小端格式存储
+   |         mem_start[j]   = 8'h33;  // 最低字节
+   |         mem_start[j+1] = 8'h40;  // 
+   |         mem_start[j+2] = 8'h00;  // 
+   |         mem_start[j+3] = 8'h00;  // 最高字节
+   |     end 
+   |     {mem_start[3],mem_start[2],mem_start[1],mem_start[0]}= 32'h50000097;
+   |     {mem_start[7],mem_start[6],mem_start[5],mem_start[4]}= 32'h00008067;
+   |    end
    |    always @(posedge clock) begin
-   |        if (dr_en) begin
+   |     if (dr_en && dr_addr >= 32'h30000000 && dr_addr < 32'h30001000) begin
+   |         dr_data = {mem_start[(dr_addr-32'h30000000)+3],mem_start[(dr_addr-32'h30000000)+2],mem_start[(dr_addr-32'h30000000)+1],mem_start[(dr_addr-32'h30000000)]};
+   |         dr_ready =  1'b1;     
+   |     end else if (dr_en) begin
    |            // -1 -> 1111
    |            pmem_mask_read(dr_addr_aligned, -1, dr_data);
    |            dr_ready = 1'b1;
@@ -127,7 +143,8 @@ class IverilogAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBl
    |    DATA_WIDTH = 32,
    |    MASK_WIDTH = 4,
    |    ORIGIN_ADDR=32'h80000000,
-   |    MEM_SIZE=32'h08000000
+   |    MEM_SIZE=32'h08000000,
+   |    LOADER_MEM_SIZE = 32'h100
    |) (
    |    input clock,
    |    input reset,
@@ -153,7 +170,18 @@ class IverilogAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBl
    |  reg [7:0] mem [MEM_SIZE:0];
    |  reg [2047:0] path = 0;
    |  reg [63:0] current_time;
+   |  reg [7:0] mem_start[LOADER_MEM_SIZE-1:0];
    |  initial begin
+   |   integer j;
+   |   for (j = 0; j < 128; j = j + 4) begin
+   |        // 小端格式存储
+   |        mem_start[j]   = 8'h33;  // 最低字节
+   |        mem_start[j+1] = 8'h40;  // 
+   |        mem_start[j+2] = 8'h00;  // 
+   |        mem_start[j+3] = 8'h00;  // 最高字节
+   |    end 
+   |   {mem_start[7],mem_start[6],mem_start[5],mem_start[4]}= 32'h00008067;
+   |   {mem_start[3],mem_start[2],mem_start[1],mem_start[0]}= 32'h50000097;
    |    if (!$value$plusargs("image=%s", path)) begin
    |      path = "./iverilog_scripts/dummy-riscv32e-npc.hex";
    |    end
@@ -209,6 +237,9 @@ class IverilogAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBl
    |     if (dr_en && (dr_addr == 32'ha0000048 || dr_addr == 32'ha000004c)) begin
    |         current_time = $time/1000;
    |         dr_data = (dr_addr == 32'ha0000048)? current_time[31:0]:current_time[63:32];
+   |         dr_ready =  1'b1;     
+   |     end else if (dr_en && dr_addr >= 32'h30000000 && dr_addr < 32'h30001000) begin
+   |         dr_data = {mem_start[(dr_addr-32'h30000000)+3],mem_start[(dr_addr-32'h30000000)+2],mem_start[(dr_addr-32'h30000000)+1],mem_start[(dr_addr-32'h30000000)]};
    |         dr_ready =  1'b1;     
    |     end else if (dr_en && dr_addr >= 32'h80000000 && dr_addr < 32'h90000000) begin
    |          dr_data = {mem[dr_addr_aligned+3],mem[dr_addr_aligned+2],mem[dr_addr_aligned+1],mem[dr_addr_aligned]};
