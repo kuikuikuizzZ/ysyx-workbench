@@ -29,10 +29,9 @@ class ICache(implicit val conf: Config) extends Module {
     io.port := DontCare
     io.port.req.bits.burst := WireDefault(BURST_FIXED)
 
-    object State extends ChiselEnum {
-        val sIdle, sRequesting, sBurstRequesting, sReceiving, sComplete = Value
-    }
-    val state               = RegInit(State.sIdle)
+    val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)
+
+    val state               = RegInit(sIdle)
     val s_bits              = conf.ICacheSizeBits
     val b_bits              = conf.ICacheBlockBits
     val size                = 1 << conf.ICacheSizeBits 
@@ -46,69 +45,86 @@ class ICache(implicit val conf: Config) extends Module {
     
     val ren                 = RegInit(false.B)
     val offset              = RegInit(0.U(b_bits.W)) // 当前加载偏移
-    val tag                 = RegInit(0.U(tag_bits.W))
-    val cache_data          = RegInit(0.U(conf.xlen.W))
+    
+    // val tag                 = RegInit(0.U(tag_bits.W))
+    // val cache_data          = RegInit(0.U(conf.xlen.W))
+    // val cache_valid         = RegInit(false.B)
+    // val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
+    // val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
+    // val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
+    // val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
+
+    // val group_index = if (b_bits >0) io.pc(b_bits+2-1,2) else 0.U
+    // val cache_block = Mux( ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    // val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
+    // val fullCacheLine = cacheLineBuffer.asUInt
+
     val cache_valid         = RegInit(false.B)
+    val valids              = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
+    val mem                 = SyncReadMem(size, UInt(cache_data_width.W))
+    val tags                = SyncReadMem(size, UInt(tag_bits.W))
+    val cache_block         = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2), ren || io.req_valid)
+    val tag                 = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),ren || io.req_valid)
+    val cache_block_vec     = VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
-    val mem = RegInit(VecInit(Seq.fill(size)(0.U(cache_data_width.W)))).suggestName("icache_mem") 
-    val tags = RegInit(VecInit(Seq.fill(size)(0.U(tag_bits.W)))).suggestName("icache_tags") 
-    val valids = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
+    val fullCacheLine       = cacheLineBuffer.asUInt
+    val group_index         = if (b_bits >0) io.pc(b_bits+2-1,2) else 0.U
+    val cache_data          = cache_block_vec(group_index)
 
-    val group_index = if (b_bits >0) io.pc(b_bits+2-1,2) else 0.U
-    val cache_block = Mux( ren || io.req_valid, mem(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
-    val cache_block_vec =  VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
-    val fullCacheLine = cacheLineBuffer.asUInt
 
-    // pipeline icache
-    cache_valid :=  Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
-    tag         :=  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
-    cache_data  := cache_block_vec(group_index)
-    val hit = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
-    val req_valid_reg = RegNext(io.req_valid,true.B)
-    // pipeline icache
+
+    //////// pipeline icache
+    // cache_valid :=  Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    // tag         :=  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
+    // cache_data  := cache_block_vec(group_index)
+    val hit             = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
+    val req_valid_reg   = RegNext(io.req_valid,true.B)
+    cache_valid        := Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+
+    //////// pipeline icache
     
 
         // 状态迁移
-    when(state === State.sIdle) {
+    when(state === sIdle) {
         ren := false.B
         when(!hit && req_valid_reg) {
-            state := Mux(conf.ICacheEnableBurst,State.sBurstRequesting,State.sRequesting)
+            state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
             offset := 0.U
     }}
-    .elsewhen(state === State.sRequesting ){
-            io.port.req.valid       := state === State.sRequesting
+    .elsewhen(state === sRequesting ){
+            io.port.req.valid       := state === sRequesting
             io.port.req.bits.addr   := Cat(io.pc(conf.xprlen-1,b_bits+2),offset,0.U(2.W))
             io.port.req.bits.fcn    := M_XRD
             io.port.req.bits.typ    := MT_WU 
             io.port.req.bits.burstlen := 0.U
-            when(io.port.req.ready) {state := State.sReceiving }}
-    .elsewhen(state === State.sBurstRequesting) { 
-        io.port.req.valid           := state === State.sBurstRequesting
+            when(io.port.req.ready) {state := sReceiving }}
+    .elsewhen(state === sBurstRequesting) { 
+        io.port.req.valid           := state === sBurstRequesting
         io.port.req.bits.addr       := Cat(io.pc(conf.xprlen-1,b_bits+2),0.U(b_bits.W),0.U(2.W))
         io.port.req.bits.fcn        := M_XRD
         io.port.req.bits.typ        := MT_WU
         io.port.req.bits.burst      := BURST_INCR
         io.port.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
-        when(io.port.req.ready) {state := State.sReceiving }}
-    .elsewhen(state === State.sReceiving) {
+        when(io.port.req.ready) {state := sReceiving }}
+    .elsewhen(state === sReceiving) {
         when(io.port.resp.valid) {
             offset := offset + 1.U
             cacheLineBuffer(offset) := io.port.resp.bits.data // 存储子块
             // 检查是否完成
             when(offset === (subBlocksPerLine-1).U) {
-                state := State.sComplete
+                state := sComplete
             }.elsewhen(conf.ICacheEnableBurst) { 
-                state := State.sReceiving 
+                state := sReceiving 
             }.otherwise {
-                state := State.sRequesting // 继续请求下一子块
+                state := sRequesting // 继续请求下一子块
             }
         }
-    }.elsewhen(state === State.sComplete) { 
+    }.elsewhen(state === sComplete) { 
         val index = io.pc(s_bits + b_bits + 2 - 1, b_bits+2)
-        mem(index)      := fullCacheLine // 写入数据
-        tags(index)     := io.pc(conf.xprlen-1, s_bits + b_bits + 2) // 写入Tag
+        mem.write(index    , fullCacheLine)                              // 写入数据
+        tags.write(index   , io.pc(conf.xprlen-1, s_bits + b_bits + 2)) // 写入Tag
         valids(index)   := true.B // 标记有效
-        state   := State.sIdle
+        state   := sIdle
         ren     := true.B
     }
     
