@@ -235,10 +235,11 @@ class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Mod
 
    /////////// Write Port
    when (req_valid && (req_fcn === M_XWR)){
-      axi4lite_mem.io.req.waddr := req_addri
-      axi4lite_mem.io.req.data := req_data << (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
-                              Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
+      axi4lite_mem.io.req.typ    := req_typi
+      axi4lite_mem.io.req.waddr  := req_addri
+      axi4lite_mem.io.req.data   := req_data << (req_addri(1,0) << 3)
+      axi4lite_mem.io.req.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
+                                    Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
 }
 
@@ -362,8 +363,9 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
    when (req_valid && (req_fcn === M_XWR)){
       axi4lite_mem.io.req.waddr := req_addri
       // axi4lite_mem.io.req.waddr := aligned_req_addri
-      axi4lite_mem.io.req.data := req_data << (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.mask := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
-                              Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
+      axi4lite_mem.io.req.typ    := req_typi
+      axi4lite_mem.io.req.data   := req_data << (req_addri(1,0) << 3)
+      axi4lite_mem.io.req.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
+                                    Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
 }

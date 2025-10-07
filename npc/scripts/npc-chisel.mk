@@ -62,7 +62,7 @@ build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE)
 
 verilator-build:
 	@echo VERILATOR_DEFS $(VERILATOR_DEFS)
-	verilator -Wno-DECLFILENAME $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
+	verilator -Wno-WIDTHEXPAND $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES)  --trace-fst --autoflush
 
 lint:$(SVSOURCES) $(SOURCES) 
 	verilator --lint-only -Wall -Wno-DECLFILENAME  $(VERILATOR_FLAGS) $(SOURCES) $(SVSOURCES) 

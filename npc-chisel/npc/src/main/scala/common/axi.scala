@@ -25,6 +25,7 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: Config) extends Bundle{
     val wen     = Input (Bool())
     val burst   = Input(UInt(BURST_X.getWidth.W))
     val burstlen = Input(UInt(conf.AXIBurstLenBits.W))
+    val typ     = Input(UInt(MT_X.getWidth.W)) // bytes in beat = 2^size
 }
 
 class AXI4Resp(val data_width: Int) extends Bundle
@@ -139,11 +140,17 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
     val maskWidth   = conf.xlen/8
-    val size    = Mux(io.req.burst =/= BURST_FIXED,2.U,0.U)
+    val size    = MuxCase(0.U,Seq(
+        (io.req.typ === MT_W)   ->  2.U,
+        (io.req.typ === MT_WU)  ->  2.U,
+        (io.req.typ === MT_H)   ->  1.U,
+        (io.req.typ === MT_HU)  ->  1.U
+    ))
+
     val arvalid = Mux(arfire || rstate===rs_wait_rlast,false.B, is_read)
     val araddr  = Mux(accept_read,io.req.raddr,RegEnable(io.req.raddr,  0.U ,  accept_read||io.axi_io.ar.ready))
     val arlen   = Mux(accept_read, io.req.burstlen,RegEnable(io.req.burstlen,accept_read))
-    val arsize  = Mux(accept_read,size, RegEnable(size,accept_read))
+    // val arsize  = Mux(accept_read,size, RegEnable(size,accept_read))
     val arburst = Mux(accept_read,io.req.burst,RegEnable(io.req.burst,accept_read))
 
     val awaddr  =   Mux(accept_write,io.req.waddr,RegEnable(io.req.waddr, accept_write||io.axi_io.aw.ready))
@@ -162,7 +169,7 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     io.axi_io.ar.valid  := arvalid
     io.axi_io.ar.burst  := arburst   
     io.axi_io.ar.len    := arlen
-    io.axi_io.ar.size   := arsize
+    io.axi_io.ar.size   := 0.U
     io.axi_io.ar.id     := 0.U
 
     io.axi_io.r.ready   := rready
