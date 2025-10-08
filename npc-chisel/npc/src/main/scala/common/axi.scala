@@ -169,7 +169,7 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     io.axi_io.ar.valid  := arvalid
     io.axi_io.ar.burst  := arburst   
     io.axi_io.ar.len    := arlen
-    io.axi_io.ar.size   := 0.U
+    io.axi_io.ar.size   := size
     io.axi_io.ar.id     := 0.U
 
     io.axi_io.r.ready   := rready

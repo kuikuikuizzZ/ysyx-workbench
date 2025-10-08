@@ -57,7 +57,6 @@ VERILATOR_FLAGS +=  $(VERILATOR_DEFS)
 # build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 build: $(SVSOURCES) $(SOURCES) $(NVBOARD_ARCHIVE) 
 	mkdir -p $(BUILD_DIR)
-	$(MAKE) -C $(NPC_HOME) $(ARCH)_defconfig
 	$(MAKE) -C $(NPC_HOME) verilator-build 
 
 verilator-build:

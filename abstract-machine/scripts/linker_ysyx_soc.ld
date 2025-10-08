@@ -9,22 +9,26 @@ MEMORY {
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
+  .entry : {
+    _entry_start = .;
+    KEEP(*(.entry))
+  } > flash
   .text : {
     *(entry)
     *(.text*)
-  } > flash AT> flash
+  } > flash 
   _etext = .;
   . = ALIGN(4);
-  .rodata  : {
+  .rodata  :ALIGN(4) {
     *(.rodata*)
-  } > flash AT> flash
+  } > flash
   _erodata = .;
   _lma_data_start = LOADADDR (.data);
   . = ALIGN(4);
   .data : {
     _data_start = .;
     *(.data)
-  }  > sram AT> flash
+  }  > psram AT> flash
   . = . ;
   _data_end = . ;
   .bss :  {
@@ -32,7 +36,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram AT> flash
+  } > psram AT> flash
   _bss_end = .;
   _heap_start = ALIGN(0x1000);
   _stack_top =  ALIGN(0x1000) ;

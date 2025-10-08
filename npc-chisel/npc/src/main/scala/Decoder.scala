@@ -220,6 +220,23 @@ class Decoder(implicit val conf: Config) extends Module
                (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
                (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
                )).asUInt
+   // val alu_op2 = {
+   //    // 创建查找表
+   //    val op2LookupTable = VecInit(Seq(
+   //       rf_rs2_data,   // OP2_RS2
+   //       imm_i_sext,    // OP2_ITYPE
+   //       imm_s_sext,    // OP2_STYPE
+   //       imm_b_sext,    // OP2_SBTYPE
+   //       imm_u_sext,    // OP2_UTYPE
+   //       imm_j_sext     // OP2_UJTYPE
+   //    ))
+   
+   //    // 安全选择器（防止越界）
+   //    val safeSel = Mux(cs_op2_sel < op2LookupTable.size.U, cs_op2_sel, 0.U)
+   
+   //    // 查找结果
+   //    op2LookupTable(safeSel)
+   // }
 
    val op1_data = Wire(UInt(conf.xprlen.W))
    val op2_data = Wire(UInt(conf.xprlen.W))

@@ -1,5 +1,5 @@
 # Chisel 生成 verilog 配置
-CHISEL_IVERILOG_CONFIG=ICACHE_SIZE_BITS=2
+CHISEL_IVERILOG_CONFIG=ICACHE_SIZE_BITS=1
 CHISEL_IVERILOG_CONFIG+=ICACHE_BLOCK_BITS=0
 CHISEL_IVERILOG_CONFIG+=ICACHE_ENABLE_BURST=false
 CHISEL_IVERILOG_CONFIG+=ENABLE_SOC=false
@@ -47,6 +47,7 @@ iverilog-run:iverilog-build
 
 netlist-run:
 	@python $(NPC_HOME)/iverilog_scripts/bin2hex.py $(IMG) $(IMG).hex
+	@echo python translating $(IMG) done
 	vvp $(BUILD_DIR)/netlist/main.vvp  +image=$(IMG).hex
 
 

@@ -21,8 +21,9 @@ extern "C" {
         // uint32_t flash_data = host_read(guest_to_flash(addr), 4);
         // uint32_t temp[4] = {flash_data & 0xff, (flash_data >> 8) & 0xff, (flash_data >> 16) & 0xff, (flash_data >> 24) & 0xff};
 		// *data =  (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
-        // printf("flash_read: address %x data %x \n", addr,*data);
+        addr = addr & 0xfffffffc;
         *data =  host_read(guest_to_flash(addr), 4);
+        // if(addr >= 0x100) printf("flash_read: address %x data %.8x \n", addr,*data);
     }
 #endif
 

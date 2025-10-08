@@ -81,6 +81,35 @@ class EXU(implicit conf: Config) extends Module
                   (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
 
+   // // // 预计算共享结果
+   // val adderResult      = (alu_op1 + alu_op2).asUInt
+   // val subtractorResult = (alu_op1 - alu_op2).asUInt
+   // val sllResult        = ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt
+   // val srlResult        = (alu_op1 >> alu_shamt).asUInt
+   // val sraResult        = (alu_op1.asSInt >> alu_shamt).asUInt
+   // val andResult        = (alu_op1 & alu_op2).asUInt
+   // val orResult         = (alu_op1 | alu_op2).asUInt
+   // val xorResult        = (alu_op1 ^ alu_op2).asUInt
+   // val sltResult        = (alu_op1.asSInt < alu_op2.asSInt).asUInt
+   // val sltuResult       = (alu_op1 < alu_op2).asUInt
+  
+   // alu_out := MuxLookup(io.dec_exe.bits.alu_fun, 0.U)( Seq(
+   //    // 直接连接预计算结果
+   //       ALU_ADD      -> (alu_op1 + alu_op2).asUInt                           ,  // ALU_ADD
+   //       ALU_SUB      -> (alu_op1 - alu_op2).asUInt                           ,  // ALU_SUB
+   //       ALU_SLL      -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt    ,  // ALU_SLL
+   //       ALU_SRL      -> (alu_op1 >> alu_shamt).asUInt                        ,  // ALU_SRL
+   //       ALU_SRA      -> (alu_op1.asSInt >> alu_shamt).asUInt                 ,  // ALU_SRA
+   //       ALU_AND      -> (alu_op1 & alu_op2).asUInt                           ,  // ALU_AND
+   //       ALU_OR       -> (alu_op1 | alu_op2).asUInt                           ,  // ALU_OR
+   //       ALU_XOR      -> (alu_op1 ^ alu_op2).asUInt                           ,  // ALU_XOR
+   //       ALU_SLT      -> (alu_op1.asSInt < alu_op2.asSInt).asUInt             ,  // ALU_SLT
+   //       ALU_SLTU     -> (alu_op1 < alu_op2).asUInt                           ,  // ALU_SLTU
+   //       ALU_COPY_1   -> alu_op1                                              ,  // ALU_COPY_1
+   //       ALU_COPY_2   -> alu_op2                                                 //  ALU_COPY_2
+   //    ))
+
+
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
    val brjmp_offset                 = io.dec_exe.bits.op2_data

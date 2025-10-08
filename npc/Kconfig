@@ -30,13 +30,13 @@ config SOC
   default y
 
 config PC_REPEAT_COUNT
-  depends on TRACE
   bool "Enable pc repeat count"
-  default y
+  default n
+
 config PC_MAX_REPEAT
   depends on PC_REPEAT_COUNT
   int "same pc repeat max times"
-  default 1024
+  default 4096
 
 menu "Testing and Debugging"
 
