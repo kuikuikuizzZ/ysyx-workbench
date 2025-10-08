@@ -148,22 +148,27 @@ class AXI4LiteRRArbiter(numMasters: Int)(implicit val conf: Config)  extends Mod
       is(s_idle) {
          when(io.ports(currentMaster).req.valid) {
             state := Mux(currentMaster === IPORT.U,s_ifu_active,s_lsu_active)
-            burstlen_reg := Mux(currentMaster === IPORT.U,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U) 
-
+            if(conf.EnableBurst){ burstlen_reg := Mux(currentMaster === IPORT.U,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U)}
          }.elsewhen(io.ports(nextMaster).req.valid) {
             currentMaster := nextMaster
             state := Mux(nextMaster === IPORT.U,s_ifu_active,s_lsu_active)
-            burstlen_reg := Mux(nextMaster === IPORT.U,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U) 
+            if(conf.EnableBurst) { burstlen_reg := Mux(nextMaster === IPORT.U,Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U),0.U)  }        
          }
       }
       is (s_ifu_active){
          when (axi4lite_mem.io.resp.valid) {
-            req_valid := false.B    
-            burstlen_reg := burstlen_reg - 1.U
-            when (burstlen_reg === 0.U) {
+            req_valid := false.B 
+            if(conf.EnableBurst) {
+               burstlen_reg := burstlen_reg - 1.U
+               when (burstlen_reg === 0.U) {
+                  state := s_idle
+                  currentMaster := nextMaster 
+               }
+            }else{
                state := s_idle
                currentMaster := nextMaster 
             }
+
          }
       }
       is (s_lsu_active)  { 

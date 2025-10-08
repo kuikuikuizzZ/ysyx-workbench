@@ -52,7 +52,7 @@ void print_id(){
   printf("%s_%d\n",name,marchid);
 }
 void _trm_init() {
-  print_id();
+  // print_id();
   int ret = main(mainargs);
   halt(ret);
 }
