@@ -36,7 +36,7 @@ class CoreIo(implicit val conf: Config) extends Bundle
 class Core(implicit val conf: Config)extends Module
 {
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
-    thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+    thisIn: DecoupledIO[T]) = {
       prevOut.ready := thisIn.ready
       // val regBits = RegInit(0.U.asTypeOf(chiselTypeOf(prevOut.bits)))
       // when(prevOut.valid && thisIn.ready) {
@@ -86,16 +86,15 @@ class Core(implicit val conf: Config)extends Module
 
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
-  wbu.io.ctl <> decoder.io.ctl_sign
   wbu.io.reg <> reg_file.io.wb
   wbu.io.to_ctl <> decoder.io.wb_ctl
   io.ebreak := wbu.io.ebreak
   dontTouch(io.ebreak)
 
-  pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec, decoder.io.dec_exe)
-  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe, exu.io.exe_mem)
-  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, lsu.io.mem_wb)
-  pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb, wbu.io.reg)
+  pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec)
+  pipelineConnect(decoder.io.dec_exe, exu.io.dec_exe)
+  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem)
+  pipelineConnect(lsu.io.mem_wb, wbu.io.mem_wb)
 
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(wbu.io.ebreak, true.B, false.B)

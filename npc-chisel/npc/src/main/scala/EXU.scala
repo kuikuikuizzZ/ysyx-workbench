@@ -66,49 +66,56 @@ class EXU(implicit conf: Config) extends Module
    val alu_shamt = alu_op2(4,0).asUInt
    val adder_out = (alu_op1 + alu_op2)(conf.xprlen-1,0)
 
-   alu_out := MuxCase(0.U, Seq(
-                  (io.dec_exe.bits.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
-                  (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
-                  (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
-                  ))
+   // alu_out := MuxCase(0.U, Seq(
+   //                (io.dec_exe.bits.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SUB)  -> (alu_op1 - alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_AND)  -> (alu_op1 & alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_OR)   -> (alu_op1 | alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_XOR)  -> (alu_op1 ^ alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SLT)  -> (alu_op1.asSInt < alu_op2.asSInt).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SLTU) -> (alu_op1 < alu_op2).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SLL)  -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SRA)  -> (alu_op1.asSInt >> alu_shamt).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_SRL)  -> (alu_op1 >> alu_shamt).asUInt,
+   //                (io.dec_exe.bits.alu_fun === ALU_COPY_1)-> alu_op1,
+   //                (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
+   //                ))
 
-   // // // 预计算共享结果
-   // val adderResult      = (alu_op1 + alu_op2).asUInt
-   // val subtractorResult = (alu_op1 - alu_op2).asUInt
-   // val sllResult        = ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt
-   // val srlResult        = (alu_op1 >> alu_shamt).asUInt
-   // val sraResult        = (alu_op1.asSInt >> alu_shamt).asUInt
-   // val andResult        = (alu_op1 & alu_op2).asUInt
-   // val orResult         = (alu_op1 | alu_op2).asUInt
-   // val xorResult        = (alu_op1 ^ alu_op2).asUInt
-   // val sltResult        = (alu_op1.asSInt < alu_op2.asSInt).asUInt
-   // val sltuResult       = (alu_op1 < alu_op2).asUInt
+   // 预计算共享结果
+   val adderResult      = (alu_op1 + alu_op2).asUInt
+   val subtractorResult = (alu_op1 - alu_op2).asUInt
+   val andResult        = (alu_op1 & alu_op2).asUInt
+   val orResult         = (alu_op1 | alu_op2).asUInt
+   val xorResult        = (alu_op1 ^ alu_op2).asUInt
+   val sltResult        = (alu_op1.asSInt < alu_op2.asSInt).asUInt
+   val sltuResult       = (alu_op1 < alu_op2).asUInt
+   val sllResult        = ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt
+   val sraResult        = (alu_op1.asSInt >> alu_shamt).asUInt
+   val srlResult        = (alu_op1 >> alu_shamt).asUInt
   
-   // alu_out := MuxLookup(io.dec_exe.bits.alu_fun, 0.U)( Seq(
-   //    // 直接连接预计算结果
-   //       ALU_ADD      -> (alu_op1 + alu_op2).asUInt                           ,  // ALU_ADD
-   //       ALU_SUB      -> (alu_op1 - alu_op2).asUInt                           ,  // ALU_SUB
-   //       ALU_SLL      -> ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt    ,  // ALU_SLL
-   //       ALU_SRL      -> (alu_op1 >> alu_shamt).asUInt                        ,  // ALU_SRL
-   //       ALU_SRA      -> (alu_op1.asSInt >> alu_shamt).asUInt                 ,  // ALU_SRA
-   //       ALU_AND      -> (alu_op1 & alu_op2).asUInt                           ,  // ALU_AND
-   //       ALU_OR       -> (alu_op1 | alu_op2).asUInt                           ,  // ALU_OR
-   //       ALU_XOR      -> (alu_op1 ^ alu_op2).asUInt                           ,  // ALU_XOR
-   //       ALU_SLT      -> (alu_op1.asSInt < alu_op2.asSInt).asUInt             ,  // ALU_SLT
-   //       ALU_SLTU     -> (alu_op1 < alu_op2).asUInt                           ,  // ALU_SLTU
-   //       ALU_COPY_1   -> alu_op1                                              ,  // ALU_COPY_1
-   //       ALU_COPY_2   -> alu_op2                                                 //  ALU_COPY_2
-   //    ))
-
+   alu_out := {
+      // 使用并行选择逻辑替代MuxCase
+      val results =  VecInit(Seq(
+      // 直接连接预计算结果
+         adderResult                   ,  // ALU_ADD
+         subtractorResult              ,  // ALU_SUB
+         sllResult                     ,  // ALU_SLL
+         srlResult                     ,  // ALU_SRL
+         sraResult                     ,  // ALU_SRA
+         andResult                     ,  // ALU_AND
+         orResult                      ,  // ALU_OR
+         xorResult                     ,  // ALU_XOR
+         sltResult                     ,  // ALU_SLT
+         sltuResult                    ,  // ALU_SLTU
+         alu_op1                       ,  // ALU_COPY_1
+         alu_op2                         // ALU_COPY_2
+      ))
+      // 安全选择器  
+      val safeSel = Mux(io.dec_exe.bits.alu_fun < 12.U, io.dec_exe.bits.alu_fun, 0.U)
+      results.suggestName("alu_results")
+      // 优化后的ALU输出选择
+      results(safeSel)
+   }
 
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)

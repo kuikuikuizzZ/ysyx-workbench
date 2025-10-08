@@ -27,7 +27,6 @@ class WBU(implicit val conf: Config) extends Module {
         val mem_wb = Flipped(new DecoupledIO (new LSUPipeIO()))
         val reg = new DecoupledIO(new WBToRegIo())
         val debug = new WBUDebugPort()
-        val ctl = new CtrlSignalIO()
         val ebreak = Output(Bool())
         val wb_pc = Output(UInt(conf.xprlen.W))
         val wb_inst = Output(UInt(conf.xlen.W))

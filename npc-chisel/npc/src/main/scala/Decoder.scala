@@ -155,18 +155,41 @@ class Decoder(implicit val conf: Config) extends Module
    ////// Branch Logic
    val pipeline_kill = Wire(Bool())
    val exe_br_type = io.exe_ctl.br_type
-   val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
-                         Mux(exe_br_type === BR_N  , PC_4,
-                         Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_GE , Mux(!io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_GEU, Mux(!io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_LT , Mux( io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_LTU, Mux( io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
-                         Mux(exe_br_type === BR_J  , PC_BRJMP,
-                         Mux(exe_br_type === BR_JR , PC_JALR,
-                                                            PC_4
-                     ))))))))))   
+   // val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
+   //                       Mux(exe_br_type === BR_N  , PC_4,
+   //                       Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_GE , Mux(!io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_GEU, Mux(!io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_LT , Mux( io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_LTU, Mux( io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
+   //                       Mux(exe_br_type === BR_J  , PC_BRJMP,
+   //                       Mux(exe_br_type === BR_JR , PC_JALR,
+   //                                                          PC_4
+   //                   ))))))))))  
+   val cond_met = MuxLookup(exe_br_type, false.B)( Seq(
+      BR_NE  -> !io.exe_ctl.br_eq,
+      BR_EQ  -> io.exe_ctl.br_eq,
+      BR_GE  -> !io.exe_ctl.br_lt,
+      BR_GEU -> !io.exe_ctl.br_ltu,
+      BR_LT  -> io.exe_ctl.br_lt,
+      BR_LTU -> io.exe_ctl.br_ltu
+   ))
+
+   val base_sel = MuxLookup(exe_br_type, PC_4)(  Seq(
+      BR_J  -> PC_BRJMP,
+      BR_JR -> PC_JALR
+   ))
+
+   val cond_sel = Mux(cond_met, PC_BRJMP, PC_4)
+
+   val is_cond_br = exe_br_type === BR_NE || exe_br_type === BR_EQ ||
+                  exe_br_type === BR_GE || exe_br_type === BR_GEU ||
+                  exe_br_type === BR_LT || exe_br_type === BR_LTU
+
+   val ctrl_exe_pc_sel = Mux(pipeline_kill, PC_EXC,
+                        Mux(exe_br_type === BR_N, PC_4,
+                        Mux(is_cond_br, cond_sel, base_sel)))
 
    // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
    val reg_fencei = RegNext(cs_fencei,N)
@@ -212,31 +235,31 @@ class Decoder(implicit val conf: Config) extends Module
    val imm_j_sext = Cat(Fill(11,imm_j(19)), imm_j, 0.U)
 
    // Operand 2 Mux
-   val alu_op2 = MuxCase(0.U, Array(
-               (cs_op2_sel === OP2_RS2)    -> rf_rs2_data,
-               (cs_op2_sel === OP2_ITYPE)  -> imm_i_sext,
-               (cs_op2_sel === OP2_STYPE)  -> imm_s_sext,
-               (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
-               (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
-               (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
-               )).asUInt
-   // val alu_op2 = {
-   //    // 创建查找表
-   //    val op2LookupTable = VecInit(Seq(
-   //       rf_rs2_data,   // OP2_RS2
-   //       imm_i_sext,    // OP2_ITYPE
-   //       imm_s_sext,    // OP2_STYPE
-   //       imm_b_sext,    // OP2_SBTYPE
-   //       imm_u_sext,    // OP2_UTYPE
-   //       imm_j_sext     // OP2_UJTYPE
-   //    ))
+   // val alu_op2 = MuxCase(0.U, Array(
+   //             (cs_op2_sel === OP2_RS2)    -> rf_rs2_data,
+   //             (cs_op2_sel === OP2_ITYPE)  -> imm_i_sext,
+   //             (cs_op2_sel === OP2_STYPE)  -> imm_s_sext,
+   //             (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
+   //             (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
+   //             (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
+   //             )).asUInt
+   val alu_op2 = {
+      // 创建查找表
+      val op2LookupTable = VecInit(Seq(
+         rf_rs2_data,   // OP2_RS2
+         imm_i_sext,    // OP2_ITYPE
+         imm_s_sext,    // OP2_STYPE
+         imm_b_sext,    // OP2_SBTYPE
+         imm_u_sext,    // OP2_UTYPE
+         imm_j_sext     // OP2_UJTYPE
+      ))
    
-   //    // 安全选择器（防止越界）
-   //    val safeSel = Mux(cs_op2_sel < op2LookupTable.size.U, cs_op2_sel, 0.U)
+      // 安全选择器（防止越界）
+      val safeSel = Mux(cs_op2_sel < op2LookupTable.size.U, cs_op2_sel, 0.U)
    
-   //    // 查找结果
-   //    op2LookupTable(safeSel)
-   // }
+      // 查找结果
+      op2LookupTable(safeSel)
+   }
 
    val op1_data = Wire(UInt(conf.xprlen.W))
    val op2_data = Wire(UInt(conf.xprlen.W))
