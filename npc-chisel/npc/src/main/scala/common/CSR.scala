@@ -121,8 +121,8 @@ class CSRFile(implicit val conf: Config) extends Module
 
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
 
-    // CSRs.marchid ->   24100012.U,
-    // CSRs.mvendorid -> 0x78797379.U,
+    CSRs.marchid ->   24100012.U,
+    CSRs.mvendorid -> 0x78797379.U,
     CSRs.mstatus -> read_mstatus,
     CSRs.mtvec -> reg_mtvec,      // kui: MTVEC is defined in constants.scala
 
