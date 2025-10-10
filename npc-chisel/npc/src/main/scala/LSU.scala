@@ -14,24 +14,16 @@ class LSUPipeIO(implicit val conf: Config) extends Bundle() {
     val pc              = Output(UInt(conf.xprlen.W))
     val pc_valid        = Output(Bool())
     val mem_resp_valid  = Output(Bool())
-    // val inst            = Output(UInt(12.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
     val debug           = Output(new LSUDebugPort)
 }
 
-class CtlToLSUlIO (implicit val conf: Config) extends Bundle() {
-    val mem_exception = Output(Bool())
-}
-
 class LSUTOCtlIO (implicit val conf: Config) extends Bundle() {
-    val ctrl_mem_val    = Output(Bool())
-    val alu_out         = Output(UInt(conf.xlen.W))
     val wbaddr          = Output(UInt(5.W))
     val wbdata          = Output(UInt(conf.xlen.W))
     val ctrl_rf_wen     = Output(Bool())
-    val inst_is_load    = Output(Bool())
-    val mem_exception   = Output(Bool())
+    // val mem_exception   = Output(Bool())
     val csr_eret        = Output(Bool())
 }
 
@@ -163,14 +155,10 @@ class LSU(implicit val conf: Config) extends Module {
     io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
     io.mem_wb.bits.debug            := io.debug
     
-    io.to_ctl.ctrl_mem_val      := mem_en
     io.to_ctl.wbdata            := wbdata
     io.to_ctl.wbaddr            := io.exe_mem.bits.wbaddr
     io.to_ctl.ctrl_rf_wen       := io.exe_mem.bits.ctrl_rf_wen
-    io.to_ctl.alu_out           := io.exe_mem.bits.alu_out
-    io.to_ctl.inst_is_load      := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
     io.to_ctl.csr_eret          := csr_files.io.eret
-    io.to_ctl.mem_exception     := exception
 
     /////////// Debug Port
     val storeCnt        = RegInit(0.U(conf.perfCountBits.W))

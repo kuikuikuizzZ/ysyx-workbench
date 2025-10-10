@@ -76,7 +76,6 @@ class InstFetch(implicit conf: Config) extends Module {
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill , BUBBLE,if_inst)
   io.ifu_dec.bits.pc := Cat(pc_reg(conf.xprlen-1,2),0.U(2.W))
-  io.ifu_dec.bits.pc_valid := Mux(should_kill|| cache.io.exception =/= EXC_NORMAL, false.B, true.B)
   io.ifu_dec.bits.exception := cache.io.exception
 
 

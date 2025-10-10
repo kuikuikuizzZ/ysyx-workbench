@@ -19,7 +19,6 @@ class DecPipeIO(implicit val conf: Config) extends Bundle()
    val op2_data         = Output(UInt(conf.xprlen.W))
    val rs2_data         = Output(UInt(conf.xprlen.W))
    val br_type          = Output(UInt(BR_N.getWidth.W))
-   val op2_sel          = Output(UInt(OP2_X.getWidth.W))
    val alu_fun          = Output(UInt(ALU_X.getWidth.W))
    val ctrl_wb_sel      = Output(UInt(WB_X.getWidth.W))
    val ctrl_rf_wen      = Output(Bool())
@@ -206,8 +205,7 @@ class Decoder(implicit val conf: Config) extends Module
    // val dec_exception = Mux(!cs_val_inst, EXC_ILLEGAL_INSTR ,io.ifu_dec.bits.exception)
    val dec_exception = io.ifu_dec.bits.exception
 
-   val mem_exception = io.lsu_ctl.mem_exception 
-   pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
+   pipeline_kill :=  io.lsu_ctl.csr_eret 
    io.ctl_sign.pipeline_kill := pipeline_kill
    
    // Stall Signal Logic --------------------
@@ -331,7 +329,7 @@ class Decoder(implicit val conf: Config) extends Module
       io.dec_exe.bits.op1_data      := 0.U
       io.dec_exe.bits.op2_data      := 0.U
       io.dec_exe.bits.rs2_data      := 0.U
-      io.dec_exe.bits.op2_sel       := OP2_X
+      // io.dec_exe.bits.op2_sel       := OP2_X
       io.dec_exe.bits.alu_fun       := ALU_X
       io.dec_exe.bits.ctrl_wb_sel   := WB_X
       io.dec_exe.bits.ctrl_mem_typ  := MT_X
@@ -343,7 +341,7 @@ class Decoder(implicit val conf: Config) extends Module
       io.dec_exe.bits.op1_data      := op1_data
       io.dec_exe.bits.op2_data      := op2_data
       io.dec_exe.bits.rs2_data      := rs2_data
-      io.dec_exe.bits.op2_sel       := cs_op2_sel
+      // io.dec_exe.bits.op2_sel       := cs_op2_sel
       io.dec_exe.bits.alu_fun       := cs_alu_fun
       io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
 
