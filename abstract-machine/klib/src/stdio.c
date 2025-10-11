@@ -43,6 +43,34 @@ int printf(const char *fmt, ...) {
           putstr(s);
           rc+= strlen(s);
           break;
+        case 'p':{
+          void* ptr = va_arg(argp, void*);
+          uintptr_t addr = (uintptr_t)ptr;
+          
+          // 添加 "0x" 前缀
+          putstr("0x");
+          rc += 2;
+          
+          // 转换为十六进制字符串
+          klib_itoa(addr, s, ITOA_HEX);
+          
+          // 确保固定宽度（根据系统指针大小）
+          int len = strlen(s);
+          int ptr_size = sizeof(void*) * 2; // 每个字节对应2个十六进制字符
+          
+          // 添加前导零使宽度一致
+          if (len < ptr_size) {
+              int zeros = ptr_size - len;
+              for (int j = 0; j < zeros; j++) {
+                  putch('0');
+                  rc++;
+              }
+          }
+          
+          putstr(s);
+          rc += len;
+        }
+        break;
         default:
           break;
         }
