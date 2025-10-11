@@ -7,7 +7,6 @@ static Context* (*user_handler)(Event, Context*) = NULL;
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
-    printf("[riscv] trap in user mode: %d\n", c->mcause);
     switch (c->mcause) {
       // Environment call from M-mode
       case 11: ev.event = EVENT_YIELD;break;
