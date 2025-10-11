@@ -31,7 +31,14 @@ config MEM_RANDOM
   help
     This may help to find undefined behaviors.
 
+config YSYXSOC
+    bool "Enable YSYXSOC platform"
+    default n
+    help
+      This option is used to enable the YSYXSOC platform support.
+
 config HAS_MROM
+  depends on YSYXSOC
    bool "Enable MROM memory valid"
    default n
 
@@ -46,8 +53,9 @@ config MROM_SIZE
   default 0x1000
 
 config HAS_SRAM
-   bool "Enable SRAM memory "
-   default n
+  depends on YSYXSOC
+  bool "Enable SRAM memory "
+  default n
 
 config SRAM_BASE 
   depends on HAS_SRAM
@@ -60,8 +68,9 @@ config SRAM_SIZE
   default 0x2000
 
 config HAS_PSRAM
-   bool "Enable PSRAM memory "
-   default n
+  depends on YSYXSOC
+  bool "Enable PSRAM memory "
+  default n
 
 config PSRAM_BASE 
   depends on HAS_PSRAM
@@ -74,8 +83,9 @@ config PSRAM_SIZE
   default 0x200000
 
 config HAS_FLASH
-   bool "Enable FLASH memory "
-   default n
+  depends on YSYXSOC
+  bool "Enable FLASH memory "
+  default n
 
 config FLASH_BASE 
   depends on HAS_FLASH
@@ -88,8 +98,9 @@ config FLASH_SIZE
   default 0x2000000
 
 config HAS_SDRAM
-   bool "Enable SDRAM memory "
-   default n
+  depends on YSYXSOC
+  bool "Enable SDRAM memory "
+  default n
 
 config SDRAM_BASE 
   depends on HAS_SDRAM
@@ -102,8 +113,9 @@ config SDRAM_SIZE
   default 0x10000000
 
 config HAS_UART
-   bool "Enable UART "
-   default n
+  depends on YSYXSOC
+  bool "Enable UART "
+  default n
 
 config UART_BASE 
   depends on HAS_UART
@@ -116,8 +128,9 @@ config UART_SIZE
   default 0x100
 
 config HAS_CLINT
-   bool "Enable CLINT "
-   default n
+  depends on YSYXSOC
+  bool "Enable CLINT "
+  default n
 
 config CLINT_BASE 
   depends on HAS_CLINT
@@ -128,7 +141,6 @@ config CLINT_SIZE
   depends on HAS_CLINT
   hex "CLINT size"
   default 0x10000
-
 
 
 endmenu #MEMORY
