@@ -18,7 +18,6 @@ int elf_check_file(Elf_Ehdr *header){
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
   int fd = fs_open(filename, 0, 0);
-  printf("Loading %s, fd %d \n", filename,fd);
   Elf_Ehdr ehdr;
   if (fs_read(fd,&ehdr,sizeof(ehdr)) != sizeof(ehdr)) {
     panic("read() %s failed",filename);
@@ -27,7 +26,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     panic("Invalid ELF file: %s", filename);
   }
   Elf_Phdr *phdr=malloc(ehdr.e_phnum*ehdr.e_phentsize);
-  printf(" %s, fd %d ph_num %d\n", filename,fd,ehdr.e_phnum);
 
   fs_lseek(fd, ehdr.e_phoff, SEEK_SET);
   if (fs_read(fd,phdr,ehdr.e_phentsize*ehdr.e_phnum) != ehdr.e_phentsize*ehdr.e_phnum) {
