@@ -46,3 +46,9 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw) {
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
   status->ready = true;
 }
+
+void __am_gpu_memcpy(AM_GPU_MEMCPY_T *ctl) {
+  void *dst = (void *)(uintptr_t)(FB_ADDR + ctl->dest);
+  memcpy(dst, ctl->src, ctl->size);
+  outl(SYNC_ADDR, 1);
+}
