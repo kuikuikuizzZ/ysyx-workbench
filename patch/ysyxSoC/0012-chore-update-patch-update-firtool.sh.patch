@@ -1,7 +1,7 @@
 From bdf560e19194b148eb02001766e544700c296633 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Wed, 6 Aug 2025 17:32:38 +0800
-Subject: [PATCH 12/22] chore(*): update patch/update-firtool.sh
+Subject: [PATCH 12/23] chore(*): update patch/update-firtool.sh
 
 ---
  patch/update-firtool.sh | 5 ++++-

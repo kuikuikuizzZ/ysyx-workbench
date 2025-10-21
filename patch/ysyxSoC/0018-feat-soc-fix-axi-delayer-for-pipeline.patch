@@ -1,7 +1,7 @@
 From 05f03475bfcca8cec4e1f21a0fe679f97565f7f5 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Sat, 6 Sep 2025 20:14:02 +0800
-Subject: [PATCH 18/22] feat(soc): fix axi delayer for pipeline
+Subject: [PATCH 18/23] feat(soc): fix axi delayer for pipeline
 
 ---
  Makefile                   |  4 ++--

@@ -1,7 +1,7 @@
 From ae0c08e64dc7689275b5f1b11b70102fc4ca18a5 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Tue, 30 Sep 2025 11:45:08 +0800
-Subject: [PATCH 22/22] feat(soc): rm old fix
+Subject: [PATCH 22/23] feat(soc): rm old fix
 
 ---
  src/SoC.scala              | 16 ++++++++--------

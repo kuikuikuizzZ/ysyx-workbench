@@ -1,7 +1,7 @@
 From 0f5de36c6c462c72a12e863fe8c4ae9e8564277d Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Mon, 4 Aug 2025 16:47:51 +0800
-Subject: [PATCH 08/22] feat(soc): use neg edge for sdram
+Subject: [PATCH 08/23] feat(soc): use neg edge for sdram
 
 ---
  perip/sdram/core_sdram_axi4/sdram_axi_core.v |  5 ++--

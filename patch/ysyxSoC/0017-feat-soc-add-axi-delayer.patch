@@ -1,7 +1,7 @@
 From 7b930f78f1fb84abe14613844f03be69e3787835 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Fri, 22 Aug 2025 19:22:00 +0800
-Subject: [PATCH 17/22] feat(soc): add axi delayer
+Subject: [PATCH 17/23] feat(soc): add axi delayer
 
 ---
  src/amba/AXI4Delayer.scala | 81 +++++++++++++++++++++++++++++++++++++-

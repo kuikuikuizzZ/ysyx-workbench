@@ -1,7 +1,7 @@
 From d464e35a16c16cd296becc36ae6c52dd9350a091 Mon Sep 17 00:00:00 2001
 From: "wuwenhui.wuwh" <wuwenhui.wuwh@bytedance.com>
 Date: Wed, 6 Aug 2025 17:18:31 +0800
-Subject: [PATCH 11/22] fix(sdram): sdram core activate no precharge
+Subject: [PATCH 11/23] fix(sdram): sdram core activate no precharge
 
 ---
  Makefile                                     | 4 ++--
