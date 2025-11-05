@@ -131,9 +131,8 @@ static void out_of_bound(paddr_t addr) {
     RingBuffer_get(log_buff,itrace_log,RingBuffer_length(log_buff));
     log_write("%s\n", itrace_log);
   #endif
-  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "], sdram:" FMT_PADDR ", psram:" FMT_PADDR ",flash:" FMT_PADDR ",sram:" FMT_PADDR ",mrom:" FMT_PADDR " at pc = " FMT_WORD, 
-    addr, PMEM_LEFT, PMEM_RIGHT, 0x10000000,0x10000000,
-    CONFIG_FLASH_BASE,CONFIG_SRAM_BASE,CONFIG_MROM_BASE, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "], at pc = " FMT_WORD, 
+    addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }
 
 
