@@ -1,7 +1,7 @@
 From f46feeee1077b2ea07c326decb9d95e5f3542571 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Sat, 27 Sep 2025 14:21:12 +0800
-Subject: [PATCH 3/3] feat(uart): support uart rx
+Subject: [PATCH 3/4] feat(uart): support uart rx
 
 ---
  bsp/abstract-machine/src/uart.c | 6 ++++--
