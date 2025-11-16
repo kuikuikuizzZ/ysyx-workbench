@@ -102,9 +102,9 @@ SECTIONS {
   } > sdram AT> flash
   _bss_end = .;
   _heap_start = ALIGN(0x2000000);
-  . = 0xa4000000;
+  . = 0x0f000000;
   _stack_top =  ALIGN(0x1000) ;
-  . = 0xa8000000;
+  . = 0x0f002000;
   _stack_pointer = .;
   end = .;
   _end = .;

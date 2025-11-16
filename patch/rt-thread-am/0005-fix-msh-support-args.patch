@@ -1,12 +1,12 @@
-From 556b572911ec7cc9c9f92e00e3f68c87b8a2779b Mon Sep 17 00:00:00 2001
+From 8b8d04699c1baaeaa8507b2fea20f4b7cd3213e7 Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Sun, 16 Nov 2025 19:10:22 +0800
 Subject: [PATCH 5/5] fix(msh): support args
 
 ---
  bsp/abstract-machine/src/context.c |  2 +-
- components/finsh/msh.c             | 15 ++++++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ components/finsh/msh.c             | 13 ++++++++++---
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/bsp/abstract-machine/src/context.c b/bsp/abstract-machine/src/context.c
 index a00960462..6fb65af33 100644
@@ -29,18 +29,10 @@ index a00960462..6fb65af33 100644
    stk  = (rt_uint8_t *)ALIGN((uintptr_t)stk, 8);
    stk -= sizeof(kcontext_args);
 diff --git a/components/finsh/msh.c b/components/finsh/msh.c
-index a63e34ddf..1965b2d6f 100644
+index a63e34ddf..e632b8b1e 100644
 --- a/components/finsh/msh.c
 +++ b/components/finsh/msh.c
-@@ -163,6 +163,7 @@ static int msh_split(char *cmd, rt_size_t length, char *argv[FINSH_ARG_MAX])
-                 ptr ++;
-                 position ++;
-             }
-+            rt_kprintf("[%d] %s\n", argc - 1, argv[argc - 1]);
-             if (position >= length) break;
-         }
-     }
-@@ -278,16 +279,24 @@ static int _msh_exec_cmd(char *cmd, rt_size_t length, int *retp)
+@@ -278,16 +278,23 @@ static int _msh_exec_cmd(char *cmd, rt_size_t length, int *retp)
          cmd0_size ++;
      if (cmd0_size == 0)
          return -RT_ERROR;
@@ -53,7 +45,6 @@ index a63e34ddf..1965b2d6f 100644
 +    cmd_func = msh_get_cmd(tmp_cmd, cmd0_size);
      if (cmd_func == RT_NULL)
 +    { 
-+        rt_kprintf("Unknown command: '%s' %d, %d.\n", cmd,cmd0_size);
          return -RT_ERROR;
 +    }
  
@@ -67,7 +58,7 @@ index a63e34ddf..1965b2d6f 100644
  
      /* exec this command */
      *retp = cmd_func(argc, argv);
-@@ -538,7 +547,7 @@ int msh_exec(char *cmd, rt_size_t length)
+@@ -538,7 +545,7 @@ int msh_exec(char *cmd, rt_size_t length)
          }
          *tcmd = '\0';
      }
