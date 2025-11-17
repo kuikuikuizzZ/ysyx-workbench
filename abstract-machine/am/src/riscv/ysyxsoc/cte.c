@@ -9,14 +9,17 @@ Context* __am_irq_handle(Context *c) {
     Event ev = {0};
     switch (c->mcause) {
       // Environment call from M-mode
-      case 11: ev.event = EVENT_YIELD;break;
+      case 11: 
+        ev.event = EVENT_YIELD;
+        c->mepc += 4;
+        break;
       case 0x80000007: ev.event = EVENT_IRQ_TIMER;break;
       default: ev.event = EVENT_ERROR; break;
     }
     c = user_handler(ev, c);
     assert(c != NULL);
+    
   }
-
   return c;
 }
 
@@ -39,10 +42,11 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *c = kstack.end-sizeof(Context);              // ? pointer kstart 
-  c->mstatus = 0x1800;   
-  c-> mepc = (uint32_t)entry;             // mepc is set to entry 
-  c->gpr[10] =(uint32_t)arg;              // a0 = &arg
-  c->gpr[2] = (uint32_t)kstack.start;     // sp = kstack.start for after __am_irq_handle will addi sp, sp CONTEXT_SIZE?
+  c->mstatus = 0x1800;  
+  c->mcause = 11; 
+  c-> mepc = (uintptr_t)entry;             // mepc is set to entry 
+  c->gpr[10] =(uintptr_t)arg;              // a0 = &arg
+  c->gpr[2] = (uintptr_t)c;               // sp = kstack.start for after __am_irq_handle will addi sp, sp CONTEXT_SIZE?
   return c;
 }
 
