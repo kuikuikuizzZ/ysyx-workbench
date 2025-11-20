@@ -7,7 +7,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import npc.common._
 import npc._
 
-class MemPort(val data_width: Int)(implicit val conf: ysyx_24100012_Config)  extends Module {
+class MemPort(val data_width: Int)(implicit val conf: Config)  extends Module {
   val io = IO(Flipped(new MemPortIo(data_width)))
   val memSize = 256  // byte
   val mem = Mem(memSize, UInt(32.W))
@@ -20,7 +20,7 @@ class MemPort(val data_width: Int)(implicit val conf: ysyx_24100012_Config)  ext
 }
 
 class CacheTest extends Module {
-  implicit val conf = ysyx_24100012_Config()
+  implicit val conf = Config()
   val io = IO(new Bundle {
     val req = new ICacheIO
     val block = Input(Bool())
@@ -30,7 +30,7 @@ class CacheTest extends Module {
   val mem = Module(new MemPort(32) )
   val refMem = Module(new MemPort(32) )
   
-  val dut = Module(new ysyx_24100012_ICache)
+  val dut = Module(new ICache)
   dut.io.fencei := false.B
   dut.io.req_valid := true.B
   dut.io.pc <> io.req.pc

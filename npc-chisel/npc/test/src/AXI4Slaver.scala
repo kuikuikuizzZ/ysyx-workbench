@@ -1,3 +1,5 @@
+package npc
+
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -5,11 +7,11 @@ import org.scalatest.matchers.must.Matchers
 import npc.common._
 import npc._
 
-class AXI4LiteSlaveTest extends AnyFlatSpec with Matchers {
+class TopAXI4LiteSlaveTest extends AnyFlatSpec with Matchers {
   // 测试配置
 
   // 状态推断函数（仅通过IO信号）
-  def inferState(dut: ysyx_24100012_AXI4LiteSlave): String = {
+  def inferState(dut: TopAXI4LiteSlave): String = {
     var state = dut.io.debug.state.peekValue().asBigInt.toInt
     val state_string = 
         state match {
@@ -21,10 +23,10 @@ class AXI4LiteSlaveTest extends AnyFlatSpec with Matchers {
     state_string
   }
 
-  "AXI4LiteSlave" should "handle multi-cycle read delays correctly" in {
-    implicit val conf = ysyx_24100012_Config()
+  "TopAXI4LiteSlave" should "handle multi-cycle read delays correctly" in {
+    implicit val conf = Config()
 
-    simulate(new ysyx_24100012_AXI4LiteSlave()) { dut =>
+    simulate(new TopAXI4LiteSlave()) { dut =>
       implicit val clock = dut.clock
       
       // 初始化信号
@@ -85,10 +87,10 @@ class AXI4LiteSlaveTest extends AnyFlatSpec with Matchers {
       clock.step(2)
     }}
 
-"AXI4LiteSlave" should "handle multi-cycle write delays correctly" in {
-    implicit val conf = ysyx_24100012_Config()
+"TopAXI4LiteSlave" should "handle multi-cycle write delays correctly" in {
+    implicit val conf = Config()
 
-    simulate(new ysyx_24100012_AXI4LiteSlave()) { dut =>
+    simulate(new TopAXI4LiteSlave()) { dut =>
       implicit val clock = dut.clock
       /**************** 测试用例2：写操作多周期延迟 ****************/
       println("\n===== TEST 2: Write with multi-cycle delays =====")
@@ -141,9 +143,9 @@ class AXI4LiteSlaveTest extends AnyFlatSpec with Matchers {
       clock.step(2)
     }}
 
-"AXI4LiteSlave" should "handle multi-cycle write/read delays correctly" in {
-    implicit val conf = ysyx_24100012_Config()
-    simulate(new ysyx_24100012_AXI4LiteSlave()) { dut =>
+"TopAXI4LiteSlave" should "handle multi-cycle write/read delays correctly" in {
+    implicit val conf = Config()
+    simulate(new TopAXI4LiteSlave()) { dut =>
     implicit val clock = dut.clock
 
       /**************** 测试用例3：并发读写操作 ****************/

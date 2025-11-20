@@ -110,6 +110,12 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
         val axi_io  =   new AXI4LiteIo()
         val req     =   new AXI4Req(conf.xlen)
         val resp    =   new DecoupledIO(new AXI4Resp(conf.xlen))
+        val debug   =   new Bundle{
+            val rstate = Output(UInt(2.W))
+            val wstate = Output(UInt(2.W))
+            val is_write = Output(Bool())
+            val is_read = Output(Bool())
+        }
     })
     io := DontCare
     io.resp.bits := DontCare
@@ -212,6 +218,12 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     io.resp.valid := Mux(wstate =/= ws_idle ,(io.axi_io.b.valid),io.axi_io.r.valid)
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid, io.axi_io.r.resp ,
                           Mux(io.axi_io.b.valid , io.axi_io.b.resp, 0.U ))
+
+    ///// Debug signals
+    io.debug.rstate     := rstate
+    io.debug.wstate     := wstate
+    io.debug.is_write   := is_write
+    io.debug.is_read    := is_read
 }
 
 
