@@ -6,41 +6,6 @@ import chisel3.util._
 import Constants._
 import Util._
 
-class MStatus extends Bundle {
-    // not truly part of mstatus, but convenient
-  val debug = Bool()
-  val prv = UInt(PRV.SZ.W) // not truly part of mstatus, but convenient
-  val sd = Bool()
-  val zero1 = UInt(8.W)
-  val tsr = Bool()
-  val tw = Bool()
-  val tvm = Bool()
-  val mxr = Bool()
-  val sum = Bool()
-  val mprv = Bool()
-  val xs = UInt(2.W)
-  val fs = UInt(2.W)
-  val mpp = UInt(2.W)
-  val hpp = UInt(2.W)
-  val spp = UInt(1.W)
-  val mpie = Bool()
-  val hpie = Bool()
-  val spie = Bool()
-  val upie = Bool()
-  val mie = Bool()
-  val hie = Bool()
-  val sie = Bool()
-  val uie = Bool()
-}
-
-object PRV
-{
-  val SZ = 2
-  val U = 0.U(SZ.W)
-  val S = 1.U(SZ.W)
-  val H = 2.U(SZ.W)
-  val M = 3.U(SZ.W)
-}
 
 object CSR
 {
@@ -55,17 +20,6 @@ object CSR
   def C = 7.U(SZ.W)
 
   val ADDRSZ = 12
-  val firstCtr = CSRs.cycle
-  val firstCtrH = CSRs.cycleh
-  val firstHPC = CSRs.hpmcounter3
-  val firstHPCH = CSRs.hpmcounter3h
-  //val firstHPE = CSRs.mhpmevent3
-  val firstMHPC = CSRs.mhpmcounter3
-  val firstMHPCH = CSRs.mhpmcounter3h
-  val firstHPM = 3
-  val nCtr = 32
-  val nHPM = nCtr - firstHPM
-  val hpmWidth = 40
 }
 
 
@@ -79,26 +33,19 @@ class CSRFileIO(implicit val conf: Config) extends Bundle {
     val wdata = Input(UInt(conf.xprlen.W))
   }
 
-  // val csr_stall = Output(Bool())
   val insn_break = Output(Bool())
   val eret = Output(Bool())
-  // val singleStep = Output(Bool())
 
   val decode = new Bundle {
     val csr = Input(UInt(CSR.ADDRSZ.W))
-    // val read_illegal = Output(Bool())
-    // val write_illegal = Output(Bool())
-    // val system_illegal = Output(Bool())
   }
 
-  // val status = Output(new MStatus())
   val status = Output(UInt(conf.xprlen.W)) // using UInt for simplicity, can be changed to MStatus if needed
   val evec = Output(UInt(conf.xprlen.W))
   val exception = Input(UInt(5.W))
   val pc = Input(UInt(conf.xprlen.W))
   val retire = Input(Bool())
-  // val time = Output(UInt(conf.xprlen.W))
-  // val counters = Vec(60, new PerfCounterIO)
+
 
 }
 
@@ -145,13 +92,6 @@ class CSRFile(implicit val conf: Config) extends Module
   val insn_break = system_insn && opcode(1)
   val insn_ret = system_insn && opcode(2) && priv_sufficient
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
-
-  // private def decodeAny(m: collection.mutable.LinkedHashMap[Int,Bits]): Bool = m.map { case(k: Int, _: Bits) => io.decode.csr === k }.reduce(_||_)
-  // io.decode.read_illegal := reg_mstatus.prv < io.decode.csr(9,8) || !decodeAny(read_mapping) ||
-  //   (io.decode.csr.inRange(CSR.firstCtr, CSR.firstCtr + CSR.nCtr) || io.decode.csr.inRange(CSR.firstCtrH, CSR.firstCtrH + CSR.nCtr))
-  // io.decode.write_illegal := io.decode.csr(11,10).andR
-  // io.decode.system_illegal := reg_mstatus.prv < io.decode.csr(9,8)
-
   io.status := reg_mstatus
 
   io.eret := insn_call || insn_break || insn_ret
@@ -161,12 +101,6 @@ class CSRFile(implicit val conf: Config) extends Module
   when (io.exception =/= 0.U) {
     reg_mcause :=  Cat(0.U(1.W),io.exception(3,0))
   }
-
-  // assert(PopCount(insn_ret :: io.exception =/=0.U :: Nil) <= 1, "these conditions must be mutually exclusive")
-
-  //  when (reg_time >= reg_mtimecmp) {
-  //     reg_mip.mtip := true
-  //  }
 
   // io.evec must be held stable for more than one cycle for the
   // microcoded code to correctly redirect the PC on exceptions
@@ -181,7 +115,6 @@ class CSRFile(implicit val conf: Config) extends Module
 
   //ECALL
   when(insn_call){
-    // reg_mcause := reg_mstatus.prv + Causes.user_ecall
     reg_mcause := Causes.machine_ecall
     io.evec := reg_mtvec
 
@@ -207,8 +140,6 @@ class CSRFile(implicit val conf: Config) extends Module
     }
     when (decoded_addr(CSRs.mtvec))    { reg_mtvec := wdata }
     when (decoded_addr(CSRs.mepc))     { reg_mepc := (wdata(conf.xprlen-1,0) >> 2.U) << 2.U }
-    // when (decoded_addr(CSRs.mcause))   { reg_mcause := wdata(4,0)  /* only implement 5 LSBs and MSB */ }
-    // when (decoded_addr(CSRs.mtval))    { reg_mtval := wdata(conf.xprlen-1,0) }
   }
 
   def readModifyWriteCSR(cmd: UInt, rdata: UInt, wdata: UInt) =

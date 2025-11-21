@@ -134,7 +134,8 @@ class AXI4LiteMasterTest extends AnyFlatSpec with Matchers {
       // 立即执行写操作
       dut.io.req.waddr.poke(0x7000.U)
       dut.io.req.data.poke(0x12345678.U)
-      dut.io.req.mask.poke("b1111".U)
+      dut.io.req.mask.poke("b0001".U)
+      dut.io.req.typ.poke(3.U)
       dut.io.req.wen.poke(true.B)
       dut.io.req.ren.poke(false.B)
       dut.clock.step(2)
@@ -146,6 +147,9 @@ class AXI4LiteMasterTest extends AnyFlatSpec with Matchers {
 
       dut.io.debug.is_write.expect(true.B)
       dut.io.debug.wstate.expect(2.U) // ws_wait_ready
+      dut.io.axi_io.w.data.expect(0x12345678.U)
+      dut.io.axi_io.aw.size.expect(2.U)
+      dut.io.axi_io.w.strb.expect("b0001".U)
 
       dut.io.axi_io.b.valid.poke(true.B)
       dut.io.axi_io.b.resp.poke(0.U)
@@ -160,6 +164,7 @@ class AXI4LiteMasterTest extends AnyFlatSpec with Matchers {
       dut.io.resp.bits.resp.expect(0.U)
     }
   }
+
 
 
 
@@ -224,11 +229,13 @@ class AXI4LiteMasterTest extends AnyFlatSpec with Matchers {
       // 先执行读操作
       dut.io.req.raddr.poke(0x6000.U)
       dut.io.req.ren.poke(true.B)
+      dut.io.req.typ.poke(2.U)
       dut.io.req.wen.poke(false.B)
       
       dut.io.axi_io.ar.ready.poke(true.B)
       dut.clock.step(2)
       dut.io.req.ren.poke(false.B)
+      dut.io.axi_io.ar.size.expect(1.U)
 
       dut.io.axi_io.r.valid.poke(true.B)
       dut.io.axi_io.r.data.poke(0xAAA5555.U)
@@ -251,12 +258,16 @@ class AXI4LiteMasterTest extends AnyFlatSpec with Matchers {
       dut.io.req.waddr.poke(0x7000.U)
       dut.io.req.data.poke(0x12345678.U)
       dut.io.req.mask.poke("b1111".U)
+      dut.io.req.typ.poke(1.U)
       dut.io.req.wen.poke(true.B)
       dut.io.req.ren.poke(false.B)
       
       dut.io.axi_io.aw.ready.poke(true.B)
       dut.io.axi_io.w.ready.poke(true.B)
       dut.clock.step(2)
+      dut.io.axi_io.aw.size.expect(0.U)
+      dut.io.axi_io.w.strb.expect("b1111".U)
+
 
       dut.io.axi_io.b.valid.poke(true.B)
       dut.io.axi_io.b.resp.poke(0.U)

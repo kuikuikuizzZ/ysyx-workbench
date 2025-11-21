@@ -186,7 +186,6 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
         is (rs_wait_arready){ rstate := Mux(arfire || (io.axi_io.ar.valid && io.axi_io.ar.ready), rs_wait_rlast, rs_wait_arready)}
         is (rs_wait_rlast){ 
             // rlast is high when rvalid is high
-            // rstate := Mux(io.axi_io.r.last || (rstate === rs_wait_rlast) && (rfire), rs_idle, rs_wait_rlast)
             rstate := Mux(io.axi_io.r.last && io.axi_io.r.valid , rs_idle, rs_wait_rlast)
             when (io.axi_io.r.valid){ io.resp.bits.data  := io.axi_io.r.data}
         }
