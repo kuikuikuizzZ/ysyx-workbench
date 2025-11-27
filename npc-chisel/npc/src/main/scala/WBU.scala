@@ -37,8 +37,6 @@ class WBU(implicit val conf: Config) extends Module {
     io := DontCare
     io.ebreak            := io.mem_wb.bits.ebreak
     io.wb_pc             := Mux(io.mem_wb.bits.pc_valid, io.mem_wb.bits.pc, reg_pc)
-    // io.wb_pc             := io.mem_wb.bits.pc
-    // io.wb_inst           := io.mem_wb.bits.inst
     io.mem_wb.ready := true.B
 
     io.to_ctl.wbdata        := io.mem_wb.bits.data

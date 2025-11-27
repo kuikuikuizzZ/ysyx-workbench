@@ -14,7 +14,6 @@ class LSUPipeIO(implicit val conf: Config) extends Bundle() {
     val pc              = Output(UInt(conf.xprlen.W))
     val pc_valid        = Output(Bool())
     val mem_resp_valid  = Output(Bool())
-    // val inst            = Output(UInt(12.W))
     val ebreak          = Output(Bool())
     val ctrl_rf_wen     = Output(Bool())
     val debug           = Output(new LSUDebugPort)
@@ -66,7 +65,6 @@ class CSRFiles(implicit val conf: Config) extends Module {
     csr.io.decode.csr   := io.csr_inst
     csr.io.rw.cmd       := io.csr_cmd
     csr.io.rw.wdata     := io.alu_out
-    // csr.io.retire    := !(io.exe_mem.bits.stall || io.exe_mem.bits.exception)
     csr.io.exception := io.exception
     csr.io.pc           := io.pc
     io.exception_target := csr.io.evec
@@ -74,8 +72,6 @@ class CSRFiles(implicit val conf: Config) extends Module {
     io.ebreak := csr.io.insn_break
     io.eret := csr.io.eret
 
-    // Add your own uarch counters here!
-    // csr.io.counters.foreach(_.inc := false.B)
 }
 class LSUIO(implicit val conf: Config) extends Bundle {
     val exe_mem             = Flipped(new DecoupledIO(new EXEPipeIO()))
@@ -94,7 +90,6 @@ class LSU(implicit val conf: Config) extends Module {
     val io = IO(new LSUIO())
     io := DontCare
     
-    // val valid = Wire(Bool())
     val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
@@ -138,7 +133,6 @@ class LSU(implicit val conf: Config) extends Module {
     val mem_exception   = Mux(in_clint, 0.U,                    (io.port.resp.bits.resp))
     val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    ( io.port.resp.bits.data))
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
-    // val ready = Mux(mem_ready,mem_ready, RegEnable(mem_ready,mem_ready || io.exe_mem.valid))
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready
 

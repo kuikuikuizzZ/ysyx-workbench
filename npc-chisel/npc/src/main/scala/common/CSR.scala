@@ -64,7 +64,6 @@ class CSRFile(implicit val conf: Config) extends Module
   val cpu_ren = io.rw.cmd =/= CSR.N && !system_insn
 
   val read_mstatus = io.status.asUInt
-  val isa_string = "I"
 
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
 

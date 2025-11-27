@@ -213,7 +213,6 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
         is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)}
     }
 
-    // io.resp.valid := Mux(is_write ,(wstate === ws_wait_bvalid)&&(bfire) , (io.axi_io.r.valid) )
     io.resp.valid := Mux(wstate =/= ws_idle ,(io.axi_io.b.valid),io.axi_io.r.valid)
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid, io.axi_io.r.resp ,
                           Mux(io.axi_io.b.valid , io.axi_io.b.resp, 0.U ))

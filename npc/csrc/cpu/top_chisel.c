@@ -211,9 +211,9 @@ uint32_t top_halt(){
 
 
 uint32_t top_inst() {
-    if (!_rootp) return 0;
-    IFDEF(CONFIG_SOC,inst=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
-    IFNDEF(CONFIG_SOC,inst=(uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
+    // if (!_rootp) return 0;
+    // IFDEF(CONFIG_SOC,inst=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
+    // IFNDEF(CONFIG_SOC,inst=(uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__inst_fetch__DOT___cache_io_inst);
  
     return inst;
 }

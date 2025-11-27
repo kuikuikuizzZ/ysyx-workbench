@@ -1,4 +1,4 @@
-From da53f7ed54208e88f8a1ab9eda3e8e423817074f Mon Sep 17 00:00:00 2001
+From e50ec1759caab1abcc613e560ac22386d7bf320b Mon Sep 17 00:00:00 2001
 From: kuikuikuizzZ <kimmmywu@gmail.com>
 Date: Sun, 16 Nov 2025 19:10:22 +0800
 Subject: [PATCH 5/5] fix(msh): support args
@@ -9,7 +9,7 @@ Subject: [PATCH 5/5] fix(msh): support args
  2 files changed, 31 insertions(+), 12 deletions(-)
 
 diff --git a/bsp/abstract-machine/src/context.c b/bsp/abstract-machine/src/context.c
-index a00960462..e934e2ad8 100644
+index a00960462..de41c0b51 100644
 --- a/bsp/abstract-machine/src/context.c
 +++ b/bsp/abstract-machine/src/context.c
 @@ -1,6 +1,7 @@
@@ -27,7 +27,7 @@ index a00960462..e934e2ad8 100644
 +typedef struct {
 +  rt_ubase_t to;
 +  rt_ubase_t from;
-+} deliver;
++} rt_switch_node;
 +
  static Context* ev_handler(Event e, Context *c) {
    Context *res = NULL;
@@ -35,7 +35,7 @@ index a00960462..e934e2ad8 100644
      case EVENT_YIELD:  
 -      rt_thread_t self = rt_thread_self();
 -      res = *(Context**)self->user_data; 
-+      deliver* tf = (deliver*)(rt_thread_self()->user_data);
++      rt_switch_node* tf = (rt_switch_node*)(rt_thread_self()->user_data);
 +      if (tf->from != 0) *((void**)tf->from) = c;
 +      res = *((void**)tf->to); 
        break;      // yield
@@ -66,7 +66,7 @@ index a00960462..e934e2ad8 100644
 +{
 +  rt_thread_t curr = rt_thread_self();
 +  rt_ubase_t tmp_data = curr->user_data;
-+  deliver tf = {to, 0};
++  rt_switch_node tf = {to, 0};
 +  curr->user_data = (rt_ubase_t)&tf;
    yield();
 -  self->user_data = user_data;
@@ -77,7 +77,7 @@ index a00960462..e934e2ad8 100644
    rt_thread_t self = rt_thread_self();
    rt_ubase_t user_data = self->user_data;
 -  self->user_data = to;
-+  deliver tf = {to, from};
++  rt_switch_node tf = {to, from};
 +  self->user_data = (rt_ubase_t)&tf;
    yield();
    self->user_data = user_data;

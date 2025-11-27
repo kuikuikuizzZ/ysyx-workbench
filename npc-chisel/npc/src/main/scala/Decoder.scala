@@ -128,8 +128,6 @@ class Decoder(implicit val conf: Config) extends Module
                   ECALL  -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
                   MRET   -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
                   EBREAK -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
-                  // DRET   -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
-                  // WFI    -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.N, N), // implemented as a NOP
 
                   FENCE_I-> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.N, Y),
                   // kill pipeline and refetch instructions since the pipeline will be holding stall instructions.
@@ -194,16 +192,12 @@ class Decoder(implicit val conf: Config) extends Module
 
 
 
-   // val ifkill  = (ctrl_exe_pc_sel =/= PC_4) || !io.icache_valid || cs_fencei || RegNext(cs_fencei)
-   // val reg_fencei = RegNext(cs_fencei,N)
-   // val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei || reg_fencei
    val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei 
    val deckill    = (ctrl_exe_pc_sel =/= PC_4)
 
    // Exception Handling ---------------------
 
    // NOTE: initialization 0 will error 
-   // val dec_exception = Mux(!cs_val_inst, EXC_ILLEGAL_INSTR ,io.ifu_dec.bits.exception)
    val dec_exception = io.ifu_dec.bits.exception
 
    val mem_exception = io.lsu_ctl.mem_exception 
@@ -221,7 +215,6 @@ class Decoder(implicit val conf: Config) extends Module
    io.ctl_sign.if_kill := ifkill
    io.ctl_sign.dec_kill := deckill
    io.ctl_sign.pipeline_kill := pipeline_kill
-   // io.ctl_sign.fencei := cs_fencei || reg_fencei
    io.ctl_sign.fencei := cs_fencei 
 
    // immediates
