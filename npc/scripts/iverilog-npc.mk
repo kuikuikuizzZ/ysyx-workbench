@@ -9,7 +9,7 @@ CHISEL_IVERILOG_CONFIG+=NPC_ENABLE_IVERILOG=true
 IVERILOG_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_main.v
 NETLIST_MAIN_FILE := $(NPC_HOME)/iverilog_scripts/iverilog_netlist_main.v
 
-NETLIST_FILES := $(NPC_HOME)/build/IverilogTop.sv $(NPC_HOME)/build/IverilogAXI4LiteMem.v  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v
+NETLIST_FILES := $(NPC_HOME)/build/IverilogTop.sv $(NPC_HOME)/build/IverilogAXI4LiteMem.v  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v $(NPC_HOME)/build/TopAXI4Slave.sv
 # NETLIST_FILES := $(NPC_HOME)/svsrc_iverilog_netlist/*.sv $(NPC_HOME)/svsrc_iverilog_netlist/*.v
 # NETLIST_FILES := $(NPC_HOME)/svsrc_iverilog/*.sv $(NPC_HOME)/svsrc_iverilog/*.v
 

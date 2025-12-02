@@ -15,10 +15,12 @@ sealed trait HasL1Params{
   val nLines:    Int = 64
   val rowLengths:   Int = 128
   val singleSet = nSets == 1
+  val wordsPerRow = rowLengths / conf.xlen
   def tagBits: Int = conf.xlen - log2Ceil(nSets) - log2Ceil(nLines) - rowLengths - 2
   def idxBits: Int = log2Ceil(nLines) 
   def offsetBits: Int = log2Ceil(rowLengths/conf.xlen)
   def addrBits: Int = conf.xprlen
+  def byteOffsetBits: Int = 2
   def addrBundle = new Bundle {
     val tag = UInt(tagBits.W)
     val index = UInt(idxBits.W)
@@ -28,13 +30,13 @@ sealed trait HasL1Params{
 
   def getIdx(addr: UInt) = addr.asTypeOf(addrBundle).index
   def getWordIdx(addr: UInt) = addr.asTypeOf(addrBundle).wordIndex
- 
+  def getTag(addr: UInt) = addr.asTypeOf(addrBundle).tag
 }
 
-abstract class CacheBundle(implicit val conf: Config) extends Bundle with HasL1Params
-abstract class CacheModule(implicit val conf: Config) extends Module with HasL1Params
+abstract class CacheBundle extends Bundle with HasL1Params
+abstract class CacheModule extends Module with HasL1Params
 
-class MetaBundle extends CacheBundle {
+class MetaBundle (implicit val conf: Config)extends CacheBundle {
   val tag = Output(UInt(tagBits.W))
   val valid = Output(Bool())
   def apply(tag: UInt,valid : Bool) = {
@@ -44,8 +46,8 @@ class MetaBundle extends CacheBundle {
   }
 }
 
-class DataBundle extends CacheBundle {
-  val data = Output(UInt(conf.xlen.W))
+class DataBundle(implicit val conf: Config) extends CacheBundle {
+  val data = Output(UInt(rowLengths.W))
 
   def apply(data: UInt) = {
     this.data := data
@@ -53,25 +55,26 @@ class DataBundle extends CacheBundle {
   }
 }
 
-class BundleA(nLines: Int) extends Bundle {
+class BundleA(nLines: Int) (implicit val conf: Config)extends CacheBundle {
   val index = Output(UInt(log2Ceil(nLines).W))
 }
 
-class BundleR[T <: Data](gen: T,way: Int) extends Bundle {
+class BundleR[T <: Data](gen: T,way: Int) (implicit val conf: Config) extends CacheBundle {
   val data = Input(Vec(way,gen))
 }
 
-class BundleAW[T <: Data](gen: T, nLines: Int,way: Int) extends Bundle {
+class BundleAW[T <: Data](gen: T, nLines: Int,way: Int)(implicit val conf: Config) extends CacheBundle {
   val index = Output(UInt(log2Ceil(nLines).W))
   val waymask = Output(UInt(way.W))
+  val wMask = Output(UInt(wordsPerRow.W))
   val data = Output(Vec(way,gen))
 }
 
-class SRAMWriteBus[T <: Data](gen: T, nLines: Int, way: Int) extends Bundle {
+class SRAMWriteBus[T <: Data](gen: T, nLines: Int, way: Int)(implicit val conf: Config) extends CacheBundle {
   val req = Decoupled(new BundleAW(gen,nLines,way))
 }
 
-class SRAMReadBus[T <: Data](gen: T, nLines: Int, way: Int) extends Bundle {
+class SRAMReadBus[T <: Data](gen: T, nLines: Int, way: Int) (implicit val conf: Config)extends CacheBundle {
   val req = Decoupled(new BundleA(nLines))
   val resp = Decoupled(new BundleR(gen,way))
 }
@@ -94,48 +97,152 @@ class L1CahceBundle(implicit val conf: Config) extends CacheBundle  {
   val port = new MemPortIo(conf.xlen)
 }
 
+class RefillReq (implicit val conf: Config)extends CacheBundle {
+  val addr = Input(UInt(conf.xprlen.W))
+  val vaddr = Input(UInt(conf.xprlen.W))
+  val wayMask = Input(UInt(nWays.W))
+  val idx = Input(UInt(idxBits.W))
+  val wordMask = Input(UInt(wordsPerRow.W))
+  val data = Input(UInt(rowLengths.W))
+}
+
+class RefillResp (implicit val conf: Config)extends CacheBundle {
+  val data = Output(Bool())
+}
+
+class ReplaceReq (implicit val conf: Config) extends CacheBundle {
+  val idx = Input(UInt(idxBits.W))
+  val way = Input(UInt(nWays.W))
+}
+
+
+class MainPipeReq (implicit val conf: Config) extends CacheBundle {
+  val addr    = Input(UInt(conf.xprlen.W))
+  val mask    = Input(UInt((conf.xlen/8).W))
+  val wdata   = Input(UInt(conf.xlen.W))
+  val miss    = Input(Bool())
+  val replace = Input(Bool())
+}
+
+
+class RefillPipe (implicit val conf: Config) extends CacheModule {
+  val io = IO(new Bundle(){
+    val req = Decoupled(new RefillReq)
+    val resp = Decoupled(new RefillResp)
+    val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
+    val dataRead = new SRAMReadBus(new DataBundle, nLines,nWays)
+    val metaWrite = new SRAMWriteBus(new MetaBundle, nLines,nWays)
+    val dataWrite = new SRAMWriteBus(new DataBundle, nLines,nWays)
+  })
+  io.req.ready := true.B
+  io.resp.valid := io.req.fire
+
+  val idx = getIdx(io.req.bits.addr)
+  val tag = getTag(io.req.bits.addr)
+  val valids = VecInit(Seq.fill(nWays)(true.B))
+  io.dataWrite.req.valid := io.req.valid
+  io.dataWrite.req.bits.index := idx
+  io.dataWrite.req.bits.data := io.req.bits.data
+  io.dataWrite.req.bits.waymask := io.req.bits.wayMask
+  io.dataWrite.req.bits.wMask := io.req.bits.wordMask
+
+  io.metaWrite.req.valid := io.req.valid
+  io.metaWrite.req.bits.index := idx
+  // io.metaWrite.req.bits.data := MetaBundle(tag,valids)
+
+}
+
 class MissReq (implicit val conf: Config) extends CacheBundle {
   val addr = Input(UInt(conf.xprlen.W))
+  val vaddr = Input(UInt(conf.xprlen.W))
+  val waymask = Input(UInt(nWays.W)) 
+
+  val store_data = Input(UInt(rowLengths.W))
+  val store_wmask = Input(UInt(wordsPerRow.W))
+  val store = Input(Bool())
 }
 
 class MissResp (implicit val conf: Config) extends CacheBundle {
-  val data = Output(UInt(conf.xprlen.W))
+  val data = Output(UInt(rowLengths.W))
+  val resp = Output(UInt(2.W)) // OKAY or SLVERR
+  val addr = Output(UInt(conf.xprlen.W))
 }
 
 class MissUnitBus(implicit val conf: Config) extends CacheBundle {
-  val req = Decoupled(new MissReq)
+  val req = Flipped(DecoupledIO(new MissReq))
   val resp = Decoupled(new MissResp)
 } 
 
 class MissUnit(implicit val conf: Config) extends CacheModule {
-  val io = IO(new Bundle {
-    val bus = new MissUnitBus
-    val port      = new MemPortIo(conf.xlen)  // should use tilelink or axi?
-    val mainPipe  = Flipped(Decoupled(new MainPipeReq))
-  })
+    val io = IO(new Bundle {
+        val bus = new MissUnitBus
+        val to_axi    = Flipped(Decoupled(new AXI4Req(rowLengths)))
+        val from_axi  = Decoupled(new AXI4Resp(rowLengths))
+        val main_pipe = Flipped(new MainPipeReq)
+    })
+    io.bus.req := DontCare
+    io.bus.resp := DontCare
+    val req_fire = Wire(Bool()) 
+    val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)
 
-  val miss_valid = io.bus.req.valid
-  when(miss_valid){
-    // memport is not sufficient, need to add burst support?
-    io.port.req.bits.addr := io.bus.req.bits.addr
-    io.port.req.valid := true.B
-  }
+    val state   =   RegInit(sIdle)
+    val cacheLine = RegInit(VecInit(Seq.fill(wordsPerRow)(0.U(conf.xlen.W))))
+    val addr = RegEnable(io.bus.req.bits.addr,0.U, req_fire)
+    val offset = RegInit(0.U(offsetBits.W))
+    req_fire := io.bus.req.fire
 
-  when(io.port.resp.valid){
-    io.bus.resp.bits.data := io.port.resp.bits.data
-    io.bus.resp.valid := true.B
-    io.mainPipe.req.valid := true.B
-    io.mainPipe.req.bits.addr := io.bus.req.bits.addr
-    io.mainPipe.req.bits.mask := Fill(conf.xlen/8,1.U)
-    io.mainPipe.req.bits.wdata := io.port.resp.bits.data
-  }
+    when(state === sIdle) {
+        when(io.bus.req.valid) {
+          state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
+          offset := 0.U
+    }}
+    .elsewhen(state === sRequesting ){
+            io.to_axi.valid       := state === sRequesting
+            io.to_axi.bits.raddr   := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),offset,0.U(byteOffsetBits.W))
+            io.to_axi.bits.ren    := true.B
+            io.to_axi.bits.burstlen := 0.U
+            when(io.to_axi.ready) {state := sReceiving }}
+    .elsewhen(state === sBurstRequesting) { 
+        io.to_axi.valid           := state === sBurstRequesting
+        io.to_axi.bits.raddr       := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),0.U(offsetBits.W+byteOffsetBits.W))
+        io.to_axi.bits.ren        := true.B
+        io.to_axi.bits.burst      := BURST_INCR
+        io.to_axi.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
+        when(io.to_axi.ready) {state := sReceiving }}
+    .elsewhen(state === sReceiving) {
+        when(io.from_axi.valid) {
+            offset := offset + 1.U
+            cacheLine(offset) := io.from_axi.bits.data // 存储子块
+            // 检查是否完成
+            when(offset === (wordsPerRow-1).U) {
+                state := sComplete
+            }.elsewhen(conf.ICacheEnableBurst && !io.from_axi.bits.last ) { 
+                state := sReceiving 
+            }.otherwise {
+                state :=  Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting) // 继续请求下一子块
+            }
+        }
+    }.elsewhen(state === sComplete) { 
+        state   := sIdle
+    }
+    
+  io.bus.req.ready := state === sIdle 
+  io.bus.resp.valid := state === sComplete
+  io.bus.resp.bits.data := cacheLine.asUInt
+  io.bus.resp.bits.resp := 0.U // OKAY
+  io.bus.resp.bits.addr := addr
 }
 
 
-class LoadPipeResp extends CacheBundle {
+class LoadPipeResp (implicit val conf: Config)extends CacheBundle {
   val data = Output(UInt(conf.xlen.W))
   val exception = Output(UInt(5.W))
   val resp_miss = Output(Bool())
+}
+
+class ReplacePolicy (implicit val conf: Config)extends CacheBundle {
+  val way = Output(UInt(nWays.W))
+  val idx = Output(UInt(idxBits.W))
 }
 
 
@@ -145,48 +252,82 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
     val resp = Decoupled(new LoadPipeResp)
     val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
     val dataRead  = new SRAMReadBus(new DataBundle, nLines,nWays)
-    val missBus   = Filpped(new MissUnitBus)
+    val missBus   = Flipped(new MissUnitBus)
+    val replace_access = Decoupled(new ReplacePolicy)
+    val lsu_s1_kill = Input(Bool())
   })
 
-  val s0_req = io.req
+  // stage 0 ctrl 
+  val s1_ready = Wire(Bool())
+  val s0_req = io.req.bits
+  val s0_valid = io.req.fire
+  val s0_fire = s0_valid && s1_ready
+  io.req.ready := io.metaRead.req.ready && s1_ready
+
+  // stage 0 pipeline
   val s0_addr = io.req.bits.addr
-  val s0_idx = getIdx(s0_addr)
-  io.metaRead.req.bits.index := s0_idx
-  io.metaRead.req.valid := s0_req.valid
-  s0_req.ready := io.metaRead.req.ready
+  io.metaRead.req.valid := s0_valid
+  io.metaRead.req.bits.index := getIdx(s0_addr)
+  
+  // stage 1 ctrl 
+  val s2_ready = Wire(Bool())
+  val s1_valid = RegInit(false.B)
+  val s1_fire = s1_valid && s2_ready
+  s1_ready := !s1_valid || s1_fire
+
+  // stage 1 pipeline 
+  val s1_req = RegEnable(s0_req, s0_fire)
+  val s1_addr = RegEnable(s0_addr, s0_fire)
   val s1_meta  = io.metaRead.resp.bits.data
-  val hitVec = WireInit(VecInit(Seq.fill(nWays)(false.B)))
-
+  val s1_hit_vec = WireInit(VecInit(Seq.fill(nWays)(false.B)))
+  val s1_tag_match_way = WireInit(VecInit(Seq.fill(nWays)(false.B)))
+  val s1_idx = getIdx(s1_addr)
   for (i <- 0 until nWays) {
-    hitVec(i) := s1_meta(i).valid && (s1_meta(i).tag === s0_addr.asTypeOf(addrBundle).tag)
-  }
-  
-  // stage 1
-  val s1_hit = hitVec.asUInt.orR
-  val s1_miss = !s1_hit  
-  val waymask = WireInit(0.U(nWays.W))
-  io.dataRead.req.bits.index := s0_idx
-  io.dataRead.req.valid := s0_req.valid && s1_hit
+    s1_tag_match_way(i) := (s1_meta(i).tag === s1_addr.asTypeOf(addrBundle).tag)
+    s1_hit_vec(i) := s1_meta(i).valid && (s1_meta(i).tag === s1_addr.asTypeOf(addrBundle).tag)
+  }  
+  val s1_hit = s1_hit_vec.asUInt.orR && s1_valid
+  val s1_miss = !s1_hit && s1_valid
 
-  // miss how to notify loadPipe to reload the data after refilled?
-  io.missBus.req.bits.addr := s0_addr
-  
-  when (s1_miss){
-    io.missBus.req.valid := true.B
-    io.missBus.req.bits := s1_addr
-    s2_miss := RegNext(s1_miss, false.B)
+  io.dataRead.req.valid := s1_fire
+  io.dataRead.req.bits.index := s1_idx
+  // io.dataRead.req.bits.waymask := s1_hit_vec
+
+  // init replacement 
+  io.replace_access.valid := s1_valid 
+  io.replace_access.bits.way := s1_hit_vec.asUInt
+  io.replace_access.bits.idx := s1_idx
+
+  when (s0_fire){
+    s1_valid := true.B 
+  } .elsewhen (s1_fire){
+    s1_valid := false.B
   }
+
   // stage 2
+  val s2_valid = RegInit(false.B)
+  val s2_tag_match_way = RegEnable(s1_tag_match_way,s1_fire)
+  val s2_hit_vec = RegEnable(s1_hit_vec,s1_fire)
+  val s2_hit = RegEnable(s1_hit, s1_fire)
+  val s2_idx = RegEnable(s1_idx, s1_fire)
+  val s2_addr = RegEnable(s1_addr, s1_fire)
+  val s2_miss = RegEnable(s1_miss, s1_fire)
   val s2_resp_data = io.dataRead.resp.bits.data
-  io.resp.valid := RegNext(s1_hit)
-  io.resp.bits.data := Mux1H(waymask, s2_resp_data)
-  io.resp.bits.resp_miss := s2_miss
-}
+  val s2_fire = s2_valid
+  s2_ready := true.B
 
-class MainPipeReq (implicit val conf: Config) extends CacheBundle {
-  val addr = Input(UInt(conf.xprlen.W))
-  val mask = Input(UInt((conf.xlen/8).W))
-  val wdata = Input(UInt(conf.xlen.W))
+  when (s1_fire) { s2_valid := !io.lsu_s1_kill }
+  .elsewhen(io.resp.fire) { s2_valid := false.B }
+
+  // stage 2 miss 
+  io.missBus.req.valid := s2_valid && s2_miss 
+  io.missBus.req.bits.addr := s2_addr
+
+
+  io.resp.valid := s2_valid
+  io.resp.bits.data := Mux1H(s2_hit_vec, s2_resp_data)
+  io.resp.bits.resp_miss := s2_miss
+
 }
 
 
@@ -194,11 +335,11 @@ class MainPipeReq (implicit val conf: Config) extends CacheBundle {
 class MainPipe (implicit val conf: Config) extends CacheModule  {
   val io = IO(new Bundle {
     val req = Flipped(Decoupled(new MainPipeReq))
-    val metaWrite = new SRAMReadBus(new MetaBundle, nLines,nWays)
     val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
     val dataRead = new SRAMReadBus(new DataBundle, nLines,nWays)
-    val dataWrite = new SRAMReadBus(new DataBundle, nLines,nWays)
-    val missBus = new MissUnitBus
+    val metaWrite = new SRAMWriteBus(new MetaBundle, nLines,nWays)
+    val dataWrite = new SRAMWriteBus(new DataBundle, nLines,nWays)
+    val missBus =  Flipped(new MissUnitBus)
   })
   val s0_req = io.req
   val s0_addr = io.req.bits.addr
@@ -211,6 +352,7 @@ class MainPipe (implicit val conf: Config) extends CacheModule  {
   val s1_hit = hitVec.asUInt.orR
   val s1_miss = !s1_hit
   val hitVec = WireInit(VecInit(Seq.fill(nWays)(false.B)))
+  // val metas = Wire(new MetaBundle(s0_addr.asTypeOf(addrBundle), true.B))
   for (i <- 0 until nWays) {
     hitVec(i) := s1_meta(i).valid && (s1_meta(i).tag === s0_addr.asTypeOf(addrBundle).tag)
   }
@@ -220,7 +362,7 @@ class MainPipe (implicit val conf: Config) extends CacheModule  {
   io.dataWrite.req.bits.data    := RegNext(s0_req.bits.wdata)
   when(s1_valid){
     io.metaWrite.req.bits.index := s0_idx
-    io.metaWrite.req.bits.data := MetaBundle(s0_addr.asTypeOf(addrBundle), true.B)
+    // io.metaWrite.req.bits.data := metas
     io.metaWrite.req.valid := true.B
   }
   when(s1_miss){
@@ -232,17 +374,17 @@ class MainPipe (implicit val conf: Config) extends CacheModule  {
 
 
 
-class L1Cache(implicit val conf: Config) extends Module with HasL1Params{ 
+class L1Cache(implicit val conf: Config) extends CacheModule{ 
     val io = IO(new L1CahceBundle)
 
   val metas  = Module(new CacheSRAMTemplate(new MetaBundle, nLines, nWays))
   val datas = Module(new CacheSRAMTemplate(new DataBundle, nLines, nWays))
 
   val metaReadArb = Module(new Arbiter(new SRAMReadBus(new MetaBundle, nLines,nWays), 2))
-  val metaWriteArb = Module(new Arbiter(new SRAMReadBus(new MetaBundle, nLines,nWays), 2))
+  val metaWriteArb = Module(new Arbiter(new SRAMWriteBus(new MetaBundle, nLines,nWays), 2))
   
   val dataReadArb = Module(new Arbiter(new SRAMReadBus(new DataBundle, nLines,nWays), 2))
-  val dataWriteArb = Module(new Arbiter(newSRAMReadBus(new DataBundle, nLines,nWays), 2))
+  val dataWriteArb = Module(new Arbiter(new SRAMWriteBus(new DataBundle, nLines,nWays), 2))
   val loadPipe = Module(new LoadPipe)
   val mainPipe = Module(new MainPipe)
   val missUnit = Module(new MissUnit)
@@ -255,12 +397,11 @@ class L1Cache(implicit val conf: Config) extends Module with HasL1Params{
   metaReadArb.io.out <> metas.io.r
 
   // meta write
-  metaArb.io.in(0).valid := false.B
-  metaArb.io.in(0).bits := metaArb.io.in(5).bits
-  metaArb.io.in(0).bits.req := true.B
-  metaArb.io.in(0).bits.way_en := ~0.U(nWays.W)
+  metaWriteArb.io.in(0).valid := false.B
+  metaWriteArb.io.in(0).bits := metaWriteArb.io.in(5).bits
 
-  metaWriteArb.io.in(0) <> mainPipe.io.metaRead
+
+  metaWriteArb.io.in(0) <> mainPipe.io.metaWrite
   metaWriteArb.io.out   <> metas.io.w
 
   // data read
@@ -273,19 +414,19 @@ class L1Cache(implicit val conf: Config) extends Module with HasL1Params{
   dataWriteArb.io.out   <> datas.io.w
 
   //main pipe 
-  mainPipeArb.io.in(0) <> missUint.io.mainPipe
+  mainPipeArb.io.in(0) <> missUnit.io.main_pipe
   mainPipeArb.io.in(1) <> io.req
-  mainPipe.io.out <> mainPipeArb.io.req
+  mainPipe.io.req <> mainPipeArb.io.out
   mainPipe.io.missBus <> missUnit.io.bus
 
   // load pipe
-  missUnit.io.bus <> mainPipe.io.missBus
+  missUnit.io.bus <> loadPipe.io.missBus
   loadPipe.io.req <> io.req
 
 
 }
 
-class CacheSRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val conf: Config) extends Module with HasL1Params {
+class CacheSRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val conf: Config) extends CacheModule {
   val io = IO(new Bundle {
     val r = Flipped(new SRAMReadBus(typ, line, ways))
     val w = Flipped(new SRAMWriteBus(typ, line, ways))

@@ -89,13 +89,46 @@ class LSUIO(implicit val conf: Config) extends Bundle {
 class LSU(implicit val conf: Config) extends Module {
     val io = IO(new LSUIO())
     io := DontCare
-    
+    val s_idle :: s_port_req :: s_clint_req :: Nil = Enum(3) 
+    val state = RegInit(s_idle)
     val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
     val addr = io.exe_mem.bits.alu_out
     val mem_en = io.exe_mem.bits.ctrl_mem_val
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
     val csr_files = Module(new CSRFiles)
-    
+    val is_port_req = mem_en && !in_clint
+    val is_clint_req = in_clint && mem_en
+
+    switch(state){ 
+        is(s_idle) {
+            when(is_port_req &&  io.port.req.ready){
+                io.port.req.valid    := mem_en
+                io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
+                io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
+                io.port.req.bits.addr := addr
+                io.port.req.bits.data := io.exe_mem.bits.rs2_data 
+                io.port.req.bits.burstlen := 0.U
+                io.port.req.bits.burst := BURST_FIXED
+                state :=s_port_req
+            } .elsewhen(is_clint_req ){
+                state := s_clint_req
+                io.port.req.valid := false.B
+            }
+        }
+        is(s_port_req) {
+            io.port.req.valid := false.B
+            when(io.port.resp.valid){
+                state := s_idle
+            }
+        }
+        is(s_clint_req) {
+            when(io.clintIO.dr.ready){
+                state := s_idle
+            }
+        }
+    }
+
+
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.csr_inst   := io.exe_mem.bits.csr_inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
@@ -107,17 +140,11 @@ class LSU(implicit val conf: Config) extends Module {
     // lsu should support mis-aligned access? or should based on slave type? 
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B) 
     
-    when(mem_en && !in_clint ) {
-        io.port.req.valid    := mem_en
-        io.port.req.bits.fcn := io.exe_mem.bits.ctrl_mem_fcn
-        io.port.req.bits.typ := io.exe_mem.bits.ctrl_mem_typ
-        io.port.req.bits.addr := addr
-        io.port.req.bits.data := io.exe_mem.bits.rs2_data 
-        io.port.req.bits.burstlen := 0.U
-        io.port.req.bits.burst := BURST_FIXED
+    when(is_port_req ) {
+
     } .otherwise {
         io.port.req.valid    := false.B
-        when (mem_en && in_clint ){
+        when (is_clint_req ){
             when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
                 io.clintIO.dr.en := true.B
                 io.clintIO.dr.addr := addr
@@ -128,10 +155,11 @@ class LSU(implicit val conf: Config) extends Module {
     }
     
 
-    
-    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    (io.port.resp.valid))
+    val mem_port_resp_valid = io.port.resp.valid && state === s_port_req 
+    val resp_data = io.port.resp.bits.data
+    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    mem_port_resp_valid)
     val mem_exception   = Mux(in_clint, 0.U,                    (io.port.resp.bits.resp))
-    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    ( io.port.resp.bits.data))
+    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready
@@ -177,6 +205,137 @@ class LSU(implicit val conf: Config) extends Module {
     io.debug.valid      := mem_resp_valid
     io.debug.typ        := io.exe_mem.bits.ctrl_mem_typ
     when(io.port.resp.valid && mem_en) {
+      when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {
+        storeCnt := storeCnt + 1.U
+      }.otherwise {
+        loadCnt := loadCnt + 1.U
+      }
+    }
+    io.debug.loadCount  := loadCnt
+    io.debug.storeCount := storeCnt
+    /////////// Debug Port
+}
+
+class LSUImplIO(implicit val conf: Config) extends CacheBundle {
+    val exe_mem             = Flipped(new DecoupledIO(new EXEPipeIO()))
+    val mem_wb              = new DecoupledIO(new LSUPipeIO)
+    val debug               = new LSUDebugPort
+    val exception_target    = Output(UInt(conf.xprlen.W))
+    val to_ctl              = new LSUTOCtlIO
+    val to_axi              = Flipped(Decoupled(new AXI4Req(rowLengths)))
+    val from_axi            = Decoupled(new AXI4Resp(rowLengths))
+    val clintIO = Flipped(  new Bundle{
+            val dr      =   new AXIRport(conf.xprlen, conf.xlen)
+            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+        })
+}
+
+class LSUImpl(implicit val conf: Config) extends Module {
+    val io = IO(new LSUImplIO())
+    io := DontCare
+    
+    val exception = Wire(UInt(EXC_NORMAL.getWidth.W))
+    val addr = io.exe_mem.bits.alu_out
+    val mem_en = io.exe_mem.bits.ctrl_mem_val
+    val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
+    val csr_files = Module(new CSRFiles)
+    val to_axi_fire = io.to_axi.fire.asBool
+    val req_fire = RegEnable(!to_axi_fire, false.B)
+    csr_files.io.pc         := io.exe_mem.bits.pc   
+    csr_files.io.csr_inst   := io.exe_mem.bits.csr_inst
+    csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd
+    csr_files.io.alu_out    := io.exe_mem.bits.alu_out
+    csr_files.io.exception  := exception
+
+    io.exception_target     := csr_files.io.exception_target    
+    
+    // lsu should support mis-aligned access? or should based on slave type? 
+    // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B) 
+    /////////// Write Port
+    val req_typ = io.exe_mem.bits.ctrl_mem_typ
+    io.to_axi.valid := mem_en && !in_clint
+    io.to_axi.bits.raddr := addr
+    io.to_axi.bits.waddr := Cat(addr(31,2),0.asUInt(2.W))
+    io.to_axi.bits.ren   := (io.exe_mem.bits.ctrl_mem_fcn === M_XRD) && mem_en
+    io.to_axi.bits.wen   := (io.exe_mem.bits.ctrl_mem_fcn === M_XWR) && mem_en
+    io.to_axi.bits.burst := BURST_FIXED
+    io.to_axi.bits.burstlen := 0.U // single transfer
+    when (mem_en && (io.exe_mem.bits.ctrl_mem_fcn === M_XWR)){
+       // axi4lite_mem.io.req.waddr := addr
+       io.to_axi.bits.data  := io.exe_mem.bits.rs2_data << (addr(1,0) << 3)
+       io.to_axi.bits.mask  := Mux(req_typ === MT_B,1.U << addr(1,0),
+                               Mux(req_typ === MT_H,3.U << addr(1,0),15.U))
+    }   
+
+    // read 
+    val req_typ_reg = RegEnable(io.exe_mem.bits.ctrl_mem_typ,MT_X, to_axi_fire)
+    val resp_data = io.from_axi.bits.data
+    val mem_resp_data = MuxCase(resp_data,Seq(
+      (req_typ_reg === MT_B) -> Cat(Fill(24,resp_data(7)),resp_data(7,0)),
+      (req_typ_reg === MT_H) -> Cat(Fill(16,resp_data(15)),resp_data(15,0)),
+      (req_typ_reg === MT_BU) -> Cat(Fill(24,0.U),resp_data(7,0)),
+      (req_typ_reg === MT_HU) -> Cat(Fill(16,0.U),resp_data(15,0))
+    ))
+
+    when(mem_en && in_clint ) {
+        when (mem_en && in_clint ){
+            when (io.exe_mem.bits.ctrl_mem_fcn === M_XRD){
+                io.clintIO.dr.en := true.B
+                io.clintIO.dr.addr := addr
+            } .otherwise{
+                io.clintIO.dr.en := false.B
+            }
+        }
+    }
+
+    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    (io.from_axi.valid))
+    val mem_exception   = Mux(in_clint, 0.U,                    (io.from_axi.bits.resp))
+    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    (mem_resp_data))
+    val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
+    val ready = mem_ready
+    io.exe_mem.ready := io.mem_wb.ready && ready
+
+    // WB Mux
+    val wbdata = MuxCase(io.exe_mem.bits.alu_out, Array(
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_ALU) -> io.exe_mem.bits.alu_out,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_PC4) -> io.exe_mem.bits.alu_out,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_MEM) -> mem_data,
+                  (io.exe_mem.bits.ctrl_wb_sel === WB_CSR) -> csr_files.io.rdata
+                  ))
+    exception := Mux(mem_en && mem_exception =/= 0.U , 
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
+            Mux(io.exe_mem.bits.ctrl_mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), io.exe_mem.bits.exception )
+    io.mem_wb.valid                 := (!mem_en || (mem_en && mem_resp_valid))
+    io.mem_wb.bits.data             := wbdata
+    io.mem_wb.bits.wbaddr           := io.exe_mem.bits.wbaddr
+    io.mem_wb.bits.ebreak           := csr_files.io.ebreak
+    io.mem_wb.bits.pc               := io.exe_mem.bits.pc
+    io.mem_wb.bits.ctrl_rf_wen      := io.exe_mem.bits.ctrl_rf_wen
+    // io.mem_wb.bits.inst             := io.exe_mem.bits.inst
+    io.mem_wb.bits.pc_valid         := io.exe_mem.bits.pc_valid 
+    io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
+    io.mem_wb.bits.debug            := io.debug
+    
+    io.to_ctl.ctrl_mem_val      := mem_en
+    io.to_ctl.wbdata            := wbdata
+    io.to_ctl.wbaddr            := io.exe_mem.bits.wbaddr
+    io.to_ctl.ctrl_rf_wen       := io.exe_mem.bits.ctrl_rf_wen
+    io.to_ctl.alu_out           := io.exe_mem.bits.alu_out
+    io.to_ctl.inst_is_load      := io.exe_mem.bits.ctrl_mem_val && (io.exe_mem.bits.ctrl_mem_fcn === M_XRD)
+    io.to_ctl.csr_eret          := csr_files.io.eret
+    io.to_ctl.mem_exception     := exception
+
+    /////////// Debug Port
+    val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
+    val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
+    io.debug.mem_en     := mem_en
+    io.debug.addr       := addr
+    io.debug.fcn        := io.exe_mem.bits.ctrl_mem_fcn
+    io.debug.wdata      := io.exe_mem.bits.rs2_data 
+    io.debug.rdata      := mem_data
+    io.debug.valid      := mem_resp_valid
+    io.debug.typ        := io.exe_mem.bits.ctrl_mem_typ
+    when(io.from_axi.valid && mem_en) {
       when(io.exe_mem.bits.ctrl_mem_fcn === M_XWR) {
         storeCnt := storeCnt + 1.U
       }.otherwise {

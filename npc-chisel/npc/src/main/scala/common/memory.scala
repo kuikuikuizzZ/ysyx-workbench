@@ -253,13 +253,13 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
-      val axi_port = new AXI4LiteIo()
+      val axi_port = new AXI4Io()
    }) 
    io := DontCare
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
    val state = RegInit(s_idle)
    val burstlen_reg = RegInit(0.U(conf.AXIBurstLenBits.W))
-   val axi4lite_mem = Module(new AXI4LiteMaster)
+   val axi4lite_mem = Module(new AXI4Master)
    axi4lite_mem.io := DontCare
    
 
@@ -274,20 +274,19 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
    val resp_data    = Wire(UInt(conf.xlen.W))
    switch(state) {
       is(s_idle) {
-         // IFU优先级高于LSU
-         when (io.ports(IPORT).req.valid) {
-            state := s_ifu_active
-            req_typi := io.ports(IPORT).req.bits.typ
-            burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
-         } .elsewhen (io.ports(DPORT).req.valid) {
+         // IFU 优先级高于 LSU
+         when (io.ports(DPORT).req.valid) {
             state := s_lsu_active
             req_typi := io.ports(DPORT).req.bits.typ
             burstlen_reg := 0.U  
+         } .elsewhen (io.ports(IPORT).req.valid) {
+            state := s_ifu_active
+            req_typi := io.ports(IPORT).req.bits.typ
+            burstlen_reg := Mux(req_burst =/= BURST_FIXED,req_burstlen,0.U) 
          }
       }
       is (s_ifu_active){
          when (axi4lite_mem.io.resp.valid) {
-            req_valid := false.B    
             burstlen_reg := burstlen_reg - 1.U
             when (burstlen_reg === 0.U) {
                state := s_idle
@@ -297,21 +296,19 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
       is (s_lsu_active)  { 
          when (axi4lite_mem.io.resp.valid) {
             state := s_idle
-            req_valid := false.B        
          }
       } 
    }
-
-   req_valid := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.valid,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.valid,false.B))
-   req_fcn := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.fcn,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.fcn,M_X))
-   req_typi := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.typ,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.typ,MT_X))
-   req_addri := Mux(io.ports(IPORT).req.valid,Cat(io.ports(IPORT).req.bits.addr(31,2),0.asUInt(2.W)),
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.addr,0.U))
-   req_data := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,
-                  Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,0.U))
+   req_valid := Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.valid,
+                  Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.valid ,false.B))
+   req_fcn := Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.fcn,
+                  Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.fcn,M_X))
+   req_typi := Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.typ,
+                  Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.typ,MT_X))
+   req_addri := Mux(io.ports(DPORT).req.valid,Cat(io.ports(DPORT).req.bits.addr(31,2),0.asUInt(2.W)),
+                  Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.addr,0.U))
+   req_data := Mux(io.ports(DPORT).req.valid,io.ports(DPORT).req.bits.data,
+                  Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.data,0.U))
    // only instruction port support burst 
    req_burst := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burst,0.U)
    req_burstlen := Mux(io.ports(IPORT).req.valid,io.ports(IPORT).req.bits.burstlen,0.U)
@@ -330,8 +327,8 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
    io.ports(DPORT).resp.bits.resp := Mux(state === s_lsu_active,  axi4lite_mem.io.resp.bits.resp,0.U)  
 
 
-   io.ports(IPORT).req.ready := state === s_idle && !io.ports(DPORT).req.valid
    io.ports(DPORT).req.ready := state === s_idle   
+   io.ports(IPORT).req.ready := state === s_idle && !io.ports(DPORT).req.valid
    // for (i <- 0 until numMasters) {
    //    io.ports(i).req.ready := state === s_idle
    // }
@@ -341,11 +338,12 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
    axi4lite_mem.io.axi_io <> io.axi_port
 
    /////////// Read Port
-   axi4lite_mem.io.req.raddr := req_addri
-   axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
-   axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
-   axi4lite_mem.io.req.burst     := req_burst
-   axi4lite_mem.io.req.burstlen  := req_burstlen
+   axi4lite_mem.io.req.valid := req_valid && state === s_idle
+   axi4lite_mem.io.req.bits.raddr := req_addri
+   axi4lite_mem.io.req.bits.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
+   axi4lite_mem.io.req.bits.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
+   axi4lite_mem.io.req.bits.burst     := req_burst
+   axi4lite_mem.io.req.bits.burstlen  := req_burstlen
    
    // req_typi may invalid when req_valid is false
    val resp_datai = axi4lite_mem.io.resp.bits.data
@@ -366,11 +364,11 @@ class AXI4LiteArbiter(numMasters: Int)(implicit val conf: Config)  extends Modul
 
    /////////// Write Port
    when (req_valid && (req_fcn === M_XWR)){
-      axi4lite_mem.io.req.waddr := req_addri
-      // axi4lite_mem.io.req.waddr := aligned_req_addri
-      axi4lite_mem.io.req.typ    := req_typi
-      axi4lite_mem.io.req.data   := req_data << (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
+      axi4lite_mem.io.req.bits.waddr := req_addri
+      // axi4lite_mem.io.req.bits.waddr := aligned_req_addri
+      axi4lite_mem.io.req.bits.typ    := req_typi
+      axi4lite_mem.io.req.bits.data   := req_data << (req_addri(1,0) << 3)
+      axi4lite_mem.io.req.bits.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
                                     Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
 }
@@ -379,13 +377,13 @@ class AXI4RRArbiter(numMasters: Int)(implicit val conf: Config)  extends Module 
     val io = IO(new Bundle
    {
       val ports = Flipped(Vec(numMasters,new MemPortIo(data_width = conf.xprlen)))
-      val axi_port = new AXI4LiteIo()
+      val axi_port = new AXI4Io()
    }) 
    io := DontCare
    val s_idle :: s_ifu_active :: s_lsu_active :: Nil = Enum(3)
    val state = RegInit(s_idle)
    val burstlen_reg = RegInit(0.U(conf.AXIBurstLenBits.W))
-   val axi4lite_mem = Module(new AXI4LiteMaster)
+   val axi4lite_mem = Module(new AXI4Master)
    axi4lite_mem.io := DontCare
    
    val currentMaster = RegInit(0.U(1.W)) 
@@ -472,11 +470,12 @@ class AXI4RRArbiter(numMasters: Int)(implicit val conf: Config)  extends Module 
    axi4lite_mem.io.axi_io <> io.axi_port
 
    /////////// Read Port
-   axi4lite_mem.io.req.raddr := req_addri
-   axi4lite_mem.io.req.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
-   axi4lite_mem.io.req.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
-   axi4lite_mem.io.req.burst     := req_burst
-   axi4lite_mem.io.req.burstlen  := req_burstlen
+   axi4lite_mem.io.req.valid := req_valid && state === s_idle
+   axi4lite_mem.io.req.bits.raddr := req_addri
+   axi4lite_mem.io.req.bits.wen := Mux(req_valid,req_fcn === M_XWR, false.B)
+   axi4lite_mem.io.req.bits.ren := Mux(req_valid,req_fcn === M_XRD, false.B)
+   axi4lite_mem.io.req.bits.burst     := req_burst
+   axi4lite_mem.io.req.bits.burstlen  := req_burstlen
    
    // req_typi may invalid when req_valid is false
    val resp_datai = axi4lite_mem.io.resp.bits.data
@@ -498,10 +497,10 @@ class AXI4RRArbiter(numMasters: Int)(implicit val conf: Config)  extends Module 
 
    /////////// Write Port
    when (req_valid && (req_fcn === M_XWR)){
-      axi4lite_mem.io.req.typ    := req_typi
-      axi4lite_mem.io.req.waddr  := req_addri
-      axi4lite_mem.io.req.data   := req_data << (req_addri(1,0) << 3)
-      axi4lite_mem.io.req.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
+      axi4lite_mem.io.req.bits.typ    := req_typi
+      axi4lite_mem.io.req.bits.waddr  := req_addri
+      axi4lite_mem.io.req.bits.data   := req_data << (req_addri(1,0) << 3)
+      axi4lite_mem.io.req.bits.mask   := Mux(dport_typi === MT_B,1.U << req_addri(1,0),
                                     Mux(dport_typi === MT_H,3.U << req_addri(1,0),15.U))
    }
 }

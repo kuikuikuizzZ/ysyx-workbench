@@ -29,7 +29,7 @@ class ysyx_24100012 extends Module {
 class CoreIo(implicit val conf: Config) extends Bundle 
 {
   val interrupt = Input(Bool())
-  val master = new AXI4LiteIo()
+  val master = new AXI4Io()
   val slave = Flipped(new AXI4LiteIo())
 }
 
@@ -46,7 +46,7 @@ class Core(implicit val conf: Config)extends Module
     val core =  new CoreIo()
   })
   val inst_fetch  = Module(new InstFetch())
-  val arbiter     = Module(new AXI4LiteRRArbiter(2))
+  val arbiter     = Module(new AXI4RRArbiter(2))
   val decoder     = Module(new Decoder())
   val reg_file    = Module(new RegFile())
   val exu         = Module(new EXU())
@@ -98,7 +98,7 @@ class Core(implicit val conf: Config)extends Module
   io.core.slave.b.valid := false.B
   io.core.slave.b.resp := 0.U
   io.core.slave.b.id := 0.U
-  io.core.master.ar.id := 0.U
+  io.core.master.ar.bits.id := 0.U
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {

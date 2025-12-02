@@ -5,7 +5,7 @@ import chisel3._
 
 import npc.common.{Config, 
                      AXI4LiteMaster,TopAXI4LiteSlave,
-                     AXI4BurstSlave,AXI4LiteArbiter}
+                     TopAXI4Slave,AXI4LiteArbiter}
 import npc._
 import npc.devices.{TopAXI4LiteMem,IverilogAXI4LiteMem}
 
@@ -19,7 +19,7 @@ class IverilogTop extends Module {
     core.io := DontCare
 
 
-    val axi_mem_slave   = Module(new TopAXI4LiteSlave())
+    val axi_mem_slave   = Module(new TopAXI4Slave())
     val axi_mem        = Module(new IverilogAXI4LiteMem())
 
     axi_mem_slave.io := DontCare
@@ -42,7 +42,7 @@ class Top extends Module
     core.io := DontCare
 
 
-    val axi_mem_slave   = Module(new TopAXI4LiteSlave())
+    val axi_mem_slave   = Module(new TopAXI4Slave())
     val axi_mem        = Module(new TopAXI4LiteMem())
 
     axi_mem_slave.io := DontCare
