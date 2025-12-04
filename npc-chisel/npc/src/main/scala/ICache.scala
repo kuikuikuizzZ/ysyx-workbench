@@ -24,18 +24,6 @@ class ICacheIO(implicit val conf: Config) extends Bundle {
   
 }
 
-class ICacheImplIO(implicit val conf: Config) extends CacheBundle {
-  val pc        = Input(UInt(conf.xprlen.W))
-  val fencei    = Input(Bool())
-  val req_valid = Input(Bool())
-  val inst      = Output(UInt(conf.xlen.W))
-  val valid     = Output(Bool())
-  val exception = Output(UInt(5.W))
-  val debug     = Output(new ICacheDebugPort)
-  val port      = new MemPortIo(conf.xlen)
-  val to_axi    = Flipped(Decoupled(new AXI4Req(rowLengths)))
-  val from_axi  = Decoupled(new AXI4Resp(rowLengths))
-}
 
 class ICache(implicit val conf: Config) extends Module { 
     val io = IO(new ICacheIO)
@@ -155,10 +143,20 @@ class ICache(implicit val conf: Config) extends Module {
     ////// END DEBUG
 }
 
+class ICacheImplIO(implicit val conf: Config) extends CacheBundle {
+  val pc        = Input(UInt(conf.xprlen.W))
+  val fencei    = Input(Bool())
+  val req_valid = Input(Bool())
+  val inst      = Output(UInt(conf.xlen.W))
+  val valid     = Output(Bool())
+  val exception = Output(UInt(5.W))
+  val debug     = Output(new ICacheDebugPort)
+  val axi_bus = new AXI4Bus()
+}
+
+
 class ICacheImpl(implicit val conf: Config) extends CacheModule { 
     val io = IO(new ICacheImplIO)
-    io.from_axi := DontCare
-    io.to_axi.bits.burst := WireDefault(BURST_FIXED)
 
     val s_bits              = conf.ICacheSizeBits
     val b_bits              = conf.ICacheBlockBits
@@ -171,13 +169,12 @@ class ICacheImpl(implicit val conf: Config) extends CacheModule {
     // valid bits = 1, tag bits = 25, b_bits = 1 
     // 1+ 25 +32 = 58
     val ren                 = RegInit(false.B)
-
     val cache_valid         = RegInit(false.B)
     val valids              = RegInit(VecInit(Seq.fill(size)(false.B))).suggestName("icache_valids") 
     val mem                 = SyncReadMem(size, UInt(cache_data_width.W))
     val tags                = SyncReadMem(size, UInt(tag_bits.W))
-    val cache_block         = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2), ren || io.req_valid)
-    val tag                 = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),ren || io.req_valid)
+    val cache_block         = mem.read(io.pc(s_bits+b_bits+2-1,b_bits+2), io.req_valid)
+    val tag                 = tags.read(io.pc(s_bits+b_bits+2-1,b_bits+2),io.req_valid)
     val cache_block_vec     = VecInit.tabulate(subBlocksPerLine) { i =>cache_block((i + 1) * conf.xlen - 1, i * conf.xlen) }
     val cacheLineBuffer     = Reg(Vec(subBlocksPerLine, UInt(conf.xlen.W))) // 块缓冲区
     val fullCacheLine       = cacheLineBuffer.asUInt
@@ -187,18 +184,15 @@ class ICacheImpl(implicit val conf: Config) extends CacheModule {
 
 
     //////// pipeline icache
-    // cache_valid :=  Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
-    // tag         :=  Mux(ren || io.req_valid, tags(io.pc(s_bits+b_bits+2-1,b_bits+2)),0.U)
-    // cache_data  := cache_block_vec(group_index)
     val hit             = cache_valid && (io.pc(conf.xprlen-1,s_bits+b_bits+2) === tag)
-    val req_valid_reg   = RegNext(io.req_valid,true.B)
-    cache_valid        := Mux( ren || io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
+    val req_valid_reg   = RegNext(io.req_valid,false.B)
+    cache_valid        := Mux(io.req_valid, valids(io.pc(s_bits+b_bits+2-1,b_bits+2)),false.B)
 
     //////// pipeline icache
     val miss_unit = Module(new MissUnit)
-    miss_unit.io.to_axi <> io.to_axi
-    miss_unit.io.from_axi <> io.from_axi  
-    miss_unit.io.bus.req.valid := io.req_valid && !hit
+    miss_unit.io := DontCare
+    miss_unit.io.axi_bus <> io.axi_bus
+    miss_unit.io.bus.req.valid := req_valid_reg && !hit
     miss_unit.io.bus.req.bits.addr := io.pc
 
     when(miss_unit.io.bus.resp.valid){
@@ -208,9 +202,10 @@ class ICacheImpl(implicit val conf: Config) extends CacheModule {
         valids(index)   := true.B // 标记有效
     }
 
-    io.inst         := Mux(hit,cache_data,BUBBLE)
-    io.valid        := Mux(hit,true.B,false.B)
-    io.exception    := Mux(io.from_axi.bits.resp =/= 0.U,EXC_INSTR_ACCESS_FAULT,
+    io.inst         := Mux(hit,cache_data,
+                        Mux(miss_unit.io.bus.resp.valid,miss_unit.io.bus.resp.bits.data,BUBBLE))
+    io.valid        := Mux(hit,true.B,miss_unit.io.bus.resp.valid)
+    io.exception    := Mux(io.axi_bus.resp.bits.resp =/= 0.U,EXC_INSTR_ACCESS_FAULT,
                         Mux(io.pc(1,0) =/= 0.U,EXC_INSTR_ADDR_MISALIGNED,EXC_NORMAL))
 
     when (io.fencei){

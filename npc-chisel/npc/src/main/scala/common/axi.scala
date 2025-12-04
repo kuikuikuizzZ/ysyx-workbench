@@ -5,6 +5,7 @@ import chisel3.util._
 
 import Constants._
 import npc.common._
+import npc.{CacheBundle}
 import npc.devices.{AXI4LiteMem,AXI4LiteMemRandomDelay}
 
 trait AXI4BurstTypes
@@ -15,11 +16,11 @@ trait AXI4BurstTypes
    val BURST_X      = 3.asUInt(2.W)
 }
 
-class AXI4Req (val dataWidth : Int)(implicit val conf: Config) extends Bundle{
-    val maskWidth = dataWidth/8
+class AXI4Req (implicit val conf: Config) extends CacheBundle{
+    val maskWidth = conf.xlen/8
     val raddr   = Input(UInt(conf.xprlen.W))
     val waddr   = Input(UInt(conf.xprlen.W))
-    val data    = Input(UInt(dataWidth.W))
+    val data    = Input(UInt(conf.xlen.W))
     val mask    = Input(UInt(maskWidth.W))
     val ren     = Input (Bool())
     val wen     = Input (Bool())
@@ -28,11 +29,16 @@ class AXI4Req (val dataWidth : Int)(implicit val conf: Config) extends Bundle{
     val typ     = Input(UInt(MT_X.getWidth.W))
 }
 
-class AXI4Resp(val data_width: Int) extends Bundle
+class AXI4Resp  (implicit val conf: Config) extends CacheBundle
 {
-   val data = Output(UInt(data_width.W))
+   val data = Output(UInt(conf.xlen.W)) // rowLength.W?
    val resp = Output(UInt(2.W))
    val last = Output(Bool())
+}
+
+class AXI4Bus (implicit val conf: Config) extends Bundle{
+   val req = Decoupled(new AXI4Req())
+   val resp = Flipped(Decoupled(new AXI4Resp()))
 }
 
 class AXIWport(val addrWidth : Int,val dataWidth : Int) extends Bundle{
@@ -152,8 +158,8 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())
         val axi_io  =   new AXI4LiteIo()
-        val req     =   new AXI4Req(conf.xlen)
-        val resp    =   new DecoupledIO(new AXI4Resp(conf.xlen))
+        val req     =   new AXI4Req()
+        val resp    =   new DecoupledIO(new AXI4Resp())
         val debug   =   new Bundle{
             val rstate = Output(UInt(2.W))
             val wstate = Output(UInt(2.W))
@@ -163,7 +169,6 @@ class AXI4LiteMaster (implicit val conf: Config) extends Module{
     })
     io := DontCare
     io.resp.bits := DontCare
-
     //////  AXI4Lite read/write master
     val rs_idle :: rs_wait_arready :: rs_wait_rlast :: Nil = Enum(3)
     val rstate = RegInit(rs_idle)
@@ -274,8 +279,8 @@ class AXI4Master (implicit val conf: Config) extends Module{
         val clock   =   Input(Clock())
         val reset   =   Input(Bool())
         val axi_io  =   new AXI4Io()
-        val req     =   Flipped(new DecoupledIO(new AXI4Req(conf.xlen)))
-        val resp    =   new DecoupledIO(new AXI4Resp(conf.xlen))
+        val req     =   Flipped(new DecoupledIO(new AXI4Req()))
+        val resp    =   new DecoupledIO(new AXI4Resp())
         val debug   =   new Bundle{
             val rstate = Output(UInt(2.W))
             val wstate = Output(UInt(2.W))
@@ -283,14 +288,14 @@ class AXI4Master (implicit val conf: Config) extends Module{
             val is_read = Output(Bool())
         }
     })
-    io := DontCare
-    io.resp.bits := DontCare
-
     //////  AXI4Lite read/write master
     val rs_idle :: rs_wait_arready :: rs_wait_rlast :: Nil = Enum(3)
     val rstate = RegInit(rs_idle)
     val ws_idle :: ws_wait_ready ::ws_wait_bvalid:: Nil = Enum(3)
     val wstate = RegInit(ws_idle)
+    
+    io := DontCare
+    io.resp.bits := DontCare
 
     val accept_read = (rstate === rs_idle) && io.req.bits.ren && io.req.valid
     val accept_write = !accept_read && (wstate === ws_idle) && io.req.bits.wen && io.req.valid
@@ -307,7 +312,6 @@ class AXI4Master (implicit val conf: Config) extends Module{
     bfire   :=  Mux(wstate === ws_idle,         false.B,        (io.axi_io.b.valid && io.axi_io.b.ready) || bfire)
     arfire  :=  Mux(rstate === rs_wait_rlast || io.axi_io.r.bits.last,   false.B,  (io.axi_io.ar.valid && io.axi_io.ar.ready) || arfire)
     rfire   :=  Mux(rstate === rs_idle,         false.B,  (io.axi_io.r.valid && io.axi_io.r.ready) || rfire)
-
 
     //////  AXI4Lite write/read channel
     // RegNext 2 cycle, maybe need to change
@@ -383,6 +387,7 @@ class AXI4Master (implicit val conf: Config) extends Module{
         is (ws_wait_bvalid) { wstate := Mux(bfire , ws_idle, ws_wait_bvalid)}
     }
 
+    io.req.ready := rstate === rs_idle && (wstate === ws_idle)
     io.resp.valid := Mux(wstate =/= ws_idle ,(io.axi_io.b.valid),io.axi_io.r.valid)
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid,    io.axi_io.r.bits.resp ,
                           Mux(io.axi_io.b.valid,    io.axi_io.b.bits.resp, 0.U ))

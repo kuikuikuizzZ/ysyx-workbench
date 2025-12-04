@@ -18,13 +18,14 @@ class IFUPipeIO(implicit val conf: Config) extends Bundle {
   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
-class InstFetchIo(implicit val conf: Config) extends Bundle() {
+class InstFetchIo(implicit val conf: Config) extends CacheBundle {
   val ctl               = new CtrlSignalIO
-  val port              = new MemPortIo(conf.xlen)
   val exu_in            = Flipped(new EXUToIFUOut)
-  val ifu_dec          = new DecoupledIO(new IFUPipeIO())
+  val ifu_dec           = new DecoupledIO(new IFUPipeIO())
   val exception_target  = Input(UInt(conf.xprlen.W))
   val debug             = Output(new IFUDebugPort)
+  val axi_bus           = new AXI4Bus()
+  // val port              = new MemPortIo(conf.xlen)
 }
 
 
@@ -34,7 +35,7 @@ class InstFetch(implicit conf: Config) extends Module {
     new InstFetchIo()
   )
   io := DontCare
-  val cache       = Module(new ICache)
+  val cache       = Module(new ICacheImpl)
   // Instruction Fetch
   val pc_next = Wire(UInt(conf.xprlen.W))
 
@@ -69,9 +70,10 @@ class InstFetch(implicit conf: Config) extends Module {
   cache.io := DontCare
   cache.io.req_valid  := fetch_valid && !should_kill 
   cache.io.pc         := pc_reg
-  cache.io.port       <> io.port
   cache.io.debug      <> io.debug.icache 
   cache.io.fencei     := io.ctl.fencei
+  cache.io.axi_bus     <> io.axi_bus
+  // cache.io.port       <> io.port
   // NOTE: if_kill should clean inst, in ifu_dec reg
   io.ifu_dec.valid :=   Mux(should_kill , true.B, if_valid)
   io.ifu_dec.bits.inst :=  Mux(should_kill , BUBBLE,if_inst)

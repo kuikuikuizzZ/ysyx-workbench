@@ -46,22 +46,36 @@ class Core(implicit val conf: Config)extends Module
     val core =  new CoreIo()
   })
   val inst_fetch  = Module(new InstFetch())
-  val arbiter     = Module(new AXI4RRArbiter(2))
+  // val arbiter     = Module(new AXI4RRArbiter(2))
   val decoder     = Module(new Decoder())
   val reg_file    = Module(new RegFile())
   val exu         = Module(new EXU())
-  val lsu         = Module(new LSU())
+  val lsu         = Module(new LSUImpl())
   val wbu         = Module(new WBU())
   val clint       = Module(new CLINT())
-
-
+  val axi_master  = Module(new AXI4Master())
+  val axi_arb     = Module(new RRArbiter(new AXI4Req(),2))
   clint.io.clock := clock
   clint.io.reset := reset
   clint.io.in <> lsu.io.clintIO  
 
-  arbiter.io.axi_port <> io.core.master
-  arbiter.io.ports(DPORT) <> lsu.io.port  
-  arbiter.io.ports(IPORT) <> inst_fetch.io.port 
+  // arbiter.io.axi_port <> io.core.master
+  // arbiter.io.ports(DPORT) <> lsu.io.port  
+  // arbiter.io.ports(IPORT) <> inst_fetch.io.port 
+  axi_arb.io.in(0).valid  <> RegNext(lsu.io.axi_bus.req.valid)
+  axi_arb.io.in(0).ready  <> lsu.io.axi_bus.req.ready
+  axi_arb.io.in(0).bits   <> lsu.io.axi_bus.req.bits
+  axi_arb.io.in(1).valid  <> RegNext(inst_fetch.io.axi_bus.req.valid)
+  axi_arb.io.in(1).ready  <> inst_fetch.io.axi_bus.req.ready
+  axi_arb.io.in(1).bits   <> inst_fetch.io.axi_bus.req.bits     
+  axi_arb.io.out.ready    := axi_master.io.req.ready
+
+  axi_master.io := DontCare
+  axi_master.io.req.valid := axi_arb.io.out.valid  
+  axi_master.io.req.bits  := axi_arb.io.out.bits
+  axi_master.io.axi_io <> io.core.master
+  axi_master.io.resp <> lsu.io.axi_bus.resp
+  axi_master.io.resp <> inst_fetch.io.axi_bus.resp
 
   inst_fetch.io.ctl <> decoder.io.ctl_sign
   inst_fetch.io.exception_target := lsu.io.exception_target

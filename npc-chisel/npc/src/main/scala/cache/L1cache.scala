@@ -12,13 +12,13 @@ sealed trait HasL1Params{
   implicit val conf: Config
   val nSets:     Int = 1
   val nWays:     Int = 4
-  val nLines:    Int = 64
-  val rowLengths:   Int = 128
+  val nLines:    Int = 8
+  val rowLengths:   Int = 32
   val singleSet = nSets == 1
   val wordsPerRow = rowLengths / conf.xlen
-  def tagBits: Int = conf.xlen - log2Ceil(nSets) - log2Ceil(nLines) - rowLengths - 2
+  def tagBits: Int = conf.xlen - log2Ceil(nSets) - log2Ceil(nLines) - offsetBits - byteOffsetBits
   def idxBits: Int = log2Ceil(nLines) 
-  def offsetBits: Int = log2Ceil(rowLengths/conf.xlen)
+  def offsetBits: Int = log2Ceil(rowLengths/conf.xlen) 
   def addrBits: Int = conf.xprlen
   def byteOffsetBits: Int = 2
   def addrBundle = new Bundle {
@@ -176,61 +176,71 @@ class MissUnitBus(implicit val conf: Config) extends CacheBundle {
 class MissUnit(implicit val conf: Config) extends CacheModule {
     val io = IO(new Bundle {
         val bus = new MissUnitBus
-        val to_axi    = Flipped(Decoupled(new AXI4Req(rowLengths)))
-        val from_axi  = Decoupled(new AXI4Resp(rowLengths))
+        val axi_bus = new AXI4Bus()
         val main_pipe = Flipped(new MainPipeReq)
+        val debug = new Bundle{
+          val state = Output(UInt(2.W))
+        }
     })
+
     io.bus.req := DontCare
     io.bus.resp := DontCare
+    io.main_pipe := DontCare
+    io.axi_bus.req := DontCare
+    io.axi_bus.resp.ready := true.B
     val req_fire = Wire(Bool()) 
-    val sIdle :: sRequesting :: sBurstRequesting :: sReceiving :: sComplete :: Nil = Enum(5)
+    val sRequesting :: sReceiving :: sComplete :: Nil = Enum(3)
 
-    val state   =   RegInit(sIdle)
+    val state   =   RegInit(sRequesting)
     val cacheLine = RegInit(VecInit(Seq.fill(wordsPerRow)(0.U(conf.xlen.W))))
     val addr = RegEnable(io.bus.req.bits.addr,0.U, req_fire)
     val offset = RegInit(0.U(offsetBits.W))
     req_fire := io.bus.req.fire
 
-    when(state === sIdle) {
-        when(io.bus.req.valid) {
-          state := Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting)
-          offset := 0.U
-    }}
-    .elsewhen(state === sRequesting ){
-            io.to_axi.valid       := state === sRequesting
-            io.to_axi.bits.raddr   := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),offset,0.U(byteOffsetBits.W))
-            io.to_axi.bits.ren    := true.B
-            io.to_axi.bits.burstlen := 0.U
-            when(io.to_axi.ready) {state := sReceiving }}
-    .elsewhen(state === sBurstRequesting) { 
-        io.to_axi.valid           := state === sBurstRequesting
-        io.to_axi.bits.raddr       := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),0.U(offsetBits.W+byteOffsetBits.W))
-        io.to_axi.bits.ren        := true.B
-        io.to_axi.bits.burst      := BURST_INCR
-        io.to_axi.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
-        when(io.to_axi.ready) {state := sReceiving }}
+    when (conf.ICacheEnableBurst){
+      io.axi_bus.req.valid           := io.bus.req.valid
+      io.axi_bus.req.bits.raddr      := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),0.U(offsetBits.W+byteOffsetBits.W))
+      io.axi_bus.req.bits.ren        := true.B
+      io.axi_bus.req.bits.burst      := BURST_INCR
+      io.axi_bus.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
+    }.otherwise{
+      io.axi_bus.req.valid       := io.bus.req.valid
+      io.axi_bus.req.bits.raddr   := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),offset,0.U(byteOffsetBits.W))
+      io.axi_bus.req.bits.ren    := true.B
+      io.axi_bus.req.bits.burstlen := 0.U
+      io.axi_bus.req.bits.burst := BURST_FIXED
+    }
+
+    when(state === sRequesting ){
+      when(io.bus.req.valid && io.axi_bus.req.ready) {
+        offset := 0.U
+        state := sReceiving 
+    }}    
     .elsewhen(state === sReceiving) {
-        when(io.from_axi.valid) {
+        when(io.axi_bus.resp.valid) {
             offset := offset + 1.U
-            cacheLine(offset) := io.from_axi.bits.data // 存储子块
+            cacheLine(offset) := io.axi_bus.resp.bits.data // 存储子块
             // 检查是否完成
             when(offset === (wordsPerRow-1).U) {
                 state := sComplete
-            }.elsewhen(conf.ICacheEnableBurst && !io.from_axi.bits.last ) { 
+            }.elsewhen(conf.ICacheEnableBurst && !io.axi_bus.resp.bits.last ) { 
                 state := sReceiving 
             }.otherwise {
-                state :=  Mux(conf.ICacheEnableBurst,sBurstRequesting,sRequesting) // 继续请求下一子块
+                state :=  sRequesting // 继续请求下一子块
             }
         }
     }.elsewhen(state === sComplete) { 
-        state   := sIdle
+        state   := sRequesting
     }
     
-  io.bus.req.ready := state === sIdle 
+  io.bus.req.ready := io.axi_bus.req.ready && (state === sRequesting)
   io.bus.resp.valid := state === sComplete
   io.bus.resp.bits.data := cacheLine.asUInt
   io.bus.resp.bits.resp := 0.U // OKAY
   io.bus.resp.bits.addr := addr
+
+  /////// debug
+  io.debug.state := state
 }
 
 
@@ -322,7 +332,6 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   // stage 2 miss 
   io.missBus.req.valid := s2_valid && s2_miss 
   io.missBus.req.bits.addr := s2_addr
-
 
   io.resp.valid := s2_valid
   io.resp.bits.data := Mux1H(s2_hit_vec, s2_resp_data)
