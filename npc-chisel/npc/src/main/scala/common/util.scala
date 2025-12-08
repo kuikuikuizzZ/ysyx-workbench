@@ -6,7 +6,7 @@ package npc.common
 {
 
 import chisel3._
-import chisel3.util.{Cat, Fill, log2Ceil}
+import chisel3.util._
 import scala.math._
 
 object Util
@@ -224,6 +224,11 @@ object Str
   private def validChar(x: Char) = x == (x & 0xFF)
 }
 
+object UtilMethods { 
+  def ResultHoldBypass[T<:Data](data: T, valid: Bool): T = {
+    Mux(valid, data, RegEnable(data, valid))
+  }
 }
 
 
+}

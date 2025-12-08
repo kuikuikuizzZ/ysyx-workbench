@@ -34,6 +34,11 @@ verilog_iverilog_netlist_build:
 	mkdir -p $(NPC_HOME)/svsrc_netlist
 	mill -i $(PRJ).runMain ElaborateIverilogNetlist 
 
+verilog_sram:
+	$(call git_commit, "generate verilog")
+	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
+	mill -i $(PRJ).runMain ElaborateSRAM 
+
 
 verilog: verilog_build
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.v

@@ -4,6 +4,9 @@ package common
 import chisel3._
 import chisel3.util._
 
+abstract class HasParameters {
+    val xlen: Int   
+}
 case class Config(
  xprlen: Int = 32) {
     val xlen = xprlen

@@ -259,7 +259,6 @@ class LSUImpl(implicit val conf: Config) extends Module {
     }
 
     val to_axi_fire = io.axi_bus.req.fire.asBool
-    val req_fire = RegEnable(!to_axi_fire, false.B)
     csr_files.io.pc         := io.exe_mem.bits.pc   
     csr_files.io.csr_inst   := io.exe_mem.bits.csr_inst
     csr_files.io.csr_cmd    := io.exe_mem.bits.ctrl_csr_cmd

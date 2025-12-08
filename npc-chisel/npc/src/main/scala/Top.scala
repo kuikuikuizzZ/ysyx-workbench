@@ -54,3 +54,29 @@ class Top extends Module
     core.io.master <>  axi_mem_slave.io.axi_io
     // io.halt := core.io.halt
 }
+
+class SRAMTop extends Module { 
+    val io = IO(new Bundle{
+        // val halt = Output(Bool())
+        val addr = Input(UInt(32.W))
+        val data = Output(UInt(32.W))
+        val write = Input(Bool())
+    })
+   implicit val conf = Config()
+    io := DontCare
+
+    val cache = Module(new CacheSRAMTemplate(new DataBundle, 8, 4))
+    cache.io := DontCare
+    when(io.write){
+        cache.io.w.req.valid := true.B
+        cache.io.w.req.bits.index := io.addr(2,0)
+        cache.io.w.req.bits.waymask := 1.U
+        cache.io.w.req.bits.data.data := io.addr
+    } .otherwise{
+        cache.io.r.req.valid := true.B
+        cache.io.r.req.bits.index := io.addr(2,0)
+    }
+    val data = cache.io.r.resp.bits.data.map(_.asTypeOf(new DataBundle).data)
+    io.data := data(0)
+}
+

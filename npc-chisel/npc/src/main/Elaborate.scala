@@ -101,6 +101,23 @@ object ElaborateHelp extends App {
     firtoolOptions)
 }
 
+object ElaborateSRAM extends App {
+  val firtoolOptions = Array(
+    "--disable-all-randomization",
+    "--disable-mem-randomization",
+    "--disable-reg-randomization",
+    "--lowering-options=" + List(
+       "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb",
+    ).reduce(_ + "," + _),
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new SRAMTop(),
+    Array("--target","verilog","--target-dir","build/sram"),
+    firtoolOptions)
+}
 
 // object Elaborate extends App {
 //   val firtoolOptions = Array(

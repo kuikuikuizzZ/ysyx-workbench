@@ -3,6 +3,7 @@ package npc
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.random.LFSR
 
 import npc.common._
 import npc.Constants._
@@ -13,30 +14,38 @@ sealed trait HasL1Params{
   val nSets:     Int = 1
   val nWays:     Int = 4
   val nLines:    Int = 8
-  val rowLengths:   Int = 32
+  val rowBits:   Int = conf.xlen
+  val rowBytes:  Int = rowBits/8
+  val blockBytes:Int = 8
+  val blockBits: Int = blockBytes*8
   val singleSet = nSets == 1
-  val wordsPerRow = rowLengths / conf.xlen
-  def tagBits: Int = conf.xlen - log2Ceil(nSets) - log2Ceil(nLines) - offsetBits - byteOffsetBits
+  val blockRows = blockBytes/rowBytes
+  val blockIdx = log2Ceil(blockRows)
+  def tagBits: Int = conf.xlen - log2Ceil(nSets) - idxBits - blockIdx - byteOffsetBits
   def idxBits: Int = log2Ceil(nLines) 
-  def offsetBits: Int = log2Ceil(rowLengths/conf.xlen) 
   def addrBits: Int = conf.xprlen
   def byteOffsetBits: Int = 2
   def addrBundle = new Bundle {
     val tag = UInt(tagBits.W)
     val index = UInt(idxBits.W)
-    val wordIndex = UInt(offsetBits.W)
+    val wordIndex = UInt(blockIdx.W)
     val byteOffset = UInt(2.W)
   }
 
   def getIdx(addr: UInt) = addr.asTypeOf(addrBundle).index
   def getWordIdx(addr: UInt) = addr.asTypeOf(addrBundle).wordIndex
   def getTag(addr: UInt) = addr.asTypeOf(addrBundle).tag
+  def mergePutData(old_data: UInt, new_data: UInt,wmask: UInt): UInt = {
+    val full_mask = FillInterleaved(8, wmask)
+    (old_data & ~full_mask) | (new_data & full_mask)
+  }
 }
 
 abstract class CacheBundle extends Bundle with HasL1Params
 abstract class CacheModule extends Module with HasL1Params
+abstract class CacheConfig extends HasParameters with HasL1Params
 
-class MetaBundle (implicit val conf: Config)extends CacheBundle {
+sealed class MetaBundle (implicit val conf: Config)extends CacheBundle {
   val tag = Output(UInt(tagBits.W))
   val valid = Output(Bool())
   def apply(tag: UInt,valid : Bool) = {
@@ -46,48 +55,35 @@ class MetaBundle (implicit val conf: Config)extends CacheBundle {
   }
 }
 
-class DataBundle(implicit val conf: Config) extends CacheBundle {
-  val data = Output(UInt(rowLengths.W))
+sealed class DataBundle(implicit val conf: Config) extends CacheBundle {
+  val data = Output(UInt(blockBits.W))
 
   def apply(data: UInt) = {
     this.data := data
     this
   }
 }
+object DataBundle{
+  implicit val conf = new Config()
 
-class BundleA(nLines: Int) (implicit val conf: Config)extends CacheBundle {
-  val index = Output(UInt(log2Ceil(nLines).W))
-}
-
-class BundleR[T <: Data](gen: T,way: Int) (implicit val conf: Config) extends CacheBundle {
-  val data = Input(Vec(way,gen))
-}
-
-class BundleAW[T <: Data](gen: T, nLines: Int,way: Int)(implicit val conf: Config) extends CacheBundle {
-  val index = Output(UInt(log2Ceil(nLines).W))
-  val waymask = Output(UInt(way.W))
-  val wMask = Output(UInt(wordsPerRow.W))
-  val data = Output(Vec(way,gen))
-}
-
-class SRAMWriteBus[T <: Data](gen: T, nLines: Int, way: Int)(implicit val conf: Config) extends CacheBundle {
-  val req = Decoupled(new BundleAW(gen,nLines,way))
-}
-
-class SRAMReadBus[T <: Data](gen: T, nLines: Int, way: Int) (implicit val conf: Config)extends CacheBundle {
-  val req = Decoupled(new BundleA(nLines))
-  val resp = Decoupled(new BundleR(gen,way))
+  // 可以添加工厂方法、常量等
+  def apply(data: UInt): DataBundle = {
+    val bundle = new DataBundle
+    bundle.data := data
+    bundle
+  }
 }
 
 
-class L1Req(implicit conf: Config) extends Bundle {
-  val addr = UInt(conf.xlen.W)
-  val rw   = Bool()
+class L1Req (implicit val conf: Config) extends CacheBundle {
+  val addr = Input(UInt(conf.xlen.W))
+  val rw   = Input(Bool())
 }
 
-class L1Resp(implicit conf: Config) extends Bundle {
-  val data = UInt(conf.xlen.W)
-  val exception = UInt(5.W)
+class L1Resp(implicit val conf: Config) extends CacheBundle {
+  val data      = Output(Vec(blockRows,UInt(rowBits.W)))
+  val exception = Output(UInt(5.W))
+  val miss      = Output(Bool())
 }
 
 class L1CahceBundle(implicit val conf: Config) extends CacheBundle  {
@@ -97,24 +93,28 @@ class L1CahceBundle(implicit val conf: Config) extends CacheBundle  {
   val port = new MemPortIo(conf.xlen)
 }
 
+
+class ReplaceWayReq (implicit val conf: Config) extends CacheBundle {
+  val idx = ValidIO(UInt(idxBits.W))
+  val way = Input(UInt(log2Up(nWays).W))
+}
+
+class ReplaceAccess (implicit val conf: Config) extends CacheBundle {
+  val idx = (UInt(idxBits.W))
+  val way = Input(UInt(log2Up(nWays).W))
+}
+
 class RefillReq (implicit val conf: Config)extends CacheBundle {
-  val addr = Input(UInt(conf.xprlen.W))
-  val vaddr = Input(UInt(conf.xprlen.W))
+  val addr    = Input(UInt(conf.xprlen.W))
   val wayMask = Input(UInt(nWays.W))
-  val idx = Input(UInt(idxBits.W))
-  val wordMask = Input(UInt(wordsPerRow.W))
-  val data = Input(UInt(rowLengths.W))
+  val data    = Input(Vec(blockRows,UInt(conf.xlen.W)))
+  // val vaddr   = Input(UInt(conf.xprlen.W))
+  // val idx     = Input(UInt(idxBits.W))
 }
 
 class RefillResp (implicit val conf: Config)extends CacheBundle {
   val data = Output(Bool())
 }
-
-class ReplaceReq (implicit val conf: Config) extends CacheBundle {
-  val idx = Input(UInt(idxBits.W))
-  val way = Input(UInt(nWays.W))
-}
-
 
 class MainPipeReq (implicit val conf: Config) extends CacheBundle {
   val addr    = Input(UInt(conf.xprlen.W))
@@ -127,29 +127,30 @@ class MainPipeReq (implicit val conf: Config) extends CacheBundle {
 
 class RefillPipe (implicit val conf: Config) extends CacheModule {
   val io = IO(new Bundle(){
-    val req = Decoupled(new RefillReq)
-    val resp = Decoupled(new RefillResp)
-    val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
-    val dataRead = new SRAMReadBus(new DataBundle, nLines,nWays)
-    val metaWrite = new SRAMWriteBus(new MetaBundle, nLines,nWays)
-    val dataWrite = new SRAMWriteBus(new DataBundle, nLines,nWays)
+    val req = Flipped(Decoupled(new RefillReq))
+    // val resp = Output(Bool())
+    // val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
+    // val dataRead = new SRAMReadBus(new DataBundle, nLines,nWays)
+    val metaWrite = Flipped(new SRAMWriteBus(new MetaBundle, nLines,nWays))
+    val dataWrite = Flipped(new SRAMWriteBus(new DataBundle, nLines,nWays))
   })
-  io.req.ready := true.B
-  io.resp.valid := io.req.fire
+
+  io.req.ready := io.dataWrite.req.ready && io.metaWrite.req.ready
+  // io.resp := io.req.fire
 
   val idx = getIdx(io.req.bits.addr)
   val tag = getTag(io.req.bits.addr)
-  val valids = VecInit(Seq.fill(nWays)(true.B))
+
   io.dataWrite.req.valid := io.req.valid
   io.dataWrite.req.bits.index := idx
-  io.dataWrite.req.bits.data := io.req.bits.data
+  io.dataWrite.req.bits.data.data := io.req.bits.data.asUInt
   io.dataWrite.req.bits.waymask := io.req.bits.wayMask
-  io.dataWrite.req.bits.wMask := io.req.bits.wordMask
 
   io.metaWrite.req.valid := io.req.valid
   io.metaWrite.req.bits.index := idx
-  // io.metaWrite.req.bits.data := MetaBundle(tag,valids)
-
+  io.metaWrite.req.bits.data.tag := tag
+  io.metaWrite.req.bits.data.valid := true.B
+  io.metaWrite.req.bits.waymask := io.req.bits.wayMask
 }
 
 class MissReq (implicit val conf: Config) extends CacheBundle {
@@ -157,15 +158,17 @@ class MissReq (implicit val conf: Config) extends CacheBundle {
   val vaddr = Input(UInt(conf.xprlen.W))
   val waymask = Input(UInt(nWays.W)) 
 
-  val store_data = Input(UInt(rowLengths.W))
-  val store_wmask = Input(UInt(wordsPerRow.W))
+  val store_data = Input(Vec(blockRows,UInt(rowBits.W)))
+  val store_wmask = Input(Vec(blockRows,UInt(rowBytes.W)))
   val store = Input(Bool())
+  val burst = Input(Bool())
 }
 
 class MissResp (implicit val conf: Config) extends CacheBundle {
-  val data = Output(UInt(rowLengths.W))
+  val data = Output(Vec(blockRows,UInt(conf.xlen.W)))
   val resp = Output(UInt(2.W)) // OKAY or SLVERR
   val addr = Output(UInt(conf.xprlen.W))
+  val miss = Output(Bool())
 }
 
 class MissUnitBus(implicit val conf: Config) extends CacheBundle {
@@ -177,53 +180,74 @@ class MissUnit(implicit val conf: Config) extends CacheModule {
     val io = IO(new Bundle {
         val bus = new MissUnitBus
         val axi_bus = new AXI4Bus()
-        val main_pipe = Flipped(new MainPipeReq)
+        // val main_pipe = Flipped(new MainPipeReq)
+        val refill_req = Decoupled(new RefillReq)
+        // val refill_resp = Input(Bool())
         val debug = new Bundle{
           val state = Output(UInt(2.W))
         }
     })
 
-    io.bus.req := DontCare
-    io.bus.resp := DontCare
-    io.main_pipe := DontCare
-    io.axi_bus.req := DontCare
+    io.axi_bus.req.bits.waddr := DontCare
+    io.axi_bus.req.bits.data := DontCare
+    io.axi_bus.req.bits.mask := DontCare
+    io.axi_bus.req.bits.typ := DontCare
+    io.axi_bus.req.bits.wen := false.B
+
     io.axi_bus.resp.ready := true.B
     val req_fire = Wire(Bool()) 
     val sRequesting :: sReceiving :: sComplete :: Nil = Enum(3)
 
     val state   =   RegInit(sRequesting)
-    val cacheLine = RegInit(VecInit(Seq.fill(wordsPerRow)(0.U(conf.xlen.W))))
+    val cacheLine = RegInit(VecInit(Seq.fill(blockRows)(0.U(conf.xlen.W))))
     val addr = RegEnable(io.bus.req.bits.addr,0.U, req_fire)
-    val offset = RegInit(0.U(offsetBits.W))
+    val offset = RegInit(0.U(blockIdx.W))
+    val store_mask = io.bus.req.bits.store_wmask
+    val store_data = io.bus.req.bits.store_data
     req_fire := io.bus.req.fire
 
-    when (conf.ICacheEnableBurst){
+    when (io.bus.req.bits.burst){
       io.axi_bus.req.valid           := io.bus.req.valid
-      io.axi_bus.req.bits.raddr      := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),0.U(offsetBits.W+byteOffsetBits.W))
+      io.axi_bus.req.bits.raddr      := Cat(addr(conf.xprlen-1,blockRows+byteOffsetBits),0.U(blockRows.W+byteOffsetBits.W))
       io.axi_bus.req.bits.ren        := true.B
       io.axi_bus.req.bits.burst      := BURST_INCR
-      io.axi_bus.req.bits.burstlen   := Mux(conf.ICacheEnableBurst,conf.burstLength.U,0.U)
+      io.axi_bus.req.bits.burstlen   := blockIdx.U
     }.otherwise{
       io.axi_bus.req.valid       := io.bus.req.valid
-      io.axi_bus.req.bits.raddr   := Cat(addr(conf.xprlen-1,offsetBits+byteOffsetBits),offset,0.U(byteOffsetBits.W))
+      io.axi_bus.req.bits.raddr   := Cat(addr(conf.xprlen-1,blockRows+byteOffsetBits),offset,0.U(byteOffsetBits.W))
       io.axi_bus.req.bits.ren    := true.B
       io.axi_bus.req.bits.burstlen := 0.U
       io.axi_bus.req.bits.burst := BURST_FIXED
     }
+    val refill_store_data = Wire(Vec(blockRows,UInt(rowBits.W)))
+    val refill_store_mask = Wire(Vec(blockRows,UInt(rowBytes.W)))
+
+    for(i <- 0 until blockRows) {
+      // refill_store_data(i) := store_data((i+1)*rowBits-1, i*rowBits)
+      // refill_store_mask(i) := store_mask((i+1)*rowBytes-1, i*rowBytes)
+      refill_store_data(i) := store_data(i)
+      refill_store_mask(i) := store_mask(i)
+    }
 
     when(state === sRequesting ){
       when(io.bus.req.valid && io.axi_bus.req.ready) {
-        offset := 0.U
         state := sReceiving 
     }}    
     .elsewhen(state === sReceiving) {
         when(io.axi_bus.resp.valid) {
+            // TODO: maybe need to support other burstlen 
             offset := offset + 1.U
-            cacheLine(offset) := io.axi_bus.resp.bits.data // 存储子块
+            when(io.bus.req.bits.store === true.B) {  // store 
+              cacheLine(offset) := mergePutData(io.axi_bus.resp.bits.data, 
+                                    refill_store_data(offset),
+                                    refill_store_mask(offset))
+            } .otherwise {
+              cacheLine(offset) := io.axi_bus.resp.bits.data  // 存储子块
+            }
             // 检查是否完成
-            when(offset === (wordsPerRow-1).U) {
+            when(offset === (blockRows-1).U) {
                 state := sComplete
-            }.elsewhen(conf.ICacheEnableBurst && !io.axi_bus.resp.bits.last ) { 
+            }.elsewhen(io.bus.req.bits.burst && !io.axi_bus.resp.bits.last ) { 
                 state := sReceiving 
             }.otherwise {
                 state :=  sRequesting // 继续请求下一子块
@@ -231,41 +255,59 @@ class MissUnit(implicit val conf: Config) extends CacheModule {
         }
     }.elsewhen(state === sComplete) { 
         state   := sRequesting
+        offset := 0.U
     }
-    
-  io.bus.req.ready := io.axi_bus.req.ready && (state === sRequesting)
-  io.bus.resp.valid := state === sComplete
-  io.bus.resp.bits.data := cacheLine.asUInt
-  io.bus.resp.bits.resp := 0.U // OKAY
-  io.bus.resp.bits.addr := addr
 
-  /////// debug
-  io.debug.state := state
+    io.bus.req.ready := io.axi_bus.req.ready && (state === sRequesting)
+    io.bus.resp.valid := state === sComplete
+    io.bus.resp.bits.data := cacheLine
+    io.bus.resp.bits.resp := 0.U // OKAY
+    io.bus.resp.bits.addr := addr
+    io.bus.resp.bits.miss := true.B
+
+    io.refill_req.valid := state === sComplete
+    io.refill_req.bits.addr := addr
+    io.refill_req.bits.data := cacheLine
+    io.refill_req.bits.wayMask := io.bus.req.bits.waymask
+
+
+    /////// debug
+    io.debug.state := state
 }
 
 
-class LoadPipeResp (implicit val conf: Config)extends CacheBundle {
-  val data = Output(UInt(conf.xlen.W))
-  val exception = Output(UInt(5.W))
-  val resp_miss = Output(Bool())
-}
+// class LoadPipeResp (implicit val conf: Config)extends CacheBundle {
+//   val data = Output(Vec(blockRows,UInt(rowBits.W)))
+//   val exception = Output(UInt(5.W))
+//   val miss = Output(Bool())
+// }
 
-class ReplacePolicy (implicit val conf: Config)extends CacheBundle {
-  val way = Output(UInt(nWays.W))
-  val idx = Output(UInt(idxBits.W))
-}
 
 
 class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val io = IO(new Bundle {
     val req = Flipped(Decoupled(new L1Req))
-    val resp = Decoupled(new LoadPipeResp)
-    val metaRead = new SRAMReadBus(new MetaBundle, nLines,nWays)
-    val dataRead  = new SRAMReadBus(new DataBundle, nLines,nWays)
+    val resp = Decoupled(new L1Resp)
+    val metaRead = Flipped(new SRAMReadBus(new MetaBundle, nLines,nWays))
+    val dataRead  = Flipped(new SRAMReadBus(new DataBundle, nLines,nWays))
     val missBus   = Flipped(new MissUnitBus)
-    val replace_access = Decoupled(new ReplacePolicy)
-    val lsu_s1_kill = Input(Bool())
+    val replace_way = new ReplaceWayReq
+    val stall     = Input(Bool())
+    val debug = new Bundle{
+      val s0_valid = Output(Bool())
+      val s1_valid = Output(Bool())
+      val s1_fire = Output(Bool())
+      val s2_valid = Output(Bool())
+      val s1_hit_vec = Output(Vec(nWays,Bool()))
+      val s1_meta = Output(Vec(nWays,new MetaBundle))
+      val s1_tag_match_way = Output(Vec(nWays,Bool()))
+      val s2_fetch_finish = Output(Bool())
+    }
   })
+  io.resp := DontCare
+  io.metaRead.resp.ready := true.B
+  io.dataRead.resp.ready := true.B
+  io.missBus := DontCare
 
   // stage 0 ctrl 
   val s1_ready = Wire(Bool())
@@ -273,11 +315,12 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val s0_valid = io.req.fire
   val s0_fire = s0_valid && s1_ready
   io.req.ready := io.metaRead.req.ready && s1_ready
-
+  dontTouch(io.metaRead)
   // stage 0 pipeline
   val s0_addr = io.req.bits.addr
-  io.metaRead.req.valid := s0_valid
-  io.metaRead.req.bits.index := getIdx(s0_addr)
+  // io.metaRead.req.valid := s0_valid
+  // io.metaRead.req.bits.index := (getIdx(s0_addr))
+  io.metaRead.apply(valid = s0_valid, index = getIdx(s0_addr))
   
   // stage 1 ctrl 
   val s2_ready = Wire(Bool())
@@ -298,15 +341,19 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   }  
   val s1_hit = s1_hit_vec.asUInt.orR && s1_valid
   val s1_miss = !s1_hit && s1_valid
+  val s1_tag_match = s1_tag_match_way.asUInt.orR
 
-  io.dataRead.req.valid := s1_fire
-  io.dataRead.req.bits.index := s1_idx
-  // io.dataRead.req.bits.waymask := s1_hit_vec
+  // io.dataRead.req.valid := s1_fire
+  // io.dataRead.req.bits.index := s1_idx
+  // io.dataRead.req.bits.waymask := s1_hit_vec.asUInt
+  io.dataRead.apply(valid = s1_fire, index = s1_idx)
 
   // init replacement 
-  io.replace_access.valid := s1_valid 
-  io.replace_access.bits.way := s1_hit_vec.asUInt
-  io.replace_access.bits.idx := s1_idx
+  io.replace_way.idx.valid := RegNext(s0_fire) 
+  io.replace_way.idx.bits := s1_idx
+  val s1_repl_way_en = UIntToOH(io.replace_way.way)
+  val s1_need_replacement = !s1_tag_match  
+  val s1_waymask = Mux(s1_need_replacement, s1_repl_way_en, s1_tag_match_way.asUInt)
 
   when (s0_fire){
     s1_valid := true.B 
@@ -315,6 +362,7 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   }
 
   // stage 2
+  val s2_fetch_finish = Wire(Bool())
   val s2_valid = RegInit(false.B)
   val s2_tag_match_way = RegEnable(s1_tag_match_way,s1_fire)
   val s2_hit_vec = RegEnable(s1_hit_vec,s1_fire)
@@ -322,21 +370,42 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val s2_idx = RegEnable(s1_idx, s1_fire)
   val s2_addr = RegEnable(s1_addr, s1_fire)
   val s2_miss = RegEnable(s1_miss, s1_fire)
-  val s2_resp_data = io.dataRead.resp.bits.data
-  val s2_fire = s2_valid
-  s2_ready := true.B
+  val s2_waymask = RegEnable(s1_waymask,s1_fire)
+  val s2_resp_datas = io.dataRead.resp.bits.data
+  val s2_fire = !io.stall && ((s2_valid && s2_hit) || (s2_valid && s2_fetch_finish)) 
+  s2_fetch_finish := io.missBus.resp.valid && s2_miss
 
-  when (s1_fire) { s2_valid := !io.lsu_s1_kill }
+  // s2_ready := true.B
+  s2_ready := !io.stall
+
+
+  when (s1_fire) { s2_valid := !io.stall }
   .elsewhen(io.resp.fire) { s2_valid := false.B }
+
 
   // stage 2 miss 
   io.missBus.req.valid := s2_valid && s2_miss 
   io.missBus.req.bits.addr := s2_addr
+  io.missBus.req.bits.waymask := s2_waymask
 
-  io.resp.valid := s2_valid
-  io.resp.bits.data := Mux1H(s2_hit_vec, s2_resp_data)
-  io.resp.bits.resp_miss := s2_miss
+  // return 
+  val miss_resp_data = io.missBus.resp.bits.data
+  val s2_hit_resp_data =  Mux1H(s2_hit_vec, s2_resp_datas).data.asTypeOf(Vec(blockRows,UInt(rowBits.W)))
+  val resp_data = Mux(s2_miss, miss_resp_data, s2_hit_resp_data)
+  io.resp.valid := s2_fire
+  io.resp.bits.data := resp_data
+  io.resp.bits.miss := s2_miss
+  
 
+  ////// debug
+  io.debug.s1_fire := s1_fire
+  io.debug.s1_valid := s1_valid
+  io.debug.s0_valid := s0_valid
+  io.debug.s2_valid := s2_valid
+  io.debug.s1_hit_vec   := s1_hit_vec
+  io.debug.s1_meta := s1_meta
+  io.debug.s1_tag_match_way := s1_tag_match_way
+  io.debug.s2_fetch_finish := s2_fetch_finish
 }
 
 
@@ -378,9 +447,8 @@ class MainPipe (implicit val conf: Config) extends CacheModule  {
     io.missBus.req.bits.addr := s0_addr
     io.missBus.req.valid := s1_valid
   }
+
 }
-
-
 
 
 class L1Cache(implicit val conf: Config) extends CacheModule{ 
@@ -423,8 +491,8 @@ class L1Cache(implicit val conf: Config) extends CacheModule{
   dataWriteArb.io.out   <> datas.io.w
 
   //main pipe 
-  mainPipeArb.io.in(0) <> missUnit.io.main_pipe
-  mainPipeArb.io.in(1) <> io.req
+  // mainPipeArb.io.in(0) <> missUnit.io.main_pipe
+  mainPipeArb.io.in(0) <> io.req
   mainPipe.io.req <> mainPipeArb.io.out
   mainPipe.io.missBus <> missUnit.io.bus
 
@@ -435,38 +503,21 @@ class L1Cache(implicit val conf: Config) extends CacheModule{
 
 }
 
-class CacheSRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val conf: Config) extends CacheModule {
-  val io = IO(new Bundle {
-    val r = Flipped(new SRAMReadBus(typ, line, ways))
-    val w = Flipped(new SRAMWriteBus(typ, line, ways))
-  })
-  val wordtype = UInt(typ.getWidth.W)
-  val array = SyncReadMem(line, Vec(ways, wordtype))
 
-  val (resetState, resetLine) = (WireInit(false.B), WireInit(0.U))
-  val _resetState = RegInit(true.B)
-  val (_resetLine, resetFinish) = Counter(_resetState, nLines)
-  when (resetFinish) { _resetState := false.B } 
-  resetState := _resetState
-  resetLine := _resetLine
 
-  // Read logic
-  val r_valid = io.r.req.valid && !resetState
-  val rdata = array.read(io.r.req.bits.index, r_valid).map(_.asTypeOf(typ))
-  io.r.resp.bits.data := VecInit(rdata)
-  io.r.req.ready := !resetState 
-  io.r.resp.valid := RegNext(r_valid, false.B)
-  
-  // Write logic
-  val w_valid = io.w.req.valid && !resetState
-  val windex  = Mux(resetState, resetLine, io.w.req.bits.index)
-  val waymask = Mux(resetState, Fill(ways, 1.U), io.w.req.bits.waymask)
-  val wword   = Mux(resetState, 0.U.asTypeOf(wordtype), io.w.req.bits.data.asUInt)
-  val wdata   = VecInit(Seq.fill(ways)(wword))
-  when(w_valid){
-      array.write(windex, wdata, waymask.asBools)
+class RandomReplacement (nWays:Int, nLines:Int)(implicit val conf: Config) { 
+  def nBits = 16
+  private val lfsr = LFSR(nBits,false.B)
+  def way = Random(nWays,lfsr)
+  def access(touch_way: UInt) = {}
+  def get_replace_way(idx: UInt): UInt = way
+
+}
+
+object Random {
+  def apply(mod: Int, rand: UInt): UInt = {
+    require(isPow2(mod))
+    val modBits = log2Ceil(mod)-1
+    rand(modBits,0)
   }
-  io.w.req.ready := !resetState && !r_valid
-
-
 }
