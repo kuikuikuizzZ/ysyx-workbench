@@ -273,13 +273,16 @@ void watch_top(){
     if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
     else {
         // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
-        printf(" io_halt %d ,pc %.8x,dec_pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
+        // printf(" io_halt %d ,pc %.8x,dec_pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x a1 %.8x a2 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
+        printf(" io_halt %d ,pc %.8x,dec_pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x a5 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
             top_halt(),
             top_pc(),
             top_decode_pc(),
             top_dnpc(),
             top_inst(),
             top_gpr(10),
+            top_gpr(15),
+            // top_gpr(12),
             top_op1(),
             top_op2(),
             top_alu_out(),

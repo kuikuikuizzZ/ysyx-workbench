@@ -297,8 +297,8 @@ class AXI4Master (implicit val conf: Config) extends Module{
     io := DontCare
     io.resp.bits := DontCare
 
-    val accept_read = (rstate === rs_idle) && io.req.bits.ren && io.req.valid
-    val accept_write = !accept_read && (wstate === ws_idle) && io.req.bits.wen && io.req.valid
+    val accept_read = (rstate === rs_idle) && io.req.bits.ren && io.req.fire
+    val accept_write = !accept_read && (wstate === ws_idle) && io.req.bits.wen && io.req.fire
     val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
     val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,false.B,(wstate === ws_idle)))
     val awfire = RegInit(false.B)
@@ -388,7 +388,7 @@ class AXI4Master (implicit val conf: Config) extends Module{
     }
 
     io.req.ready := rstate === rs_idle && (wstate === ws_idle)
-    io.resp.valid := Mux(wstate =/= ws_idle ,(io.axi_io.b.valid),io.axi_io.r.valid)
+    io.resp.valid := Mux(is_write ,(io.axi_io.b.valid),io.axi_io.r.valid)
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid,    io.axi_io.r.bits.resp ,
                           Mux(io.axi_io.b.valid,    io.axi_io.b.bits.resp, 0.U ))
 

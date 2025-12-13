@@ -7,6 +7,7 @@ import chisel3.util._
 import npc.common._
 import npc.Constants._
 import javax.xml.transform.OutputKeys
+import npc.common.UtilMethods._
 
 class LSUPipeIO(implicit val conf: Config) extends Bundle() {
     val wbaddr          = Output(UInt(5.W))
@@ -174,7 +175,6 @@ class LSU(implicit val conf: Config) extends Module {
     io.mem_wb.bits.ebreak           := csr_files.io.ebreak
     io.mem_wb.bits.pc               := io.exe_mem.bits.pc
     io.mem_wb.bits.ctrl_rf_wen      := io.exe_mem.bits.ctrl_rf_wen
-    // io.mem_wb.bits.inst             := io.exe_mem.bits.inst
     io.mem_wb.bits.pc_valid         := io.exe_mem.bits.pc_valid 
     io.mem_wb.bits.mem_resp_valid   := mem_resp_valid
     io.mem_wb.bits.debug            := io.debug
@@ -237,7 +237,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val is_bus_req = mem_en && !in_clint
     val is_clint_req = in_clint && mem_en
 
-    io.axi_bus.req.valid := mem_en && !in_clint
+    io.axi_bus.req.valid := mem_en && !in_clint && state === s_idle
     switch(state){ 
         is(s_idle) {
             when(is_bus_req &&  io.axi_bus.req.ready){
@@ -287,13 +287,14 @@ class LSUImpl(implicit val conf: Config) extends Module {
     // read 
     // lsu should support mis-aligned access? or should based on slave type? 
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B)
-    val req_typ_reg = RegEnable(io.exe_mem.bits.ctrl_mem_typ,MT_X, to_axi_fire)
-    val resp_data = io.axi_bus.resp.bits.data
-    val aligned_resp_data = MuxCase(resp_data,Seq(
-      (req_typ_reg === MT_B) -> Cat(Fill(24,resp_data(7)),resp_data(7,0)),
-      (req_typ_reg === MT_H) -> Cat(Fill(16,resp_data(15)),resp_data(15,0)),
-      (req_typ_reg === MT_BU) -> Cat(Fill(24,0.U),resp_data(7,0)),
-      (req_typ_reg === MT_HU) -> Cat(Fill(16,0.U),resp_data(15,0))
+    val req_typ_reg = ResultHoldBypass(io.exe_mem.bits.ctrl_mem_typ, to_axi_fire)
+    val req_addr    = ResultHoldBypass(io.axi_bus.req.bits.raddr,to_axi_fire)
+    val aligned_resp_data = io.axi_bus.resp.bits.data >> (req_addr(1,0)<<3)
+    val resp_data = MuxCase(aligned_resp_data,Seq(
+      (req_typ_reg === MT_B) -> Cat(Fill(24,aligned_resp_data(7)),aligned_resp_data(7,0)),
+      (req_typ_reg === MT_H) -> Cat(Fill(16,aligned_resp_data(15)),aligned_resp_data(15,0)),
+      (req_typ_reg === MT_BU) -> Cat(Fill(24,0.U),aligned_resp_data(7,0)),
+      (req_typ_reg === MT_HU) -> Cat(Fill(16,0.U),aligned_resp_data(15,0))
     ))
 
  
@@ -309,7 +310,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val mem_port_resp_valid = io.axi_bus.resp.valid && state === s_bus_req 
     val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    mem_port_resp_valid)
     val mem_exception   = Mux(in_clint, 0.U,                    (io.axi_bus.resp.bits.resp))
-    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    (aligned_resp_data ))
+    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
     val mem_ready = (!io.exe_mem.bits.ctrl_mem_val)  || (io.exe_mem.bits.ctrl_mem_val && mem_resp_valid)
     val ready = mem_ready
     io.exe_mem.ready := io.mem_wb.ready && ready

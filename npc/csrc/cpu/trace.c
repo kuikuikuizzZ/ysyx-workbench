@@ -31,7 +31,8 @@ void itrace_once(Decode * s) {
     int ilen = sizeof(word_t);
     int i;
     uint32_t inst = s->inst;
-    
+    if (inst == 0x0 || inst == 0x00004033){return;} 
+
     uint8_t *inst_ptr = (uint8_t *)(&inst);
     for (i = ilen - 1; i >= 0; i --) {
         p += snprintf(p, 4, " %02x", *(inst_ptr+i));
@@ -43,6 +44,7 @@ void itrace_once(Decode * s) {
     space_len = space_len * 3 + 1;
     memset(p, ' ', space_len);
     p += space_len;
+
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte,char* inst);
     disassemble(p, itrace_buff + LOG_BUFSIZE - p, s->pc, inst_ptr, ilen,inst_name);
     int len = strlen(itrace_buff);
@@ -72,7 +74,7 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
     difftest_step(s->pc,dnpc);
     #endif
     #ifdef CONFIG_ITRACE
-    itrace_once(s);
+    if (s->pc != dnpc) itrace_once(s);
     if ((npc_state.state!=NPC_RUNNING)) {
         char temp_buf [LOG_BUFSIZE];
         RingBuffer_get(rb,temp_buf,LOG_BUFSIZE);
