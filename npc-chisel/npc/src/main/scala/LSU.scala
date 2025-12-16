@@ -272,7 +272,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
     /////////// Write Port
     val req_typ = io.exe_mem.bits.ctrl_mem_typ
     io.axi_bus.req.bits.raddr := addr
-    io.axi_bus.req.bits.waddr := Cat(addr(31,2),0.asUInt(2.W))
+    io.axi_bus.req.bits.waddr := addr
     io.axi_bus.req.bits.ren   := (io.exe_mem.bits.ctrl_mem_fcn === M_XRD) && mem_en
     io.axi_bus.req.bits.wen   := (io.exe_mem.bits.ctrl_mem_fcn === M_XWR) && mem_en
     io.axi_bus.req.bits.burst := BURST_FIXED
