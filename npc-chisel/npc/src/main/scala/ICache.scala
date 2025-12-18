@@ -179,15 +179,15 @@ class ICacheImplIO(implicit val conf: Config) extends CacheBundle {
   val axi_bus       = new AXI4Bus()
   val debug         = Output(new ICacheDebugPort)
   val exception     = Output(UInt(5.W))
-
+  
 }
 
-class ICacheImpl(implicit val conf: Config) extends CacheModule { 
-    val io = IO(new ICacheImplIO)
+class ICacheImpl(implicit val conf: Config) extends ICacheModule { 
+    // val io = IO(new ICacheImplIO)
     io := DontCare
 
-    val metas  = Module(new CacheSRAMTemplate(new MetaBundle, nLines, nWays))
-    val datas = Module(new CacheSRAMTemplate(new DataBundle, nLines, nWays))
+    val metas  = Module(new SRAMTemplate(new MetaBundle, nLines, nWays))
+    val datas = Module(new SRAMTemplate(new DataBundle, nLines, nWays))
     
     val loadPipe = Module(new LoadPipe)
     val missUnit = Module(new MissUnit)
@@ -223,7 +223,7 @@ class ICacheImpl(implicit val conf: Config) extends CacheModule {
 
 
 class LoadPipe (implicit val conf: Config) extends CacheModule  {
-  val io = IO(new Bundle {
+    val io = IO(new Bundle {
     val req = Flipped(Decoupled(new L1Req))
     val resp = Decoupled(new L1Resp)
     val metaRead = Flipped(new SRAMReadBus(new MetaBundle, nLines,nWays))
@@ -308,6 +308,7 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val s2_fetch_finish = Wire(Bool())
   val s2_not_in_miss = Wire(Bool())
   val s2_valid = RegInit(false.B)
+  val s2_bpu_resp = RegEnable(s1_req.bpu_resp, s1_fire)
   val s2_hit = RegEnable(s1_hit, false.B, s1_fire)
   val s2_valid_out = !io.stall && s2_valid && (s2_hit ||  s2_fetch_finish)
   val s2_fire = io.resp.ready && s2_valid_out && s2_not_in_miss
@@ -344,6 +345,7 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
     .elsewhen(io.missBus.resp.valid){ s2_miss_state := miss_idle }
   }
 
+  // s2_state is not in miss processing (waiting resp or has confirm request)
   s2_not_in_miss := s2_miss_state === miss_idle || io.missBus.resp.valid
   s2_fetch_finish := (io.missBus.resp.valid && s2_miss) || (s2_fix_miss && s2_miss)
   io.missBus.req.valid := s2_miss_state === miss_req
@@ -358,9 +360,10 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val resp_data_out = resp_data.asTypeOf(Vec(blockRows,UInt(rowBits.W)))(getWordIdx(s2_addr))
   // val hold_resp_data = ResultHoldBypass(resp_data_out,s2_valid_out)
   io.resp.valid := s2_fire
-  io.resp.bits.data := Mux(io.stall, BUBBLE ,resp_data_out)
-  io.resp.bits.miss := s2_miss
-  io.resp.bits.pc   := s2_addr
+  io.resp.bits.data     := Mux(io.stall, BUBBLE ,resp_data_out)
+  io.resp.bits.miss     := s2_miss
+  io.resp.bits.pc       := s2_addr
+  io.resp.bits.bpu_resp := s2_bpu_resp
   
 
   ////// debug
@@ -374,4 +377,84 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   io.debug.s2_fetch_finish := s2_fetch_finish
   io.debug.s2_hit := s2_hit
   io.debug.s2_fix_miss := s2_fix_miss
+}
+
+class FakeICache(implicit val conf: Config) extends ICacheModule { 
+
+    // val io = IO(new ICacheImplIO)
+    io := DontCare
+    val missUnit = Module(new MissUnit)
+    val miss_idle :: wait_miss_resp :: should_stop :: Nil = Enum(3)
+    val state = RegInit(miss_idle)
+    val should_in_miss = RegInit(false.B)
+    when(state === miss_idle){
+        when(missUnit.io.bus.req.fire) { 
+          state := wait_miss_resp 
+          should_in_miss := true.B
+        }
+    } .elsewhen(state === wait_miss_resp){
+        when(io.resp.fire) { 
+          state := miss_idle 
+          should_in_miss := false.B
+        }.elsewhen(io.stop) {
+          state := should_stop
+        }
+      
+    } .elsewhen(state === should_stop){
+      when(missUnit.io.bus.resp.valid) { 
+        state := miss_idle 
+      }
+    }
+
+    when(io.stop){
+      should_in_miss := false.B
+    }
+
+    missUnit.io.refill_req          := DontCare
+    missUnit.io.bus.stall           := DontCare
+    missUnit.io.bus.req             := DontCare
+    missUnit.io.debug               := DontCare
+    missUnit.io.bus.resp            := DontCare
+    missUnit.io.axi_bus             <> io.axi_bus
+    missUnit.io.bus.req.valid       := io.req.valid
+    missUnit.io.bus.req.bits.addr   := io.req.bits.addr
+    missUnit.io.bus.req.bits.store  := io.req.bits.rw
+    missUnit.io.bus.resp.ready      := io.resp.ready
+    
+    val resp = missUnit.io.bus.resp
+    val miss_data = resp.bits.data(getWordIdx(resp.bits.addr))
+    val resp_addr = ResultHoldBypass(missUnit.io.bus.resp.bits.addr,resp.valid)
+    val data      = ResultHoldBypass(miss_data,resp.valid)
+    io.req.ready            := state === miss_idle && missUnit.io.bus.req.ready
+    io.resp.valid           := resp.valid && should_in_miss
+    io.resp.bits.data       := Mux(io.stop,BUBBLE,data)
+    io.resp.bits.miss       := resp.bits.miss
+    io.resp.bits.pc         := resp_addr
+    io.resp.bits.exception  := resp.bits.resp
+    ///// DEBUG PORT
+}
+
+
+// object ICache {
+//   def apply(req_valid: Bool,req_addr:UInt,resp_ready: Bool, fencei: Bool, stop: Bool, axi_bus: AXI4Bus, debug: ICacheDebugPort   ) (implicit conf: Config) = {
+//     val icache = if(conf.HasICache) Module(new ICacheImpl) else Module(new FakeICache)
+//     cache.io := DontCare
+//     cache.io.req.valid      := req_valid
+//     cache.io.req.bits.addr  := req_addr
+//     cache.io.resp.ready     := resp_ready
+//     cache.io.fencei         := fencei
+//     cache.io.stop           := stop
+//     cache.io.axi_bus        <> axi_bus
+//     cache.io.debug          <> debug  
+    
+//     icache.io.resp
+//   }
+// }
+
+
+object ICache {
+  def apply() (implicit conf: Config):ICacheModule = {
+    val icache = if(conf.HasICache) Module(new ICacheImpl) else Module(new FakeICache)
+    icache
+  }
 }

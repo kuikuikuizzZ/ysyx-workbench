@@ -56,7 +56,7 @@ class SRAMReadBus[T <: Data](gen: T, nLines: Int, way: Int) (implicit val conf: 
 
 
 
-class CacheSRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val conf: Config) extends CacheModule {
+class SRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val conf: Config) extends CacheModule {
   val io = IO(new Bundle {
     val r = new SRAMReadBus(typ, line, ways)
     val w = new SRAMWriteBus(typ, line, ways)
@@ -119,3 +119,19 @@ class CacheSRAMTemplate[T <: Data](typ: T, line: Int, ways: Int )(implicit val c
   io.w.req.ready := !resetState
 }
 
+class RandomReplacement (nWays:Int, nLines:Int)(implicit val conf: Config) { 
+  def nBits = 16
+  private val lfsr = LFSR(nBits,false.B)
+  def way = Random(nWays,lfsr)
+  def access(touch_way: UInt) = {}
+  def get_replace_way(idx: UInt): UInt = way
+
+}
+
+object Random {
+  def apply(mod: Int, rand: UInt): UInt = {
+    require(isPow2(mod))
+    val modBits = log2Ceil(mod)-1
+    rand(modBits,0)
+  }
+}

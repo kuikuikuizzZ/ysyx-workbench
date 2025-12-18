@@ -28,6 +28,8 @@ class DecPipeIO(implicit val conf: Config) extends Bundle()
    val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
    val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
    val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
+   val redirect_type    = Output(UInt(RD_IN.getWidth.W))
+   val bpu_resp         = Output(new BPUResp)
 }
 
 
@@ -150,73 +152,6 @@ class Decoder(implicit val conf: Config) extends Module
    io.dec_reg.rs1_addr := dec_rs1_addr
    io.dec_reg.rs2_addr := dec_rs2_addr
    
-   ////// Branch Logic
-   val pipeline_kill = Wire(Bool())
-   val exe_br_type = io.exe_ctl.br_type
-   // val ctrl_exe_pc_sel = Mux(pipeline_kill         , PC_EXC,
-   //                       Mux(exe_br_type === BR_N  , PC_4,
-   //                       Mux(exe_br_type === BR_NE , Mux(!io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_EQ , Mux( io.exe_ctl.br_eq,  PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_GE , Mux(!io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_GEU, Mux(!io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_LT , Mux( io.exe_ctl.br_lt,  PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_LTU, Mux( io.exe_ctl.br_ltu, PC_BRJMP, PC_4),
-   //                       Mux(exe_br_type === BR_J  , PC_BRJMP,
-   //                       Mux(exe_br_type === BR_JR , PC_JALR,
-   //                                                          PC_4
-   //                   ))))))))))  
-
-   val cond_met = MuxLookup(exe_br_type, false.B)( Seq(
-      BR_NE  -> !io.exe_ctl.br_eq,
-      BR_EQ  -> io.exe_ctl.br_eq,
-      BR_GE  -> !io.exe_ctl.br_lt,
-      BR_GEU -> !io.exe_ctl.br_ltu,
-      BR_LT  -> io.exe_ctl.br_lt,
-      BR_LTU -> io.exe_ctl.br_ltu
-   ))
-
-   val base_sel = MuxLookup(exe_br_type, PC_4)(Seq(
-      BR_J  -> PC_BRJMP,
-      BR_JR -> PC_JALR
-   ))
-
-   val cond_sel = Mux(cond_met, PC_BRJMP, PC_4)
-
-   val is_cond_br = exe_br_type === BR_NE || exe_br_type === BR_EQ ||
-                  exe_br_type === BR_GE || exe_br_type === BR_GEU ||
-                  exe_br_type === BR_LT || exe_br_type === BR_LTU
-
-   val ctrl_exe_pc_sel = Mux(pipeline_kill, PC_EXC,
-                        Mux(exe_br_type === BR_N, PC_4,
-                        Mux(is_cond_br, cond_sel, base_sel)))
-
-
-
-   val ifkill     = (ctrl_exe_pc_sel =/= PC_4)  || cs_fencei 
-   val deckill    = (ctrl_exe_pc_sel =/= PC_4)
-
-   // Exception Handling ---------------------
-
-   // NOTE: initialization 0 will error 
-   val dec_exception = io.ifu_dec.bits.exception
-
-   val mem_exception = io.lsu_ctl.mem_exception 
-   pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
-   io.ctl_sign.pipeline_kill := pipeline_kill
-   
-   // Stall Signal Logic --------------------
-   
-   val stall   = Wire(Bool())
-
-   val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
-   val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
-
-   io.ctl_sign.exe_pc_sel := ctrl_exe_pc_sel
-   io.ctl_sign.if_kill := ifkill
-   io.ctl_sign.dec_kill := deckill
-   io.ctl_sign.pipeline_kill := pipeline_kill
-   io.ctl_sign.fencei := cs_fencei 
-
    // immediates
    val imm_i = dec_reg_inst(31, 20) 
    val imm_s = Cat(dec_reg_inst(31, 25), dec_reg_inst(11,7))
@@ -258,6 +193,42 @@ class Decoder(implicit val conf: Config) extends Module
       // 查找结果
       op2LookupTable(safeSel)
    }
+
+   val is_cond_br = cs_br_type === BR_NE || cs_br_type === BR_EQ ||
+                  cs_br_type === BR_GE || cs_br_type === BR_GEU ||
+                  cs_br_type === BR_LT || cs_br_type === BR_LTU
+
+   val redirect_type = Mux(is_cond_br, RD_BR, 
+                        Mux(cs_br_type === BR_JR && dec_rs1_addr === 0.U && dec_wbaddr === 1.U, RD_RET,
+                        Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, RD_IN)))
+   
+   val pipeline_kill = Wire(Bool())
+   val ifkill     = (io.exe_ctl.ctrl_exe_pc_sel =/= PC_4)  || cs_fencei 
+   val deckill    = (io.exe_ctl.ctrl_exe_pc_sel =/= PC_4)
+
+   // Exception Handling ---------------------
+
+   // NOTE: initialization 0 will error 
+   val dec_exception = io.ifu_dec.bits.exception
+
+   val mem_exception = io.lsu_ctl.mem_exception 
+   pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
+   io.ctl_sign.pipeline_kill := pipeline_kill
+   
+   // Stall Signal Logic --------------------
+   
+   val stall   = Wire(Bool())
+   val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
+   val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
+
+
+
+   io.ctl_sign.exe_pc_sel := io.exe_ctl.ctrl_exe_pc_sel
+   io.ctl_sign.if_kill := ifkill
+   io.ctl_sign.dec_kill := deckill
+   io.ctl_sign.pipeline_kill := pipeline_kill
+   io.ctl_sign.fencei := cs_fencei 
+
 
    val op1_data = Wire(UInt(conf.xprlen.W))
    val op2_data = Wire(UInt(conf.xprlen.W))
@@ -328,6 +299,7 @@ class Decoder(implicit val conf: Config) extends Module
       io.dec_exe.bits.alu_fun       := ALU_X
       io.dec_exe.bits.ctrl_wb_sel   := WB_X
       io.dec_exe.bits.ctrl_mem_typ  := MT_X
+      io.dec_exe.bits.redirect_type := RD_BR
 
    } .otherwise {
       io.dec_exe.bits.pc            := dec_reg_pc
@@ -352,6 +324,7 @@ class Decoder(implicit val conf: Config) extends Module
          io.dec_exe.bits.br_type       := BR_N  
          io.dec_exe.bits.exception     := false.B
          io.dec_exe.bits.ctrl_mem_typ  := MT_X
+         io.dec_exe.bits.redirect_type := RD_BR
 
       }
       .otherwise{
@@ -366,8 +339,12 @@ class Decoder(implicit val conf: Config) extends Module
          io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
          io.dec_exe.bits.br_type       := cs_br_type
          io.dec_exe.bits.exception     := dec_exception
+         io.dec_exe.bits.redirect_type := redirect_type
+         io.dec_exe.bits.bpu_resp      := io.ifu_dec.bits.bpu_resp
       }
    }
+   io.dec_exe.bits.bpu_resp := DontCare
+
 
 
    

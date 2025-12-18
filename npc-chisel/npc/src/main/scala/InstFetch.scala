@@ -13,10 +13,11 @@ class IFUDebugPort(implicit val conf: Config)   extends Bundle() {
 }
 
 class IFUPipeIO(implicit val conf: Config) extends Bundle {
-  val pc        = Output(UInt(conf.xprlen.W))
-  val inst      = Output(UInt(conf.xprlen.W))
-  val pc_valid         = Output(Bool())
-  val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
+  val pc              = Output(UInt(conf.xprlen.W))
+  val inst            = Output(UInt(conf.xprlen.W))
+  val pc_valid        = Output(Bool())
+  val bpu_resp        = Output(new BPUResp)
+  val exception       = Output(UInt(EXC_NORMAL.getWidth.W))
 }
 
 class InstFetchIo(implicit val conf: Config) extends CacheBundle {
@@ -36,10 +37,16 @@ class InstFetch(implicit conf: Config) extends Module {
   )
   io := DontCare
   // Instruction Fetch
-  val cache       = Module(new ICacheImpl)
-  val pc_reg = RegInit(conf.START_ADDR)
-  val pc_next = Wire(UInt(conf.xprlen.W))
-  val pc_plus4 = (pc_reg + 4.asUInt(conf.xprlen.W))
+  val bpu         = Module(new BPU())
+  val cache       = ICache()
+
+  val bpu_valid   = Reg(Bool())
+  val bpu_target  = Reg(UInt(conf.xprlen.W))
+  val bpu_brIdx   = Reg(UInt(bpu.groupBits.W))
+
+  val pc_reg      = RegInit(conf.START_ADDR)
+  val pc_next     = Wire(UInt(conf.xprlen.W))
+  val pc_plus4    = (pc_reg + 4.asUInt(conf.xprlen.W))
   val should_kill = io.ctl.if_kill || io.ctl.pipeline_kill
 
   // val if_valid = Mux(cache.io.resp.valid,cache.io.resp.valid,
@@ -54,13 +61,33 @@ class InstFetch(implicit conf: Config) extends Module {
   pc_next :=  Mux(io.ctl.exe_pc_sel     === PC_4,         pc_plus4,
                  Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
                  Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
-                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
+                 Mux(bpu_valid,                         bpu_target,
+                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target))))
 
    // for a fencei, refetch the pc (assuming no branch, and no exception)
    when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)
    {
       pc_next := pc_reg
    }
+
+
+  when(bpu.io.resp.valid) {
+    bpu_valid     := bpu.io.resp.valid
+    bpu_target    := bpu.io.resp.bits.target
+    bpu_brIdx     := bpu.io.resp.bits.brIdx
+  }
+
+  when(cache.io.req.fire || should_kill){
+    bpu_valid     := false.B
+    bpu_target      := 0.U
+    bpu_brIdx     := 0.U
+  }
+  bpu.io := DontCare
+  bpu.io.btb_req        <> io.exu_in.btb_req
+  bpu.io.ras_req        <> io.exu_in.ras_req
+  bpu.io.flush          := should_kill
+  bpu.io.req.valid      := cache.io.req.fire
+  bpu.io.req.bits.addr  := pc_next
 
   // NOTE: when if_kill, should not take the old pc value
   cache.io := DontCare

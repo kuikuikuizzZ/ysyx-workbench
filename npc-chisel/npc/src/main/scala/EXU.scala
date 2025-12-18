@@ -4,8 +4,8 @@ package npc
 import chisel3._
 import chisel3.util._
 
-import npc.common._
 import npc.Constants._
+import npc.common._
 
 
 class EXEPipeIO(implicit val conf: Config) extends Bundle() {
@@ -29,19 +29,19 @@ class EXEPipeIO(implicit val conf: Config) extends Bundle() {
 class EXUToIFUOut (implicit val conf: Config) extends Bundle() {
    val exe_brjmp_target    =   Output(UInt(conf.xprlen.W))
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
+   val btb_req             =   Output(new BTBUpdateReq)
+   val ras_req             =   Output(new RASUpdateReq)
 }
 class EXUToCTLIO (implicit val conf: Config) extends Bundle() {
-   val alu_out       = Output(UInt(conf.xlen.W))
-   val pc            = Output(UInt(conf.xprlen.W))
-   val wbaddr        = Output(UInt(5.W))
-   val inst_is_load  = Output(Bool())
-   val ctrl_rf_wen   = Output(Bool())
-   val is_csr        = Output(Bool())
-   val br_type       = Output(UInt(BR_N.getWidth.W)) // for debug use
-   val br_eq         = Output(Bool())
-   val br_lt         = Output(Bool())
-   val br_ltu        = Output(Bool())
-   val pc_valid      = Output(Bool())
+   val alu_out          = Output(UInt(conf.xlen.W))
+   val pc               = Output(UInt(conf.xprlen.W))
+   val wbaddr           = Output(UInt(5.W))
+   val inst_is_load     = Output(Bool())
+   val ctrl_rf_wen      = Output(Bool())
+   val is_csr           = Output(Bool())
+   val br_type          = Output(UInt(BR_N.getWidth.W)) // for debug use
+   val ctrl_exe_pc_sel  = Output(UInt(PC_4.getWidth.W))
+   val redirect_type    = Output(UInt(RD_IN.getWidth.W))
 }
 
 
@@ -65,7 +65,6 @@ class EXU(implicit conf: Config) extends Module
    // ALU
    val alu_out   = Wire(UInt(conf.xprlen.W))
    val alu_shamt = alu_op2(4,0).asUInt
-   val adder_out = (alu_op1 + alu_op2)(conf.xprlen-1,0)
 
    alu_out := MuxCase(0.U, Seq(
                   (io.dec_exe.bits.alu_fun === ALU_ADD)  -> (alu_op1 + alu_op2).asUInt,
@@ -82,48 +81,61 @@ class EXU(implicit conf: Config) extends Module
                   (io.dec_exe.bits.alu_fun === ALU_COPY_2)-> alu_op2
                   ))
 
-   // // 预计算共享结果
-   // val adderResult      = (alu_op1 + alu_op2).asUInt
-   // val subtractorResult = (alu_op1 - alu_op2).asUInt
-   // val andResult        = (alu_op1 & alu_op2).asUInt
-   // val orResult         = (alu_op1 | alu_op2).asUInt
-   // val xorResult        = (alu_op1 ^ alu_op2).asUInt
-   // val sltResult        = (alu_op1.asSInt < alu_op2.asSInt).asUInt
-   // val sltuResult       = (alu_op1 < alu_op2).asUInt
-   // val sllResult        = ((alu_op1 << alu_shamt)(conf.xprlen-1, 0)).asUInt
-   // val sraResult        = (alu_op1.asSInt >> alu_shamt).asUInt
-   // val srlResult        = (alu_op1 >> alu_shamt).asUInt
-  
-   // alu_out := {
-   //    // 使用并行选择逻辑替代MuxCase
-   //    val results =  VecInit(Seq(
-   //    // 直接连接预计算结果
-   //       adderResult                   ,  // ALU_ADD
-   //       subtractorResult              ,  // ALU_SUB
-   //       sllResult                     ,  // ALU_SLL
-   //       srlResult                     ,  // ALU_SRL
-   //       sraResult                     ,  // ALU_SRA
-   //       andResult                     ,  // ALU_AND
-   //       orResult                      ,  // ALU_OR
-   //       xorResult                     ,  // ALU_XOR
-   //       sltResult                     ,  // ALU_SLT
-   //       sltuResult                    ,  // ALU_SLTU
-   //       alu_op1                       ,  // ALU_COPY_1
-   //       alu_op2                         // ALU_COPY_2
-   //    ))
-   //    // 安全选择器  
-   //    val safeSel = Mux(io.dec_exe.bits.alu_fun < 12.U, io.dec_exe.bits.alu_fun, 0.U)
-   //    results.suggestName("alu_results")
-   //    // 优化后的ALU输出选择
-   //    results(safeSel)
-   // }
-
    // Branch/Jump Target Calculation
    val pc_plus4    = ( io.dec_exe.bits.pc + 4.U)(conf.xprlen-1,0)
    val brjmp_offset                 = io.dec_exe.bits.op2_data
-   io.ifu_out.exe_brjmp_target      := io.dec_exe.bits.pc + brjmp_offset
-   io.ifu_out.exe_jump_reg_target   := adder_out
+   val exe_brjmp_target             = io.dec_exe.bits.pc + brjmp_offset
+   val exe_jump_reg_target          = (alu_op1 + alu_op2)(conf.xprlen-1,0)
+   
+   io.ifu_out.exe_brjmp_target      := exe_brjmp_target
+   io.ifu_out.exe_jump_reg_target   := exe_jump_reg_target
 
+
+   ////// Branch Logic
+   val br_eq    = (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
+   val br_lt    = (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
+   val br_ltu   = (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
+  
+   val exe_br_type = io.dec_exe.bits.br_type
+   val taken = MuxLookup(exe_br_type, false.B)( Seq(
+      BR_NE  -> !br_eq,
+      BR_EQ  -> br_eq,
+      BR_GE  -> !br_lt,
+      BR_GEU -> !br_ltu,
+      BR_LT  -> br_lt,
+      BR_LTU -> br_ltu
+   ))
+
+   val base_sel = MuxLookup(exe_br_type, PC_4)(Seq(
+      BR_J  -> PC_BRJMP,
+      BR_JR -> PC_JALR
+   ))
+
+   val is_cond_br = exe_br_type === BR_NE || exe_br_type === BR_EQ ||
+                  exe_br_type === BR_GE || exe_br_type === BR_GEU ||
+                  exe_br_type === BR_LT || exe_br_type === BR_LTU
+
+
+   val cond_sel = Mux(taken, PC_BRJMP, PC_4)
+
+
+   val ctrl_exe_pc_sel = Mux(io.ctl.pipeline_kill, PC_EXC,
+                        Mux(exe_br_type === BR_N, PC_4,
+                        Mux(is_cond_br, cond_sel, base_sel)))
+
+   val bpu_resp      =  io.dec_exe.bits.bpu_resp
+   val target        =  Mux(ctrl_exe_pc_sel === PC_BRJMP, exe_brjmp_target ,exe_jump_reg_target )
+   val predict_wrong =  Mux(!taken && ctrl_exe_pc_sel === PC_BRJMP, bpu_resp.brIdx(0), 
+                           !bpu_resp.brIdx(0) || target =/= bpu_resp.target)
+
+
+   io.ifu_out.btb_req.valid           := io.dec_exe.valid && exe_br_type =/= BR_N
+   io.ifu_out.btb_req.addr             := io.dec_exe.bits.pc
+   io.ifu_out.btb_req.target           := target
+   io.ifu_out.btb_req.redirect_type    := io.dec_exe.bits.redirect_type
+   io.ifu_out.btb_req.taken            := taken
+   io.ifu_out.btb_req.is_miss          := predict_wrong
+   io.ifu_out.btb_req.redirect_type    := io.dec_exe.bits.redirect_type   
 
    when (io.ctl.pipeline_kill){
       io.exe_mem.bits.pc_valid         := false.B
@@ -155,16 +167,12 @@ class EXU(implicit conf: Config) extends Module
    }
 
    
-   io.to_ctl.alu_out       := alu_out
-   io.to_ctl.wbaddr        := io.dec_exe.bits.wbaddr
-   io.to_ctl.ctrl_rf_wen   := io.dec_exe.bits.ctrl_rf_wen
-   io.to_ctl.is_csr        := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
-   io.to_ctl.inst_is_load  := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
-   io.to_ctl.br_type       := io.dec_exe.bits.br_type // for debug use
-   io.to_ctl.br_eq         := (io.dec_exe.bits.op1_data     ===  io.dec_exe.bits.rs2_data)
-   io.to_ctl.br_lt         := (io.dec_exe.bits.op1_data.asSInt < io.dec_exe.bits.rs2_data.asSInt) 
-   io.to_ctl.br_ltu        := (io.dec_exe.bits.op1_data.asUInt < io.dec_exe.bits.rs2_data.asUInt)
+   io.to_ctl.alu_out          := alu_out
+   io.to_ctl.wbaddr           := io.dec_exe.bits.wbaddr
+   io.to_ctl.ctrl_rf_wen      := io.dec_exe.bits.ctrl_rf_wen
+   io.to_ctl.is_csr           := io.dec_exe.bits.ctrl_csr_cmd =/= CSR.N && io.dec_exe.bits.ctrl_csr_cmd =/= CSR.I
+   io.to_ctl.inst_is_load     := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
+   io.to_ctl.redirect_type    := io.dec_exe.bits.redirect_type
+   io.to_ctl.ctrl_exe_pc_sel  := ctrl_exe_pc_sel
 }
-
- 
 }

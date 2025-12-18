@@ -65,7 +65,7 @@ class SRAMTop extends Module {
    implicit val conf = Config()
     io := DontCare
 
-    val cache = Module(new CacheSRAMTemplate(new DataBundle, 8, 4))
+    val cache = Module(new SRAMTemplate(new DataBundle, 8, 4))
     cache.io := DontCare
     when(io.write){
         cache.io.w.req.valid := true.B

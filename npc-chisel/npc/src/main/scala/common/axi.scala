@@ -388,7 +388,7 @@ class AXI4Master (implicit val conf: Config) extends Module{
     }
 
     io.req.ready := rstate === rs_idle && (wstate === ws_idle)
-    io.resp.valid := Mux(is_write ,(io.axi_io.b.valid),io.axi_io.r.valid)
+    io.resp.valid := Mux(io.axi_io.b.valid ,(io.axi_io.b.valid),io.axi_io.r.valid)
     io.resp.bits.resp :=  Mux(io.axi_io.r.valid,    io.axi_io.r.bits.resp ,
                           Mux(io.axi_io.b.valid,    io.axi_io.b.bits.resp, 0.U ))
 

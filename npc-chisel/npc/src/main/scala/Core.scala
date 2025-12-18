@@ -62,12 +62,6 @@ class Core(implicit val conf: Config)extends Module
   // arbiter.io.axi_port <> io.core.master
   axi_arb.io.in(DPORT) <> lsu.io.axi_bus.req
   axi_arb.io.in(IPORT) <> inst_fetch.io.axi_bus.req
-  // axi_arb.io.in(0).valid  <> (lsu.io.axi_bus.req.valid)
-  // axi_arb.io.in(0).ready  <> lsu.io.axi_bus.req.ready
-  // axi_arb.io.in(0).bits   <> lsu.io.axi_bus.req.bits
-  // axi_arb.io.in(1).valid  <> (inst_fetch.io.axi_bus.req.valid)
-  // axi_arb.io.in(1).ready  <> inst_fetch.io.axi_bus.req.ready
-  // axi_arb.io.in(1).bits   <> inst_fetch.io.axi_bus.req.bits     
 
   axi_master.io := DontCare
   axi_arb.io.out.ready    := axi_master.io.req.ready

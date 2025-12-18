@@ -20,6 +20,7 @@ case class Config(
     val USE_FULL_BYPASSING = true
     val regfileDepth = 16
     
+    val HasICache = sys.env.get("HAS_ICACHE").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val burstLength = sys.env.get("BURST_LENGTH").map(_.toInt).getOrElse(1)   // burstLength = axlen - 1   
     val ICacheSizeBits = sys.env.get("ICACHE_SIZE_BITS").map(_.toInt).getOrElse(2)
     val ICacheBlockBits = sys.env.get("ICACHE_BLOCK_BITS").map(_.toInt).getOrElse(1)
@@ -30,4 +31,7 @@ case class Config(
     // val START_ADDR = if (EnableSOC) 0x30000000L.U(32.W) else 0x80000000L.U(32.W)
     val START_ADDR =  0x30000000L.U(32.W)
     val ENABLE_IVERILOG = sys.env.get("NPC_ENABLE_IVERILOG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
+
+    val fetchGroupBytes =  if (HasICache) 8 else 4
+
 }

@@ -17,7 +17,7 @@ sealed trait HasL1Params{
   val nLines:    Int = 8
   val rowBits:   Int = conf.xlen
   val rowBytes:  Int = rowBits/8
-  val blockBytes:Int = 8
+  val blockBytes:Int = conf.fetchGroupBytes // no cache 
   val blockBits: Int = blockBytes*8
   val singleSet = nSets == 1
   val blockRows = blockBytes/rowBytes
@@ -35,7 +35,7 @@ sealed trait HasL1Params{
 
   def getIdx(addr: UInt) = addr.asTypeOf(addrBundle).index
   def getTag(addr: UInt) = addr.asTypeOf(addrBundle).tag
-  def getWordIdx(addr: UInt) = addr.asTypeOf(addrBundle).wordIndex
+  def getWordIdx(addr: UInt) = if (blockIdx != 0) addr.asTypeOf(addrBundle).wordIndex else 0.U
   def mergePutData(old_data: UInt, new_data: UInt,wmask: UInt): UInt = {
     val full_mask = FillInterleaved(8, wmask)
     (old_data & ~full_mask) | (new_data & full_mask)
@@ -45,6 +45,10 @@ sealed trait HasL1Params{
 abstract class CacheBundle extends Bundle with HasL1Params
 abstract class CacheModule extends Module with HasL1Params
 abstract class CacheConfig extends HasParameters with HasL1Params
+abstract class ICacheModule extends CacheModule with HasL1Params{
+  val io = IO(new ICacheImplIO)
+}
+
 
 sealed class MetaBundle (implicit val conf: Config)extends CacheBundle {
   val tag = Output(UInt(tagBits.W))
@@ -77,8 +81,9 @@ object DataBundle{
 
 
 class L1Req (implicit val conf: Config) extends CacheBundle {
-  val addr = Input(UInt(conf.xlen.W))
-  val rw   = Input(Bool())
+  val addr      = Input(UInt(conf.xlen.W))
+  val rw        = Input(Bool())
+  val bpu_resp  = Input(new BPUResp)
 }
 
 class L1Resp(implicit val conf: Config) extends CacheBundle {
@@ -87,6 +92,7 @@ class L1Resp(implicit val conf: Config) extends CacheBundle {
   val exception = Output(UInt(5.W))
   val miss      = Output(Bool())
   val pc        = Output(UInt(conf.xprlen.W))
+  val bpu_resp  = Output(new BPUResp)
 }
 
 class L1CahceBundle(implicit val conf: Config) extends CacheBundle  {
@@ -218,7 +224,9 @@ class MissUnit(implicit val conf: Config) extends CacheModule {
     val is_requesting = state === sRequesting && (io.bus.req.valid) 
     val is_request_again = state === sRequestAgain 
     io.axi_bus.req.valid := (is_requesting || is_request_again) 
-    io.axi_bus.req.bits.ren         := io.axi_bus.req.valid
+    io.axi_bus.req.bits.ren           := true.B
+    io.axi_bus.req.bits.wen           := false.B
+    
     when (io.bus.req.bits.burst){
       io.axi_bus.req.bits.raddr       := Cat(addr(conf.xprlen-1,blockIdx+byteOffsetBits),0.U(blockIdx.W+byteOffsetBits.W))
       io.axi_bus.req.bits.burst       := BURST_INCR
@@ -339,8 +347,8 @@ class MainPipe (implicit val conf: Config) extends CacheModule  {
 class L1Cache(implicit val conf: Config) extends CacheModule{ 
     val io = IO(new L1CahceBundle)
 
-  val metas  = Module(new CacheSRAMTemplate(new MetaBundle, nLines, nWays))
-  val datas = Module(new CacheSRAMTemplate(new DataBundle, nLines, nWays))
+  val metas  = Module(new SRAMTemplate(new MetaBundle, nLines, nWays))
+  val datas = Module(new SRAMTemplate(new DataBundle, nLines, nWays))
 
   val metaReadArb = Module(new Arbiter(new SRAMReadBus(new MetaBundle, nLines,nWays), 2))
   val metaWriteArb = Module(new Arbiter(new SRAMWriteBus(new MetaBundle, nLines,nWays), 2))
@@ -390,19 +398,3 @@ class L1Cache(implicit val conf: Config) extends CacheModule{
 
 
 
-class RandomReplacement (nWays:Int, nLines:Int)(implicit val conf: Config) { 
-  def nBits = 16
-  private val lfsr = LFSR(nBits,false.B)
-  def way = Random(nWays,lfsr)
-  def access(touch_way: UInt) = {}
-  def get_replace_way(idx: UInt): UInt = way
-
-}
-
-object Random {
-  def apply(mod: Int, rand: UInt): UInt = {
-    require(isPow2(mod))
-    val modBits = log2Ceil(mod)-1
-    rand(modBits,0)
-  }
-}
