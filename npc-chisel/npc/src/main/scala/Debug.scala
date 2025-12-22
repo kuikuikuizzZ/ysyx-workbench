@@ -76,6 +76,7 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
         val ifu_port    = Flipped(new IFUDebugPort())
         val wbu_port    = Flipped(new WBUDebugPort())
         val ctl_port    = Flipped(new CtrlDebugPort())
+        val exu_port    = Flipped(new EXUDebugPort())
      })
 
      setInline("PerfEventPort.v",
@@ -85,7 +86,8 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
      import "DPI-C" function void perf_event_icache(input int hit,input int miss);
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
-         input int itype, input int rtype, input int jtype,  input int utype, input int other);
+         input int itype, input int rtype, input int jtype, input int btype, input int utype, input int other);
+     import "DPI-C" function void perf_event_exe(input int predict_wrong, input int target_wrong, input int br_wrong);
      module PerfEventPort(
         input clock,
         input reset,
@@ -109,15 +111,21 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
         input [31:0] ctl_port_itypeCount,
         input [31:0] ctl_port_rtypeCount,
         input [31:0] ctl_port_jtypeCount,
+        input [31:0] ctl_port_btypeCount,
         input [31:0] ctl_port_utypeCount,
-        input [31:0] ctl_port_otherCount
+        input [31:0] ctl_port_otherCount,
+        input [31:0] exu_port_predict_wrong,
+        input [31:0] exu_port_target_wrong,
+        input [31:0] exu_port_br_wrong
         );
 
 
         always @(posedge clock) begin
             perf_event_ctrl(ctl_port_csrCount, ctl_port_storeCount, 
                 ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
-                ctl_port_jtypeCount,ctl_port_utypeCount, ctl_port_otherCount);
+                ctl_port_jtypeCount,ctl_port_btypeCount, ctl_port_utypeCount, ctl_port_otherCount);
+            
+            perf_event_exe(exu_port_predict_wrong, exu_port_target_wrong, exu_port_br_wrong);
             perf_event_wbu(wbu_port_wbCount);
             if (lsu_port_valid)
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);
@@ -125,6 +133,7 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
                 perf_event_ifu(ifu_port_instFetchCount);   
                 perf_event_icache(ifu_port_icache_hit_cnt,ifu_port_icache_miss_cnt);             
             end
+
         end
 
      endmodule

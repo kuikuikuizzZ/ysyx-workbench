@@ -14,7 +14,7 @@ sealed trait HasL1Params{
   implicit val conf: Config
   val nSets:     Int = 1
   val nWays:     Int = 4
-  val nLines:    Int = 8
+  val nLines:    Int = 16
   val rowBits:   Int = conf.xlen
   val rowBytes:  Int = rowBits/8
   val blockBytes:Int = conf.fetchGroupBytes // no cache 

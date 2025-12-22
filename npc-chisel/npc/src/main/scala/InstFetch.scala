@@ -40,9 +40,9 @@ class InstFetch(implicit conf: Config) extends Module {
   val bpu         = Module(new BPU())
   val cache       = ICache()
 
-  val bpu_valid   = Reg(Bool())
-  val bpu_target  = Reg(UInt(conf.xprlen.W))
-  val bpu_brIdx   = Reg(UInt(bpu.groupBits.W))
+  val bpu_valid   = bpu.io.resp.valid
+  val bpu_target  = bpu.io.resp.bits.target
+  val bpu_brIdx   = bpu.io.resp.bits.brIdx
 
   val pc_reg      = RegInit(conf.START_ADDR)
   val pc_next     = Wire(UInt(conf.xprlen.W))
@@ -71,17 +71,19 @@ class InstFetch(implicit conf: Config) extends Module {
    }
 
 
-  when(bpu.io.resp.valid) {
-    bpu_valid     := bpu.io.resp.valid
-    bpu_target    := bpu.io.resp.bits.target
-    bpu_brIdx     := bpu.io.resp.bits.brIdx
-  }
+  // when(bpu.io.resp.valid) {
+  //   bpu_valid     := bpu.io.resp.valid
+  //   bpu_target    := bpu.io.resp.bits.target
+  //   bpu_brIdx     := bpu.io.resp.bits.brIdx
+  // }
 
-  when(cache.io.req.fire || should_kill){
-    bpu_valid     := false.B
-    bpu_target      := 0.U
-    bpu_brIdx     := 0.U
-  }
+  // when(cache.io.req.fire || should_kill){
+  //   bpu_valid     := false.B
+  //   bpu_target      := 0.U
+  //   bpu_brIdx     := 0.U
+  // }
+
+  // predict 1 cycle early and bpu need 1 cycle to predict the next pc 
   bpu.io := DontCare
   bpu.io.btb_req        <> io.exu_in.btb_req
   bpu.io.ras_req        <> io.exu_in.ras_req
@@ -91,13 +93,14 @@ class InstFetch(implicit conf: Config) extends Module {
 
   // NOTE: when if_kill, should not take the old pc value
   cache.io := DontCare
-  cache.io.req.valid      := io.ifu_dec.ready && !should_kill
-  cache.io.req.bits.addr  := pc_reg
-  cache.io.resp.ready     := io.ifu_dec.ready
-  cache.io.fencei         := io.ctl.fencei
-  cache.io.stop           := should_kill
-  cache.io.axi_bus        <> io.axi_bus
-  cache.io.debug          <> io.debug.icache 
+  cache.io.req.valid            := io.ifu_dec.ready && !should_kill
+  cache.io.req.bits.addr        := pc_reg
+  cache.io.resp.ready           := io.ifu_dec.ready
+  cache.io.fencei               := io.ctl.fencei
+  cache.io.stop                 := should_kill
+  cache.io.axi_bus              <> io.axi_bus
+  cache.io.debug                <> io.debug.icache 
+  cache.io.req.bits.bpu_resp    := bpu.io.resp.bits
 
   // cache.io.port       <> io.port
   // NOTE: if_kill should clean inst, in ifu_dec reg
@@ -111,7 +114,7 @@ class InstFetch(implicit conf: Config) extends Module {
   io.ifu_dec.bits.pc := cache_resp_pc
   io.ifu_dec.bits.pc_valid := Mux(should_kill || cache.io.exception =/= EXC_NORMAL, false.B, true.B)
   io.ifu_dec.bits.exception := cache.io.exception
-
+  io.ifu_dec.bits.bpu_resp   <>  cache.io.resp.bits.bpu_resp
 
   ////////// debug
   val instFetchCount = RegInit(0.U(conf.perfCountBits.W))

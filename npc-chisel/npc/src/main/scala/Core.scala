@@ -129,6 +129,7 @@ class Core(implicit val conf: Config)extends Module
     perfEvent.io.ctl_port   := decoder.io.debug
     perfEvent.io.lsu_port   := lsu.io.debug
     perfEvent.io.wbu_port   := wbu.io.debug
+    perfEvent.io.exu_port   := exu.io.debug
   }
 }
 

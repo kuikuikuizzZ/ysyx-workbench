@@ -42,16 +42,26 @@ class EXUToCTLIO (implicit val conf: Config) extends Bundle() {
    val br_type          = Output(UInt(BR_N.getWidth.W)) // for debug use
    val ctrl_exe_pc_sel  = Output(UInt(PC_4.getWidth.W))
    val redirect_type    = Output(UInt(RD_IN.getWidth.W))
+   val should_redirect    = Output(Bool())
+   
+}
+
+class EXUDebugPort(implicit val conf: Config) extends Bundle() {
+
+   val predict_wrong       = Output(UInt(conf.perfCountBits.W))
+   val target_wrong        = Output(UInt(conf.perfCountBits.W))
+   val br_wrong            = Output(UInt(conf.perfCountBits.W))
 }
 
 
 class DpathIo(implicit val conf: Config) extends Bundle() 
 {
-   val dec_exe = Flipped(new DecoupledIO(new DecPipeIO()))
-   val exe_mem = new DecoupledIO(new EXEPipeIO())
-   val ctl = new CtrlSignalIO()
-   val ifu_out = new EXUToIFUOut()
-   val to_ctl = new EXUToCTLIO()
+   val dec_exe    = Flipped(new DecoupledIO(new DecPipeIO()))
+   val exe_mem    = new DecoupledIO(new EXEPipeIO())
+   val ctl        = new CtrlSignalIO()
+   val ifu_out    = new EXUToIFUOut()
+   val to_ctl     = new EXUToCTLIO()
+   val debug      = Output(new EXUDebugPort())
 }
 
 class EXU(implicit conf: Config) extends Module
@@ -123,19 +133,25 @@ class EXU(implicit conf: Config) extends Module
                         Mux(exe_br_type === BR_N, PC_4,
                         Mux(is_cond_br, cond_sel, base_sel)))
 
-   val bpu_resp      =  io.dec_exe.bits.bpu_resp
-   val target        =  Mux(ctrl_exe_pc_sel === PC_BRJMP, exe_brjmp_target ,exe_jump_reg_target )
-   val predict_wrong =  Mux(!taken && ctrl_exe_pc_sel === PC_BRJMP, bpu_resp.brIdx(0), 
-                           !bpu_resp.brIdx(0) || target =/= bpu_resp.target)
+   val bpu_resp            =  io.dec_exe.bits.bpu_resp
+   val target              =  Mux(ctrl_exe_pc_sel === PC_BRJMP, exe_brjmp_target ,exe_jump_reg_target )
+   val predict_wrong       =  Mux(!taken && ctrl_exe_pc_sel === PC_BRJMP, bpu_resp.brIdx(0), 
+                              !bpu_resp.brIdx(0) || target =/= bpu_resp.target)
+   val should_redirect     = predict_wrong && (ctrl_exe_pc_sel =/= PC_4) 
 
-
-   io.ifu_out.btb_req.valid           := io.dec_exe.valid && exe_br_type =/= BR_N
+   io.ifu_out.btb_req.valid            := io.dec_exe.valid && exe_br_type =/= BR_N
    io.ifu_out.btb_req.addr             := io.dec_exe.bits.pc
    io.ifu_out.btb_req.target           := target
-   io.ifu_out.btb_req.redirect_type    := io.dec_exe.bits.redirect_type
    io.ifu_out.btb_req.taken            := taken
    io.ifu_out.btb_req.is_miss          := predict_wrong
    io.ifu_out.btb_req.redirect_type    := io.dec_exe.bits.redirect_type   
+
+   io.ifu_out.ras_req.valid            := io.dec_exe.valid && io.dec_exe.bits.redirect_type === RD_RET
+   io.ifu_out.ras_req.addr             := io.dec_exe.bits.pc
+   io.ifu_out.ras_req.target           := target
+   io.ifu_out.ras_req.taken            := taken
+   io.ifu_out.ras_req.is_miss          := predict_wrong
+   io.ifu_out.ras_req.redirect_type    := io.dec_exe.bits.redirect_type
 
    when (io.ctl.pipeline_kill){
       io.exe_mem.bits.pc_valid         := false.B
@@ -174,5 +190,22 @@ class EXU(implicit conf: Config) extends Module
    io.to_ctl.inst_is_load     := io.dec_exe.bits.ctrl_mem_val && (io.dec_exe.bits.ctrl_mem_fcn === M_XRD)
    io.to_ctl.redirect_type    := io.dec_exe.bits.redirect_type
    io.to_ctl.ctrl_exe_pc_sel  := ctrl_exe_pc_sel
+   io.to_ctl.should_redirect  := should_redirect
+
+
+   /////////// DEBUG
+   val perfCounters = RegInit(VecInit(Seq.fill(3)(0.U(conf.perfCountBits.W))))
+   val Seq( predict_wrong_count, target_wrong_count, br_wrong_count ) = perfCounters
+
+   val target_wrong = !bpu_resp.brIdx(0) || target =/= bpu_resp.target
+   val br_wrong = predict_wrong && (ctrl_exe_pc_sel =/= PC_4)
+   when(io.dec_exe.valid && bpu_resp.valid){
+      when(predict_wrong){ predict_wrong_count := predict_wrong_count + 1.U }
+      when(target_wrong){ target_wrong_count := target_wrong_count + 1.U }
+      when(br_wrong){ br_wrong_count := br_wrong_count + 1.U }
+   }
+   io.debug.predict_wrong := predict_wrong_count
+   io.debug.target_wrong := target_wrong_count
+   io.debug.br_wrong := br_wrong_count
 }
 }

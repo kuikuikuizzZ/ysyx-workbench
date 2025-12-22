@@ -49,6 +49,7 @@ class CtrlDebugPort(implicit val conf: Config) extends Bundle()
    val itypeCount    = Output(UInt(conf.perfCountBits.W)) 
    val rtypeCount    = Output(UInt(conf.perfCountBits.W)) 
    val jtypeCount    = Output(UInt(conf.perfCountBits.W)) 
+   val btypeCount    = Output(UInt(conf.perfCountBits.W)) 
    val utypeCount    = Output(UInt(conf.perfCountBits.W)) 
    val otherCount    = Output(UInt(conf.perfCountBits.W)) 
 }
@@ -203,8 +204,8 @@ class Decoder(implicit val conf: Config) extends Module
                         Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, RD_IN)))
    
    val pipeline_kill = Wire(Bool())
-   val ifkill     = (io.exe_ctl.ctrl_exe_pc_sel =/= PC_4)  || cs_fencei 
-   val deckill    = (io.exe_ctl.ctrl_exe_pc_sel =/= PC_4)
+   val ifkill     = io.exe_ctl.should_redirect || cs_fencei 
+   val deckill    = io.exe_ctl.should_redirect
 
    // Exception Handling ---------------------
 
@@ -355,8 +356,8 @@ class Decoder(implicit val conf: Config) extends Module
 
 
    /////////   Debug Signals
-   val perfCounters = RegInit(VecInit(Seq.fill(8)(0.U(conf.perfCountBits.W))))
-   val Seq( loadCount, storeCount, jtypeCount, utypeCount, itypeCount, 
+   val perfCounters = RegInit(VecInit(Seq.fill(9)(0.U(conf.perfCountBits.W))))
+   val Seq( loadCount, storeCount, jtypeCount, btypeCount, utypeCount, itypeCount, 
             rtypeCount, csrCount, otherCount ) = perfCounters
   // 加载指令检测
    val isLoad = dec_reg_inst === LB || dec_reg_inst === LH || dec_reg_inst === LW || 
@@ -396,7 +397,7 @@ class Decoder(implicit val conf: Config) extends Module
       }.elsewhen(isStore) {
          storeCount := storeCount + 1.U
       }.elsewhen(isBranch) {
-         jtypeCount := jtypeCount + 1.U
+         btypeCount := btypeCount + 1.U
       }.elsewhen(isJump) {
          jtypeCount := jtypeCount + 1.U
       }.elsewhen(isIType) {
@@ -417,7 +418,8 @@ class Decoder(implicit val conf: Config) extends Module
    io.debug.loadCount   := loadCount    
    io.debug.itypeCount  := itypeCount  
    io.debug.rtypeCount  := rtypeCount  
-   io.debug.jtypeCount  := jtypeCount  
+   io.debug.jtypeCount  := jtypeCount
+   io.debug.btypeCount  := btypeCount  
    io.debug.utypeCount  := utypeCount
    io.debug.otherCount  := otherCount
 }

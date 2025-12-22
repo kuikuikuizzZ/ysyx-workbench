@@ -60,9 +60,16 @@ typedef struct {
   uint32_t itype_count; 
   uint32_t rtype_count; 
   uint32_t jtype_count; 
+  uint32_t btype_count;
   uint32_t utype_count; 
   uint32_t other_count; 
 } ctrl_perf_event_t;
+
+typedef struct{
+  uint32_t predict_wrong_count  ;
+  uint32_t br_wrong_count   ;
+  uint32_t target_wrong_count   ;
+} exe_perf_event_t;
 
 // extern uint32_t lsu_store_count;
 // extern uint32_t lsu_load_count ;

@@ -199,7 +199,7 @@ class ICacheImpl(implicit val conf: Config) extends ICacheModule {
     loadPipe.io.metaRead        <> metas.io.r
     loadPipe.io.missBus         <> missUnit.io.bus
     loadPipe.io.stall           := io.stop
-    loadPipe.io.replace_way.way := replacer.way(loadPipe.io.replace_way.idx.bits)
+    loadPipe.io.replace_way.way := replacer.way
 
     missUnit.io.axi_bus <> io.axi_bus
     missUnit.io.refill_req <> refillPipe.io.req

@@ -32,6 +32,7 @@ static uint32_t icache_hit          = 0;
 static uint32_t icache_miss         = 0;
 
 static ctrl_perf_event_t ctrl_perf_event = {0};
+static exe_perf_event_t exe_perf_event = {0};
 //// PERF_EVENTS COUNTER
 
 extern "C" void dpi_port(int in_halt, int in_pc, int in_inst, int in_mem_pc, int in_wb_pc,int in_wb_inst){
@@ -71,17 +72,24 @@ extern "C" void perf_event_icache(uint32_t hit_cnt,uint32_t miss_cnt){
 }
 
 extern "C" void perf_event_ctrl(uint32_t csr_cnt, uint32_t ctrl_store,uint32_t ctrl_load,
-                                uint32_t itype,uint32_t rtype,uint32_t jtype,
-                                uint32_t utype,uint32_t other ){
+                                uint32_t itype,uint32_t rtype,uint32_t jtype, 
+                                uint32_t btype,uint32_t utype,uint32_t other ){
     ctrl_perf_event.csr_count   = csr_cnt;
     ctrl_perf_event.store_count = ctrl_store;
     ctrl_perf_event.load_count  = ctrl_load;
     ctrl_perf_event.itype_count = itype;
     ctrl_perf_event.rtype_count = rtype;
     ctrl_perf_event.jtype_count = jtype;
+    ctrl_perf_event.btype_count = btype;
     ctrl_perf_event.utype_count = utype;
     ctrl_perf_event.other_count = other;
 }
+extern "C" void perf_event_exe(uint32_t predict_wrong_cnt, uint32_t target_wrong_cnt,uint32_t br_wrong_cnt){
+    exe_perf_event.br_wrong_count = br_wrong_cnt;
+    exe_perf_event.predict_wrong_count = predict_wrong_cnt;
+    exe_perf_event.target_wrong_count = target_wrong_cnt;
+}
+
 #endif
 
 #ifdef CONFIG_NVBOARD
@@ -306,12 +314,17 @@ void top_perf_event_display(FILE *fp = stdout){
         ctrl_perf_event.csr_count  ,
         ctrl_perf_event.store_count,
         ctrl_perf_event.load_count );
-        fprintf(fp,"itype \t\t %.12d, rtype %.12d, jtype %.12d, utype %.12d, other %.12d\n",
+    fprintf(fp,"itype \t\t %.12d, rtype %.12d, jtype %.12d, btype %.12d, utype %.12d, other %.12d\n",
             ctrl_perf_event.itype_count,
             ctrl_perf_event.rtype_count,
             ctrl_perf_event.jtype_count,
+            ctrl_perf_event.btype_count,
             ctrl_perf_event.utype_count,
             ctrl_perf_event.other_count);
+    fprintf(fp,"predict wrong:\t %.12d, target_wrong %.12d, br_wrong %.12d\n",
+            exe_perf_event.predict_wrong_count,
+            exe_perf_event.target_wrong_count,
+            exe_perf_event.br_wrong_count);
     fprintf(fp,"ICache hit:  \t %.12d, miss %.12d\n", icache_hit,icache_miss);
 }
 

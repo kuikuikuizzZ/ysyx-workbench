@@ -6,6 +6,9 @@ import chisel3.util._
 import npc.common._
 import npc.common.UtilMethods._
 import npc.Constants._
+// import utils._
+// import difftest._
+
 
 sealed trait HasBPUParams{
     implicit val conf: Config
@@ -85,9 +88,11 @@ class BPUReq (implicit val conf: Config) extends BPUBundle {
 }
 
 class BPUResp (implicit val conf: Config) extends BPUBundle {
+  val valid     = Output(Bool())
   val target    = Output(UInt(conf.xprlen.W))
   val ras_valid = Output(Bool())
   val brIdx     = Output(UInt(groupSize.W))
+  val pc        = Output(UInt(conf.xprlen.W))
   //   val brIdx      = Output(UInt(log2Up(nBTBEntries).W)) 
 }
 
@@ -107,6 +112,7 @@ class BPU (implicit val conf: Config) extends BPUModule {
     
     val btb =  (0 until 2) map { i =>
       val bank = Module(new SRAMTemplate(BtbEntry(), line=nBTBEntries, ways=1))
+      bank.io := DontCare
       bank
     }
     val btbRead = Wire(Vec(groupSize, BtbEntry()))
@@ -127,10 +133,10 @@ class BPU (implicit val conf: Config) extends BPUModule {
     // val btbHit = btbHitVec.andR
 
 
-    val pht = List.fill(groupSize)(Mem(nBTBEntries, UInt(counterBits.W)))
+    val pht = List.fill(groupSize)(Reg(Vec(nBTBEntries, UInt(counterBits.W))))
     val pht_taken = (0 until groupSize).map{ i =>
         // 10 weak_taken, 11 strong_taken
-        val taken = pht(i).read(getIdx(io.req.bits.addr))(1) 
+        val taken = pht(i)(getIdx(addr_reg))(1) 
         taken
     }
 
@@ -157,16 +163,17 @@ class BPU (implicit val conf: Config) extends BPUModule {
 
     val getPht = Wire(Vec(groupSize, UInt(counterBits.W)))
     (0 until groupSize).map{ i =>
-        getPht(i) := pht(i).read(getIdx(io.req.bits.addr))
+        getPht(i) := pht(i)(getIdx(io.req.bits.addr))
     }
-    when(btb_req_reg.valid && btb_req_reg.redirect_type === RD_BR){
-      val taken = btb_req_reg.taken
+    // all br,jal,jarl are redirect type && btb_req.redirect_type === RD_BR
+    when(btb_req.valid ){
+      val taken = btb_req.taken
       val newPht = Wire(Vec(groupSize, UInt(counterBits.W)))
       val should_update = getPht.map(x => (!taken && x =/= 0.U) || (taken && x =/= 3.U)).reduce(_ || _)
       (0 until groupSize).map{i => newPht(i) := Mux(taken, getPht(i) + 1.U, getPht(i) - 1.U)} 
       when(should_update){
         (0 until groupSize).map{ i =>
-          pht(i).write(getIdx(io.req.bits.addr), newPht(i))
+          pht(i)(getIdx(io.btb_req.addr)) := newPht(i)
         }
       }
     }
@@ -185,16 +192,26 @@ class BPU (implicit val conf: Config) extends BPUModule {
         when(btb_req.redirect_type === RD_JAL){
           ras.push(btb_req.addr + 4.U)      // support rvc should modify  
         }
-        when (io.ras_req.valid && io.ras_req.redirect_type === RD_RET ){
+        when (io.ras_req.valid && io.ras_req.redirect_type === RD_RET && !ras.isEmpty ){
           ras.pop()
         }
     }
+
+    def getGroupMask(addr: UInt) = {
+      val baseMask = ((1 << groupSize) - 1).U(groupSize.W)
+      (baseMask << getGroupOffset(addr))(groupSize-1,0)
+    }
+    val inst_valid = getGroupMask(addr_reg)
+
     val target = Wire(Vec(groupSize, UInt(conf.xprlen.W)))
     val brIdx = Wire(Vec(groupSize,Bool()))
     (0 until groupSize).map{ i => target(i) := Mux(isRASVec(i), ras_target, btbRead(i).target)}
-    (0 until groupSize).map{ i => brIdx(i)  := btbHitVec(i) && pht_taken(i) }
+    (0 until groupSize).map{ i => brIdx(i)  := btbHitVec(i) && pht_taken(i) && inst_valid(i).asBool }
     io.resp.bits.target     := Mux1H(brIdx,target)
     io.resp.bits.ras_valid  := isRASVec.reduce(_ || _)
     io.resp.bits.brIdx      := brIdx.asUInt
     io.resp.valid           := brIdx.asUInt.orR 
+    io.resp.bits.valid      := brIdx.asUInt.orR 
+    io.resp.bits.pc         := addr_reg
+    // Debug(io.resp.valid,"BPU: brIdx(0) %x brIdx(1) target %x pc %x ",brIdx(0),brIdx(1),io.resp.bits.target,addr_reg   )
 }
