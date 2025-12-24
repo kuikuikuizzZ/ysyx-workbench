@@ -8,6 +8,7 @@ import npc.Constants._
 import npc.common._
 
 
+
 class EXEPipeIO(implicit val conf: Config) extends Bundle() {
    // Memory State
    val csr_inst         = Output(UInt(12.W))
@@ -31,6 +32,7 @@ class EXUToIFUOut (implicit val conf: Config) extends Bundle() {
    val exe_jump_reg_target =   Output(UInt(conf.xprlen.W))
    val btb_req             =   Output(new BTBUpdateReq)
    val ras_req             =   Output(new RASUpdateReq)
+   val target              = Output(UInt(conf.xprlen.W))
 }
 class EXUToCTLIO (implicit val conf: Config) extends Bundle() {
    val alu_out          = Output(UInt(conf.xlen.W))
@@ -41,7 +43,7 @@ class EXUToCTLIO (implicit val conf: Config) extends Bundle() {
    val is_csr           = Output(Bool())
    val br_type          = Output(UInt(BR_N.getWidth.W)) // for debug use
    val ctrl_exe_pc_sel  = Output(UInt(PC_4.getWidth.W))
-   val redirect_type    = Output(UInt(RD_IN.getWidth.W))
+   val redirect_type    = Output(UInt(RD_X.getWidth.W))
    val should_redirect    = Output(Bool())
    
 }
@@ -51,6 +53,8 @@ class EXUDebugPort(implicit val conf: Config) extends Bundle() {
    val predict_wrong       = Output(UInt(conf.perfCountBits.W))
    val target_wrong        = Output(UInt(conf.perfCountBits.W))
    val br_wrong            = Output(UInt(conf.perfCountBits.W))
+   val predict_hit         = Output(UInt(conf.perfCountBits.W))
+   val predict_count       = Output(UInt(conf.perfCountBits.W))
 }
 
 
@@ -64,7 +68,7 @@ class DpathIo(implicit val conf: Config) extends Bundle()
    val debug      = Output(new EXUDebugPort())
 }
 
-class EXU(implicit conf: Config) extends Module
+class EXU(implicit val conf: Config) extends Module with HasBPUParams 
 {
    val io = IO(new DpathIo())
    io := DontCare
@@ -124,34 +128,40 @@ class EXU(implicit conf: Config) extends Module
    val is_cond_br = exe_br_type === BR_NE || exe_br_type === BR_EQ ||
                   exe_br_type === BR_GE || exe_br_type === BR_GEU ||
                   exe_br_type === BR_LT || exe_br_type === BR_LTU
+               
+   val is_jump   = exe_br_type === BR_J || exe_br_type === BR_JR
 
-
-   val cond_sel = Mux(taken, PC_BRJMP, PC_4)
-
-
-   val ctrl_exe_pc_sel = Mux(io.ctl.pipeline_kill, PC_EXC,
-                        Mux(exe_br_type === BR_N, PC_4,
-                        Mux(is_cond_br, cond_sel, base_sel)))
+   // val cond_sel = Mux(taken, PC_BRJMP, PC_4)
 
    val bpu_resp            =  io.dec_exe.bits.bpu_resp
-   val target              =  Mux(ctrl_exe_pc_sel === PC_BRJMP, exe_brjmp_target ,exe_jump_reg_target )
-   val predict_wrong       =  Mux(!taken && ctrl_exe_pc_sel === PC_BRJMP, bpu_resp.brIdx(0), 
-                              !bpu_resp.brIdx(0) || target =/= bpu_resp.target)
-   val should_redirect     = predict_wrong && (ctrl_exe_pc_sel =/= PC_4) 
+   val br_pc_sel           = Mux(is_cond_br, PC_BRJMP, base_sel)
+   val groupIdx            = getGroupOffset(io.dec_exe.bits.pc)
+   val target              = Mux(taken && is_cond_br || exe_br_type === BR_J,  exe_brjmp_target,
+                              Mux(exe_br_type === BR_JR,   exe_jump_reg_target,
+                              pc_plus4))
+   val predict_wrong       = Mux(!taken && is_cond_br, bpu_resp.brIdx(groupIdx).asBool, 
+                                  (!bpu_resp.brIdx(groupIdx).asBool || target =/= bpu_resp.target))
+   val should_redirect     =  predict_wrong && (is_jump || is_cond_br) 
 
-   io.ifu_out.btb_req.valid            := io.dec_exe.valid && exe_br_type =/= BR_N
+   val ctrl_exe_pc_sel     = Mux(io.ctl.pipeline_kill, PC_EXC,
+                              Mux(exe_br_type === BR_N || !should_redirect, PC_4,br_pc_sel))
+  
+
+   io.ifu_out.btb_req.valid            := io.dec_exe.valid && exe_br_type =/= BR_N 
    io.ifu_out.btb_req.addr             := io.dec_exe.bits.pc
    io.ifu_out.btb_req.target           := target
    io.ifu_out.btb_req.taken            := taken
    io.ifu_out.btb_req.is_miss          := predict_wrong
    io.ifu_out.btb_req.redirect_type    := io.dec_exe.bits.redirect_type   
 
-   io.ifu_out.ras_req.valid            := io.dec_exe.valid && io.dec_exe.bits.redirect_type === RD_RET
+   io.ifu_out.ras_req.valid            := io.dec_exe.valid && io.dec_exe.bits.redirect_type === RD_RET 
    io.ifu_out.ras_req.addr             := io.dec_exe.bits.pc
    io.ifu_out.ras_req.target           := target
    io.ifu_out.ras_req.taken            := taken
    io.ifu_out.ras_req.is_miss          := predict_wrong
    io.ifu_out.ras_req.redirect_type    := io.dec_exe.bits.redirect_type
+   io.ifu_out.target                   := target
+
 
    when (io.ctl.pipeline_kill){
       io.exe_mem.bits.pc_valid         := false.B
@@ -194,18 +204,23 @@ class EXU(implicit conf: Config) extends Module
 
 
    /////////// DEBUG
-   val perfCounters = RegInit(VecInit(Seq.fill(3)(0.U(conf.perfCountBits.W))))
-   val Seq( predict_wrong_count, target_wrong_count, br_wrong_count ) = perfCounters
+   val perfCounters = RegInit(VecInit(Seq.fill(5)(0.U(conf.perfCountBits.W))))
+   val Seq( predict_wrong_count, target_wrong_count, br_wrong_count ,predict_hit_count, predict_count ) = perfCounters
 
    val target_wrong = !bpu_resp.brIdx(0) || target =/= bpu_resp.target
-   val br_wrong = predict_wrong && (ctrl_exe_pc_sel =/= PC_4)
-   when(io.dec_exe.valid && bpu_resp.valid){
+   val br_wrong = predict_wrong && (is_cond_br)
+   when(bpu_resp.valid && io.dec_exe.valid){
+      val predict_taken = bpu_resp.brIdx.asUInt.orR
       when(predict_wrong){ predict_wrong_count := predict_wrong_count + 1.U }
       when(target_wrong){ target_wrong_count := target_wrong_count + 1.U }
       when(br_wrong){ br_wrong_count := br_wrong_count + 1.U }
+      when (target === bpu_resp.target || (!taken && !predict_taken )) { predict_hit_count := predict_hit_count + 1.U}
+      predict_count := predict_count + 1.U
    }
    io.debug.predict_wrong := predict_wrong_count
    io.debug.target_wrong := target_wrong_count
    io.debug.br_wrong := br_wrong_count
+   io.debug.predict_hit := predict_hit_count
+   io.debug.predict_count := predict_count
 }
 }

@@ -84,10 +84,16 @@ extern "C" void perf_event_ctrl(uint32_t csr_cnt, uint32_t ctrl_store,uint32_t c
     ctrl_perf_event.utype_count = utype;
     ctrl_perf_event.other_count = other;
 }
-extern "C" void perf_event_exe(uint32_t predict_wrong_cnt, uint32_t target_wrong_cnt,uint32_t br_wrong_cnt){
+extern "C" void perf_event_exe( uint32_t predict_wrong_cnt, 
+                                uint32_t target_wrong_cnt,
+                                uint32_t br_wrong_cnt,
+                                uint32_t predict_hit_cnt,
+                                uint32_t predict_count){
     exe_perf_event.br_wrong_count = br_wrong_cnt;
     exe_perf_event.predict_wrong_count = predict_wrong_cnt;
     exe_perf_event.target_wrong_count = target_wrong_cnt;
+    exe_perf_event.predict_hit_count = predict_hit_cnt;
+    exe_perf_event.predict_count = predict_count;
 }
 
 #endif
@@ -321,10 +327,12 @@ void top_perf_event_display(FILE *fp = stdout){
             ctrl_perf_event.btype_count,
             ctrl_perf_event.utype_count,
             ctrl_perf_event.other_count);
-    fprintf(fp,"predict wrong:\t %.12d, target_wrong %.12d, br_wrong %.12d\n",
+    fprintf(fp,"predict count :\t %.12d, predict wrong %.12d, target_wrong %.12d, br_wrong %.12d predict_hit_cnt %.12d\n",
+            exe_perf_event.predict_count,
             exe_perf_event.predict_wrong_count,
             exe_perf_event.target_wrong_count,
-            exe_perf_event.br_wrong_count);
+            exe_perf_event.br_wrong_count,
+            exe_perf_event.predict_hit_count);
     fprintf(fp,"ICache hit:  \t %.12d, miss %.12d\n", icache_hit,icache_miss);
 }
 

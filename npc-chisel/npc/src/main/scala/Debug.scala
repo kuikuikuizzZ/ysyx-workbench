@@ -87,7 +87,7 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
      import "DPI-C" function void perf_event_wbu(input int wbCount);
      import "DPI-C" function void perf_event_ctrl(input int csrCount, input int loadCount, input int storeCount, 
          input int itype, input int rtype, input int jtype, input int btype, input int utype, input int other);
-     import "DPI-C" function void perf_event_exe(input int predict_wrong, input int target_wrong, input int br_wrong);
+     import "DPI-C" function void perf_event_exe(input int predict_wrong, input int target_wrong, input int br_wrong,input int predict_hit,input int predict_count);
      module PerfEventPort(
         input clock,
         input reset,
@@ -116,7 +116,9 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
         input [31:0] ctl_port_otherCount,
         input [31:0] exu_port_predict_wrong,
         input [31:0] exu_port_target_wrong,
-        input [31:0] exu_port_br_wrong
+        input [31:0] exu_port_br_wrong,
+        input [31:0] exu_port_predict_hit,
+        input [31:0] exu_port_predict_count
         );
 
 
@@ -125,7 +127,7 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
                 ctl_port_loadCount, ctl_port_itypeCount, ctl_port_rtypeCount,
                 ctl_port_jtypeCount,ctl_port_btypeCount, ctl_port_utypeCount, ctl_port_otherCount);
             
-            perf_event_exe(exu_port_predict_wrong, exu_port_target_wrong, exu_port_br_wrong);
+            perf_event_exe(exu_port_predict_wrong, exu_port_target_wrong, exu_port_br_wrong,exu_port_predict_hit,exu_port_predict_count);
             perf_event_wbu(wbu_port_wbCount);
             if (lsu_port_valid)
                 perf_event_lsu(lsu_port_storeCount, lsu_port_loadCount);

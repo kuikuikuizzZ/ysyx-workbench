@@ -89,10 +89,11 @@ trait ScalarOpConstants
    val BR_JR    = 8.asUInt(4.W)  // Jump Register
 
    // redirect type
-   val RD_BR      = 0.asUInt(2.W)
-   val RD_JAL     = 1.asUInt(2.W)
-   val RD_RET     = 2.asUInt(2.W)
-   val RD_IN     = 3.asUInt(2.W)   // indirect
+   val RD_X       = 0.asUInt(3.W)   // indirect
+   val RD_JAL     = 1.asUInt(3.W)
+   val RD_RET     = 2.asUInt(3.W)
+   val RD_CALL    = 3.asUInt(3.W)
+   val RD_BR      = 4.asUInt(3.W)
 
    // RS1 Operand Select Signal
    val OP1_RS1   = 0.asUInt(2.W) // Register Source #1

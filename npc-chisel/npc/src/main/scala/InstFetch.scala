@@ -58,11 +58,17 @@ class InstFetch(implicit conf: Config) extends Module {
   }
 
   // PC Register
-  pc_next :=  Mux(io.ctl.exe_pc_sel     === PC_4,         pc_plus4,
-                 Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
-                 Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
-                 Mux(bpu_valid,                         bpu_target,
-                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target))))
+                 
+  // pc_next := Mux(bpu_valid,                         bpu_target,
+  //             Mux(io.ctl.exe_pc_sel  === PC_4,      pc_plus4,
+  //             Mux(io.ctl.exe_pc_sel  === PC_BRJMP,  io.exu_in.exe_brjmp_target,
+  //             Mux(io.ctl.exe_pc_sel  === PC_JALR,   io.exu_in.exe_jump_reg_target,
+  //                /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target))))
+
+  pc_next := Mux(bpu_valid,                         bpu_target,
+              Mux(io.ctl.exe_pc_sel  === PC_4,      pc_plus4, 
+              Mux(io.ctl.exe_pc_sel =/= PC_EXC,     io.exu_in.target,
+                 /*Mux(io.ctl.pc_sel === PC_EXC*/ io.exception_target)))
 
    // for a fencei, refetch the pc (assuming no branch, and no exception)
    when (io.ctl.fencei && io.ctl.exe_pc_sel === PC_4 && !io.ctl.pipeline_kill)

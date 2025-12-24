@@ -28,7 +28,7 @@ class DecPipeIO(implicit val conf: Config) extends Bundle()
    val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
    val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
    val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
-   val redirect_type    = Output(UInt(RD_IN.getWidth.W))
+   val redirect_type    = Output(UInt(RD_X.getWidth.W))
    val bpu_resp         = Output(new BPUResp)
 }
 
@@ -199,10 +199,11 @@ class Decoder(implicit val conf: Config) extends Module
                   cs_br_type === BR_GE || cs_br_type === BR_GEU ||
                   cs_br_type === BR_LT || cs_br_type === BR_LTU
 
-   val redirect_type = Mux(is_cond_br, RD_BR, 
-                        Mux(cs_br_type === BR_JR && dec_rs1_addr === 0.U && dec_wbaddr === 1.U, RD_RET,
-                        Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, RD_IN)))
-   
+   val redirect_type = Mux((cs_br_type === BR_J || cs_br_type === BR_JR) & dec_wbaddr(0),RD_CALL, 
+                        Mux(cs_br_type === BR_JR && (dec_rs1_addr === 1.U), RD_RET,
+                        Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, 
+                        Mux(is_cond_br,RD_BR,RD_X))))
+
    val pipeline_kill = Wire(Bool())
    val ifkill     = io.exe_ctl.should_redirect || cs_fencei 
    val deckill    = io.exe_ctl.should_redirect
@@ -301,6 +302,7 @@ class Decoder(implicit val conf: Config) extends Module
       io.dec_exe.bits.ctrl_wb_sel   := WB_X
       io.dec_exe.bits.ctrl_mem_typ  := MT_X
       io.dec_exe.bits.redirect_type := RD_BR
+      io.dec_exe.bits.bpu_resp      := WireInit(0.U.asTypeOf(new BPUResp))
 
    } .otherwise {
       io.dec_exe.bits.pc            := dec_reg_pc
@@ -326,7 +328,7 @@ class Decoder(implicit val conf: Config) extends Module
          io.dec_exe.bits.exception     := false.B
          io.dec_exe.bits.ctrl_mem_typ  := MT_X
          io.dec_exe.bits.redirect_type := RD_BR
-
+         io.dec_exe.bits.bpu_resp      := WireInit(0.U.asTypeOf(new BPUResp()))
       }
       .otherwise{
          io.dec_exe.valid              := true.B
@@ -344,7 +346,6 @@ class Decoder(implicit val conf: Config) extends Module
          io.dec_exe.bits.bpu_resp      := io.ifu_dec.bits.bpu_resp
       }
    }
-   io.dec_exe.bits.bpu_resp := DontCare
 
 
 

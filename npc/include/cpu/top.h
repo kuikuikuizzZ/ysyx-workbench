@@ -69,6 +69,8 @@ typedef struct{
   uint32_t predict_wrong_count  ;
   uint32_t br_wrong_count   ;
   uint32_t target_wrong_count   ;
+  uint32_t predict_hit_count   ;
+  uint32_t predict_count;
 } exe_perf_event_t;
 
 // extern uint32_t lsu_store_count;
