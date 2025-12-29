@@ -6,7 +6,7 @@ import chisel3._
 import npc.common.{Config, 
                      AXI4LiteMaster,TopAXI4LiteSlave,
                      TopAXI4Slave,AXI4LiteArbiter}
-import npc._
+import npc.pipeline.{ysyx_24100012}
 import npc.devices.{TopAXI4LiteMem,IverilogAXI4LiteMem}
 
 class IverilogTop extends Module { 

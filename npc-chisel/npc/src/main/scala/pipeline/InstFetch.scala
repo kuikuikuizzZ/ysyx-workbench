@@ -1,9 +1,11 @@
-package npc
+package npc.pipeline
 
 import chisel3._
 import chisel3.util._
+import npc._
 import npc.common._
-import npc.Constants._
+import npc.pipeline.Constants._
+
 import npc.common.UtilMethods.{ResultHoldBypass}
 
 class IFUDebugPort(implicit val conf: Config)   extends Bundle() {
@@ -76,18 +78,6 @@ class InstFetch(implicit conf: Config) extends Module {
       pc_next := pc_reg
    }
 
-
-  // when(bpu.io.resp.valid) {
-  //   bpu_valid     := bpu.io.resp.valid
-  //   bpu_target    := bpu.io.resp.bits.target
-  //   bpu_brIdx     := bpu.io.resp.bits.brIdx
-  // }
-
-  // when(cache.io.req.fire || should_kill){
-  //   bpu_valid     := false.B
-  //   bpu_target      := 0.U
-  //   bpu_brIdx     := 0.U
-  // }
 
   // predict 1 cycle early and bpu need 1 cycle to predict the next pc 
   bpu.io := DontCare

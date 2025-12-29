@@ -21,6 +21,10 @@ config IVERILOG
   bool "iverilog enable"
   default n
 
+config GALOIS
+  bool "galois enable"
+  default n
+
 config PIPELINE_PC
   bool "pipline enable"
   default y

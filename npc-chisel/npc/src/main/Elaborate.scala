@@ -1,6 +1,8 @@
 import chisel3._
 
-import npc._
+import npc.pipeline.{ysyx_24100012}
+import npc.{IverilogTop,Top,SRAMTop}
+import npc.galois.{Galois}
 import npc.common.{Config}
 package sifive {
   package enterprise {
@@ -36,6 +38,24 @@ object Elaborate extends App {
   circt.stage.ChiselStage.emitSystemVerilogFile(
     new ysyx_24100012(),
     Array("--target","verilog","--target-dir","build/soc"),
+    firtoolOptions)
+}
+
+object ElaborateGalois extends App {
+  val firtoolOptions = Array(
+    "--disable-all-randomization",
+    "--disable-mem-randomization",
+    "--disable-reg-randomization",
+    "--lowering-options=" + List(
+       "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket",
+      "noAlwaysComb"
+    ).reduce(_ + "," + _),
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(
+    new Galois(),
+    Array("--target","verilog","--target-dir","build/galois"),
     firtoolOptions)
 }
 

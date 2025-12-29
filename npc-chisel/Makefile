@@ -2,6 +2,8 @@ BUILD_DIR = ./build/soc
 NPC_BUILD_DIR = ./build/npc
 IVERILOG_BUILD_DIR = ./build/iverilog
 NETLIST_BUILD_DIR = ./build/netlist
+GALOIS_BUILD_DIR = ./build/galois
+
 PRJ = npc
 
 test:
@@ -13,6 +15,14 @@ verilog_build:
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build/
 	mill -i $(PRJ).runMain Elaborate 
+
+verilog_galois_build:
+	$(call git_commit, "generate verilog")
+	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(NPC_HOME)/build/
+	mill -i $(PRJ).runMain ElaborateGalois 
+
 
 verilog_npc_build:
 	$(call git_commit, "generate verilog")
@@ -61,6 +71,13 @@ verilog-netlist: verilog_iverilog_netlist_build
 # 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
 	sed -i '/\.v/ s/.*//' $(NETLIST_BUILD_DIR)/*.v
 	cp  -r $(wildcard $(NETLIST_BUILD_DIR)/*.sv $(NETLIST_BUILD_DIRs)/*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/svsrc_netlist/
+
+verilog-galois: verilog_galois_build
+# 	gsed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(BUILD_DIR)/*.sv
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(GALOIS_BUILD_DIR)/*.v
+	sed -i '/\.v/ s/.*//' $(GALOIS_BUILD_DIR)/*.v
+	sed -i 's/module Galois/module ysyx_24100012/g' $(GALOIS_BUILD_DIR)/*.v
+	cp  -r $(wildcard $(GALOIS_BUILD_DIR)/*.sv $(GALOIS_BUILD_DIR)/*.v ./npc/src/main/resources/*.v)  $(NPC_HOME)/build/
 
 
 help:

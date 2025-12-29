@@ -28,7 +28,11 @@ ifdef CONFIG_IVERILOG
     SVSOURCES = $(wildcard $(NPC_HOME)/build/Iverilog*.v wildcard $(NPC_HOME)/build/Iverilog*.sv  $(NPC_HOME)/build/TopAXI4LiteSlave.sv $(NPC_HOME)/build/Top_mask_expander.v)
 else 
 	ifdef CONFIG_SOC
-		SVSOURCES = $(wildcard $(NPC_HOME)/build/ysyx_24100012.v)
+		ifdef CONFIG_GALOIS
+			SVSOURCES = $(wildcard $(NPC_HOME)/build/Galois.v)
+		else
+			SVSOURCES = $(wildcard $(NPC_HOME)/build/ysyx_24100012.v)
+		endif
 		SVSOURCES += $(wildcard $(YSYX_HOME)/ysyxSoC/build/*.v  $(YSYX_HOME)/ysyxSoC/build/*.sv)
 	else
 		SVSOURCES = $(wildcard $(NPC_HOME)/build/Top*.v wildcard $(NPC_HOME)/build/Top*.sv $(NPC_HOME)/build/ysyx_24100012.v)

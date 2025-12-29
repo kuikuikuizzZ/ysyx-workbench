@@ -1,8 +1,9 @@
-package npc
+package npc.pipeline
 import chisel3._
 import chisel3.util._
 import npc.common.{Config, MemPortIo}   
-import npc.Constants._
+import npc.pipeline.Constants._
+
 
 class RegFileIo(implicit val conf: Config) extends Bundle {
   val out = new RegFileOut()

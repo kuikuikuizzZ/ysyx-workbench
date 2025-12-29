@@ -10,3 +10,8 @@ endif
 verilog-soc: 
 	@echo CHISEL_VERILOG_SOC_CONFIG $(CHISEL_VERILOG_SOC_CONFIG)
 	$(MAKE) -C ../npc-chisel $(CHISEL_VERILOG_SOC_CONFIG) verilog
+
+verilog-galois: 
+	@echo CHISEL_VERILOG_SOC_CONFIG $(CHISEL_VERILOG_SOC_CONFIG)
+	$(MAKE) -C ../npc-chisel $(CHISEL_VERILOG_SOC_CONFIG) verilog-galois
+

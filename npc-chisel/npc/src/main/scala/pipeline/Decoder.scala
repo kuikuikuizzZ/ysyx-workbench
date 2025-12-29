@@ -1,11 +1,13 @@
-package npc
+package npc.pipeline
 
 import chisel3._
 import chisel3.util._
 
 import npc.common.Instructions._
+import npc._
 import npc.common._
-import npc.Constants._
+import npc.pipeline.Constants._
+
 
 class DecPipeIO(implicit val conf: Config) extends Bundle()
 {

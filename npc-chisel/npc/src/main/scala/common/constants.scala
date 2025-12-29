@@ -7,7 +7,7 @@
 // Modified from github.com/ucb-bar/riscv-sodor
 
 package npc
-package constants
+package common
 {
 
 import chisel3._

@@ -5,7 +5,7 @@ import chisel3._
 import chisel3.util._
 import npc.common._
 import npc.common.UtilMethods._
-import npc.Constants._
+import npc.common.Constants._
 // import utils._
 // import difftest._
 

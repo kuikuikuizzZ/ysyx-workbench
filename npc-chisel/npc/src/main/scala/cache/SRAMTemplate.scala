@@ -6,7 +6,7 @@ import chisel3.util._
 import chisel3.util.random.LFSR
 
 import npc.common._
-import npc.Constants._
+import npc.common.Constants._
 import java.rmi.server.UID
 
 class BundleA(nLines: Int) (implicit val conf: Config)extends CacheBundle {

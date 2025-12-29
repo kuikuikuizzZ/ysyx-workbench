@@ -7,7 +7,7 @@ import chisel3.util.random.LFSR
 
 import npc.common._
 import npc.common.UtilMethods._
-import npc.Constants._
+import npc.common.Constants._
 import java.rmi.server.UID
 
 sealed trait HasL1Params{

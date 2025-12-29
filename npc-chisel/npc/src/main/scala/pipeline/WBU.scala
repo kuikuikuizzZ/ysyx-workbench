@@ -1,10 +1,12 @@
-package npc
+package npc.pipeline
 
 import chisel3._
 import chisel3.util._
 
+import npc._
 import npc.common._
-import npc.Constants._
+import npc.pipeline.Constants._
+
 
 class WBUDebugPort(implicit val conf: Config) extends Bundle {
     val wbCount = Output(UInt(conf.perfCountBits.W))
