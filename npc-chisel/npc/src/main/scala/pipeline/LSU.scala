@@ -86,7 +86,7 @@ class LSUIO(implicit val conf: Config) extends Bundle {
     
     val clintIO = Flipped(  new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+            // val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         })
 }
 class LSU(implicit val conf: Config) extends Module {
@@ -221,7 +221,7 @@ class LSUImplIO(implicit val conf: Config) extends CacheBundle {
     val axi_bus             = new AXI4Bus()
     val clintIO = Flipped(  new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+            // val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         })
 }
 

@@ -19,7 +19,7 @@ import npc.common.Constants._
     val historyLength:  Int = 8
     // val nBTBWays:       Int = 4
     val idxBits   = log2Up(nBTBEntries)
-    val groupSize = conf.fetchGroupBytes/4   // default 2
+    val groupSize = conf.fetchGroupSize   // default 2
     val groupBits = log2Up(groupSize)-1
     val tagBits = conf.xprlen - idxBits - groupBits - 2
     def addrBundle = new Bundle {

@@ -1,38 +1,12 @@
-package npc.pipeline
+package npc.galois
 
 import chisel3._
 import chisel3.util._
 
 import npc.common.Instructions._
-import npc._
 import npc.common._
-import npc.pipeline.Constants._
-
-
-class DecPipeIO(implicit val conf: Config) extends Bundle()
-{
-   val inst             = Output(UInt(conf.xlen.W))
-   val pc               = Output(UInt(conf.xprlen.W))
-   val pc_valid         = Output(Bool())
-   val wbaddr           = Output(UInt(5.W))
-   val rs1_addr         = Output(UInt(5.W))
-   val rs2_addr         = Output(UInt(5.W))
-   val op1_data         = Output(UInt(conf.xprlen.W))
-   val op2_data         = Output(UInt(conf.xprlen.W))
-   val rs2_data         = Output(UInt(conf.xprlen.W))
-   val br_type          = Output(UInt(BR_N.getWidth.W))
-   val op2_sel          = Output(UInt(OP2_X.getWidth.W))
-   val alu_fun          = Output(UInt(ALU_X.getWidth.W))
-   val ctrl_wb_sel      = Output(UInt(WB_X.getWidth.W))
-   val ctrl_rf_wen      = Output(Bool())
-   val ctrl_mem_val     = Output(Bool())
-   val ctrl_mem_fcn     = Output(UInt(M_X.getWidth.W)) 
-   val ctrl_mem_typ     = Output(UInt(MT_X.getWidth.W))
-   val ctrl_csr_cmd     = Output(UInt(CSR.N.getWidth.W))
-   val exception        = Output(UInt(EXC_NORMAL.getWidth.W))
-   val redirect_type    = Output(UInt(RD_X.getWidth.W))
-   val bpu_resp         = Output(new BPUResp)
-}
+import npc.common.Constants._
+import npc._
 
 
 class CtrlSignalIO(implicit val conf: Config) extends Bundle() {
@@ -56,24 +30,74 @@ class CtrlDebugPort(implicit val conf: Config) extends Bundle()
    val otherCount    = Output(UInt(conf.perfCountBits.W)) 
 }
 
-class CpathIo(implicit val conf: Config) extends Bundle()
+class DecodeIO(implicit conf: Config) extends Bundle()
 {
-   val dec_reg       =  Flipped(new RegFilePipeIn())
-   val ifu_dec       =  Flipped(new DecoupledIO(new IFUPipeIO))
-   val dec_exe       =  new DecoupledIO( new DecPipeIO)
-   val reg_in        =  Flipped(new RegFileOut())
-   val ctl_sign      =  Flipped(new CtrlSignalIO)
-   val lsu_ctl       =  Flipped(new LSUTOCtlIO)
-   val exe_ctl       =  Flipped(new EXUToCTLIO())
-   val wb_ctrl        =  Flipped(new WBToCTLIO)
-   val debug         =  new CtrlDebugPort
+   val ifu_dec    = Flipped(DecoupledIO(new IFUPipeIO))
+   val dec_rm     = DecoupledIO(new BlockLineIO())
+   val redirect   = Input(Bool())
+   val debug      = new CtrlDebugPort
+}
+
+class Decode (implicit val conf: Config) extends Module
+{ 
+   val io = IO(new DecodeIO())
+   
+   io.ifu_dec.ready := io.dec_rm.ready
+   io.dec_rm.valid := io.ifu_dec.valid
+   
+   val decoderA = Module(new Decoder())
+   val decoderB = Module(new Decoder())
+
+   val instA = Mux(io.ifu_dec.fire,  io.ifu_dec.bits.instA, 0.U.asTypeOf( new IFUInstOut()))
+   val instB = Mux(io.ifu_dec.fire,  io.ifu_dec.bits.instB, 0.U.asTypeOf( new IFUInstOut()))
+   decoderA.io.valid       := io.ifu_dec.fire
+   decoderA.io.inst        := instA
+   decoderA.io.bpu_resp    := io.ifu_dec.bits.bpu_resp
+   decoderA.io.exception   := io.ifu_dec.bits.exception
+   decoderB.io.inst        := instB
+   decoderB.io.valid       := io.ifu_dec.fire
+   decoderB.io.bpu_resp    := io.ifu_dec.bits.bpu_resp
+   decoderB.io.exception   := io.ifu_dec.bits.exception
+
+
+   when(io.redirect){
+      io.dec_rm.bits.instA   := 0.U.asTypeOf(new InstCtrlBlock())
+      io.dec_rm.bits.instB   := 0.U.asTypeOf(new InstCtrlBlock())
+   } .otherwise{
+      io.dec_rm.bits.instA <> decoderA.io.dec_out
+      io.dec_rm.bits.instB <> decoderB.io.dec_out
+   }
+   def reduceDebug( debugA : CtrlDebugPort, debugB : CtrlDebugPort): CtrlDebugPort = {
+      val debug = WireInit(0.U.asTypeOf(new CtrlDebugPort()))
+      debug.csrCount := debugA.csrCount + debugB.csrCount
+      debug.storeCount := debugA.storeCount + debugB.storeCount
+      debug.loadCount := debugA.loadCount + debugB.loadCount
+      debug.itypeCount := debugA.itypeCount + debugB.itypeCount
+      debug.rtypeCount := debugA.rtypeCount + debugB.rtypeCount
+      debug.jtypeCount := debugA.jtypeCount + debugB.jtypeCount
+      debug.btypeCount := debugA.btypeCount + debugB.btypeCount
+      debug.utypeCount := debugA.utypeCount + debugB.utypeCount
+      debug.otherCount := debugA.otherCount + debugB.otherCount
+      debug
+   }
+   io.debug := reduceDebug(decoderA.io.debug, decoderB.io.debug)
+}
+
+class DecoderIo(implicit val conf: Config) extends Bundle()
+{
+   val valid            =  Input(Bool())
+   val inst             =  Flipped(new IFUInstOut)
+   val bpu_resp         =  Input(new BPUResp)
+   val exception        =  Input(UInt(EXC_NORMAL.getWidth.W))
+   val dec_out          =  Output(new InstCtrlBlock())
+   val debug            =  new CtrlDebugPort
 }
 
 class Decoder(implicit val conf: Config) extends Module
 {
-   val io = IO(new CpathIo())
-   val dec_reg_inst = io.ifu_dec.bits.inst
-   val dec_reg_pc = io.ifu_dec.bits.pc
+   val io = IO(new DecoderIo())
+   val dec_reg_inst = io.inst.inst
+   val dec_reg_pc = io.inst.pc
 
    // Control Signals
    val csignals =
@@ -125,10 +149,6 @@ class Decoder(implicit val conf: Config) extends Module
 
                   CSRRW  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.W, N),
                   CSRRS  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.S, N),
-                  // CSRRWI -> List(Y, BR_N  , OP1_IMZ, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.W, N),
-                  // CSRRSI -> List(Y, BR_N  , OP1_IMZ, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.S, N),
-                  // CSRRC  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.C, N),
-                  // CSRRCI -> List(Y, BR_N  , OP1_IMZ, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.C, N),
 
                   ECALL  -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
                   MRET   -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
@@ -144,16 +164,11 @@ class Decoder(implicit val conf: Config) extends Module
    val (cs_val_inst: Bool) :: (cs_br_type:UInt) :: (cs_op1_sel:UInt) :: (cs_op2_sel:UInt) :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: cs0 = csignals
    val cs_alu_fun :: cs_wb_sel :: (cs_rf_wen: Bool) :: (cs_mem_en: Bool) :: cs_mem_fcn :: cs_msk_sel :: cs_csr_cmd :: (cs_fencei: Bool) :: Nil = cs0
 
-              
-   
    /////// Register File Interface //////
    val dec_rs1_addr = dec_reg_inst(RS1_MSB, RS1_LSB)
    val dec_rs2_addr = dec_reg_inst(RS2_MSB, RS2_LSB)
    val dec_wbaddr   = dec_reg_inst(RD_MSB, RD_LSB)
-   val rf_rs1_data = io.reg_in.rs1_data
-   val rf_rs2_data = io.reg_in.rs2_data
-   io.dec_reg.rs1_addr := dec_rs1_addr
-   io.dec_reg.rs2_addr := dec_rs2_addr
+            
    
    // immediates
    val imm_i = dec_reg_inst(31, 20) 
@@ -171,31 +186,14 @@ class Decoder(implicit val conf: Config) extends Module
    val imm_j_sext = Cat(Fill(11,imm_j(19)), imm_j, 0.U)
 
    // Operand 2 Mux
-   // val alu_op2 = MuxCase(0.U, Array(
-   //             (cs_op2_sel === OP2_RS2)    -> rf_rs2_data,
-   //             (cs_op2_sel === OP2_ITYPE)  -> imm_i_sext,
-   //             (cs_op2_sel === OP2_STYPE)  -> imm_s_sext,
-   //             (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
-   //             (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
-   //             (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
-   //             )).asUInt
-   val alu_op2 = {
-      // 创建查找表
-      val op2LookupTable = VecInit(Seq(
-         rf_rs2_data,   // OP2_RS2
-         imm_i_sext,    // OP2_ITYPE
-         imm_s_sext,    // OP2_STYPE
-         imm_b_sext,    // OP2_SBTYPE
-         imm_u_sext,    // OP2_UTYPE
-         imm_j_sext     // OP2_UJTYPE
-      ))
-   
-      // 安全选择器（防止越界）
-      val safeSel = Mux(cs_op2_sel < op2LookupTable.size.U, cs_op2_sel, 0.U)
-   
-      // 查找结果
-      op2LookupTable(safeSel)
-   }
+
+   val imm = MuxCase(0.U, Array(
+            (cs_op2_sel === OP2_ITYPE)  -> imm_i_sext,
+            (cs_op2_sel === OP2_STYPE)  -> imm_s_sext,
+            (cs_op2_sel === OP2_SBTYPE) -> imm_b_sext,
+            (cs_op2_sel === OP2_UTYPE)  -> imm_u_sext,
+            (cs_op2_sel === OP2_UJTYPE) -> imm_j_sext
+            )).asUInt
 
    val is_cond_br = cs_br_type === BR_NE || cs_br_type === BR_EQ ||
                   cs_br_type === BR_GE || cs_br_type === BR_GEU ||
@@ -206,157 +204,36 @@ class Decoder(implicit val conf: Config) extends Module
                         Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, 
                         Mux(is_cond_br,RD_BR,RD_X))))
 
-   val pipeline_kill = Wire(Bool())
-   val ifkill     = io.exe_ctl.should_redirect || cs_fencei 
-   val deckill    = io.exe_ctl.should_redirect
 
-   // Exception Handling ---------------------
+   val inst_ctrl_block = InstCtrlBlock.apply(valid = cs_val_inst,
+                                             inst        = dec_reg_inst,
+                                             pc          = dec_reg_pc,
+                                             rs1_addr    = dec_rs1_addr,
+                                             rs2_addr    = dec_rs2_addr,
+                                             wbaddr      = dec_wbaddr,
+                                             imm         = imm,
+                                             exception   = io.exception)  
+   val with_mem = InstCtrlBlock.memoryOp(  mem_val = cs_mem_en,
+                              mem_fcn = cs_mem_fcn,
+                              mem_typ = cs_msk_sel,
 
-   // NOTE: initialization 0 will error 
-   val dec_exception = io.ifu_dec.bits.exception
+                              base = inst_ctrl_block) 
+   val with_br =  InstCtrlBlock.branchOp(  base = with_mem,
+                              br_type = cs_br_type,
+                              redirect_type = redirect_type,
+                              bpu_resp    = io.bpu_resp,
+                              fencei = cs_fencei)
+   val with_csr = InstCtrlBlock.csrOp(    base = with_br,
+                                          csr_cmd = cs_csr_cmd)
+   val with_alu = InstCtrlBlock.aluOp(     base = with_csr,
+                              alu_fun = cs_alu_fun,
+                              op1_sel = cs_op1_sel,  
+                              op2_sel = cs_op2_sel)
+   val result =   InstCtrlBlock.wbOp(     base = with_alu, 
+                              wb_sel = cs_wb_sel,
+                              rf_wen = cs_rf_wen)
 
-   val mem_exception = io.lsu_ctl.mem_exception 
-   pipeline_kill :=  (io.lsu_ctl.csr_eret || mem_exception) 
-   io.ctl_sign.pipeline_kill := pipeline_kill
-   
-   // Stall Signal Logic --------------------
-   
-   val stall   = Wire(Bool())
-   val dec_rs1_oen  = Mux(deckill, false.B, cs_rs1_oen)
-   val dec_rs2_oen  = Mux(deckill, false.B, cs_rs2_oen)
-
-
-
-   io.ctl_sign.exe_pc_sel := io.exe_ctl.ctrl_exe_pc_sel
-   io.ctl_sign.if_kill := ifkill
-   io.ctl_sign.dec_kill := deckill
-   io.ctl_sign.pipeline_kill := pipeline_kill
-   io.ctl_sign.fencei := cs_fencei 
-
-
-   val op1_data = Wire(UInt(conf.xprlen.W))
-   val op2_data = Wire(UInt(conf.xprlen.W))
-   val rs2_data = Wire(UInt(conf.xprlen.W))
-
-   if (conf.USE_FULL_BYPASSING){
-      // roll the OP1 mux into the bypass mux logic
-      op1_data := MuxCase(rf_rs1_data, Array(
-                           ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                           ((cs_op1_sel === OP1_PC)) -> dec_reg_pc,
-                           ((io.exe_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((io.lsu_ctl.wbaddr === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
-                           ((io.wb_ctrl.wbaddr  === dec_rs1_addr) && (dec_rs1_addr =/= 0.U) &&  io.wb_ctrl.ctrl_rf_wen) -> io.wb_ctrl.wbdata
-                           ))
-
-      op2_data := MuxCase(alu_op2, Array(
-                           ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.exe_ctl.alu_out,
-                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.lsu_ctl.wbdata,
-                           ((io.wb_ctrl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctrl.ctrl_rf_wen && (cs_op2_sel === OP2_RS2)) -> io.wb_ctrl.wbdata
-                           ))
-
-      rs2_data := MuxCase(rf_rs2_data, Array(
-                           ((io.exe_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.exe_ctl.ctrl_rf_wen) -> io.exe_ctl.alu_out,
-                           ((io.lsu_ctl.wbaddr === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) && io.lsu_ctl.ctrl_rf_wen) -> io.lsu_ctl.wbdata,
-                           ((io.wb_ctrl.wbaddr  === dec_rs2_addr) && (dec_rs2_addr =/= 0.U) &&  io.wb_ctrl.ctrl_rf_wen) -> io.wb_ctrl.wbdata
-                           ))
-
-   } else{
-      // Rely only on control interlocking to resolve hazards
-      op1_data := MuxCase(rf_rs1_data, Array(
-                          ((cs_op1_sel === OP1_IMZ)) -> imm_z,
-                          ((cs_op1_sel === OP1_PC))  -> dec_reg_pc
-                          ))
-      rs2_data := rf_rs2_data
-      op2_data := alu_op2
-   }
-
-   /////// stall 
-   val exe_inst_is_load = io.exe_ctl.inst_is_load
-   // NOTE: stall for load-use hazard
-   // when load inst in exe stage, bypass not work in dec stage, alu_out is not answer 
-   // when load inst in exe stage, for WBDATA in mem stage is not ready 
-   // after stall, dec inst can find wbdata in wb stage
-   stall := ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs1_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs1_oen) ||
-            ((exe_inst_is_load) && (io.exe_ctl.wbaddr === dec_rs2_addr) && (io.exe_ctl.wbaddr =/= 0.U) && dec_rs2_oen) ||
-            (io.exe_ctl.is_csr) 
-
-   // NOTE: when load-use hazard happen, should take BUBBLE inst to exe stage
-   // or exe stage always load inst, and pipeline is broken
-   when( stall || ifkill ||(!io.ifu_dec.valid && io.dec_exe.ready) || pipeline_kill){
-      io.dec_exe.valid              := true.B
-      io.dec_exe.bits.pc            := dec_reg_pc
-      io.dec_exe.bits.pc_valid      := false.B
-      io.dec_exe.bits.inst          := BUBBLE
-      io.dec_exe.bits.wbaddr        := 0.U
-      io.dec_exe.bits.ctrl_rf_wen   := false.B
-      io.dec_exe.bits.ctrl_mem_val  := false.B
-      io.dec_exe.bits.ctrl_mem_fcn  := M_X
-      io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-      io.dec_exe.bits.br_type       := BR_N
-      io.dec_exe.bits.exception     := false.B
-      io.dec_exe.bits.rs1_addr      := 0.U
-      io.dec_exe.bits.rs2_addr      := 0.U
-      io.dec_exe.bits.op1_data      := 0.U
-      io.dec_exe.bits.op2_data      := 0.U
-      io.dec_exe.bits.rs2_data      := 0.U
-      io.dec_exe.bits.op2_sel       := OP2_X
-      io.dec_exe.bits.alu_fun       := ALU_X
-      io.dec_exe.bits.ctrl_wb_sel   := WB_X
-      io.dec_exe.bits.ctrl_mem_typ  := MT_X
-      io.dec_exe.bits.redirect_type := RD_BR
-      io.dec_exe.bits.bpu_resp      := WireInit(0.U.asTypeOf(new BPUResp))
-
-   } .otherwise {
-      io.dec_exe.bits.pc            := dec_reg_pc
-      io.dec_exe.bits.rs1_addr      := dec_rs1_addr
-      io.dec_exe.bits.rs2_addr      := dec_rs2_addr
-      io.dec_exe.bits.op1_data      := op1_data
-      io.dec_exe.bits.op2_data      := op2_data
-      io.dec_exe.bits.rs2_data      := rs2_data
-      io.dec_exe.bits.op2_sel       := cs_op2_sel
-      io.dec_exe.bits.alu_fun       := cs_alu_fun
-      io.dec_exe.bits.ctrl_wb_sel   := cs_wb_sel
-
-      when(deckill){
-         io.dec_exe.valid              := true.B
-         io.dec_exe.bits.pc_valid      := false.B
-         io.dec_exe.bits.inst          := BUBBLE
-         io.dec_exe.bits.wbaddr        := 0.U
-         io.dec_exe.bits.ctrl_rf_wen   := false.B
-         io.dec_exe.bits.ctrl_mem_val  := false.B
-         io.dec_exe.bits.ctrl_mem_fcn  := M_X
-         io.dec_exe.bits.ctrl_csr_cmd  := CSR.N
-         io.dec_exe.bits.br_type       := BR_N  
-         io.dec_exe.bits.exception     := false.B
-         io.dec_exe.bits.ctrl_mem_typ  := MT_X
-         io.dec_exe.bits.redirect_type := RD_BR
-         io.dec_exe.bits.bpu_resp      := WireInit(0.U.asTypeOf(new BPUResp()))
-      }
-      .otherwise{
-         io.dec_exe.valid              := true.B
-         io.dec_exe.bits.pc_valid      := io.ifu_dec.bits.pc_valid
-         io.dec_exe.bits.inst          := dec_reg_inst
-         io.dec_exe.bits.wbaddr        := dec_wbaddr
-         io.dec_exe.bits.ctrl_rf_wen   := cs_rf_wen
-         io.dec_exe.bits.ctrl_mem_val  := cs_mem_en
-         io.dec_exe.bits.ctrl_mem_fcn  := cs_mem_fcn
-         io.dec_exe.bits.ctrl_mem_typ  := cs_msk_sel
-         io.dec_exe.bits.ctrl_csr_cmd  := cs_csr_cmd
-         io.dec_exe.bits.br_type       := cs_br_type
-         io.dec_exe.bits.exception     := dec_exception
-         io.dec_exe.bits.redirect_type := redirect_type
-         io.dec_exe.bits.bpu_resp      := io.ifu_dec.bits.bpu_resp
-      }
-   }
-
-
-
-   
-   // TODO: some signals should be inform ifu when decoding, like jump, load/store ?
-   io.ifu_dec.ready := io.dec_exe.ready  && !stall 
-
-
-
+   io.dec_out := result
 
    /////////   Debug Signals
    val perfCounters = RegInit(VecInit(Seq.fill(9)(0.U(conf.perfCountBits.W))))
@@ -394,7 +271,7 @@ class Decoder(implicit val conf: Config) extends Module
          dec_reg_inst === EBREAK ||dec_reg_inst === WFI  || dec_reg_inst === FENCE_I || dec_reg_inst === FENCE  
 
    val isUtype = dec_reg_inst === LUI || dec_reg_inst === AUIPC
-   when(io.ifu_dec.valid){
+   when(io.valid){
       when(isLoad) {
          loadCount := loadCount + 1.U
       }.elsewhen(isStore) {

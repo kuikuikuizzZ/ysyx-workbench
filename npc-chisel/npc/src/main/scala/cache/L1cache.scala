@@ -88,7 +88,7 @@ class L1Req (implicit val conf: Config) extends CacheBundle {
 
 class L1Resp(implicit val conf: Config) extends CacheBundle {
   // val data      = Output(Vec(blockRows,UInt(rowBits.W)))
-  val data      = Output(UInt(rowBits.W))
+  val data      = Output(Vec(blockRows,UInt(rowBits.W)))
   val exception = Output(UInt(5.W))
   val miss      = Output(Bool())
   val pc        = Output(UInt(conf.xprlen.W))
@@ -117,8 +117,6 @@ class RefillReq (implicit val conf: Config)extends CacheBundle {
   val addr    = Input(UInt(conf.xprlen.W))
   val wayMask = Input(UInt(nWays.W))
   val data    = Input(Vec(blockRows,UInt(conf.xlen.W)))
-  // val vaddr   = Input(UInt(conf.xprlen.W))
-  // val idx     = Input(UInt(idxBits.W))
 }
 
 class RefillResp (implicit val conf: Config)extends CacheBundle {
@@ -216,8 +214,6 @@ class MissUnit(implicit val conf: Config) extends CacheModule {
     val refill_store_mask = Wire(Vec(blockRows,UInt(rowBytes.W)))
 
     for(i <- 0 until blockRows) {
-      // refill_store_data(i) := store_data((i+1)*rowBits-1, i*rowBits)
-      // refill_store_mask(i) := store_mask((i+1)*rowBytes-1, i*rowBytes)
       refill_store_data(i) := store_data(i)
       refill_store_mask(i) := store_mask(i)
     }

@@ -38,7 +38,7 @@ class CLINT(implicit val conf: Config) extends Module {
         val clock = Input(Clock())
         val in =new Bundle{
             val dr      =   new AXIRport(conf.xprlen, conf.xlen)
-            val dw      =   new AXIWport(conf.xprlen, conf.xlen)
+            // val dw      =   new AXIWport(conf.xprlen, conf.xlen)
         }
     })
     val reg_mtime = RegInit(0.U(64.W))
@@ -48,7 +48,7 @@ class CLINT(implicit val conf: Config) extends Module {
         CLINTS.mtime_high -> reg_mtime(63,32)
     ))
 
-    io.in.dw := DontCare
+    // io.in.dw := DontCare
     io.in.dr.ready := true.B
     io.in.dr.data := Mux(io.in.dr.en,read_data,0.U)
 

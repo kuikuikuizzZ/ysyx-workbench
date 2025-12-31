@@ -86,7 +86,7 @@ class Core(implicit val conf: Config)extends Module
   lsu.io.to_ctl <> decoder.io.lsu_ctl
 
   wbu.io.reg <> reg_file.io.wb
-  wbu.io.to_ctl <> decoder.io.wb_ctl
+  wbu.io.to_ctl <> decoder.io.wb_ctrl
   io.ebreak := wbu.io.ebreak
   dontTouch(io.ebreak)
 

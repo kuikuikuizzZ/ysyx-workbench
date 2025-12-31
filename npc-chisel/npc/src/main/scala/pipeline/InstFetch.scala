@@ -102,7 +102,7 @@ class InstFetch(implicit conf: Config) extends Module {
   // NOTE: if_kill should clean inst, in ifu_dec reg
   val cache_resp_valid = cache.io.resp.valid && !should_kill
   val cache_resp_pc = cache.io.resp.bits.pc
-  val cache_inst = cache.io.resp.bits.data
+  val cache_inst = cache.io.resp.bits.data(cache.getWordIdx(cache.io.resp.bits.pc))
   val can_flushed_inst = Mux(should_kill,BUBBLE,cache_inst)
   val inst = ResultHoldBypass(can_flushed_inst, cache_resp_valid || should_kill)
   io.ifu_dec.valid :=   Mux(should_kill , true.B,cache_resp_valid )

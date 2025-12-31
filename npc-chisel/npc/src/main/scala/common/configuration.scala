@@ -32,6 +32,7 @@ case class Config(
     val START_ADDR =  0x30000000L.U(32.W)
     val ENABLE_IVERILOG = sys.env.get("NPC_ENABLE_IVERILOG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
 
-    val fetchGroupBytes =  if (HasICache) 4 else 4
+    val fetchGroupSize =  if (HasICache) 2 else 1
+    val fetchGroupBytes = fetchGroupSize * 4
 
 }
