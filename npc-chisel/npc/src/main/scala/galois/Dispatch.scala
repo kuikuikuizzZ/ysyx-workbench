@@ -56,29 +56,23 @@ class MemQueue(implicit val conf: Config) extends OOOModule {
     val redirect = Input(Bool())                  
   })
 
-  // 存储队列的寄存器堆，使用下划线命名
   val bank = RegInit(VecInit(Seq.fill(IQ_SIZE)(0.U.asTypeOf(new InstCtrlBlock()))))
 
-  // 指针更名：EnQueuePointer -> enqueue_pointer, DeQueuePointer -> dequeue_pointer
   val enqueue_pointer = RegInit(0.U(IQ_BITS.W))        // 队尾指针
   val dequeue_pointer = RegInit(0.U(IQ_BITS.W))        // 队头指针
   
-  // 队列满逻辑：更名queue_full
   io.queue_full := ((enqueue_pointer + 1.U) === dequeue_pointer) || 
                    ((enqueue_pointer + 2.U) === dequeue_pointer)
 
-  // 出队选择逻辑：更名Select -> select, DeQueueReady -> dequeue_ready
   val select = bank(dequeue_pointer)
   val dequeue_ready = io.dequeue.ready
   io.dequeue.valid := !io.redirect && select.valid && (io.phyreg_states(select.prs1_addr) && io.phyreg_states(select.prs2_addr)) || 
     (io.phyreg_states(select.prs1_addr) && select.csr_ctrl.csr_cmd =/= CSR.N) ||
     (select.csr_ctrl.ebreak || select.csr_ctrl.eret)
 
-  // 入队使能信号：更名Aenter -> a_enter, Benter -> b_enter
   val a_enter = !io.queue_full && io.enqueue_a.valid
   val b_enter = !io.queue_full && io.enqueue_b.valid
 
-  // 回滚处理逻辑
   when(io.redirect) {
     enqueue_pointer := 0.U
     dequeue_pointer := 0.U
@@ -90,13 +84,11 @@ class MemQueue(implicit val conf: Config) extends OOOModule {
     bank(enqueue_pointer) := Mux(a_enter, io.enqueue_a, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     bank(enqueue_pointer + 1.U) := Mux(b_enter, io.enqueue_b, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
 
-    // 出队逻辑
     when(io.dequeue.fire) {
       bank(dequeue_pointer) := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     }
     io.dequeue.bits := Mux(io.dequeue.fire, select, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
 
-    // 更新指针
     enqueue_pointer := enqueue_pointer + a_enter.asUInt + b_enter.asUInt
     dequeue_pointer := dequeue_pointer + dequeue_ready.asUInt
   }
@@ -113,13 +105,10 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     val queue_full = Output(Bool())
   })
 
-  // 常量定义（保持大写，但使用下划线分隔）
   val index0_mask = "hFFFE".U(16.W)
 
-  // 存储队列的寄存器堆
   val bank = RegInit(VecInit(Seq.fill(IQ_SIZE)(0.U.asTypeOf(new InstCtrlBlock()))))
 
-  // 生成空闲列表：计算哪些条目为空闲（valid为false）
   def gen_free_list(): UInt = {
     val free_vec = Wire(Vec(IQ_SIZE, Bool()))
     for (i <- 0 until IQ_SIZE) {
@@ -128,12 +117,10 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     free_vec.asUInt & index0_mask  // 确保第0项永不空闲
   }
 
-  // 生成就绪列表：计算哪些条目操作数就绪
   def gen_ready_list(): UInt = {
     val ready_vec = Wire(Vec(IQ_SIZE, Bool()))
     for (i <- 0 until IQ_SIZE) {
       val entry = bank(i)
-      // 只有指令有效且两个源操作数就绪时才算就绪
       ready_vec(i) := entry.valid && 
                      io.phyreg_states(entry.prs1_addr) && 
                      io.phyreg_states(entry.prs2_addr)
@@ -141,34 +128,27 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     ready_vec.asUInt & index0_mask  // 确保第0项永不就绪
   }
 
-  // 使用PriorityEncoder高效查找最低设置位
   val free_list = gen_free_list()
   val ready_list = gen_ready_list()
 
-  // 查找两个最低位的空闲索引（用于入队）
   val free_idx_a = PriorityEncoder(free_list)
   val free_list_after_a = free_list & ~(1.U << free_idx_a)  // 清除第一个找到的位
   val free_idx_b = PriorityEncoder(free_list_after_a)
   
-  // 查找两个最低位的就绪索引（用于出队）
   val ready_idx_a = PriorityEncoder(ready_list)
   val ready_list_after_a = ready_list & ~(1.U << ready_idx_a)
   val ready_idx_b = PriorityEncoder(ready_list_after_a)
 
-  // 队列满判断：检查是否至少有两个空闲条目
   io.queue_full := !free_list.orR || !free_list_after_a.orR
 
-  // 回滚逻辑：清空整个bank
   when(io.redirect) {
     bank.foreach(_ := 0.U.asTypeOf(new InstCtrlBlock()))
     io.dequeue_a := 0.U.asTypeOf(new InstCtrlBlock())
     io.dequeue_b := 0.U.asTypeOf(new InstCtrlBlock())
   }.otherwise {
-    // 入队逻辑：只有索引有效且非0时才写入
     when(free_idx_a =/= 0.U) { bank(free_idx_a) := io.enqueue_a }
     when(free_idx_b =/= 0.U) { bank(free_idx_b) := io.enqueue_b }
 
-    // 出队逻辑：取出数据后清空对应条目
     when(ready_idx_a =/= 0.U) { 
       io.dequeue_a := bank(ready_idx_a)
       bank(ready_idx_a) := 0.U.asTypeOf(new InstCtrlBlock())  // 清空条目

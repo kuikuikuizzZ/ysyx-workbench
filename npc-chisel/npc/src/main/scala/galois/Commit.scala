@@ -81,61 +81,27 @@ class Commit (implicit val conf: Config) extends OOOModule{
         when(readyB){ rob(dequeue_ptr + 1.U) := WireInit(0.U.asTypeOf(new InstCtrlBlock())) }
     }
 
-    //adapted from rainbow 
-    val HitVector = GenHitVec()
-    val HIT = HitVector =/= 0.U
+    val hitVector = GenHitVec()
+    val hit = hitVector =/= 0.U
+    val circularHitVec = VecInit.tabulate(ROB_SIZE) { j =>
+    val index = Mux(j.U < ROB_SIZE.U - enqueue_ptr, enqueue_ptr + j.U, j.U - (ROB_SIZE.U - enqueue_ptr))
+        hitVector(index)
+    }.asUInt
 
-    val distance = ROB_SIZE.U - enqueue_ptr
-    val LeftHitV = CyclicShiftLeft(HitVector, distance)
-    val UniqueHitV = highbit(LeftHitV)
-    val RightHitV = CyclicShiftRight(UniqueHitV, distance)
-    val HitIndex = Log2(RightHitV)
-    // Index   : 7 6 5 4 3 2 1 0 
-    // Pointer :  <e        <d
-    // HitVec  : 0 0 1 1 0 1 0 0
-    // Left    : 0 1 1 0 1 0 0 0
-    // Unique  : 0 1 0 0 0 0 0 0
-    // Right   : 0 0 1 0 0 0 0 0
-    // HitIndex: 5
+    val relIndex = PriorityEncoder(circularHitVec)
+    val hitIndex = Mux(hit, (enqueue_ptr + relIndex) % ROB_SIZE.U, 0.U)
 
-    // Index   : 7 6 5 4 3 2 1 0 
-    // Pointer :    <d      <e
-    // HitVec  : 0 1 1 0 0 0 0 1
-    // Left    : 0 1 0 1 1 0 0 0
-    // Unique  : 0 1 0 0 0 0 0 0
-    // Right   : 0 0 0 0 0 0 0 1
-    // HitIndex: 0
-
-    // 向量vec, 长度64, 移n位
-    // 循环左移: (vec >> (64-n) | (vec << n))
-    // 循环右移: (vec << (64-n) | (vec >> n))
-
-    io.forward_store := Mux(HIT, rob(HitIndex), WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    io.forward_store := Mux(hit, rob(hitIndex), 0.U.asTypeOf(new InstCtrlBlock()))
 
     def GenHitVec(): UInt = {
-        val HitVec = Wire(Vec(ROB_SIZE, UInt(1.W)))
-        for(i <- 0 until ROB_SIZE){
+        VecInit((0 until ROB_SIZE).map { i =>
             val is_store = rob(i).mem_ctrl.mem_val && rob(i).mem_ctrl.mem_fcn === M_XWR
-            // alu_out is the store address
-            HitVec(i) := (io.forward_load.valid && rob(i).valid && is_store && (io.forward_load.alu_out(conf.xprlen-1,2) === rob(i).alu_out(conf.xprlen-1,2))).asUInt
-        }
-        HitVec.asUInt
+            val addr_match = io.forward_load.valid && 
+                            (io.forward_load.alu_out(conf.xprlen-1,2) === rob(i).alu_out(conf.xprlen-1,2))
+            rob(i).valid && is_store && addr_match
+        }).asUInt
     }
 }
-
-
-object CyclicShiftLeft {
-    def apply(vec: UInt, n: UInt): UInt = {
-        ((vec >> (64.U-n))(63,0) | (vec << n)(63,0))
-    }
-}
-
-object CyclicShiftRight {
-    def apply(vec: UInt, n: UInt): UInt = {
-        ((vec << (64.U-n))(63,0) | (vec >> n)(63,0))
-    }
-}
-
 
 //input : 00101010110
 //output: 00100000000

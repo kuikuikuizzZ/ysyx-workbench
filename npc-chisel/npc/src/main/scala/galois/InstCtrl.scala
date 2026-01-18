@@ -192,6 +192,7 @@ object InstCtrlBlock {
     imm     : UInt = 0.U,
     wb_data : UInt = 0.U,
     alu_out : UInt = 0.U,
+    
     // 控制信号Bundle
     wb_ctrl: WBCtrlIO = null,
     alu_ctrl: ALUCtrlIO = null,
@@ -201,10 +202,8 @@ object InstCtrlBlock {
     bju_out: BJUOut = null,
   )(implicit conf: Config): InstCtrlBlock = {
     
-    // 基于默认bubble创建
     val icb = WireDefault(0.U.asTypeOf(new InstCtrlBlock()))
     
-    // 覆盖传入的参数
     icb.valid := valid
     icb.pc          := pc
     icb.pc_sel      := pc_sel
@@ -225,7 +224,6 @@ object InstCtrlBlock {
     icb.imm         := imm
     icb.wb_data     := wb_data
     icb.alu_out     := alu_out
-    // 条件覆盖嵌套Bundle
     if (wb_ctrl != null) {
       icb.wb_ctrl.wb_sel := wb_ctrl.wb_sel
       icb.wb_ctrl.rf_wen := wb_ctrl.rf_wen

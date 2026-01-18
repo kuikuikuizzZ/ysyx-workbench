@@ -70,6 +70,9 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     prfCtrl.write(retireA.valid && retireA.finish,  retireA.prs_wbaddr, 3.U(2.W))
     prfCtrl.write(retireB.valid && retireB.finish,  retireB.prs_wbaddr, 3.U(2.W))
     // free physical register 
+    // cmt_wbaddr is the last wbaddr, when the inst come to the regMap stage,
+    // so when instA retired, it should no inst read cmt_wbaddr as src,
+    // because it should use instA.prs_wbaddr. so cmt_wbaddr can be free.
     prfCtrl.write(retireA.valid && retireA.finish,  retireA.cmt_wbaddr, 0.U(2.W))
     prfCtrl.write(retireB.valid && retireB.finish,  retireB.cmt_wbaddr, 0.U(2.W))
 
