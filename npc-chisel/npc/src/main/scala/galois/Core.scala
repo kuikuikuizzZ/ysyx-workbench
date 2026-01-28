@@ -63,8 +63,8 @@ class Core(implicit val conf: Config)extends Module
   clint.io.in <> lsu.io.clintIO  
 
   // arbiter.io.axi_port <> io.core.master
-  axi_arb.io.in(DPORT) <> lsu.io.axi_bus.req
-  axi_arb.io.in(IPORT) <> inst_fetch.io.axi_bus.req
+  axi_arb.io.in(IPORT) <> lsu.io.axi_bus.req
+  axi_arb.io.in(DPORT) <> inst_fetch.io.axi_bus.req
 
   axi_master.io := DontCare
   axi_arb.io.out.ready    := axi_master.io.req.ready
@@ -80,7 +80,6 @@ class Core(implicit val conf: Config)extends Module
 
   decoder.io.redirect := cmt.io.redirect
   decoder.io.debug     := DontCare
-
   rm.io.redirect  := cmt.io.redirect
   rm.io.cmtA      := rr.io.cmtA
   rm.io.cmtB      := rr.io.cmtB
@@ -145,29 +144,32 @@ class Core(implicit val conf: Config)extends Module
   io.core.slave.b.id := 0.U
   io.core.master.ar.bits.id := 0.U
 
+
   // ///// debug port
-  // if (conf.ENABLE_DEBUG) {
-  //   val debug = Module(new DebugPort())
-  //   val perfEvent = Module(new PerfEventPort())
-  //   debug.io.clock := clock
-  //   debug.io.reset := reset
-  //   debug.io.halt := halt
-  //   debug.io.pc := inst_fetch.io.ifu_dec.bits.pc
-  //   debug.io.mem_pc := lsu.io.mem_wb.bits.pc
-  //   debug.io.wb_pc := wbu.io.wb_pc 
-  //   debug.io.inst := inst_fetch.io.ifu_dec.bits.inst
-  //   debug.io.wb_valid := wbu.io.mem_wb.bits.mem_resp_valid
-  //   debug.io.lsu_port := wbu.io.mem_wb.bits.debug
-  //   debug.io.wb_inst := 0.U
+  if (conf.ENABLE_DEBUG) {
+    val debug = Module(new DebugPort())
+    debug.io.clock := clock
+    debug.io.reset := reset
+    debug.io.halt := halt
+    debug.io.pc             := inst_fetch.io.debug.pc
+    debug.io.pc_next        := inst_fetch.io.debug.pc_next
+    debug.io.retire_pc      := cmt.io.retireA.pc
+    debug.io.next_retire_pc := cmt.io.retireB.pc
+    debug.io.instA          := cmt.io.retireA.inst
+    debug.io.instB          := cmt.io.retireB.inst
+    // debug.io.lsu_port       := wbu.io.mem_wb.bits.debug
     
-  //   perfEvent.io.clock      := clock
-  //   perfEvent.io.reset      := reset
-  //   perfEvent.io.ifu_port   := inst_fetch.io.debug
-  //   perfEvent.io.ctl_port   := decoder.io.debug
-  //   perfEvent.io.lsu_port   := lsu.io.debug
-  //   perfEvent.io.wbu_port   := wbu.io.debug
-  //   perfEvent.io.exu_port   := exu.io.debug
-  // }
+    val gpr_port = Module(new GPRPort())
+    gpr_port.io.gpr := rm.io.arch_regfile
+    // val perfEvent = Module(new PerfEventPort())
+    // perfEvent.io.clock      := clock
+    // perfEvent.io.reset      := reset
+    // perfEvent.io.ifu_port   := inst_fetch.io.debug
+    // perfEvent.io.ctl_port   := decoder.io.debug
+    // perfEvent.io.lsu_port   := lsu.io.debug
+    // perfEvent.io.wbu_port   := wbu.io.debug
+    // perfEvent.io.exu_port   := exu.io.debug
+  }
 }
 
 

@@ -110,6 +110,8 @@ void delete_top();
 
 void watch_top();
 
+void watch_top_ooo();
+
 void top_perf_event_display(FILE *fp);
 
 #endif

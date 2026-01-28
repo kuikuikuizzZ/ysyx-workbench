@@ -8,9 +8,8 @@ import npc.galois.Constants._
 import npc.common.UtilMethods.{ResultHoldBypass}
 
 class IFUDebugPort(implicit val conf: Config)   extends Bundle() {
-  val valid           = Output(Bool())
-  val instFetchCount  = Output(UInt(conf.perfCountBits.W))
-  val icache          = new ICacheDebugPort
+  val pc             = Output(UInt(conf.xprlen.W))
+  val pc_next        = Output(UInt(conf.xprlen.W))
 }
 
 class IFUInstOut (implicit val conf: Config) extends OOOBundle {
@@ -28,7 +27,7 @@ class InstFetchIo(implicit val conf: Config) extends CacheBundle {
   val ifu_dec           = new DecoupledIO(new IFUPipeIO())
   val retireA           = Flipped(new InstCtrlBlock)
   val redirect          = Input(Bool())
-  // val debug             = Output(new IFUDebugPort)
+  val debug             = Output(new IFUDebugPort)
   val axi_bus           = new AXI4Bus()
 }
 
@@ -52,14 +51,13 @@ class InstFetch(implicit conf: Config) extends Module {
   val pc_plus4    = (pc_reg + 4.asUInt(conf.xprlen.W))
   val pc_plus8    = (pc_reg + 8.asUInt(conf.xprlen.W))
   val unalign     = pc_reg(2) =/= 0.U
-   when(cache.io.req.fire || io.redirect) {
+  when(cache.io.req.fire || io.redirect) {
       pc_reg := pc_next
   }.otherwise {
       pc_reg := pc_reg
   }
 
   // PC Register
-                 
   pc_next := Mux(bpu_valid,                         bpu_target,
               Mux(io.retireA.pc_sel  === PC_4,     Mux(unalign,pc_plus4,pc_plus8),   
                                                           io.retireA.target))
@@ -69,7 +67,7 @@ class InstFetch(implicit conf: Config) extends Module {
    {
       pc_next := pc_reg
    }
-
+  dontTouch(pc_next)
   val btb_req = Wire(new BTBUpdateReq)
   val ras_req = Wire(new RASUpdateReq)
   val bju_out = io.retireA.bju_out
@@ -130,7 +128,10 @@ class InstFetch(implicit conf: Config) extends Module {
   io.ifu_dec.bits.exception   := cache.io.exception
   io.ifu_dec.bits.bpu_resp    <>  cache.io.resp.bits.bpu_resp
 
+
   ////////// debug
+  io.debug.pc       := pc_reg
+  io.debug.pc_next  := pc_next
   // val instFetchCount = RegInit(0.U(conf.perfCountBits.W))
   // when(cache.io.resp.valid) {
   //   instFetchCount := instFetchCount + 1.U

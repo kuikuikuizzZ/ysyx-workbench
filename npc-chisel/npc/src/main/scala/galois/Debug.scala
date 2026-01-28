@@ -10,60 +10,62 @@ class WBUDebugPort(implicit val conf: Config) extends Bundle {
     val wbCount = Output(UInt(conf.perfCountBits.W))
 }
 
+
+
 class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxInline{ 
     val io = IO(new Bundle {
-        val clock = Input(Clock())
-        val reset = Input(Bool())   
-        val halt = Input(Bool())
-        val pc = Input(UInt(32.W))
-        val inst = Input(UInt(32.W))
-        val mem_pc = Input(UInt(32.W))
-        val wb_valid = Input(Bool())
-        val wb_pc = Input(UInt(32.W))
-        val wb_inst = Input(UInt(32.W))
-        val lsu_port = Flipped(new LSUDebugPort()) 
+        val clock       = Input(Clock())
+        val reset       = Input(Bool())   
+        val halt        = Input(Bool())
+        val pc          = Input(UInt(32.W))
+        val pc_next     = Input(UInt(32.W))
+        val retire_pc   = Input(UInt(32.W))
+        val next_retire_pc = Input(UInt(32.W))
+        val instA       = Input(UInt(32.W))
+        val instB       = Input(UInt(32.W))
+        // val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
      setInline("DebugPort.v",
      """
-     import "DPI-C" function void dpi_port(input int halt, input int pc, input int inst,input int wb_pc,input int mem_pc,input int wb_inst);
-     import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
+     import "DPI-C" function void dpi_port_OOO(input int halt, input int pcA, input int pcB, input int instA, input int instB, input int retireA_pc, input int retireB_pc);
+    //  import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module DebugPort(
         input clock,
         input reset,
         input halt, 
         input [31:0] pc,
-        input [31:0] wb_pc,
-        input [31:0] wb_inst,
-        input [31:0] mem_pc,
-        input [31:0] inst,
-        input [31:0] lsu_port_addr,
-        input [31:0] lsu_port_rdata,
-        input [31:0] lsu_port_wdata,
-        input [31:0] lsu_port_storeCount,
-        input [31:0] lsu_port_loadCount,
-        input lsu_port_mem_en,
-        input lsu_port_fcn,
-        input lsu_port_valid,
-        input wb_valid,
-        input [1:0]  lsu_port_typ
+        input [31:0] pc_next,
+        input [31:0] retire_pc,
+        input [31:0] next_retire_pc,
+        input [31:0] instA,
+        input [31:0] instB
+        // input [31:0] lsu_port_addr,
+        // input [31:0] lsu_port_rdata,
+        // input [31:0] lsu_port_wdata,
+        // input [31:0] lsu_port_storeCount,
+        // input [31:0] lsu_port_loadCount,
+        // input lsu_port_mem_en,
+        // input lsu_port_fcn,
+        // input lsu_port_valid,
+        // input [1:0]  lsu_port_typ
         );
 
         wire [31:0] expand_halt = {31'b0,halt};
-        wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         always @(*) begin
-            dpi_port(expand_halt, pc, inst,mem_pc,wb_pc,wb_inst);
+            dpi_port_OOO(expand_halt, pc, pc_next, instA, instB, retire_pc, next_retire_pc);
         end
 
-        always @(posedge clock) begin
-            if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
-                lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
-            end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
-                lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
-            end else begin
-                lsu_port(1'd0,1'd0,32'd0,32'd0,32'd0);
-            end
-        end
+        // wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
+        // always @(posedge clock) begin
+        //     if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin
+        //         lsu_port(lsu_port_valid && lsu_port_mem_en,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_wdata);
+        //     end else if (lsu_port_valid && lsu_port_fcn == 1'b0) begin
+        //         lsu_port(lsu_port_valid,lsu_port_fcn,expand_typ, lsu_port_addr, lsu_port_rdata);
+        //     end else begin
+        //         lsu_port(1'd0,1'd0,32'd0,32'd0,32'd0);
+        //     end
+        // end
      endmodule
      """.stripMargin
      )
@@ -143,4 +145,87 @@ class PerfEventPort() (implicit val conf: Config)extends BlackBox with HasBlackB
      endmodule
      """.stripMargin
      )
+}
+
+class GPRPort(implicit val conf: Config) extends BlackBox with HasBlackBoxInline{ 
+    val io = IO(new Bundle { 
+        val gpr = Input(Vec(32,UInt(conf.xlen.W)))
+    })
+    setInline("GPRPort.v",
+    """
+    import "DPI-C" function void dpi_gpr(input logic [31:0] regfile_array [0:31]);
+
+    module GPRPort(
+        input [31:0] gpr_0,
+        input [31:0] gpr_1,
+        input [31:0] gpr_2,
+        input [31:0] gpr_3,
+        input [31:0] gpr_4,
+        input [31:0] gpr_5,
+        input [31:0] gpr_6,
+        input [31:0] gpr_7,
+        input [31:0] gpr_8,
+        input [31:0] gpr_9,
+        input [31:0] gpr_10,
+        input [31:0] gpr_11,
+        input [31:0] gpr_12,
+        input [31:0] gpr_13,
+        input [31:0] gpr_14,
+        input [31:0] gpr_15,
+        input [31:0] gpr_16,
+        input [31:0] gpr_17,
+        input [31:0] gpr_18,
+        input [31:0] gpr_19,
+        input [31:0] gpr_20,
+        input [31:0] gpr_21,
+        input [31:0] gpr_22,
+        input [31:0] gpr_23,
+        input [31:0] gpr_24,
+        input [31:0] gpr_25,
+        input [31:0] gpr_26,
+        input [31:0] gpr_27,
+        input [31:0] gpr_28,
+        input [31:0] gpr_29,
+        input [31:0] gpr_30,
+        input [31:0] gpr_31
+        );
+        wire [31:0] gpr_array [0:31];
+        assign gpr_array[0]  = gpr_0;
+        assign gpr_array[1]  = gpr_1;
+        assign gpr_array[2]  = gpr_2;
+        assign gpr_array[3]  = gpr_3;
+        assign gpr_array[4]  = gpr_4;
+        assign gpr_array[5]  = gpr_5;   
+        assign gpr_array[6]  = gpr_6;
+        assign gpr_array[7]  = gpr_7;
+        assign gpr_array[8]  = gpr_8;
+        assign gpr_array[9]  = gpr_9;   
+        assign gpr_array[10] = gpr_10;  
+        assign gpr_array[11] = gpr_11;
+        assign gpr_array[12] = gpr_12;
+        assign gpr_array[13] = gpr_13;
+        assign gpr_array[14] = gpr_14;
+        assign gpr_array[15] = gpr_15;
+        assign gpr_array[16] = gpr_16; 
+        assign gpr_array[17] = gpr_17;
+        assign gpr_array[18] = gpr_18;
+        assign gpr_array[19] = gpr_19;  
+        assign gpr_array[20] = gpr_20;
+        assign gpr_array[21] = gpr_21;
+        assign gpr_array[22] = gpr_22; 
+        assign gpr_array[23] = gpr_23;
+        assign gpr_array[24] = gpr_24;
+        assign gpr_array[25] = gpr_25; 
+        assign gpr_array[26] = gpr_26;
+        assign gpr_array[27] = gpr_27;
+        assign gpr_array[28] = gpr_28;
+        assign gpr_array[29] = gpr_29;  
+        assign gpr_array[30] = gpr_30;
+        assign gpr_array[31] = gpr_31;  
+
+        always @(*) begin
+            dpi_gpr(gpr_array);
+        end
+        endmodule
+    """)
 }

@@ -12,6 +12,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
         val rm_rob          = Flipped(DecoupledIO(new BlockLineIO))
         val retireB         = new InstCtrlBlock
         val retireA         = new InstCtrlBlock
+
         val retire_store    = new DecoupledIO((new InstCtrlBlock))
         val cmtA            = Input(new InstCtrlBlock)
         val cmtB            = Input(new InstCtrlBlock)

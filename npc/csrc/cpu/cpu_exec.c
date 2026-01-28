@@ -65,7 +65,8 @@ void init_cpu(int argc ,char** argv){
     // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
     reset(10);
     #ifdef CONFIG_WATCH_TOP
-    watch_top();
+    IFDEF(CONFIG_GALOIS,watch_top_ooo());
+    IFNDEF(CONFIG_GALOIS,watch_top());
     #endif
 
 
@@ -89,7 +90,8 @@ void exec_once(Decode *s){
     s->pc = top_pc();
     step();
     #ifdef CONFIG_WATCH_TOP
-    watch_top();
+    IFDEF(CONFIG_GALOIS,watch_top_ooo());
+    IFNDEF(CONFIG_GALOIS,watch_top());
     #endif
 
     sync_cpu();
