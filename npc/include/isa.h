@@ -6,8 +6,7 @@
 #include <common.h>
 #include <cpu/top.h>
 
-// const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
-const int gpr_size = 16;
+const int gpr_size = MUXDEF(CONFIG_RVE, 16, 32);
 const int csr_size = 5;
 typedef enum  {
   // STAP    = 0x180, 
@@ -69,19 +68,6 @@ static const uint32_t img [] = {
 #endif
 
 #ifdef CONFIG_SOC
-// static const uint32_t img [] = {
-//         0x00100513,    //addi a0 x0 1        30000000  
-//         0x00150513,    //addi a0 a0 1        30000004  
-//         0x00150513,    //addi a0 a0 1        30000008  
-//         0xdf001117,    //auipc sp,0x000df001 3000000c  
-//         0x00a12223,    //sw a0, 4(sp)        30000010  
-//         0x00000513,    //addi a0 x0 0        30000014  
-//         0x00412503,    //lw a0, 4(sp)        30000018 
-//         0x00150513,    //addi a0 a0 1        3000001c 
-//         0xffc50513,    //addi a0 a0 -4       30000020 
-//         0x00100073,    //ebreak              30000024 
-// };
-
 static const uint32_t img [] = {
         0x00100513,    //addi a0 x0 1        30000000  
         0x00150513,    //addi a0 a0 1        30000004  
@@ -89,15 +75,28 @@ static const uint32_t img [] = {
         0xdf001117,    //auipc sp,0x000df001 3000000c  
         0x00a12223,    //sw a0, 4(sp)        30000010  
         0x00000513,    //addi a0 x0 0        30000014  
-        0x00C51A63,    //bne a0,a2 0x14      30000018     (1)a0 == a2 == 0 (2) a0(3) != a2(0) pc=0x3000002c
-        0x00412503,    //lw a0, 4(sp)        3000001c     a0 == 3
-        0x004005EF,    //jal a1, 4           30000020     a1 == pc+4,pc = pc+(offset)4
-        0xFF4585E7,    //jalr a1, a1 -12     30000024     pc = a1-12 == 0x30000018
-        0x004005EF,    //jal a1, 4           3000002c     pc = pc+(offset)4
-        0x004005EF,    //jal a1, 4           30000030
-        0xffd50513,    //addi a0 a0 -3       30000028 
-        0x00100073,    //ebreak              30000034 
+        0x00412503,    //lw a0, 4(sp)        30000018 
+        0x00150513,    //addi a0 a0 1        3000001c 
+        0xffc50513,    //addi a0 a0 -4       30000020 
+        0x00100073,    //ebreak              30000024 
 };
+
+// static const uint32_t img [] = {
+//         0x00100513,    //addi a0 x0 1        30000000  
+//         0x00150513,    //addi a0 a0 1        30000004  
+//         0x00150513,    //addi a0 a0 1        30000008  
+//         0xdf001117,    //auipc sp,0x000df001 3000000c  
+//         0x00a12223,    //sw a0, 4(sp)        30000010  
+//         0x00000513,    //addi a0 x0 0        30000014  
+//         0x00C51A63,    //bne a0,a2 0x14      30000018     (1)a0 == a2 == 0 (2) a0(3) != a2(0) pc=0x3000002c
+//         0x00412503,    //lw a0, 4(sp)        3000001c     a0 == 3
+//         0x004005EF,    //jal a1, 4           30000020     a1 == pc+4,pc = pc+(offset)4
+//         0xFF4585E7,    //jalr a1, a1 -12     30000024     pc = a1-12 == 0x30000018
+//         0x004005EF,    //jal a1, 4           3000002c     pc = pc+(offset)4
+//         0x004005EF,    //jal a1, 4           30000030
+//         0xffd50513,    //addi a0 a0 -3       30000028 
+//         0x00100073,    //ebreak              30000034 
+// };
 // static const uint32_t img [] = {
 //         0x00100513,      //addi a0 x0 1     30000000       
 //         0x00150513,      //addi a0 a0 1     30000004  

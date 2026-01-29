@@ -18,6 +18,8 @@ class DispatchIO (implicit val conf: Config) extends OOOBundle {
 
 class Dispatch (implicit val conf: Config) extends OOOModule { 
     val io = IO(new DispatchIO())
+
+    val rm_dp_fire = RegNext(io.rm_dp.fire)
     val intQueue = Module(new IntQueue())
     val memQueue = Module(new MemQueue())
     val is_memA = io.rm_dp.bits.instA.mem_ctrl.mem_val
@@ -29,19 +31,20 @@ class Dispatch (implicit val conf: Config) extends OOOModule {
 
     io.rm_dp.ready := !intQueue.io.queue_full && !memQueue.io.queue_full
 
-    intQueue.io.enqueue_a := Mux(is_intA, io.rm_dp.bits.instA,  WireInit(0.U.asTypeOf(new InstCtrlBlock())))
-    intQueue.io.enqueue_b := Mux(is_intB, io.rm_dp.bits.instB,  WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    intQueue.io.enqueue_a := Mux(is_intA && rm_dp_fire, io.rm_dp.bits.instA,  WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    intQueue.io.enqueue_b := Mux(is_intB && rm_dp_fire, io.rm_dp.bits.instB,  WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     intQueue.io.phyreg_states  := io.phyreg_states
     intQueue.io.redirect        := io.redirect
 
-    memQueue.io.enqueue_a := Mux(!is_intA, io.rm_dp.bits.instA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
-    memQueue.io.enqueue_b := Mux(!is_intB, io.rm_dp.bits.instB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    memQueue.io.enqueue_a := Mux(!is_intA && rm_dp_fire, io.rm_dp.bits.instA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    memQueue.io.enqueue_b := Mux(!is_intB && rm_dp_fire, io.rm_dp.bits.instB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     memQueue.io.phyreg_states := io.phyreg_states
     memQueue.io.redirect := io.redirect
 
     io.dp_rr.valid := !io.redirect && (intQueue.io.dequeue_a.valid || intQueue.io.dequeue_b.valid )
     io.dp_rr.bits.instA := intQueue.io.dequeue_a
     io.dp_rr.bits.instB := intQueue.io.dequeue_b
+    io.dp_rr_mem.valid  := !io.redirect && memQueue.io.dequeue.valid
     io.dp_rr_mem <> memQueue.io.dequeue
 }
 

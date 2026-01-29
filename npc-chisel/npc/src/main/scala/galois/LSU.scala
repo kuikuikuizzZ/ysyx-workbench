@@ -48,7 +48,6 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val io = IO(new LSUImplIO())
     io := DontCare
     io.debug := DontCare
-
     val inst = io.exe_mem.bits
     val axi_arb      = Module(new RRArbiter(new AXI4Req(),2))
 
@@ -71,13 +70,16 @@ class LSUImpl(implicit val conf: Config) extends Module {
     axi_arb.io.in(1) <> store_unit.io.axi_bus.req 
     store_unit.io := DontCare
     store_unit.io.debug         := DontCare
-    store_unit.io.axi_bus.resp  <> io.axi_bus.resp
+    // should add 1 cycle latency
+    store_unit.io.in.valid      := RegNext(io.retire_store.fire)
     store_unit.io.in.bits       := io.retire_store.bits
-    store_unit.io.in.valid      := io.retire_store.valid
+    store_unit.io.axi_bus.resp  <> io.axi_bus.resp
     io.retire_store.ready       := store_unit.io.in.ready
     // store also should commit to ROB, but not executed
     io.cmtE                     := Mux(load_unit.io.out.valid, load_unit.io.out.bits, 0.U.asTypeOf(new InstCtrlBlock) )
-    
+    // store is execute after retire
+    io.exe_mem.ready := load_unit.io.in.ready 
+
     /////////// Debug Port
     // val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
     // val loadCnt         = RegInit(0.U(conf.perfCountBits.W))

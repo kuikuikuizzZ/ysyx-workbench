@@ -2,7 +2,13 @@ mainmenu "NPC Configuration Menu"
 
 config ISA
   string "Instruction Set Architecture"
-  default riscv32e 
+  default riscv32
+
+config RVE
+  bool "Use E extension"
+  default n
+
+
 
 choice
   prompt "NPC Backend"

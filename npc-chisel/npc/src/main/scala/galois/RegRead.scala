@@ -21,12 +21,18 @@ class RegRead (implicit val conf: Config)extends OOOModule{
 
         val redirect = Input(Bool())
 	})
+    io.rr_exe.valid := io.dp_rr.valid
+    io.rr_exe_mem.valid := io.dp_rr_mem.valid
 
+    io.dp_rr.ready := io.rr_exe.ready
+    io.dp_rr_mem.ready := io.rr_exe_mem.ready
 
     val PhyRegFile = new PhyRegFile(PRF_SIZE)
-    val inA = io.dp_rr.bits.instA
-    val inB = io.dp_rr.bits.instB
-    val inC = io.dp_rr_mem.bits
+    val fire = RegNext(io.dp_rr.fire )
+    val mem_fire = RegNext(io.dp_rr_mem.fire )
+    val inA = Mux(fire, io.dp_rr.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
+    val inB = Mux(fire, io.dp_rr.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
+    val inC = Mux(mem_fire, io.dp_rr_mem.bits, 0.U.asTypeOf(new InstCtrlBlock()))
 
     val src1 = PhyRegFile.read(inA.prs1_addr)
     val src2 = PhyRegFile.read(inA.prs2_addr)

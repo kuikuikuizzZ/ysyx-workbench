@@ -39,8 +39,9 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val cmtTable = new RAT()
     val prfCtrl  = new PhyRegCtrl()
 
-    val instA = Mux(io.dec_rm.fire, io.dec_rm.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
-    val instB = Mux(io.dec_rm.fire, io.dec_rm.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
+    val dec_rm_fire = RegNext(io.dec_rm.fire)
+    val instA = Mux(dec_rm_fire, io.dec_rm.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
+    val instB = Mux(dec_rm_fire, io.dec_rm.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
     val prsWbaddrA = Mux(instA.wbaddr =/= 0.U, prfCtrl.freePhyRegisterA, 0.U)
     val prsWbaddrB = Mux(instB.wbaddr =/= 0.U, prfCtrl.freePhyRegisterB, 0.U)
 

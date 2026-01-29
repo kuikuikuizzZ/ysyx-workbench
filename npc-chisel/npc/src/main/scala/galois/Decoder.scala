@@ -47,15 +47,15 @@ class Decode (implicit val conf: Config) extends Module
    
    val decoderA = Module(new Decoder())
    val decoderB = Module(new Decoder())
-
-   val instA = Mux(io.ifu_dec.fire,  io.ifu_dec.bits.instA, 0.U.asTypeOf( new IFUInstOut()))
-   val instB = Mux(io.ifu_dec.fire,  io.ifu_dec.bits.instB, 0.U.asTypeOf( new IFUInstOut()))
-   decoderA.io.valid       := io.ifu_dec.fire
+   val fire = RegNext(io.ifu_dec.fire)
+   val instA = Mux(fire,  io.ifu_dec.bits.instA, 0.U.asTypeOf( new IFUInstOut()))
+   val instB = Mux(fire,  io.ifu_dec.bits.instB, 0.U.asTypeOf( new IFUInstOut()))
+   decoderA.io.valid       := fire
    decoderA.io.inst        := instA
    decoderA.io.bpu_resp    := io.ifu_dec.bits.bpu_resp
    decoderA.io.exception   := io.ifu_dec.bits.exception
    decoderB.io.inst        := instB
-   decoderB.io.valid       := io.ifu_dec.fire
+   decoderB.io.valid       := fire
    decoderB.io.bpu_resp    := io.ifu_dec.bits.bpu_resp
    decoderB.io.exception   := io.ifu_dec.bits.exception
 
