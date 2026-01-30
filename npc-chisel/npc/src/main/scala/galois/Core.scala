@@ -128,7 +128,6 @@ class Core(implicit val conf: Config)extends Module
   pipelineConnect(rr.io.rr_exe, exu.io.rr_exe)
   pipelineConnect(rr.io.rr_exe_mem, exu.io.rr_exe_mem)
   pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem)
-  pipelineConnect(cmt.io.retire_store, lsu.io.retire_store )
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(io.ebreak, true.B, false.B)
   io.core.slave.ar.ready := false.B

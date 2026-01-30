@@ -32,16 +32,18 @@ class RegMapIO(implicit val conf: Config) extends OOOBundle {
 class RegMap (implicit val conf: Config)extends OOOModule { 
 
     val io = IO(new RegMapIO())
-    io.rm_dp.valid := io.dec_rm.valid
+    val dec_rm_fire = RegNext(io.dec_rm.fire)
+    io.rm_dp.valid  := dec_rm_fire
     io.dec_rm.ready := io.rm_dp.ready
 
     val mapTable = new RAT()
     val cmtTable = new RAT()
     val prfCtrl  = new PhyRegCtrl()
 
-    val dec_rm_fire = RegNext(io.dec_rm.fire)
-    val instA = Mux(dec_rm_fire, io.dec_rm.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
-    val instB = Mux(dec_rm_fire, io.dec_rm.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
+    val instA = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 
+    val instB = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 
+    instA := Mux(dec_rm_fire, io.dec_rm.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
+    instB := Mux(dec_rm_fire, io.dec_rm.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
     val prsWbaddrA = Mux(instA.wbaddr =/= 0.U, prfCtrl.freePhyRegisterA, 0.U)
     val prsWbaddrB = Mux(instB.wbaddr =/= 0.U, prfCtrl.freePhyRegisterB, 0.U)
 
@@ -49,10 +51,16 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val cmtWbaddrB = Mux(instA.wbaddr === instB.wbaddr,cmtWbaddrA, mapTable.read(instB.wbaddr))
 
     // solve RAW hazard in same block
-    val prs1_addrA = mapTable.read(instA.rs1_addr)
-    val prs2_addrA = mapTable.read(instA.rs2_addr)
+    val prs1_addrA = WireInit(0.U)
+    val prs2_addrA = WireInit(0.U)
+    prs1_addrA := mapTable.read(instA.rs1_addr)
+    prs2_addrA := mapTable.read(instA.rs2_addr)
     val prs1_addrB = Mux(instB.rs1_addr === instA.wbaddr, prsWbaddrA, mapTable.read(instB.rs1_addr))
     val prs2_addrB = Mux(instB.rs2_addr === instA.wbaddr, prsWbaddrA, mapTable.read(instB.rs2_addr))
+    dontTouch(prs1_addrA)
+    dontTouch(prs2_addrA)
+    dontTouch(instA)
+    dontTouch(instB)
 
     // solve WAW hazard in same block
     val retireA = io.retireA
@@ -87,9 +95,9 @@ class RegMap (implicit val conf: Config)extends OOOModule {
         io.rm_dp.bits.instB := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     }.otherwise{
         when(instA.wbaddr =/= instB.wbaddr){
-            mapTable.write(io.dec_rm.valid && instA.valid, instA.wbaddr, prsWbaddrA)
+            mapTable.write(dec_rm_fire && instA.valid, instA.wbaddr, prsWbaddrA)
         }
-        mapTable.write(io.dec_rm.valid && instB.valid, instB.wbaddr, prsWbaddrB)
+        mapTable.write(dec_rm_fire && instB.valid, instB.wbaddr, prsWbaddrB)
         
         // to issue
         prfCtrl.write(prsWbaddrA =/= 0.U , prsWbaddrA, 1.U(2.W))
@@ -108,7 +116,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
             cmt_wbaddr = Some(cmtWbaddrA),
             reorder_num = Some(io.rob_numA)
         )
-         io.rm_dp.bits.instB := InstCtrlBlock.copy(instB,
+        io.rm_dp.bits.instB := InstCtrlBlock.copy(instB,
             prs1_addr = Some(prs1_addrB),
             prs2_addr = Some(prs2_addrB),
             prs_wbaddr = Some(prsWbaddrB),

@@ -33,16 +33,18 @@ class EXUIO(implicit val conf: Config) extends Bundle()
 class EXU(implicit val conf: Config) extends Module with HasBPUParams 
 {
    val io = IO(new EXUIO())
+   val fire = RegNext(io.rr_exe.fire )
+
    val alu1 = Module(new ALU())
    val alu1_out = alu1.io.out
-   alu1.io.inst := io.rr_exe.bits.instA
+   alu1.io.inst := Mux(fire, io.rr_exe.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
 
    val alu2 = Module(new ALU())
    val alu2_out = alu2.io.out
-   alu2.io.inst := io.rr_exe.bits.instB
+   alu2.io.inst := Mux(fire, io.rr_exe.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
 
-
-   val instC = io.rr_exe_mem.bits
+   val mem_fire = RegNext(io.rr_exe_mem.fire )
+   val instC =  Mux(fire,io.rr_exe_mem.bits, 0.U.asTypeOf(new InstCtrlBlock()))
    val alu3 = Module(new ALU())
    val alu3_out = alu3.io.out
    alu3.io.inst := instC
@@ -65,9 +67,11 @@ class EXU(implicit val conf: Config) extends Module with HasBPUParams
       io.exe_csr        := 0.U.asTypeOf(new InstCtrlBlock())
    } .otherwise {
       // register read has confirm is int op
-      io.exe_out.instA  := InstCtrlBlock.copy(base=(io.rr_exe.bits.instA),alu_out=Some(alu1_out), finish=Some(true.B))
-      io.exe_out.instB  := InstCtrlBlock.copy(base=(io.rr_exe.bits.instB),alu_out=Some(alu2_out), finish=Some(true.B))
-      io.exe_mem.valid  := io.rr_exe_mem.valid
+      val instA = InstCtrlBlock.copy(base=(io.rr_exe.bits.instA),alu_out=Some(alu1_out),wb_data = Some(alu1_out), finish=Some(true.B))
+      val instB = InstCtrlBlock.copy(base=(io.rr_exe.bits.instB),alu_out=Some(alu2_out),wb_data = Some(alu2_out), finish=Some(true.B))
+      io.exe_out.instA  := Mux(fire, instA, 0.U.asTypeOf(new InstCtrlBlock()))
+      io.exe_out.instB  := Mux(fire, instB, 0.U.asTypeOf(new InstCtrlBlock()))
+      io.exe_mem.valid  := mem_fire
       io.exe_mem.bits   := Mux(is_csrC, 0.U.asTypeOf(new InstCtrlBlock),mem_out)
       io.exe_csr        := Mux(is_csrC,csr_out ,0.U.asTypeOf(new InstCtrlBlock))
    }

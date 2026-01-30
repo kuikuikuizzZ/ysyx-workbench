@@ -57,6 +57,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
 
     axi_arb.io.out <> io.axi_bus.req
     axi_arb.io.in(0)            <> load_unit.io.axi_bus.req   
+
     load_unit.io                := DontCare
     load_unit.io.debug          := DontCare
     load_unit.io.axi_bus.resp   <> io.axi_bus.resp
@@ -66,15 +67,15 @@ class LSUImpl(implicit val conf: Config) extends Module {
     load_unit.io.forward_store  <> io.forward_store
     load_unit.io.redirect       := io.redirect
     load_unit.io.out.ready      := true.B
+    load_unit.io.axi_bus.req.ready      := axi_arb.io.in(0).ready
 
     axi_arb.io.in(1) <> store_unit.io.axi_bus.req 
-    store_unit.io := DontCare
-    store_unit.io.debug         := DontCare
+    store_unit.io.axi_bus.req.ready      := axi_arb.io.in(1).ready
+    store_unit.io.debug                  := DontCare
     // should add 1 cycle latency
-    store_unit.io.in.valid      := RegNext(io.retire_store.fire)
-    store_unit.io.in.bits       := io.retire_store.bits
+    store_unit.io.in <> io.retire_store
     store_unit.io.axi_bus.resp  <> io.axi_bus.resp
-    io.retire_store.ready       := store_unit.io.in.ready
+
     // store also should commit to ROB, but not executed
     io.cmtE                     := Mux(load_unit.io.out.valid, load_unit.io.out.bits, 0.U.asTypeOf(new InstCtrlBlock) )
     // store is execute after retire
@@ -121,8 +122,10 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
 
     val exception   = Wire(UInt(EXC_NORMAL.getWidth.W))
     
+
+    val fire = RegNext(io.in.fire)
     val addr            = io.in.bits.alu_out
-    val inst            = io.in.bits
+    val inst            = Mux(fire, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val inst_is_load    = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XRD
     val inst_is_store   = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XWR 
     val mem_ctrl        = io.in.bits.mem_ctrl
@@ -222,7 +225,7 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
             Mux(mem_ctrl.mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL)
     val finish = mem_resp_valid || inst_is_store
     io.in.ready := ready 
-    io.out.valid := mem_resp_valid                             
+    io.out.valid := finish                             
 
     val out_block = InstCtrlBlock.copy(base = (io.in.bits),
                                  wb_data = Some(wbdata), finish= Some(finish),
@@ -257,18 +260,17 @@ class StoreUnit (implicit val conf: Config) extends OOOModule {
 
     val s_idle :: s_bus_req :: Nil = Enum(2) 
     val state = RegInit(s_idle)
-
     val exception   = Wire(UInt(EXC_NORMAL.getWidth.W))
     
     val addr        = io.in.bits.alu_out
     val mem_ctrl    = io.in.bits.mem_ctrl
-    val inst        = io.in.bits
+    val inst        = Mux(io.in.valid, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val is_load     = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XRD
     val is_store    = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XWR 
     val mem_en      = mem_ctrl.mem_val
     val is_bus_req  = mem_en 
 
-    io.axi_bus.req.valid := mem_en && state === s_idle
+    io.axi_bus.req.valid := mem_en && state === s_idle && io.in.valid
     switch(state){ 
         is(s_idle) {
             when(is_store && is_bus_req &&  io.axi_bus.req.ready){
@@ -314,6 +316,8 @@ class StoreUnit (implicit val conf: Config) extends OOOModule {
     val mem_exception   = io.axi_bus.resp.bits.resp
     val mem_ready       = (!mem_ctrl.mem_val) || (mem_ctrl.mem_val && mem_resp_valid)
     io.in.ready := io.axi_bus.req.ready || !is_store
+    dontTouch(io.axi_bus.req.ready)
+    // io.in.ready := io.axi_bus.req.ready 
     // WB Mux
                 
     exception := Mux(mem_en && mem_exception =/= 0.U , 

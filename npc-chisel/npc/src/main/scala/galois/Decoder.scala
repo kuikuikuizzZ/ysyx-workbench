@@ -42,12 +42,12 @@ class Decode (implicit val conf: Config) extends Module
 { 
    val io = IO(new DecodeIO())
    
+   val fire = io.ifu_dec.fire
    io.ifu_dec.ready := io.dec_rm.ready
-   io.dec_rm.valid := io.ifu_dec.valid
+   io.dec_rm.valid := io.ifu_dec.valid && !io.redirect
    
    val decoderA = Module(new Decoder())
    val decoderB = Module(new Decoder())
-   val fire = RegNext(io.ifu_dec.fire)
    val instA = Mux(fire,  io.ifu_dec.bits.instA, 0.U.asTypeOf( new IFUInstOut()))
    val instB = Mux(fire,  io.ifu_dec.bits.instB, 0.U.asTypeOf( new IFUInstOut()))
    decoderA.io.valid       := fire
@@ -205,18 +205,18 @@ class Decoder(implicit val conf: Config) extends Module
                         Mux(is_cond_br,RD_BR,RD_X))))
 
 
-   val inst_ctrl_block = InstCtrlBlock.apply(valid = cs_val_inst,
-                                             inst        = dec_reg_inst,
-                                             pc          = dec_reg_pc,
-                                             rs1_addr    = dec_rs1_addr,
-                                             rs2_addr    = dec_rs2_addr,
-                                             wbaddr      = dec_wbaddr,
-                                             imm         = imm,
-                                             exception   = io.exception)  
+   val inst_ctrl_block = InstCtrlBlock.copy( base = WireInit(0.U.asTypeOf(new InstCtrlBlock())),
+                                             valid       = Some(cs_val_inst),
+                                             inst        = Some(dec_reg_inst),
+                                             pc          = Some(dec_reg_pc),
+                                             rs1_addr    = Some(dec_rs1_addr),
+                                             rs2_addr    = Some(dec_rs2_addr),
+                                             wbaddr      = Some(dec_wbaddr),
+                                             imm         = Some(imm),
+                                             exception   = Some(io.exception))  
    val with_mem = InstCtrlBlock.memoryOp(  mem_val = cs_mem_en,
                               mem_fcn = cs_mem_fcn,
                               mem_typ = cs_msk_sel,
-
                               base = inst_ctrl_block) 
    val with_br =  InstCtrlBlock.branchOp(  base = with_mem,
                               br_type = cs_br_type,

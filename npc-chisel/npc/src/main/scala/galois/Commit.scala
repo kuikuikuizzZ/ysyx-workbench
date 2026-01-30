@@ -38,11 +38,14 @@ class Commit (implicit val conf: Config) extends OOOModule{
     io.rob_numB := enqueue_ptr + 1.U
 
     val rob = RegInit(VecInit(Seq.fill(ROB_SIZE)(WireInit(0.U.asTypeOf(new InstCtrlBlock())))))
-    val retireA = rob(dequeue_ptr)
+    val retireA = WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     val retireB = rob(dequeue_ptr + 1.U)
     val is_store = retireA.mem_ctrl.mem_val && retireA.mem_ctrl.mem_fcn === M_XWR
-    val readyA = retireA.valid && retireA.finish && (!is_store || (is_store && io.retire_store.fire))
-
+    val readyA = WireInit(false.B)
+    retireA := rob(dequeue_ptr)
+    readyA := retireA.valid && retireA.finish && (!is_store || (is_store && io.retire_store.fire))
+    dontTouch(readyA)
+    dontTouch(retireA)
     // branch, jump, exception only redirect after retire
     when (retireA.exception =/= EXC_NORMAL){
         retireA.pc_sel := PC_EXC 
@@ -57,7 +60,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
     io.retireA     := Mux(readyA, retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     io.retireB     := Mux(readyB, retireB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     io.retire_store.valid   := is_store && retireA.valid && retireA.finish
-    io.retire_store.bits    := Mux(readyA && is_store,  io.retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    io.retire_store.bits    := Mux(is_store,  retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     val Aenter = !rob_full && io.rm_rob.bits.instA.valid
     val Benter = Aenter && io.rm_rob.bits.instB.valid
 
