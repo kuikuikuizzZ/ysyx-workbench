@@ -43,8 +43,8 @@ class EXU(implicit val conf: Config) extends Module with HasBPUParams
    val alu2_out = alu2.io.out
    alu2.io.inst := Mux(fire, io.rr_exe.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
 
-   val mem_fire = RegNext(io.rr_exe_mem.fire )
-   val instC =  Mux(fire,io.rr_exe_mem.bits, 0.U.asTypeOf(new InstCtrlBlock()))
+   val mem_fire = RegEnable(io.rr_exe_mem.fire,io.exe_mem.ready )
+   val instC =  Mux(mem_fire,io.rr_exe_mem.bits, 0.U.asTypeOf(new InstCtrlBlock()))
    val alu3 = Module(new ALU())
    val alu3_out = alu3.io.out
    alu3.io.inst := instC
@@ -120,15 +120,14 @@ class CSRFiles(implicit val conf: Config) extends Module {
     }) 
     // Control Status Registers
     val csr = Module(new CSRFile())
-    csr.io := DontCare
     csr.io.decode.csr       := io.in.inst(CSR_ADDR_MSB,CSR_ADDR_LSB)
     csr.io.rw.cmd           := io.in.csr_ctrl.csr_cmd
     csr.io.rw.wdata         := io.in.rs1_data   // alu_sel is copy_rs1
     csr.io.exception        := io.in.exception
     csr.io.pc               := io.in.pc
-    val wb_data = Mux(io.in.wb_ctrl.wb_sel === WB_CSR, csr.io.rw.rdata, io.in.wb_data)
-    val pc_sel = Mux(csr.io.eret, PC_EXC, io.in.pc_sel)
-    val out = InstCtrlBlock.csrOp(base = io.in,
+    val wb_data             = Mux(io.in.wb_ctrl.wb_sel === WB_CSR, csr.io.rw.rdata, io.in.wb_data)
+    val pc_sel              = Mux(csr.io.eret, PC_EXC, io.in.pc_sel)
+    val out                 = InstCtrlBlock.csrOp(base = io.in,
                                   wb_data = wb_data,
                                   target = csr.io.evec,
                                   pc_sel = pc_sel,

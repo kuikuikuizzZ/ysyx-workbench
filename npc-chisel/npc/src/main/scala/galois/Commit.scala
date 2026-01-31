@@ -20,6 +20,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
         val cmtD            = Input(new InstCtrlBlock)
         val cmtE            = Input(new InstCtrlBlock)
         val cmtF            = Input(new InstCtrlBlock)
+        val cmtG            = Input(new InstCtrlBlock)
 
         val rob_numA = Output(UInt(ROB_BITS.W))
         val rob_numB = Output(UInt(ROB_BITS.W))
@@ -57,8 +58,8 @@ class Commit (implicit val conf: Config) extends OOOModule{
     val retireB_store       = retireB.mem_ctrl.mem_val 
     val readyB = readyA && retireB.valid && retireB.finish && ~io.redirect && ~retireB_exception && ~retireB_redirect && ~retireB_store
     
-    io.retireA     := Mux(readyA, retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
-    io.retireB     := Mux(readyB, retireB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    io.retireA      := Mux(readyA, retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    io.retireB      := Mux(readyB, retireB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     io.retire_store.valid   := is_store && retireA.valid && retireA.finish
     io.retire_store.bits    := Mux(is_store,  retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     val Aenter = !rob_full && io.rm_rob.bits.instA.valid
@@ -79,6 +80,8 @@ class Commit (implicit val conf: Config) extends OOOModule{
         when(io.cmtD.valid && io.cmtD.finish){ rob(io.cmtD.reorder_num) := io.cmtD }
         when(io.cmtE.valid && io.cmtE.finish){ rob(io.cmtE.reorder_num) := io.cmtE }
         when(io.cmtF.valid && io.cmtF.finish){ rob(io.cmtF.reorder_num) := io.cmtF }
+        when(io.cmtG.valid && io.cmtG.finish){ rob(io.cmtG.reorder_num) := io.cmtG }
+
         enqueue_ptr := enqueue_ptr + Aenter.asUInt + Benter.asUInt
         dequeue_ptr := dequeue_ptr + readyA.asUInt + readyB.asUInt
         when(readyA){ rob(dequeue_ptr) := WireInit(0.U.asTypeOf(new InstCtrlBlock())) }

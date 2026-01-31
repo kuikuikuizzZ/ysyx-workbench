@@ -1,5 +1,7 @@
 
 #include <nvboard.h>
+#include <svdpi.h>  // 必须包含，它定义了 svOpenArrayHandle 等类型
+
 #include <cpu/cpu.h>
 #ifdef CONFIG_SOC   
 #include "VysyxSoCFull.h"
@@ -12,6 +14,8 @@
 #ifndef __DEBUG_TOP__
 #define __DEBUG_TOP__
 #define LSU_FCN(key) 
+
+// #define GPR(i) (_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__rm__DOT__regfile_mem_##i)
 
 
 static uint32_t pc              = 0;
@@ -61,7 +65,7 @@ extern "C" void dpi_port_OOO(int in_halt, int in_pc, int in_pc_next, int in_inst
     halt            = in_halt;
 }
 
-extern "C" void dpi_gpr(uint32_t *in_gpr){
+extern "C" void dpi_gpr(const uint32_t* in_gpr){
     for (int i=0;i<gpr_size;i++){
         gpr[i] = in_gpr[i];
     }
@@ -165,6 +169,12 @@ typedef struct {
 } Watch_top;
 Watch_top *wt = NULL;
 
+uint32_t* get_gpr_ptr(struct VysyxSoCFull___024root* _rootp, int i) {
+    uint32_t* base_addr = &(_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__rm__DOT__regfile_mem_0);
+    return base_addr + i;
+}
+
+
 uint32_t top_gpr(int i) {
     if (!_rootp) return 0;
     if (i < 0 || i >= gpr_size) {
@@ -172,7 +182,7 @@ uint32_t top_gpr(int i) {
         return 0;
     }
     uint32_t gpr_i ;
-    IFDEF(CONFIG_GALOIS,return gpr[i];)
+    IFDEF(CONFIG_GALOIS,return (uint32_t)*get_gpr_ptr(_rootp, i));
     IFNDEF(CONFIG_GALOIS,IFDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__reg_file__DOT__regfile_mem_ext__DOT__Memory[i]));
     IFNDEF(CONFIG_SOC,gpr_i=(uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__reg_file__DOT__regfile_mem_ext__DOT__Memory[i]);
 

@@ -31,6 +31,7 @@ class LSUImplIO(implicit val conf: Config) extends CacheBundle {
     val exe_mem             = Flipped(new DecoupledIO(new InstCtrlBlock))
     val retire_store        = Flipped(new DecoupledIO(new InstCtrlBlock))
     val cmtE                = Output(new InstCtrlBlock)
+    val cmtF                = Output(new InstCtrlBlock)
 
     val forward_load        = Output(new InstCtrlBlock)
     val forward_store       = Input(new InstCtrlBlock)
@@ -44,25 +45,36 @@ class LSUImplIO(implicit val conf: Config) extends CacheBundle {
         })
 }
 
+
 class LSUImpl(implicit val conf: Config) extends Module {
     val io = IO(new LSUImplIO())
     io := DontCare
     io.debug := DontCare
     val inst = io.exe_mem.bits
     val axi_arb      = Module(new RRArbiter(new AXI4Req(),2))
-
     val load_unit    = Module(new LoadUnit())
     val store_unit   = Module(new StoreUnit())
     val retire_is_store = io.retire_store.bits.mem_ctrl.mem_val && io.retire_store.bits.mem_ctrl.mem_fcn === M_XWR
+    val queue        = Module(new Queue(new InstCtrlBlock, 2,pipe = true,flow=true))
 
     axi_arb.io.out <> io.axi_bus.req
     axi_arb.io.in(0)            <> load_unit.io.axi_bus.req   
 
-    load_unit.io                := DontCare
+    val deq_is_load     = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XRD
+    val deq_is_store    = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XWR
+    val store_inst      = Mux(deq_is_store && queue.io.deq.valid, queue.io.deq.bits, 0.U.asTypeOf(new InstCtrlBlock))
+    val store_out       = InstCtrlBlock.copy(base=store_inst,finish= Some(true.B))
+    io.exe_mem.ready            := queue.io.enq.ready
+    queue.io.enq.bits           <> io.exe_mem.bits
+    queue.io.enq.valid          := RegNext(io.exe_mem.valid)
+    queue.io.deq.ready          := load_unit.io.in.ready || deq_is_store
+
+
+    load_unit.io.in.bits        := queue.io.deq.bits
+    load_unit.io.in.valid       := deq_is_load && queue.io.deq.valid
     load_unit.io.debug          := DontCare
     load_unit.io.axi_bus.resp   <> io.axi_bus.resp
     load_unit.io.clintIO        <> io.clintIO
-    load_unit.io.in             <> io.exe_mem
     load_unit.io.forward_load   <> io.forward_load
     load_unit.io.forward_store  <> io.forward_store
     load_unit.io.redirect       := io.redirect
@@ -78,8 +90,8 @@ class LSUImpl(implicit val conf: Config) extends Module {
 
     // store also should commit to ROB, but not executed
     io.cmtE                     := Mux(load_unit.io.out.valid, load_unit.io.out.bits, 0.U.asTypeOf(new InstCtrlBlock) )
+    io.cmtF                     := Mux(store_inst.valid, store_out, 0.U.asTypeOf(new InstCtrlBlock))
     // store is execute after retire
-    io.exe_mem.ready := load_unit.io.in.ready 
 
     /////////// Debug Port
     // val storeCnt        = RegInit(0.U(conf.perfCountBits.W))
@@ -121,13 +133,11 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     val state = RegInit(s_idle)
 
     val exception   = Wire(UInt(EXC_NORMAL.getWidth.W))
-    
 
-    val fire = RegNext(io.in.fire)
+    val fire            = io.in.fire
     val addr            = io.in.bits.alu_out
-    val inst            = Mux(fire, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
+    val inst            = Mux(io.in.valid, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val inst_is_load    = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XRD
-    val inst_is_store   = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XWR 
     val mem_ctrl        = io.in.bits.mem_ctrl
     val mem_en          = mem_ctrl.mem_val
 
@@ -135,6 +145,8 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     val is_bus_req = mem_en && !in_clint
     val is_clint_req = in_clint && mem_en
 
+    val ready = io.axi_bus.req.ready 
+    io.in.ready := ready 
     io.axi_bus.req.valid := inst_is_load && !in_clint && state === s_idle
     switch(state){ 
         is(s_idle) {
@@ -179,13 +191,17 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B)
     val req_typ_reg = ResultHoldBypass(mem_ctrl.mem_typ, to_axi_fire)
     val req_addr    = ResultHoldBypass(io.axi_bus.req.bits.raddr,to_axi_fire)
+    val reg_wb_ctrl = ResultHoldBypass(io.in.bits.wb_ctrl, to_axi_fire) 
+    val reg_inst    = ResultHoldBypass(io.in.bits, to_axi_fire)
     
     // forward load
     val w_typ = io.forward_store.mem_ctrl.mem_typ
     val waddr = io.forward_store.alu_out
-    val wmask = Mux(w_typ === MT_B,1.U << waddr(1,0),
-                               Mux(w_typ === MT_H,3.U << waddr(1,0),15.U))
-    val wdata = Mux(io.forward_store.valid, io.forward_store.rs2_data, 0.U) 
+    val wmask = Mux(io.forward_store.valid, Mux(w_typ === MT_B,1.U << waddr(1,0),
+                               Mux(w_typ === MT_H,3.U << waddr(1,0),15.U)), 
+                               0.U)
+    val wdata = Mux(io.forward_store.valid, io.forward_store.rs2_data, 0.U)
+     
     val d_data      = (io.axi_bus.resp.bits.data & ~wmask) | (wdata & wmask)
     
     val aligned_resp_data = d_data >> (req_addr(1,0)<<3)
@@ -214,20 +230,20 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     val mem_port_resp_valid = io.axi_bus.resp.valid && state === s_bus_req 
     val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    mem_port_resp_valid)
     val mem_exception   = Mux(in_clint, 0.U,                    (io.axi_bus.resp.bits.resp))
-    val mem_data        = Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
     val mem_ready       = (!mem_ctrl.mem_val) || (mem_ctrl.mem_val && mem_resp_valid)
-    val ready = io.axi_bus.req.ready || !inst_is_load
+    val mem_data        = Wire(UInt(conf.xlen.W))
+    mem_data            := Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
+    dontTouch(mem_data)
     // WB Mux
-    val wbdata = Mux(inst.wb_ctrl.wb_sel === WB_MEM, mem_data,io.in.bits.alu_out)
+    val wbdata = Mux(reg_wb_ctrl.wb_sel === WB_MEM, mem_data,reg_inst.alu_out)
                 
     exception := Mux(mem_en && mem_exception =/= 0.U , 
             Mux(mem_ctrl.mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(mem_ctrl.mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL)
-    val finish = mem_resp_valid || inst_is_store
-    io.in.ready := ready 
-    io.out.valid := finish                             
+    val finish = mem_resp_valid 
 
-    val out_block = InstCtrlBlock.copy(base = (io.in.bits),
+    io.out.valid := finish                             
+    val out_block = InstCtrlBlock.copy(base = (reg_inst),
                                  wb_data = Some(wbdata), finish= Some(finish),
                                  exception = Some(exception))
     io.out.bits     := out_block

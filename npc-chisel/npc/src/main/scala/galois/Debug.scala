@@ -153,7 +153,7 @@ class GPRPort(implicit val conf: Config) extends BlackBox with HasBlackBoxInline
     })
     setInline("GPRPort.v",
     """
-    import "DPI-C" function void dpi_gpr(input logic [31:0] regfile_array [0:31]);
+    import "DPI-C" function void dpi_gpr(input int regfile_array[]);
 
     module GPRPort(
         input [31:0] gpr_0,
@@ -189,7 +189,7 @@ class GPRPort(implicit val conf: Config) extends BlackBox with HasBlackBoxInline
         input [31:0] gpr_30,
         input [31:0] gpr_31
         );
-        wire [31:0] gpr_array [0:31];
+        integer  gpr_array [31:0];
         assign gpr_array[0]  = gpr_0;
         assign gpr_array[1]  = gpr_1;
         assign gpr_array[2]  = gpr_2;

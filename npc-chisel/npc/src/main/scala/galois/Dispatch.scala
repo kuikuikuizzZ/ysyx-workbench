@@ -79,21 +79,25 @@ class MemQueue(implicit val conf: Config) extends OOOModule {
   when(io.redirect) {
     enqueue_pointer := 0.U
     dequeue_pointer := 0.U
-    for (i <- 0 until 16) {
+    for (i <- 0 until IQ_SIZE) {
       bank(i) := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     }
     io.dequeue.bits := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
   }.otherwise {
-    bank(enqueue_pointer) := Mux(a_enter, io.enqueue_a, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
-    bank(enqueue_pointer + 1.U) := Mux(b_enter, io.enqueue_b, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    when(a_enter){
+      bank(enqueue_pointer) := Mux(a_enter, io.enqueue_a, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+      bank(enqueue_pointer + 1.U) := Mux(b_enter, io.enqueue_b, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    }.elsewhen(b_enter && !a_enter){
+      bank(enqueue_pointer ) := Mux(b_enter, io.enqueue_b, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
+    }
 
     when(io.dequeue.fire) {
       bank(dequeue_pointer) := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     }
     io.dequeue.bits := Mux(io.dequeue.fire, select, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
 
+    dequeue_pointer := dequeue_pointer + io.dequeue.fire.asUInt
     enqueue_pointer := enqueue_pointer + a_enter.asUInt + b_enter.asUInt
-    dequeue_pointer := dequeue_pointer + dequeue_ready.asUInt
   }
 }
 

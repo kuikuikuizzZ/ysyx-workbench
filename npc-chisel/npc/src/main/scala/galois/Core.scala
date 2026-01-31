@@ -99,6 +99,7 @@ class Core(implicit val conf: Config)extends Module
   rr.io.cmtC      := exu.io.exe_out.instA
   rr.io.cmtD      := exu.io.exe_out.instB
   rr.io.cmtE      := lsu.io.cmtE
+  rr.io.cmtG      := exu.io.exe_csr
 
   exu.io.redirect := cmt.io.redirect
   exu.io.debug    := DontCare
@@ -113,7 +114,8 @@ class Core(implicit val conf: Config)extends Module
   cmt.io.cmtC           := exu.io.exe_out.instA
   cmt.io.cmtD           := exu.io.exe_out.instB
   cmt.io.cmtE           := lsu.io.cmtE
-  cmt.io.cmtF           := exu.io.exe_csr
+  cmt.io.cmtF           := lsu.io.cmtF
+  cmt.io.cmtG           := exu.io.exe_csr
   cmt.io.forward_load   := lsu.io.forward_load
   cmt.io.rm_rob         <> rm.io.rm_dp
 
@@ -142,7 +144,9 @@ class Core(implicit val conf: Config)extends Module
   io.core.slave.b.resp := 0.U
   io.core.slave.b.id := 0.U
   io.core.master.ar.bits.id := 0.U
-
+  
+  val gpr_port = Module(new GPRPort())
+  gpr_port.io.gpr := rm.io.arch_regfile
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
@@ -158,8 +162,7 @@ class Core(implicit val conf: Config)extends Module
     debug.io.instB          := cmt.io.retireB.inst
     // debug.io.lsu_port       := wbu.io.mem_wb.bits.debug
     
-    val gpr_port = Module(new GPRPort())
-    gpr_port.io.gpr := rm.io.arch_regfile
+
     // val perfEvent = Module(new PerfEventPort())
     // perfEvent.io.clock      := clock
     // perfEvent.io.reset      := reset

@@ -59,8 +59,6 @@ class WBCtrlIO (implicit val conf: Config) extends OOOBundle {
 
 class CSRCtrlIO (implicit val conf: Config) extends OOOBundle {
     val csr_cmd           = (UInt(CSR.N.getWidth.W))
-    val exception         = (UInt(EXC_NORMAL.getWidth.W))
-
     val eret              = (Bool())
     val ebreak            = (Bool())
 }
@@ -249,7 +247,6 @@ object InstCtrlBlock {
     
     if (csr_ctrl != null) {
       icb.csr_ctrl.csr_cmd := csr_ctrl.csr_cmd
-      icb.csr_ctrl.exception := csr_ctrl.exception
     }
     if (bju_out != null) {
       icb.bju_out := bju_out
@@ -335,7 +332,8 @@ object InstCtrlBlock {
     }
     csr_ctrl.foreach { cc =>
       newIcb.csr_ctrl.csr_cmd := cc.csr_cmd
-      newIcb.csr_ctrl.exception := cc.exception
+      newIcb.csr_ctrl.eret    := cc.eret
+      newIcb.csr_ctrl.ebreak  := cc.ebreak
     }
     bpu_resp.foreach { br => newIcb.bpu_resp := br }
     bju_out.foreach { bo => newIcb.bju_out := bo }

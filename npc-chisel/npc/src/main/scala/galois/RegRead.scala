@@ -18,6 +18,7 @@ class RegRead (implicit val conf: Config)extends OOOModule{
         val cmtC = Input(new InstCtrlBlock)
         val cmtD = Input(new InstCtrlBlock)
         val cmtE = Input(new InstCtrlBlock)
+        val cmtG = Input(new InstCtrlBlock)
 
         val redirect = Input(Bool())
 	})
@@ -25,7 +26,7 @@ class RegRead (implicit val conf: Config)extends OOOModule{
 
     val PhyRegFile = new PhyRegFile(PRF_SIZE)
     val fire = RegNext(io.dp_rr.fire )
-    val mem_fire = RegNext(io.dp_rr_mem.fire )
+    val mem_fire = RegEnable(io.dp_rr_mem.fire,io.rr_exe_mem.ready )
     val inA = Mux(fire, io.dp_rr.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
     val inB = Mux(fire, io.dp_rr.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
     val inC = Mux(mem_fire, io.dp_rr_mem.bits, 0.U.asTypeOf(new InstCtrlBlock()))
@@ -42,6 +43,7 @@ class RegRead (implicit val conf: Config)extends OOOModule{
     PhyRegFile.write(io.cmtC.valid && io.cmtC.finish, io.cmtC.prs_wbaddr, io.cmtC.wb_data)
     PhyRegFile.write(io.cmtD.valid && io.cmtD.finish, io.cmtD.prs_wbaddr, io.cmtD.wb_data)
     PhyRegFile.write(io.cmtE.valid && io.cmtE.finish, io.cmtE.prs_wbaddr, io.cmtE.wb_data)
+    PhyRegFile.write(io.cmtG.valid && io.cmtG.finish, io.cmtG.prs_wbaddr, io.cmtG.wb_data)
 
     val instA = InstCtrlBlock.copy( base     = inA,
                                     rs1_data = Some(src1),

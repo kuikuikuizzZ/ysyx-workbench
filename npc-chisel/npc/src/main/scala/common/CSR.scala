@@ -26,7 +26,6 @@ object CSR
 
 
 class CSRFileIO(implicit val conf: Config) extends Bundle {
-  val hartid = Input(UInt(conf.xprlen.W))
   val rw = new Bundle {
     val cmd = Input(UInt(CSR.SZ.W))
     val rdata = Output(UInt(conf.xprlen.W))
@@ -44,7 +43,7 @@ class CSRFileIO(implicit val conf: Config) extends Bundle {
   val evec = Output(UInt(conf.xprlen.W))
   val exception = Input(UInt(5.W))
   val pc = Input(UInt(conf.xprlen.W))
-  val retire = Input(Bool())
+  // val retire = Input(Bool())
 
 
 }
