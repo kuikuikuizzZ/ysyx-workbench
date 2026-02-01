@@ -10,6 +10,7 @@ static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
 static int offset_x = 0, offset_y = 0;
+static int canvas_w = 0, canvas_h = 0;
 uint32_t NDL_GetTicks() {
   struct timeval tv ;
   assert(gettimeofday(&tv, NULL) == 0);
@@ -47,7 +48,7 @@ void NDL_OpenCanvas(int *w, int *h) {
     screen_w = width_height[0];
     screen_h = width_height[1];
     close(dispinfo_fd);
-    printf("screen_w = %d, screen_h = %d\n", screen_w, screen_h);
+    printf("dispinfo screen_w = %d, screen_h = %d\n", screen_w, screen_h);
 
     assert(*w <= screen_w && *h <= screen_h);
     if (*w || *h) {
@@ -58,15 +59,25 @@ void NDL_OpenCanvas(int *w, int *h) {
       *h = screen_h;
     }
 
-    fbdev = open("/dev/fb", 0,0 );
+
+    if(*w == 0 && *h == 0){
+      *w = screen_w;
+      *h = screen_h;
+    }
+    canvas_w = *w;
+    canvas_h = *h;
+    close(dispinfo_fd);
   }
+  fbdev = open("/dev/fb", 0, 0);
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
-  x += offset_x; y += offset_y;
-  for (int i = 0; i < h; ++i) {
+  x += (screen_w - canvas_w) / 2;
+  y += (screen_h - canvas_h) / 2;
+  for (int i=0;i<h;i++){
     lseek(fbdev, ((y + i) * screen_w + x) * 4, SEEK_SET);
-    assert(write(fbdev, pixels + w * i, w * 4) == w * 4);
+    write(fbdev, pixels, 4 * w);
+    pixels += w;
   }
 }
 

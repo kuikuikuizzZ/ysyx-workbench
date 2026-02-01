@@ -71,8 +71,9 @@ int _write(int fd, void *buf, size_t count) {
 
 void *_sbrk(intptr_t increment) {
   if (increment == 0) return process_break;
+  void *process_break_old = process_break;
   process_break += increment;
-  if (_syscall_(SYS_brk, (intptr_t)&process_break,0, 0)==0) return process_break;
+  if (_syscall_(SYS_brk, (intptr_t)&process_break,0, 0)==0) return process_break_old;
   return (void *)-1;
 }
 

@@ -20,10 +20,10 @@ intptr_t sys_brk(int* addr, intptr_t increment){
 void strace(uintptr_t a[4]){
   if (a[0] == SYS_write || a[0] == SYS_read || 
     a[0] == SYS_lseek || a[0] == SYS_close || 
-    a[0] == SYS_open){
-      char* name = get_filename(a[1])? get_filename(a[1]) : "NULL";
+    a[0] == SYS_open)
+  {   char* name = get_filename(a[1])? get_filename(a[1]) : "NULL";
       printf("syscall type = %d, a1 = %s, a2 = %x, a3 = %x\n", a[0], name, a[2], a[3]);
-    }
+  }
   else printf("syscall type = %d, a1 = %x, a2 = %x, a3 = %x\n", a[0], a[1], a[2], a[3]);
 }
 void do_syscall(Context *c) {
@@ -32,7 +32,9 @@ void do_syscall(Context *c) {
   a[1] = c->GPR2;
   a[2] = c->GPR3;
   a[3] = c->GPR4;
+  #ifdef STRACE
   strace(a);
+  #endif
   switch (a[0]) {
     case SYS_exit: halt(a[1]); break;
     case SYS_yield: yield(); c->GPRx=0; break;
