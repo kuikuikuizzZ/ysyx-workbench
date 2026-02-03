@@ -5,5 +5,5 @@
 #include <proc.h>
 
 void naive_uload(PCB *pcb, const char *filename);
-
+Context* context_uload (PCB *p, const char *filename);
 #endif

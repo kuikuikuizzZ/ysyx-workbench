@@ -54,3 +54,8 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
+Context* context_uload (PCB *p, const char *filename) {
+  uintptr_t entry = loader(p, filename);
+  p->cp = ucontext(NULL, (Area) {  p->stack, p+1 }, (void*)entry);
+  return p->cp;
+}

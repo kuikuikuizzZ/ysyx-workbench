@@ -49,7 +49,8 @@ void do_syscall(Context *c) {
   strace(a);
   #endif
   switch (a[0]) {
-    case SYS_exit:  yield(); c->GPRx=0; break;
+    case SYS_exit: sys_exit(a[1]); break;
+    // case SYS_exit: yield(); c->GPRx=0;  break;
     case SYS_yield: yield(); c->GPRx=0; break;
     case SYS_brk: c->GPRx = sys_brk((int*)a[1],a[2]); break;
     case SYS_write: c->GPRx = sys_write(a[1],(void*)a[2],a[3]); break;

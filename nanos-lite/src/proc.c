@@ -53,14 +53,15 @@ Context* context_kload(PCB *p, void (*entry)(void *), void *arg) {
   p->cp = kcontext((Area) {  p->stack, p+1 }, entry, arg);
   return p->cp;
 }
+
+
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, (void *)"A");
-  context_kload(&pcb[1], hello_fun, (void *)"B");
+  // context_kload(&pcb[0], hello_fun, (void *)"A");
+  // context_uload(&pcb[1], "/bin/bmp-test");
   switch_boot_pcb();
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(&pcb[2], "/bin/hello");
-  Log("Processes initialized.");
+  naive_uload(&pcb[0], "/bin/event-test");
 }
 
