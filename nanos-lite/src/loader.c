@@ -18,6 +18,9 @@ int elf_check_file(Elf_Ehdr *header){
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
   int fd = fs_open(filename, 0, 0);
+  if (fd < 0) {
+    panic("cannot open file %s\n", filename);
+  }
   Elf_Ehdr ehdr;
   if (fs_read(fd,&ehdr,sizeof(ehdr)) != sizeof(ehdr)) {
     panic("read() %s failed",filename);
@@ -47,7 +50,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
 void naive_uload(PCB *pcb, const char *filename) {
   uintptr_t entry = loader(pcb, filename);
-  Log("Jump to entry = %p", entry);
+  Log("Jump to entry = %p, file %s\n", entry, filename);
   ((void(*)())entry) ();
 }
 

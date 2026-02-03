@@ -1,6 +1,8 @@
 #include <common.h>
 #include "syscall.h"
 #include <fs.h>
+#include <proc.h>
+#include <loader.h>
 
 void halt(int code);
 struct timeval
@@ -16,6 +18,17 @@ int sys_gettimeofday(struct timeval* tv, void* tz){
 intptr_t sys_brk(int* addr, intptr_t increment){
   return 0;
 }
+
+int sys_execve(const char *fname, char * const argv[], char *const envp[]){
+  naive_uload(NULL,fname);  
+  return 0;
+}
+
+void sys_exit(int code){
+  sys_execve("/bin/nterm", NULL, NULL);
+}
+
+
 
 void strace(uintptr_t a[4]){
   if (a[0] == SYS_write || a[0] == SYS_read || 
@@ -36,7 +49,7 @@ void do_syscall(Context *c) {
   strace(a);
   #endif
   switch (a[0]) {
-    case SYS_exit: halt(a[1]); break;
+    case SYS_exit:  yield(); c->GPRx=0; break;
     case SYS_yield: yield(); c->GPRx=0; break;
     case SYS_brk: c->GPRx = sys_brk((int*)a[1],a[2]); break;
     case SYS_write: c->GPRx = sys_write(a[1],(void*)a[2],a[3]); break;
@@ -44,6 +57,7 @@ void do_syscall(Context *c) {
     case SYS_read: c->GPRx = sys_read(a[1],(void*)a[2],a[3]); break;
     case SYS_lseek: c->GPRx = fs_lseek(a[1],a[2],a[3]); break;
     case SYS_close: c->GPRx = fs_close(a[1]); break;
+    case SYS_execve: c->GPRx = sys_execve((const char*)a[1], (char* const*)a[2], (char* const*)a[3]); break;
     case SYS_gettimeofday: c->GPRx = sys_gettimeofday((struct timeval*)a[1],(void*)a[2]); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }

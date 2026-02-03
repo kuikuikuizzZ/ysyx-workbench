@@ -14,21 +14,53 @@ void switch_boot_pcb() {
 void hello_fun(void *arg) {
   int j = 1;
   while (1) {
-    Log("Hello World from Nanos-lite with arg '%p' for the %dth time!", (uintptr_t)arg, j);
+    Log("Hello World from Nanos-lite with arg '%s' for the %dth time!", (char *)arg, j);
     j ++;
     yield();
   }
 }
 
-void init_proc() {
-  switch_boot_pcb();
 
+
+PCB* next_current() {
+  PCB *start = current;
+  do {
+      // 指针算术：移动到下一个PCB，循环数组
+      current = (current - pcb + 1) % MAX_NR_PROC + pcb;
+      if (current == start) {
+          // 未找到有效PCB,继续使用当前PCB
+          break;
+      }
+  } while (current->cp == NULL);
+  return current;
+}
+
+PCB* next_available_pcb() {
+  for (int i = 0; i < MAX_NR_PROC; i++) {
+      if (pcb[i].cp == NULL) {
+          return &pcb[i];
+      }
+  }
+  return NULL; // No available PCB found
+}
+Context* schedule(Context *prev) {
+  current->cp = prev;
+  current = next_current();
+  return current->cp; 
+}
+
+Context* context_kload(PCB *p, void (*entry)(void *), void *arg) {
+  p->cp = kcontext((Area) {  p->stack, p+1 }, entry, arg);
+  return p->cp;
+}
+void init_proc() {
+  context_kload(&pcb[0], hello_fun, (void *)"A");
+  context_kload(&pcb[1], hello_fun, (void *)"B");
+  switch_boot_pcb();
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(NULL,"/bin/bmp-test");
+  naive_uload(&pcb[2], "/bin/hello");
+  Log("Processes initialized.");
 }
 
-Context* schedule(Context *prev) {
-  return NULL;
-}
