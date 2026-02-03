@@ -36,7 +36,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   }
   for (int i = 0; i < ehdr.e_phnum; i++) { 
     if (phdr[i].p_type == PT_LOAD) {
-      memset((void *)phdr[i].p_vaddr, 0, phdr[i].p_filesz);
+      memset((void *)(phdr[i].p_vaddr + phdr[i].p_filesz), 0, phdr[i].p_memsz - phdr[i].p_filesz);
       fs_lseek(fd, phdr[i].p_offset, SEEK_SET);
       if (fs_read(fd,(void *)phdr[i].p_vaddr, phdr[i].p_filesz) != phdr[i].p_filesz) {
         panic("read() %s load phdr failed",filename);
