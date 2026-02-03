@@ -104,7 +104,11 @@ int main(int argc, char *argv[], char *envp[]) {
       i += page * 10;
       auto *item = &items[i];
       const char *exec_argv[3];
-      exec_argv[0] = item->bin;
+      size_t bin_len = strlen(item->bin);
+      char *exec_argv_0 = (char*)malloc(bin_len + 1);
+      memcpy(exec_argv_0, item->bin, bin_len);
+      exec_argv_0[bin_len] = '\0';
+      exec_argv[0] = exec_argv_0;
       exec_argv[1] = item->arg1;
       exec_argv[2] = NULL;
       clear_display();

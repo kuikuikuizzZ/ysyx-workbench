@@ -61,4 +61,8 @@ typedef uint64_t Uint64;
 #define SDLK_y   SDLK_Y
 #define SDLK_z   SDLK_Z
 
+#define UnImplemented() do { \
+  assert(0 && "Unimplemented SDL API"); \
+} while (0)
+
 #endif

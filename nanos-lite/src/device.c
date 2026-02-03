@@ -24,14 +24,16 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   size_t key_size =0;
   if (ev.keycode == AM_KEY_NONE)  {
     return 0; }
-  while(ev.keycode != AM_KEY_RETURN && ev.keycode != AM_KEY_NONE){
+  while( ev.keycode != AM_KEY_NONE){
    
-    if (ev.keydown){
-      memcpy(buf+key_size, keyname[ev.keycode], sizeof(keyname[ev.keycode]));
-      key_size += sizeof(keyname[ev.keycode]); 
-      //  ((char *)buf)[key_size]=ev.keycode
-      //  key_size++;
-    }   
+    // if (ev.keydown){
+    //   memcpy(buf+key_size, keyname[ev.keycode], sizeof(keyname[ev.keycode]));
+    //   key_size += sizeof(keyname[ev.keycode]); 
+    //   //  ((char *)buf)[key_size]=ev.keycode
+    //   //  key_size++;
+    // } 
+    int len_written = sprintf((char *)buf + key_size, "%s %s\n", ev.keydown ? "kd" : "ku", keyname[ev.keycode]);
+    key_size += len_written;
     ev=io_read(AM_INPUT_KEYBRD);
   } 
   ((char *)buf)[key_size] = '\0';

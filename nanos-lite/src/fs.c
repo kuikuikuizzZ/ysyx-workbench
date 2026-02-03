@@ -102,6 +102,7 @@ int fs_open(const char *pathname, int flags, int mode) {
       return i;
     }
   }
+  Log("Cannot find file %s\n", pathname);
   assert("file not found");
   return -1;
 }

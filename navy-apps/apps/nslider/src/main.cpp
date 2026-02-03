@@ -2,6 +2,7 @@
 #include <SDL_bmp.h>
 #include <stdio.h>
 #include <assert.h>
+#include <unistd.h>
 
 #define W 400
 #define H 300
@@ -71,6 +72,7 @@ int main() {
         case SDLK_DOWN: next(rep); rep = 0; g = 0; break;
         case SDLK_K:
         case SDLK_UP: prev(rep); rep = 0; g = 0; break;
+        case SDLK_Q:  printf("Quitting nslider\n"); break;
         case SDLK_G:
           g ++;
           if (g > 1) {
