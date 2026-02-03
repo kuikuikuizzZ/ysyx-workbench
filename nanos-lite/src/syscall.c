@@ -25,6 +25,7 @@ int sys_execve(const char *fname, char * const argv[], char *const envp[]){
 }
 
 void sys_exit(int code){
+  yield();
   sys_execve("/bin/nterm", NULL, NULL);
 }
 

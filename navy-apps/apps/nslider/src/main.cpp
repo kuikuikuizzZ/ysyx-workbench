@@ -81,6 +81,7 @@ int main() {
           }
           break;
       }
+      if (e.key.keysym.sym == SDLK_Q) break;
     }
   }
 

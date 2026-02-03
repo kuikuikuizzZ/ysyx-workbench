@@ -56,12 +56,12 @@ Context* context_kload(PCB *p, void (*entry)(void *), void *arg) {
 
 
 void init_proc() {
-  // context_kload(&pcb[0], hello_fun, (void *)"A");
-  // context_uload(&pcb[1], "/bin/bmp-test");
+  context_kload(&pcb[0], hello_fun, (void *)"A");
+  context_uload(&pcb[1], "/bin/nterm");
   switch_boot_pcb();
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(&pcb[0], "/bin/event-test");
+  // naive_uload(&pcb[0], "/bin/nterm");
 }
 

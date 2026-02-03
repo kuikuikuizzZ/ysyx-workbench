@@ -2,6 +2,7 @@
 #include <elf.h>
 #include <ramdisk.h>
 #include <fs.h> 
+#include <loader.h>
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
 # define Elf_Phdr Elf64_Phdr
@@ -19,7 +20,8 @@ int elf_check_file(Elf_Ehdr *header){
 static uintptr_t loader(PCB *pcb, const char *filename) {
   int fd = fs_open(filename, 0, 0);
   if (fd < 0) {
-    panic("cannot open file %s\n", filename);
+    Log("cannot open file %s\n", filename);
+    naive_uload(NULL,"/bin/nterm");  
   }
   Elf_Ehdr ehdr;
   if (fs_read(fd,&ehdr,sizeof(ehdr)) != sizeof(ehdr)) {
