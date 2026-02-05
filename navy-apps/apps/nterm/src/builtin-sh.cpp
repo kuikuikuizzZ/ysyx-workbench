@@ -65,3 +65,83 @@ void builtin_sh_run() {
     refresh_terminal();
   }
 }
+
+
+// static int msh_split(char *cmd, rt_size_t length, char *argv[FINSH_ARG_MAX])
+// {
+//     char *ptr;
+//     rt_size_t position;
+//     rt_size_t argc;
+//     rt_size_t i;
+
+//     ptr = cmd;
+//     position = 0;
+//     argc = 0;
+
+//     while (position < length)
+//     {
+//         /* strip bank and tab */
+//         while ((*ptr == ' ' || *ptr == '\t') && position < length)
+//         {
+//             *ptr = '\0';
+//             ptr ++;
+//             position ++;
+//         }
+
+//         if (argc >= FINSH_ARG_MAX)
+//         {
+//             rt_kprintf("Too many args ! We only Use:\n");
+//             for (i = 0; i < argc; i++)
+//             {
+//                 rt_kprintf("%s ", argv[i]);
+//             }
+//             rt_kprintf("\n");
+//             break;
+//         }
+
+//         if (position >= length) break;
+
+//         /* handle string */
+//         if (*ptr == '"')
+//         {
+//             ptr ++;
+//             position ++;
+//             argv[argc] = ptr;
+//             argc ++;
+
+//             /* skip this string */
+//             while (*ptr != '"' && position < length)
+//             {
+//                 if (*ptr == '\\')
+//                 {
+//                     if (*(ptr + 1) == '"')
+//                     {
+//                         ptr ++;
+//                         position ++;
+//                     }
+//                 }
+//                 ptr ++;
+//                 position ++;
+//             }
+//             if (position >= length) break;
+
+//             /* skip '"' */
+//             *ptr = '\0';
+//             ptr ++;
+//             position ++;
+//         }
+//         else
+//         {
+//             argv[argc] = ptr;
+//             argc ++;
+//             while ((*ptr != ' ' && *ptr != '\t') && position < length)
+//             {
+//                 ptr ++;
+//                 position ++;
+//             }
+//             if (position >= length) break;
+//         }
+//     }
+
+//     return argc;
+// }

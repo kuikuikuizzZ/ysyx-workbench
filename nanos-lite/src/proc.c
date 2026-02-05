@@ -1,7 +1,7 @@
 #include <proc.h>
 #include <loader.h>
 
-#define MAX_NR_PROC 4
+#define MAX_NR_PROC 10
 
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
@@ -52,14 +52,15 @@ Context* schedule(Context *prev) {
 
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, (void *)"A");
-  // context_uload(&pcb[0], "/bin/hello");
-
-  context_uload(&pcb[1], "/bin/hello", (char *[]){ "aaa",NULL }, (char *[]){ "vvv",NULL });
+  // context_kload(&pcb[0], hello_fun, (void *)"A");
+  // context_uload(&pcb[1], "/bin/hello",NULL, NULL);
+  // context_uload(&pcb[1], "/bin/hello",(char *[]){ "aaa", NULL}, (char *[]){ "vvv",NULL });
+  // context_uload(&pcb[0], "/bin/hello", (char *[]){ "bbb", NULL}, (char *[]){ "vvv",NULL });
+  context_uload(&pcb[0], "/bin/exec-test", (char *[]){ "/bin/exec-test" }, (char *[]){ "vvv",NULL });
   switch_boot_pcb();
   Log("Initializing processes...");
 
   // load program here
-  // naive_uload(&pcb[0], "/bin/nterm");
+  // naive_uload(&pcb[0], "/bin/exec-test");
 }
 

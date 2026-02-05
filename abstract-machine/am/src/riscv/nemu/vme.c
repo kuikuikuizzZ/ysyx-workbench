@@ -70,7 +70,6 @@ void __am_switch(Context *c) {
 void map(AddrSpace *as, void *va, void *pa, int prot) {
 }
 
-// #define ALIGN(A,N) ((A)  & ~((N) - 1))
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   Context *c  = kstack.end-sizeof(Context);              // ? pointer kstart 
   c->mstatus  = 0x1800;   

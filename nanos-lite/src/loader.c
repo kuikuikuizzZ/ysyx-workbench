@@ -3,6 +3,8 @@
 #include <ramdisk.h>
 #include <fs.h> 
 #include <loader.h>
+#include <memory.h>
+
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
 # define Elf_Phdr Elf64_Phdr
@@ -74,13 +76,13 @@ Context* context_uload (PCB *p, const char *filename, char *const argv[], char *
     envc++;
   }
     
-  uintptr_t stk = ((uintptr_t)heap.end +sizeof(uintptr_t))-4;
-
-  stk = (uintptr_t)ALIGN(stk, 4);
+  void* stk = new_page(8); // 8 pages for user stack
+  // stack grows downward, return the start address
+  stk += STACK_SIZE;
   stk -= envp_len + argv_len + 4; // 4 bytes for argc
-  uintptr_t stk_start = stk;
-  uintptr_t envp_start = stk + 4 + argv_len;
-  uintptr_t argv_start = stk + 4;
+  uintptr_t stk_start =  (uintptr_t)stk;
+  uintptr_t envp_start = (uintptr_t)stk + 4 + argv_len;
+  uintptr_t argv_start = (uintptr_t)stk + 4;
   *(uint32_t*)stk = argc;
   if (argv != NULL) memcpy((void*)(stk + 4), argv, argv_len);
   if (envp != NULL) memcpy((void*)(stk + 4 + argv_len), envp, envp_len);
