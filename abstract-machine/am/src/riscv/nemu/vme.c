@@ -2,6 +2,7 @@
 #include <nemu.h>
 #include <klib.h>
 
+
 static AddrSpace kas = {};
 static void* (*pgalloc_usr)(int) = NULL;
 static void (*pgfree_usr)(void*) = NULL;
@@ -69,9 +70,10 @@ void __am_switch(Context *c) {
 void map(AddrSpace *as, void *va, void *pa, int prot) {
 }
 
+// #define ALIGN(A,N) ((A)  & ~((N) - 1))
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
-  Context *c = heap.end - sizeof(Context);
-  c-> mepc = (uint32_t)entry;
-  c-> gpr[10] = (uintptr_t)heap.end;
+  Context *c  = kstack.end-sizeof(Context);              // ? pointer kstart 
+  c->mstatus  = 0x1800;   
+  c->mepc     = (uint32_t)entry;             // mepc is set to entry 
   return c;
 }

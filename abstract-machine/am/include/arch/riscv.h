@@ -24,4 +24,6 @@ struct Context {
 #define GPR4 gpr[12]
 #define GPRx gpr[10]
 
+#define GPRSP gpr[2]
+
 #endif

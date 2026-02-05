@@ -49,15 +49,13 @@ Context* schedule(Context *prev) {
   return current->cp; 
 }
 
-Context* context_kload(PCB *p, void (*entry)(void *), void *arg) {
-  p->cp = kcontext((Area) {  p->stack, p+1 }, entry, arg);
-  return p->cp;
-}
 
 
 void init_proc() {
   context_kload(&pcb[0], hello_fun, (void *)"A");
-  context_uload(&pcb[1], "/bin/nterm");
+  // context_uload(&pcb[0], "/bin/hello");
+
+  context_uload(&pcb[1], "/bin/hello", (char *[]){ "aaa",NULL }, (char *[]){ "vvv",NULL });
   switch_boot_pcb();
   Log("Initializing processes...");
 

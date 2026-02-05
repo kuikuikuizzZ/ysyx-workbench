@@ -12,7 +12,6 @@
 #endif
 
 #define ELFMAG "\177ELF"
-
 int elf_check_file(Elf_Ehdr *header){
     return memcmp(header->e_ident,ELFMAG, 4);
 }
@@ -56,8 +55,46 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
-Context* context_uload (PCB *p, const char *filename) {
+#define ALIGN(A,N) ((A)  & ~((N) - 1))
+
+Context* context_uload (PCB *p, const char *filename, char *const argv[], char *const envp[]) {
+  uint32_t argc = 0 ;
+  uint32_t envc = 0 ;
+  uint32_t argv_len = 0;
+  uint32_t envp_len = 0;
+  // stk -= STACK_SIZE;
+  while (argv != NULL && argv[argc])
+  {
+    argv_len += (strlen(argv[argc]) + 1);
+    argc++;
+  }
+  while (envp != NULL && envp[envc])
+  {
+    envp_len += (strlen(envp[envc]) + 1);
+    envc++;
+  }
+    
+  uintptr_t stk = ((uintptr_t)heap.end +sizeof(uintptr_t))-4;
+
+  stk = (uintptr_t)ALIGN(stk, 4);
+  stk -= envp_len + argv_len + 4; // 4 bytes for argc
+  uintptr_t stk_start = stk;
+  uintptr_t envp_start = stk + 4 + argv_len;
+  uintptr_t argv_start = stk + 4;
+  *(uint32_t*)stk = argc;
+  if (argv != NULL) memcpy((void*)(stk + 4), argv, argv_len);
+  if (envp != NULL) memcpy((void*)(stk + 4 + argv_len), envp, envp_len);
+
   uintptr_t entry = loader(p, filename);
-  p->cp = ucontext(NULL, (Area) {  p->stack, p+1 }, (void*)entry);
+  p->cp = ucontext(NULL, (Area) { p->stack, p->stack+STACK_SIZE   }, (void*)entry);
+  p->cp->GPRx = (uintptr_t)stk_start;
+  p->cp->GPR3 = (uintptr_t)argv_start;
+  p->cp->GPR4 = (uintptr_t)envp_start;
+  // should not set sp directly, should not suppose ISA is riscv
+  // p->cp->GPRSP = (uintptr_t)stk;
+  return p->cp;
+}
+Context* context_kload(PCB *p, void (*entry)(void *), void *arg) {
+  p->cp = kcontext((Area) {  p->stack, p+1 }, entry, arg);
   return p->cp;
 }
