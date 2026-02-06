@@ -10,7 +10,9 @@ void* new_page(size_t nr_page) {
 #ifdef HAS_VME
 static void* pg_alloc(int n) {
   size_t nr_page = ROUNDUP(n, PGSIZE) / PGSIZE;
-  return new_page(nr_page);
+  void *p = new_page(nr_page);
+  memset(p, 0, nr_page * PGSIZE);
+  return p
 }
 #endif
 
@@ -26,7 +28,6 @@ int mm_brk(uintptr_t brk) {
 void init_mm() {
   pf = (void *)ROUNDUP(heap.start, PGSIZE);
   Log("free physical pages starting from %p", pf);
-
 #ifdef HAS_VME
   vme_init(pg_alloc, free_page);
 #endif

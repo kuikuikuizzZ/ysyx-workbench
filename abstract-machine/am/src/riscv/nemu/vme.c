@@ -68,6 +68,29 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
+  uintptr_t pt = (uint32_t *)as->ptr;
+  assert(pt & 0xfff == 0); // page aligned
+  vpn1 = ((uintptr_t)va >> 22) & 0x3ff;
+  vpn0 = ((uintptr_t)va >> 12) & 0x3ff;
+
+  
+  uintptr_t pt1 = (uintptr_t)(pt | (vpn1 << 2));
+  uintptr_t pte1;
+  // pt1 is valid entry?
+  if (*pt1 & 0x1 == 0) {
+     pte1 = (uintptr_t)pgalloc_usr(PGSIZE);
+     *pt1 = pte1  | 0x1;
+  } else {
+    // pte1 is the physical address of the page table
+    pte1 = (*pt1) & ~0xfff;
+  }
+  assert((pte1 & 0xfff) == 0);
+
+  
+  uintptr_t pt0 = (uintptr_t)(pte1 | (vpn0 << 2));
+  // pte0 is the physical address of the page, xwr = 111, valid = 1
+  uintptr_t pte0 = (pa & ~0x3ff) | 0xf;
+  *pt0 = pte0;
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {

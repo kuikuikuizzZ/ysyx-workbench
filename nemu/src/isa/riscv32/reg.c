@@ -32,6 +32,7 @@ const CSR_INFO csr_info[USED_CSR_NUM]= {
   {.idx=0x305,.name="MTVEC"},
   {.idx=0x341,.name="MEPC"},
   {.idx=0x342,.name="MCAUSE"},
+  {.idx=0x180,.name="SATP"},
 };
 
 void isa_reg_display() {
