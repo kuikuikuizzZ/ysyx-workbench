@@ -16,6 +16,7 @@
 #include <isa.h>
 #include <memory/vaddr.h>
 #include <memory/paddr.h>
+#include "../local-include/reg.h" 
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   switch (isa_mmu_check(vaddr,len,type)){
@@ -23,16 +24,19 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
     case MMU_DIRECT: return vaddr;
     case MMU_TRANSLATE: break;
   };
-  paddr_t pt1_addr = (csr[STAP]<<10) & ~0x3ff; // TODO: add real translation here
+  paddr_t pt1_addr = (csr(SATP)<<12) & ~0x3ff; // TODO: add real translation here
   // page table walk
-  paddr_t pte1_addr = pt1_addr | (vaddr>>22 & 0x3ff);
-  word_t pte1 = *pte1_addr;
-  assert(pte1 & 0x1,"Invalid page table 1 entry: " FMT_PADDR, vaddr); // valid bit
-  paddr_t pt0_addr = (pte1 & ~0x3ff);
-  paddr_t pte0_addr = pt0_addr | (vaddr>>12 & 0x3ff);
-  word_t  pte0 = *pte0_addr;
-  assert(pte0 & 0x1,"Invalid page table 0 entry: " FMT_PADDR, vaddr); // valid bit
-  paddr_t paddr = (pte0 & ~0xfff) | (vaddr & 0xfff);
+  uintptr_t vpn1 = (vaddr>>22) & 0x3ff ;
+  uintptr_t vpn0 = (vaddr>>12) & 0x3ff;
+  paddr_t pte1_addr = pt1_addr | (vpn1<<2);
+  word_t pte1 = paddr_read(pte1_addr, 4);   // pte should be 4 bytes
+  Assert(pte1 & 0x1,"Invalid page table 1 addr " FMT_PADDR " entry: " FMT_PADDR,pte1_addr, vaddr); // valid bit
+  paddr_t pt0_addr = (pte1<<2) & ~0xfff;
+  paddr_t pte0_addr = pt0_addr | (vpn0 <<2);
+  word_t  pte0 = paddr_read(pte0_addr, 4);   // pte should be 4 bytes
+  Assert(pte0 & 0x1,"Invalid page table 0 entry: " FMT_PADDR, vaddr); // valid bit
+  paddr_t paddr = ((pte0<<2) & ~0xfff) | (vaddr & 0xfff);
+  Assert(paddr == vaddr,"Page table translation error: va " FMT_PADDR " -> pa " FMT_PADDR, vaddr, paddr);
   return paddr;
 }
   

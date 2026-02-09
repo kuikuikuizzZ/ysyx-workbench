@@ -12,7 +12,7 @@ static void* pg_alloc(int n) {
   size_t nr_page = ROUNDUP(n, PGSIZE) / PGSIZE;
   void *p = new_page(nr_page);
   memset(p, 0, nr_page * PGSIZE);
-  return p
+  return p;
 }
 #endif
 

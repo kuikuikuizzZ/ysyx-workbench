@@ -30,7 +30,6 @@ bool vme_init(void* (*pgalloc_f)(int), void (*pgfree_f)(void*)) {
   pgfree_usr = pgfree_f;
 
   kas.ptr = pgalloc_f(PGSIZE);
-
   int i;
   for (i = 0; i < LENGTH(segments); i ++) {
     void *va = segments[i].start;
@@ -38,10 +37,9 @@ bool vme_init(void* (*pgalloc_f)(int), void (*pgfree_f)(void*)) {
       map(&kas, va, va, 0);
     }
   }
-
   set_satp(kas.ptr);
   vme_enable = 1;
-
+  printf("vme init done");
   return true;
 }
 
@@ -68,33 +66,36 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
-  uintptr_t pt = (uint32_t *)as->ptr;
-  assert(pt & 0xfff == 0); // page aligned
-  vpn1 = ((uintptr_t)va >> 22) & 0x3ff;
-  vpn0 = ((uintptr_t)va >> 12) & 0x3ff;
+  // printf("map: va: %p, pa: %p\n", va, pa);
+  uintptr_t pt1 = (uintptr_t )as->ptr;
+  assert((pt1 & 0xfff) == 0); // page aligned
+  uintptr_t vpn1 = ((uintptr_t)va >> 22) & 0x3ff;
+  uintptr_t vpn0 = ((uintptr_t)va >> 12) & 0x3ff;
 
   
-  uintptr_t pt1 = (uintptr_t)(pt | (vpn1 << 2));
-  uintptr_t pte1;
-  // pt1 is valid entry?
-  if (*pt1 & 0x1 == 0) {
-     pte1 = (uintptr_t)pgalloc_usr(PGSIZE);
-     *pt1 = pte1  | 0x1;
+  uintptr_t* pte1 = (uintptr_t*)(pt1 | (vpn1 << 2));
+  uintptr_t pt0;
+  // pte1 is valid entry?
+  if ((*pte1 & 0x1) == 0) {
+     pt0 = (uintptr_t)pgalloc_usr(PGSIZE);
+     *pte1 = (pt0 >> 2)  | 0x1;
+    //  printf("[riscv] map: pt1 %p, pte1_addr: %p, *pte1: %x\n",pt0, pte1, *pte1);
   } else {
     // pte1 is the physical address of the page table
-    pte1 = (*pt1) & ~0xfff;
+    pt0 = (*pte1 << 2) & ~0xfff;
   }
-  assert((pte1 & 0xfff) == 0);
+  assert((pt0 & 0xfff) == 0);
 
   
-  uintptr_t pt0 = (uintptr_t)(pte1 | (vpn0 << 2));
+  uintptr_t* pte0 = (uintptr_t*)(pt0 | (vpn0 << 2));
   // pte0 is the physical address of the page, xwr = 111, valid = 1
-  uintptr_t pte0 = (pa & ~0x3ff) | 0xf;
-  *pt0 = pte0;
+  *pte0 = ((uintptr_t)pa>>2 & ~0x3ff) | 0xf;
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   Context *c  = kstack.end-sizeof(Context);              // ? pointer kstart 
+  c->pdir     = as->ptr;
+  c->mcause   = 11;
   c->mstatus  = 0x1800;   
   c->mepc     = (uint32_t)entry;             // mepc is set to entry 
   return c;

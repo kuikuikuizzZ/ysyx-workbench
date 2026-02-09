@@ -77,6 +77,7 @@ static int cmd_info(char *args) {
 
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
+    isa_csr_display();
   }else if(strcmp(ptr,"w")==0){
     WP* cur = get_head();
     while (cur != NULL){

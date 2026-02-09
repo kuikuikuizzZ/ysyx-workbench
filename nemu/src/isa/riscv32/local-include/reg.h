@@ -21,7 +21,7 @@
 #define USED_CSR_NUM 7
 
 typedef enum  {
-  STAP    = 0x180, 
+  SATP    = 0x180, 
   MSTATUS = 0x300,
   MTVEC   = 0x305,
   MEPC    = 0x341,

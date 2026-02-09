@@ -60,6 +60,8 @@ void naive_uload(PCB *pcb, const char *filename) {
 #define ALIGN(A,N) ((A)  & ~((N) - 1))
 
 Context* context_uload (PCB *p, const char *filename, char *const argv[], char *const envp[]) {
+  protect(&p->as);
+
   uint32_t argc = 0 ;
   uint32_t envc = 0 ;
   uint32_t argv_len = 0;
@@ -88,7 +90,8 @@ Context* context_uload (PCB *p, const char *filename, char *const argv[], char *
   if (envp != NULL) memcpy((void*)(stk + 4 + argv_len), envp, envp_len);
 
   uintptr_t entry = loader(p, filename);
-  p->cp = ucontext(NULL, (Area) { p->stack, p->stack+STACK_SIZE   }, (void*)entry);
+  AddrSpace *as = &p->as;
+  p->cp = ucontext(as, (Area) { p->stack, p->stack+STACK_SIZE   }, (void*)entry);
   p->cp->GPRx = (uintptr_t)stk_start;
   p->cp->GPR3 = (uintptr_t)argv_start;
   p->cp->GPR4 = (uintptr_t)envp_start;
