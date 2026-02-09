@@ -16,13 +16,13 @@ static Area segments[] = {      // Kernel memory mappings
 
 static inline void set_satp(void *pdir) {
   uintptr_t mode = 1ul << (__riscv_xlen - 1);
-  asm volatile("csrw satp, %0" : : "r"(mode | ((uintptr_t)pdir >> 12)));
+  asm volatile("csrw satp, %0" : : "r"(mode | ((uintptr_t)pdir >> 10)));
 }
 
 static inline uintptr_t get_satp() {
   uintptr_t satp;
   asm volatile("csrr %0, satp" : "=r"(satp));
-  return satp << 12;
+  return satp << 10;
 }
 
 bool vme_init(void* (*pgalloc_f)(int), void (*pgfree_f)(void*)) {
@@ -78,18 +78,18 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   // pte1 is valid entry?
   if ((*pte1 & 0x1) == 0) {
      pt0 = (uintptr_t)pgalloc_usr(PGSIZE);
-     *pte1 = (pt0 >> 2)  | 0x1;
+     *pte1 = (pt0 )  | 0x1;
     //  printf("[riscv] map: pt1 %p, pte1_addr: %p, *pte1: %x\n",pt0, pte1, *pte1);
   } else {
     // pte1 is the physical address of the page table
-    pt0 = (*pte1 << 2) & ~0xfff;
+    pt0 = (*pte1 ) & ~0xfff;
   }
   assert((pt0 & 0xfff) == 0);
 
   
   uintptr_t* pte0 = (uintptr_t*)(pt0 | (vpn0 << 2));
   // pte0 is the physical address of the page, xwr = 111, valid = 1
-  *pte0 = ((uintptr_t)pa>>2 & ~0x3ff) | 0xf;
+  *pte0 = ((uintptr_t)pa & ~0x3ff) | 0xf;
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
