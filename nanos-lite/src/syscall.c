@@ -3,6 +3,7 @@
 #include <fs.h>
 #include <proc.h>
 #include <loader.h>
+#include <memory.h>
 
 void halt(int code);
 struct timeval
@@ -15,8 +16,8 @@ int sys_gettimeofday(struct timeval* tv, void* tz){
   tv->tv_sec = io_read(AM_TIMER_UPTIME).us/1000000;
   return 0;
 }
-intptr_t sys_brk(int* addr, intptr_t increment){
-  return 0;
+intptr_t sys_brk(uintptr_t brk, intptr_t increment){
+  return mm_brk(brk);
 }
 
 int sys_execve(const char *fname, char * const argv[], char *const envp[]){
@@ -59,9 +60,9 @@ void do_syscall(Context *c) {
   #endif
   switch (a[0]) {
     // case SYS_exit: sys_exit(a[1]); break;
-    case SYS_exit: yield(); c->GPRx=0;  break;
+    case SYS_exit: halt(0); c->GPRx=0;  break;
     case SYS_yield: yield(); c->GPRx=0; break;
-    case SYS_brk: c->GPRx = sys_brk((int*)a[1],a[2]); break;
+    case SYS_brk: c->GPRx = sys_brk(a[1],a[2]); break;
     case SYS_write: c->GPRx = sys_write(a[1],(void*)a[2],a[3]); break;
     case SYS_open: c->GPRx = fs_open((const char*)a[1],a[2],a[3]); break;
     case SYS_read: c->GPRx = sys_read(a[1],(void*)a[2],a[3]); break;

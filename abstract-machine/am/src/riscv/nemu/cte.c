@@ -44,6 +44,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   c->mstatus  = 0x1800;   
   c->mepc     = (uint32_t)entry;             // mepc is set to entry 
   c->GPRx     =(uint32_t)arg;              // a0 = &arg
+  c->pdir     = NULL;
   return c;
 }
 

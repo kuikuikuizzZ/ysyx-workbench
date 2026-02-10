@@ -12,13 +12,12 @@ ifeq ($(MAKECMDGOALS),)
   MAKECMDGOALS  = app
   .DEFAULT_GOAL = app
 endif
-
+VME=1
 ### Override checks when `make clean/clean-all/html/init`
 ifeq ($(findstring $(MAKECMDGOALS),clean|clean-all|html|init),)
 
 ### Print build info message
 $(info # Building $(NAME)-$(MAKECMDGOALS) [$(ISA)])
-
 ### Check: environment variable `$NAVY_HOME` looks sane
 ifeq ($(wildcard $(NAVY_HOME)/libs/libos/src/syscall.h),)
   $(error $$NAVY_HOME must be a Navy-apps repo)
@@ -181,7 +180,7 @@ APPS = nslider menu nterm bird
 TESTS = dummy file-test hello timer-test event-test bmp-test exec-test
 
 fsimg: $(addprefix apps/, $(APPS)) $(addprefix tests/, $(TESTS))
-	-for t in $^; do $(MAKE) -s -C $(NAVY_HOME)/$$t install; done
+	-for t in $^; do $(MAKE) -s -C $(NAVY_HOME)/$$t VME=$(VME) install; done
 
 RAMDISK = build/ramdisk.img
 RAMDISK_H = build/ramdisk.h

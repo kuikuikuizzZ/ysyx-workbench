@@ -55,9 +55,11 @@ void init_proc() {
   // context_kload(&pcb[0], hello_fun, (void *)"A");
   // context_uload(&pcb[1], "/bin/hello",NULL, NULL);
   Log("Initializing context_uload...");
-  // context_uload(&pcb[0], "/bin/hello", (char *[]){ "bbb", NULL}, (char *[]){ "vvv",NULL });
+  context_uload(&pcb[0], "/bin/hello", (char *[]){ "bbb", NULL}, (char *[]){ "vvv",NULL });
   // context_uload(&pcb[1], "/bin/hello",(char *[]){ "aaa", NULL}, (char *[]){ "vvv",NULL });
-  context_uload(&pcb[0], "/bin/exec-test", (char *[]){ "/bin/exec-test" }, (char *[]){ "vvv",NULL });
+  // context_uload(&pcb[0], "/bin/exec-test", (char *[]){ "/bin/exec-test" }, (char *[]){ "vvv",NULL });
+  // context_uload(&pcb[0], "/bin/dummy",(char *[]){ "aaa", NULL}, (char *[]){ "vvv",NULL });
+
   switch_boot_pcb();
   Log("Initializing processes...");
 

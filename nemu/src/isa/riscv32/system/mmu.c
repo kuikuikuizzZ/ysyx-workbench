@@ -36,7 +36,6 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   word_t  pte0 = paddr_read(pte0_addr, 4);   // pte should be 4 bytes
   Assert(pte0 & 0x1,"Invalid page table 0 entry: " FMT_PADDR, vaddr); // valid bit
   paddr_t paddr = ((pte0) & ~0xfff) | (vaddr & 0xfff);
-  Assert(paddr == vaddr,"Page table translation error: va " FMT_PADDR " -> pa " FMT_PADDR, vaddr, paddr);
   return paddr;
 }
   
