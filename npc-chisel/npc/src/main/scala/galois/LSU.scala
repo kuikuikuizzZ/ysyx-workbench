@@ -189,11 +189,14 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     // read 
     // lsu should support mis-aligned access? or should based on slave type? 
     // val mis_aligned = Mux(mem_en && addr (1,0) =/= 0.U, true.B, false.B)
-    val req_typ_reg = ResultHoldBypass(mem_ctrl.mem_typ, to_axi_fire)
-    val req_addr    = ResultHoldBypass(io.axi_bus.req.bits.raddr,to_axi_fire)
-    val reg_wb_ctrl = ResultHoldBypass(io.in.bits.wb_ctrl, to_axi_fire) 
-    val reg_inst    = ResultHoldBypass(io.in.bits, to_axi_fire)
+    val inst_redirect   = Mux(io.redirect,0.U.asTypeOf(new InstCtrlBlock),io.in.bits)
+    val req_typ_reg     = ResultHoldBypass(mem_ctrl.mem_typ, to_axi_fire)
+    val req_addr        = ResultHoldBypass(io.axi_bus.req.bits.raddr,to_axi_fire)
+    val reg_wb_ctrl     = ResultHoldBypass(io.in.bits.wb_ctrl, to_axi_fire) 
+    val reg_inst        = ResultHoldBypass(inst_redirect, to_axi_fire || io.redirect)
     
+
+
     // forward load
     val w_typ = io.forward_store.mem_ctrl.mem_typ
     val waddr = io.forward_store.alu_out
@@ -230,7 +233,6 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     val mem_port_resp_valid = io.axi_bus.resp.valid && state === s_bus_req 
     val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    mem_port_resp_valid)
     val mem_exception   = Mux(in_clint, 0.U,                    (io.axi_bus.resp.bits.resp))
-    val mem_ready       = (!mem_ctrl.mem_val) || (mem_ctrl.mem_val && mem_resp_valid)
     val mem_data        = Wire(UInt(conf.xlen.W))
     mem_data            := Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
     dontTouch(mem_data)

@@ -50,6 +50,8 @@ class ALUCtrlIO (implicit val conf: Config) extends OOOBundle {
     val op1_sel    = (UInt(OP1_X.getWidth.W))
     val op2_sel    = (UInt(OP2_X.getWidth.W))
     val alu_fun    = (UInt(ALU_X.getWidth.W))
+    val rs1_oen     = (Bool())
+    val rs2_oen     = (Bool())
 }
 
 class WBCtrlIO (implicit val conf: Config) extends OOOBundle {
@@ -319,6 +321,8 @@ object InstCtrlBlock {
       newIcb.alu_ctrl.op1_sel := ac.op1_sel
       newIcb.alu_ctrl.op2_sel := ac.op2_sel
       newIcb.alu_ctrl.alu_fun := ac.alu_fun
+      newIcb.alu_ctrl.rs1_oen := ac.rs1_oen
+      newIcb.alu_ctrl.rs2_oen := ac.rs2_oen
     }
     mem_ctrl.foreach { mc =>
       newIcb.mem_ctrl.mem_val := mc.mem_val
@@ -384,6 +388,8 @@ object InstCtrlBlock {
   def aluOp(
     op1_sel: UInt,
     op2_sel: UInt,
+    rs1_oen: Bool,
+    rs2_oen: Bool,
     alu_fun: UInt,
     base: InstCtrlBlock
   )(implicit conf: Config): InstCtrlBlock = {
@@ -392,6 +398,8 @@ object InstCtrlBlock {
     alu_ctrl.op1_sel := op1_sel
     alu_ctrl.op2_sel := op2_sel
     alu_ctrl.alu_fun := alu_fun
+    alu_ctrl.rs1_oen := rs1_oen
+    alu_ctrl.rs2_oen := rs2_oen
     
     copy(
       base = (base),

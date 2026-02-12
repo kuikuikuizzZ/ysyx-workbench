@@ -88,6 +88,13 @@ class RegMap (implicit val conf: Config)extends OOOModule {
 
     when (io.redirect){
         for (i <- 0 until ARC_SIZE) {
+            // use cmt table rollback maptable
+            // instA retired (a redirect inst) also should update maptable in one cycle
+            when(i.U === retireA.wbaddr){
+                mapTable.write(true.B, i.U, retireA.prs_wbaddr)
+            } .otherwise{
+                mapTable.write(true.B, i.U, cmtTable.read(i.U))
+            }
             mapTable.write(retireA.wbaddr === i.U, retireA.prs_wbaddr, cmtTable.read(i.U))
         }
         prfCtrl.rollback(retireA.cmt_wbaddr, retireA.prs_wbaddr) 

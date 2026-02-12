@@ -147,8 +147,8 @@ class Decoder(implicit val conf: Config) extends Module
                   BLT    -> List(Y, BR_LT , OP1_RS1, OP2_SBTYPE, OEN_1, OEN_1, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.N, N),
                   BLTU   -> List(Y, BR_LTU, OP1_RS1, OP2_SBTYPE, OEN_1, OEN_1, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.N, N),
 
-                  CSRRW  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.W, N),
-                  CSRRS  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_1, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.S, N),
+                  CSRRW  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_0, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.W, N),
+                  CSRRS  -> List(Y, BR_N  , OP1_RS1, OP2_X     , OEN_1, OEN_0, ALU_COPY_1,WB_CSR,REN_1, MEN_0, M_X  , MT_X, CSR.S, N),
 
                   ECALL  -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
                   MRET   -> List(Y, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X   , WB_X  , REN_0, MEN_0, M_X  , MT_X, CSR.I, N),
@@ -165,9 +165,9 @@ class Decoder(implicit val conf: Config) extends Module
    val cs_alu_fun :: cs_wb_sel :: (cs_rf_wen: Bool) :: (cs_mem_en: Bool) :: cs_mem_fcn :: cs_msk_sel :: cs_csr_cmd :: (cs_fencei: Bool) :: Nil = cs0
 
    /////// Register File Interface //////
-   val dec_rs1_addr = dec_reg_inst(RS1_MSB, RS1_LSB)
-   val dec_rs2_addr = dec_reg_inst(RS2_MSB, RS2_LSB)
-   val dec_wbaddr   = dec_reg_inst(RD_MSB, RD_LSB)
+   val dec_rs1_addr = Mux(cs_rs1_oen === OEN_1,  dec_reg_inst(RS1_MSB, RS1_LSB), 0.U)
+   val dec_rs2_addr = Mux(cs_rs2_oen === OEN_1,  dec_reg_inst(RS2_MSB, RS2_LSB), 0.U)
+   val dec_wbaddr   = Mux(cs_rf_wen,               dec_reg_inst(RD_MSB, RD_LSB), 0.U)
             
    
    // immediates
@@ -228,7 +228,9 @@ class Decoder(implicit val conf: Config) extends Module
    val with_alu = InstCtrlBlock.aluOp(     base = with_csr,
                               alu_fun = cs_alu_fun,
                               op1_sel = cs_op1_sel,  
-                              op2_sel = cs_op2_sel)
+                              op2_sel = cs_op2_sel,
+                              rs1_oen = cs_rs1_oen,
+                              rs2_oen = cs_rs2_oen)
    val result =   InstCtrlBlock.wbOp(     base = with_alu, 
                               wb_sel = cs_wb_sel,
                               rf_wen = cs_rf_wen)

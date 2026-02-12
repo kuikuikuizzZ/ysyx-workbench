@@ -69,9 +69,11 @@ class MemQueue(implicit val conf: Config) extends OOOModule {
 
   val select = bank(dequeue_pointer)
   val dequeue_ready = io.dequeue.ready
-  io.dequeue.valid := !io.redirect && select.valid && (io.phyreg_states(select.prs1_addr) && io.phyreg_states(select.prs2_addr)) || 
-    (io.phyreg_states(select.prs1_addr) && select.csr_ctrl.csr_cmd =/= CSR.N) ||
-    (select.csr_ctrl.ebreak || select.csr_ctrl.eret)
+  io.dequeue.valid := !io.redirect && select.valid &&
+    (((io.phyreg_states(select.prs1_addr) || !select.alu_ctrl.rs1_oen ) &&
+    (io.phyreg_states(select.prs2_addr) ) || !select.alu_ctrl.rs2_oen ) || 
+    ((io.phyreg_states(select.prs1_addr)  || !select.alu_ctrl.rs1_oen ) && select.csr_ctrl.csr_cmd =/= CSR.N) ||
+    (select.csr_ctrl.ebreak || select.csr_ctrl.eret))
 
   val a_enter = !io.queue_full && io.enqueue_a.valid
   val b_enter = !io.queue_full && io.enqueue_b.valid
@@ -129,8 +131,8 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     for (i <- 0 until IQ_SIZE) {
       val entry = bank(i)
       ready_vec(i) := entry.valid && 
-                     io.phyreg_states(entry.prs1_addr) && 
-                     io.phyreg_states(entry.prs2_addr)
+                     (!entry.alu_ctrl.rs1_oen || (entry.alu_ctrl.rs1_oen && io.phyreg_states(entry.prs1_addr))) &&
+                      (!entry.alu_ctrl.rs2_oen || io.phyreg_states(entry.prs2_addr))
     }
     ready_vec.asUInt & index0_mask  // 确保第0项永不就绪
   }

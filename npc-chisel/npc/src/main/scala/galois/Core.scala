@@ -38,9 +38,10 @@ class CoreIo(implicit val conf: Config) extends Bundle
 class Core(implicit val conf: Config)extends Module
 {
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T],
-    thisIn: DecoupledIO[T]) = {
+    thisIn: DecoupledIO[T],flush: Bool) = {
+      val predOut = Mux(flush,0.U.asTypeOf(chiselTypeOf(prevOut.bits)), prevOut.bits ) 
       prevOut.ready := thisIn.ready
-      thisIn.bits := RegEnable(prevOut.bits,0.U.asTypeOf(chiselTypeOf(prevOut.bits)),prevOut.valid && thisIn.ready )
+      thisIn.bits := RegEnable(predOut,(prevOut.valid && thisIn.ready) || flush )
       thisIn.valid := prevOut.valid && thisIn.ready
   }
   val io = IO(new Bundle {
@@ -122,14 +123,14 @@ class Core(implicit val conf: Config)extends Module
   io.ebreak := cmt.io.retireA.valid && (cmt.io.retireA.csr_ctrl.ebreak)
   dontTouch(io.ebreak)
 
-  pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec)
-  pipelineConnect(decoder.io.dec_rm, rm.io.dec_rm)
-  pipelineConnect(rm.io.rm_dp, dp.io.rm_dp)
-  pipelineConnect(dp.io.dp_rr, rr.io.dp_rr)
-  pipelineConnect(dp.io.dp_rr_mem, rr.io.dp_rr_mem)
-  pipelineConnect(rr.io.rr_exe, exu.io.rr_exe)
-  pipelineConnect(rr.io.rr_exe_mem, exu.io.rr_exe_mem)
-  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem)
+  pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec,cmt.io.redirect)
+  pipelineConnect(decoder.io.dec_rm, rm.io.dec_rm, cmt.io.redirect)
+  pipelineConnect(rm.io.rm_dp, dp.io.rm_dp, cmt.io.redirect)
+  pipelineConnect(dp.io.dp_rr, rr.io.dp_rr, cmt.io.redirect)
+  pipelineConnect(dp.io.dp_rr_mem, rr.io.dp_rr_mem, cmt.io.redirect)
+  pipelineConnect(rr.io.rr_exe, exu.io.rr_exe, cmt.io.redirect)
+  pipelineConnect(rr.io.rr_exe_mem, exu.io.rr_exe_mem, cmt.io.redirect)
+  pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, cmt.io.redirect)
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(io.ebreak, true.B, false.B)
   io.core.slave.ar.ready := false.B
