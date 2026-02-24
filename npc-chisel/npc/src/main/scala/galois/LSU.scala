@@ -205,9 +205,11 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     val wmask = Mux(io.forward_store.valid, Mux(w_typ === MT_B,1.U << waddr(1,0),
                                Mux(w_typ === MT_H,3.U << waddr(1,0),15.U)), 
                                0.U)
+    val byteMasks = VecInit(Seq.tabulate(4)(i => Fill(8, wmask(i))))
+    val byteMask = Cat(byteMasks(3), byteMasks(2), byteMasks(1), byteMasks(0))
     val wdata = Mux(io.forward_store.valid, io.forward_store.rs2_data, 0.U)
      
-    val d_data      = (io.axi_bus.resp.bits.data & ~wmask) | (wdata & wmask)
+    val d_data      = (io.axi_bus.resp.bits.data & ~byteMask) | (wdata & byteMask)
     
     val aligned_resp_data = d_data >> (req_addr(1,0)<<3)
     val resp_data = MuxCase(aligned_resp_data,Seq(

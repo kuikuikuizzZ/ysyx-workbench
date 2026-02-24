@@ -202,7 +202,7 @@ class LoadPipe (implicit val conf: Config) extends CacheModule  {
   val s2_miss_state = RegInit(miss_idle)
   val s2_fix_miss   = RegEnable(s1_fix_miss, s1_fire)
   val s2_fix_resp_data  = RegEnable(io.missBus.resp.bits.data,s1_fire)
-  val need_miss_req = s1_fire && s1_miss && !s1_fix_miss
+  val need_miss_req = s1_fire && s1_miss && !s1_fix_miss && !io.stall
   
   when(s2_miss_state === miss_idle){
     when(need_miss_req) { s2_miss_state := miss_req }

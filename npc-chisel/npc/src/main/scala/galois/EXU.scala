@@ -180,7 +180,7 @@ class BJU (implicit val conf: Config) extends OOOModule with HasBPUParams {
                
    val is_jump   = exe_br_type === BR_J || exe_br_type === BR_JR
 
-   // val cond_sel = Mux(taken, PC_BRJMP, PC_4)
+   val cond_sel = Mux(taken, PC_BRJMP, PC_4)
 
    val bpu_resp            =  io.inst.br_ctrl.bpu_resp
    val br_pc_sel           = Mux(is_cond_br, PC_BRJMP, base_sel)
@@ -192,7 +192,7 @@ class BJU (implicit val conf: Config) extends OOOModule with HasBPUParams {
                                   (!bpu_resp.brIdx(groupIdx).asBool || target =/= bpu_resp.target))
    val should_redirect     =  predict_wrong && (is_jump || is_cond_br) 
 
-   val ctrl_exe_pc_sel     =  Mux(exe_br_type === BR_N || !should_redirect, PC_4,br_pc_sel)
+   val ctrl_exe_pc_sel     =  Mux(exe_br_type === BR_N || !should_redirect, cond_sel,br_pc_sel)
   
    io.out := InstCtrlBlock.bjuOp(
       pc                     = io.inst.pc,

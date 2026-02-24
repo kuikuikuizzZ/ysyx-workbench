@@ -97,7 +97,6 @@ class RegMap (implicit val conf: Config)extends OOOModule {
             } .otherwise{
                 mapTable.write(true.B, i.U, cmtTable.read(i.U))
             }
-            mapTable.write(retireA.wbaddr === i.U, retireA.prs_wbaddr, cmtTable.read(i.U))
         }
         val wen = retireA.wb_ctrl.rf_wen
         prfCtrl.rollback(wen,retireA.cmt_wbaddr, retireA.prs_wbaddr) 

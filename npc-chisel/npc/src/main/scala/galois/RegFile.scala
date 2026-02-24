@@ -84,7 +84,9 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
 
   // 使用 PriorityEncoder 替代自定义位操作
   private def genFreeList: UInt = {
-    VecInit(state.map(_ === State.Free)).asUInt
+    val freeBits = VecInit(state.map(_ === State.Free)).asUInt
+    // 通过位掩码将第 0 位清零
+    freeBits & Cat(Fill(state.length - 1, true.B), false.B)  
   }
   
   private def findFirstFree(bitVector: UInt): UInt = {

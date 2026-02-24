@@ -251,7 +251,10 @@ object InstCtrlBlock {
       icb.csr_ctrl.csr_cmd := csr_ctrl.csr_cmd
     }
     if (bju_out != null) {
-      icb.bju_out := bju_out
+      icb.bju_out.should_redirect := bju_out.should_redirect
+      icb.bju_out.taken           := bju_out.taken
+      icb.bju_out.predict_wrong   := bju_out.predict_wrong
+      icb.bju_out.redirect_type   := bju_out.redirect_type
     }
     icb
   }
@@ -340,7 +343,12 @@ object InstCtrlBlock {
       newIcb.csr_ctrl.ebreak  := cc.ebreak
     }
     bpu_resp.foreach { br => newIcb.bpu_resp := br }
-    bju_out.foreach { bo => newIcb.bju_out := bo }
+    bju_out.foreach { bo => 
+      newIcb.bju_out.should_redirect  := bo.should_redirect
+      newIcb.bju_out.taken            := bo.taken         
+      newIcb.bju_out.predict_wrong    := bo.predict_wrong  
+      newIcb.bju_out.redirect_type    := bo.redirect_type  
+    }
     // 4. 返回新实例
     newIcb
   }

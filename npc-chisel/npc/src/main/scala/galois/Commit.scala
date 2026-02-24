@@ -40,13 +40,15 @@ class Commit (implicit val conf: Config) extends OOOModule{
 
     val rob = RegInit(VecInit(Seq.fill(ROB_SIZE)(WireInit(0.U.asTypeOf(new InstCtrlBlock())))))
     val retireA = WireInit(0.U.asTypeOf(new InstCtrlBlock()))
-    val retireB = rob(dequeue_ptr + 1.U)
+    val retireB = WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     val is_store = retireA.mem_ctrl.mem_val && retireA.mem_ctrl.mem_fcn === M_XWR
     val readyA = WireInit(false.B)
     retireA := rob(dequeue_ptr)
+    retireB := rob(dequeue_ptr + 1.U)
     readyA := retireA.valid && retireA.finish && (!is_store || (is_store && io.retire_store.fire))
     dontTouch(readyA)
     dontTouch(retireA)
+    dontTouch(retireB)
     // branch, jump, exception only redirect after retire
     when (retireA.exception =/= EXC_NORMAL){
         retireA.pc_sel := PC_EXC 
@@ -54,7 +56,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
     io.redirect := readyA && ((retireA.bju_out.should_redirect) || retireA.pc_sel =/= PC_4)
 
     val retireB_exception   = retireB.exception =/= EXC_NORMAL
-    val retireB_redirect    = retireB.pc_sel =/= PC_4
+    val retireB_redirect    = retireB.bju_out.should_redirect || retireB.pc_sel =/= PC_4
     val retireB_store       = retireB.mem_ctrl.mem_val 
     val readyB = readyA && retireB.valid && retireB.finish && ~io.redirect && ~retireB_exception && ~retireB_redirect && ~retireB_store
     
