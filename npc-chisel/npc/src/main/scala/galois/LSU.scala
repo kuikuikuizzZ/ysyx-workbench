@@ -55,7 +55,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val load_unit    = Module(new LoadUnit())
     val store_unit   = Module(new StoreUnit())
     val retire_is_store = io.retire_store.bits.mem_ctrl.mem_val && io.retire_store.bits.mem_ctrl.mem_fcn === M_XWR
-    val queue        = Module(new Queue(new InstCtrlBlock, 2,pipe = true,flow=true))
+    val queue        = Module(new Queue(new InstCtrlBlock, 2,pipe = true,flow=true, hasFlush = true))
 
     axi_arb.io.out <> io.axi_bus.req
     axi_arb.io.in(0)            <> load_unit.io.axi_bus.req   
@@ -63,14 +63,16 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val deq_is_load     = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XRD
     val deq_is_store    = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XWR
     val store_inst      = Mux(deq_is_store && queue.io.deq.valid, queue.io.deq.bits, 0.U.asTypeOf(new InstCtrlBlock))
+    val load_inst       = Mux(deq_is_load && queue.io.deq.valid, queue.io.deq.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val store_out       = InstCtrlBlock.copy(base=store_inst,finish= Some(true.B))
     io.exe_mem.ready            := queue.io.enq.ready
+    queue.io.flush.get          := io.redirect
     queue.io.enq.bits           <> io.exe_mem.bits
     queue.io.enq.valid          := RegNext(io.exe_mem.valid)
     queue.io.deq.ready          := load_unit.io.in.ready || deq_is_store
 
 
-    load_unit.io.in.bits        := queue.io.deq.bits
+    load_unit.io.in.bits        := load_inst
     load_unit.io.in.valid       := deq_is_load && queue.io.deq.valid
     load_unit.io.debug          := DontCare
     load_unit.io.axi_bus.resp   <> io.axi_bus.resp
@@ -151,7 +153,7 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     switch(state){ 
         is(s_idle) {
             when(inst_is_load){
-                when(is_bus_req &&  io.axi_bus.req.ready){
+                when(is_bus_req &&  io.axi_bus.req.fire){
                     state :=s_bus_req
                 } .elsewhen(is_clint_req ){
                     state := s_clint_req
@@ -179,7 +181,7 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     io.axi_bus.req.bits.burst := BURST_FIXED
     io.axi_bus.req.bits.burstlen := 0.U // single transfer
     io.axi_bus.req.bits.raddr := addr
-    io.axi_bus.req.bits.ren   := inst_is_load
+    io.axi_bus.req.bits.ren   := inst_is_load && io.axi_bus.req.fire
     io.axi_bus.req.bits.waddr := addr
     io.axi_bus.req.bits.wen   := false.B
     io.axi_bus.req.bits.data    := 0.U

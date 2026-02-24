@@ -110,14 +110,14 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
       when(wen && addr =/= 0.U){ state(addr) := data }
   }
 
-  def rollback(freeReg: UInt, assignReg: UInt): Unit = {
+  def rollback(wen: Bool,freeReg: UInt, assignReg: UInt): Unit = {
     val newStates = VecInit(state.zipWithIndex.map { case (state, idx) =>
       val idxUint = idx.U
       MuxCase(
         Mux(state === State.Assigned, State.Assigned, State.Free), // 默认情况
         Seq(
-          (idxUint === freeReg) -> State.Free,
-          (idxUint === assignReg) -> State.Assigned
+          (idxUint === freeReg) -> Mux(wen,State.Free,state),
+          (idxUint === assignReg) -> Mux(wen,State.Assigned,state)
         )
       )
     })

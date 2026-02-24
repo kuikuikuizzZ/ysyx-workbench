@@ -204,9 +204,9 @@ class Decoder(implicit val conf: Config) extends Module
                         Mux(cs_br_type === BR_J || cs_br_type === BR_JR, RD_JAL, 
                         Mux(is_cond_br,RD_BR,RD_X))))
 
-
+   val valid = cs_val_inst && dec_reg_inst =/= BUBBLE
    val inst_ctrl_block = InstCtrlBlock.copy( base = WireInit(0.U.asTypeOf(new InstCtrlBlock())),
-                                             valid       = Some(cs_val_inst),
+                                             valid       = Some(valid),
                                              inst        = Some(dec_reg_inst),
                                              pc          = Some(dec_reg_pc),
                                              rs1_addr    = Some(dec_rs1_addr),

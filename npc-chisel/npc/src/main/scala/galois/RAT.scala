@@ -55,8 +55,10 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val prs2_addrA = WireInit(0.U)
     prs1_addrA := mapTable.read(instA.rs1_addr)
     prs2_addrA := mapTable.read(instA.rs2_addr)
-    val prs1_addrB = Mux(instB.rs1_addr === instA.wbaddr, prsWbaddrA, mapTable.read(instB.rs1_addr))
-    val prs2_addrB = Mux(instB.rs2_addr === instA.wbaddr, prsWbaddrA, mapTable.read(instB.rs2_addr))
+    val instAwen = instA.wb_ctrl.rf_wen 
+    val instBwen = instB.wb_ctrl.rf_wen
+    val prs1_addrB = Mux(instB.rs1_addr === instA.wbaddr && instAwen, prsWbaddrA, mapTable.read(instB.rs1_addr))
+    val prs2_addrB = Mux(instB.rs2_addr === instA.wbaddr && instAwen, prsWbaddrA, mapTable.read(instB.rs2_addr))
     dontTouch(prs1_addrA)
     dontTouch(prs2_addrA)
     dontTouch(instA)
@@ -97,14 +99,15 @@ class RegMap (implicit val conf: Config)extends OOOModule {
             }
             mapTable.write(retireA.wbaddr === i.U, retireA.prs_wbaddr, cmtTable.read(i.U))
         }
-        prfCtrl.rollback(retireA.cmt_wbaddr, retireA.prs_wbaddr) 
+        val wen = retireA.wb_ctrl.rf_wen
+        prfCtrl.rollback(wen,retireA.cmt_wbaddr, retireA.prs_wbaddr) 
         io.rm_dp.bits.instA := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
         io.rm_dp.bits.instB := WireInit(0.U.asTypeOf(new InstCtrlBlock()))
     }.otherwise{
-        when(instA.wbaddr =/= instB.wbaddr){
+        when(instA.wbaddr =/= instB.wbaddr && instAwen){
             mapTable.write(dec_rm_fire && instA.valid, instA.wbaddr, prsWbaddrA)
         }
-        mapTable.write(dec_rm_fire && instB.valid, instB.wbaddr, prsWbaddrB)
+        mapTable.write(dec_rm_fire && instB.valid && instBwen, instB.wbaddr, prsWbaddrB)
         
         // to issue
         prfCtrl.write(prsWbaddrA =/= 0.U , prsWbaddrA, 1.U(2.W))
@@ -130,6 +133,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
             cmt_wbaddr = Some(cmtWbaddrB),
             reorder_num = Some(io.rob_numB)
         )
+
     }
 }
 
