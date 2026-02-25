@@ -27,18 +27,10 @@ void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) =
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
+void difftest_step_o2(vaddr_t pc,vaddr_t next_pc);
 
 #ifdef CONFIG_DIFFTEST
 extern CPU_state cpu;
-typedef struct {
-    word_t gpr[16];
-    word_t pc;
-    paddr_t mem_addr;
-    word_t  mem_data;
-    bool    mem_fcn;
-    bool    mem_enable;
-}diff_context;
-
 bool mem_data_equal(uint32_t ref, uint32_t dut, uint32_t typ){
   // printf("hf  ref %x  dut %x  %d\n",((uint16_t)ref), ((uint16_t)dut),((uint16_t)ref) == ((uint16_t)dut));
   // printf("bit ref %x  dut %x %d\n",((uint8_t)ref), ((uint8_t)dut), ((uint8_t)ref) == ((uint8_t)dut));
@@ -107,6 +99,73 @@ void memory_access_skip_ref(){
   IFDEF(CONFIG_HAS_UART,is_skip_ref = is_skip_ref || in_uart(lsu_state.addr) );
 }
 
+void ref_reg_display(const diff_context *ref_r){
+  // ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  printf("ref register: \n");
+  for (int i=0;i<gpr_size;i++){
+    printf("%4s:%.8x ",regs[i],ref_r->gpr[i]);
+    
+    (i%3==0)?printf("\n"):printf(" ");
+  }
+
+  printf("%4s:%.8x\n","pc",ref_r->pc);
+}
+
+static void checkregs(diff_context *ref, vaddr_t pc) {
+  if (!isa_difftest_checkregs(ref, pc)) {
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = pc;
+    isa_reg_display();
+    ref_reg_display(ref);
+  }
+}
+
+void read_ref(){
+  diff_context ref_r;
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  ref_reg_display(&ref_r);
+}
+void difftest_step_pipeline(vaddr_t pc, vaddr_t pc_next) {
+  diff_context ref_r;
+ 
+  if (skip_dut_nr_inst > 0) { 
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    if (ref_r.pc == pc_next) {
+      skip_dut_nr_inst = 0;
+      checkregs(&ref_r, pc_next);
+      return;
+    }
+    skip_dut_nr_inst --;
+    if (skip_dut_nr_inst == 0)
+      panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
+    return;
+  }
+
+  // NOTE: access MMIO may cause some side effect, thus skip the checking of instructions with MMIO access.
+  memory_access_skip_ref();
+
+  if (is_skip_ref) {
+    // to skip the checking of an instruction, just copy the reg state to reference design
+    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+    is_skip_ref = false;
+    return;
+  }
+  bool has_bubble = false;
+  IFDEF(CONFIG_PIPELINE_PC,has_bubble=top_wb_inst()==0x00004033;);
+  if (pc != 0x0 && pc_next != 0x0 &&pc_next != pc ) {
+    ref_difftest_exec(1);
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    checkregs(&ref_r, pc);
+  }
+}
+
+void difftest_step(vaddr_t pc, vaddr_t pc_next) {  
+  #ifdef CONFIG_GALOIS
+  difftest_step_o2(pc, pc_next);
+  #else
+  difftest_step_pipeline(pc, pc_next);
+  #endif
+}
 void init_difftest(char *ref_so_file, long img_size, int port) {
   assert(ref_so_file != NULL);
 
@@ -139,59 +198,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_memcpy(CONFIG_MBASE, guest_to_host(CONFIG_MBASE), img_size, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
-
-void ref_reg_display(){
-  diff_context ref_r;
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-  printf("ref register: \n");
-    for (int i=0;i<gpr_size;i++){
-        printf("%4s:%.8x",regs[i],ref_r.gpr[i]);
-        (i%3==0)?printf("\n"):printf(" ");
-    }
-  printf("%4s:%.8x\n","pc",ref_r.pc);
-}
-
-static void checkregs(diff_context *ref, vaddr_t pc) {
-  if (!isa_difftest_checkregs(ref, pc)) {
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = pc;
-    isa_reg_display();
-    ref_reg_display();
-  }
-}
-
-void difftest_step(vaddr_t pc, vaddr_t pc_next) {
-  diff_context ref_r;
- 
-  if (skip_dut_nr_inst > 0) { 
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    if (ref_r.pc == pc_next) {
-      skip_dut_nr_inst = 0;
-      checkregs(&ref_r, pc_next);
-      return;
-    }
-    skip_dut_nr_inst --;
-    if (skip_dut_nr_inst == 0)
-      panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
-    return;
-  }
-  memory_access_skip_ref();
-
-  if (is_skip_ref) {
-    // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = false;
-    return;
-  }
-  bool has_bubble = false;
-  IFDEF(CONFIG_PIPELINE_PC,has_bubble=top_wb_inst()==0x00004033;);
-  if (pc != 0x0 && pc_next != 0x0 &&pc_next != pc ) {
-    ref_difftest_exec(1);
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    checkregs(&ref_r, pc);
-  }
-}
-
 #else
 void init_difftest(char *ref_so_file, long img_size, int port) { }
 #endif

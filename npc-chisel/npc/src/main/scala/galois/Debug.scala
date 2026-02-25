@@ -23,12 +23,19 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
         val next_retire_pc = Input(UInt(32.W))
         val instA       = Input(UInt(32.W))
         val instB       = Input(UInt(32.W))
+        val retire      = Flipped(new CommitDebug())
         // val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
      setInline("DebugPort.v",
      """
      import "DPI-C" function void dpi_port_OOO(input int halt, input int pcA, input int pcB, input int instA, input int instB, input int retireA_pc, input int retireB_pc);
+     import "DPI-C" function void retire_OOO( input int pcA, input int pcB,
+                input int instA, input int instB, 
+                input int readyA, input int readyB, 
+                input int retire_next_pc, input int retire_mem_val, 
+                input int retire_mem_addr);
+
     //  import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module DebugPort(
         input clock,
@@ -39,7 +46,16 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
         input [31:0] retire_pc,
         input [31:0] next_retire_pc,
         input [31:0] instA,
-        input [31:0] instB
+        input [31:0] instB,
+        input [31:0] retire_pcA,
+        input [31:0] retire_pcB,
+        input [31:0] retire_instA,
+        input [31:0] retire_instB,
+        input retire_readyA,
+        input retire_readyB,
+        input [31:0] retire_next_pc,
+        input retire_mem_val,
+        input [31:0] retire_mem_addr
         // input [31:0] lsu_port_addr,
         // input [31:0] lsu_port_rdata,
         // input [31:0] lsu_port_wdata,
@@ -56,6 +72,15 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
             dpi_port_OOO(expand_halt, pc, pc_next, instA, instB, retire_pc, next_retire_pc);
         end
 
+        wire [31:0] expand_readyA = {31'b0,retire_readyA};
+        wire [31:0] expand_readyB = {31'b0,retire_readyB};
+        wire [31:0] expand_retire_mem_val = {31'b0,retire_mem_val};
+        always @(*) begin
+            retire_OOO(retire_pcA, retire_pcB, 
+                retire_instA, retire_instB, 
+                expand_readyA, expand_readyB, 
+                retire_next_pc, expand_retire_mem_val, retire_mem_addr);
+        end
         // wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         // always @(posedge clock) begin
         //     if (lsu_port_mem_en && lsu_port_fcn == 1'b1) begin

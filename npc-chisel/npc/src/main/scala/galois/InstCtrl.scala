@@ -12,7 +12,7 @@ trait HasOOOParams{
     implicit val conf: Config
     val ROB_SIZE = 64
     val IQ_SIZE = 16
-    val LQ_SIZE = 16
+    val LSQ_SIZE = 8
     val SQ_SIZE = 16
     val PRF_SIZE = 128
     val ARC_SIZE = 32

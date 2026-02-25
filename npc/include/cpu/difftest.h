@@ -52,4 +52,12 @@ static inline bool difftest_check_reg(const char *name, vaddr_t pc, word_t ref, 
   return true;
 }
 
+typedef struct {
+  word_t  gpr[ MUXDEF(CONFIG_RVE, 16, 32)];
+  word_t  pc;
+  paddr_t mem_addr;
+  word_t  mem_data;
+  bool    mem_fcn;
+  bool    mem_enable;
+}diff_context;
 #endif

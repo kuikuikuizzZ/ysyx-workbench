@@ -33,6 +33,8 @@ static uint32_t instA           = 0;
 static uint32_t instB           = 0;
 static uint32_t gpr[32]         = {0};
 
+// retire info 
+static retire_info_t Top_retire_info = {0};
 
 //// PERF_EVENTS COUNTER
 static uint32_t lsu_store_count     = 0;
@@ -64,7 +66,20 @@ extern "C" void dpi_port_OOO(int in_halt, int in_pc, int in_pc_next, int in_inst
     instB           = in_instB;
     halt            = in_halt;
 }
-
+extern "C" void retire_OOO(uint32_t retireA_pc, uint32_t retireB_pc,
+     uint32_t instA, uint32_t instB, 
+     uint32_t readyA, uint32_t readyB, 
+     uint32_t next_retire_pc, uint32_t retire_mem_val, uint32_t retire_mem_addr){
+    Top_retire_info.retireA_pc = retireA_pc;
+    Top_retire_info.retireB_pc = retireB_pc;
+    Top_retire_info.instA = instA;
+    Top_retire_info.instB = instB;
+    Top_retire_info.readyA = readyA&0x1;
+    Top_retire_info.readyB = readyB&0x1;
+    Top_retire_info.next_retire_pc = next_retire_pc;
+    Top_retire_info.mem_val = retire_mem_val;
+    Top_retire_info.mem_addr = retire_mem_addr;
+}
 extern "C" void dpi_gpr(const uint32_t* in_gpr){
     for (int i=0;i<gpr_size;i++){
         gpr[i] = in_gpr[i];
@@ -121,6 +136,7 @@ extern "C" void perf_event_exe( uint32_t predict_wrong_cnt,
     exe_perf_event.predict_hit_count = predict_hit_cnt;
     exe_perf_event.predict_count = predict_count;
 }
+
 
 #endif
 
@@ -221,7 +237,7 @@ uint32_t top_csr(int i) {
 uint32_t top_pc() {
     if (!_rootp) return 0;
     uint32_t tpc ;
-    IFDEF(CONFIG_GALOIS,return pc;)
+    IFDEF(CONFIG_GALOIS,return Top_retire_info.retireA_pc;)
     IFNDEF(CONFIG_GALOIS,(CONFIG_SOC,return (uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc));
     IFNDEF(CONFIG_SOC,tpc = (uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
     IFDEF(CONFIG_DIFFTEST,tpc= top_wb_pc());
@@ -231,7 +247,7 @@ uint32_t top_pc() {
 uint32_t top_dnpc() {
     if (!_rootp) return 0;
     uint32_t pc;
-    IFDEF(CONFIG_GALOIS,return pc_next;)
+    IFDEF(CONFIG_GALOIS,return Top_retire_info.next_retire_pc;)
     IFDEF(CONFIG_SOC,pc=(uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__inst_fetch__DOT__pc_reg);
     IFNDEF(CONFIG_SOC,pc=(uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__inst_fetch__DOT__pc_reg);
     IFDEF(CONFIG_DIFFTEST,pc=top_mem_pc());
@@ -261,6 +277,11 @@ uint32_t top_retire_pc() {
 uint32_t top_next_retire_pc() {
     return next_retire_pc;
 }
+
+retire_info_t top_retire_info(){
+    return Top_retire_info;
+}
+
 
 
 uint32_t top_wb_inst() {
@@ -374,26 +395,24 @@ void watch_top_ooo(){
     if (!_top) return;
     if (!wt) {
         wt = new Watch_top;
-        wt->inst = instA;
-        wt->pc =  pc;
-        wt->dnpc = pc_next;
+        wt->inst = Top_retire_info.instA;
+        wt->pc =  Top_retire_info.retireA_pc;
+        wt->dnpc = Top_retire_info.next_retire_pc;
     } 
     if (wt->inst==top_inst() && top_pc()==wt->pc && top_dnpc()==wt->dnpc) return;
     else {
         // if(top_pc()!=0x800013a0) return; // only watch when pc is 0x80000000
         // printf(" io_halt %d ,pc %.8x,dec_pc %.8x,dnpc %.8x, inst: %.8x, a0 %.8x a1 %.8x a2 %.8x alu1 %.8x, alu2 %.8x, alu_out %.8x, mem_en: %d,r/w %d addr %.8x, data %.8x \n",
-        printf(" io_halt %d ,pc %.8x,pc_next %.8x, retire_pc %.8x,retire_pc_next %.8x, instA: %.8x, instB: %.8x \n",
+        printf(" io_halt %d , retireA_pc %.8x,retire_pc_next %.8x, instA: %.8x, instB: %.8x \n",
             top_halt(),
-            pc,
-            pc_next,
-            retire_pc,
-            next_retire_pc,
-            instA,
-            instB
+            Top_retire_info.retireA_pc,
+            Top_retire_info.next_retire_pc,
+            Top_retire_info.instA,
+            Top_retire_info.instB
         );
-        wt->inst = instA;
-        wt->pc = pc;
-        wt->dnpc = pc_next;
+        wt->inst = Top_retire_info.instA;
+        wt->pc = Top_retire_info.retireA_pc;
+        wt->dnpc = Top_retire_info.next_retire_pc;
     }
     
 }

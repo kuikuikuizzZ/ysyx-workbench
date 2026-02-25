@@ -6,6 +6,19 @@ import npc.common._
 import npc._
 import npc.galois.Constants._
 import npc.common.UtilMethods.{ResultHoldBypass}
+import javax.naming.spi.DirStateFactory.Result
+
+class CommitDebug  (implicit val conf: Config) extends Bundle {
+    val pcA                 = Output(UInt(conf.xlen.W))
+    val pcB                 = Output(UInt(conf.xlen.W))
+    val instA               = Output(UInt(32.W))
+    val instB               = Output(UInt(32.W))
+    val readyA              = Output(Bool())
+    val readyB              = Output(Bool())
+    val next_pc             = Output(UInt(conf.xlen.W))
+    val mem_val             = Output(Bool())
+    val mem_addr            = Output(UInt(conf.xlen.W))
+}
 
 class Commit (implicit val conf: Config) extends OOOModule{
     val io = IO(new Bundle{
@@ -28,7 +41,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
 
         val forward_load    = Input(new InstCtrlBlock())
         val forward_store   = Output(new InstCtrlBlock())
-
+        val debug            = new CommitDebug
 	})
     // Pointer
     val enqueue_ptr = RegInit(0.U(ROB_BITS.W)) 
@@ -110,6 +123,37 @@ class Commit (implicit val conf: Config) extends OOOModule{
             rob(i).valid && is_store && addr_match
         }).asUInt
     }
+
+    /////// debug
+    val debug = WireInit(0.U.asTypeOf(new CommitDebug))
+    debug.pcA    := retireA.pc
+    debug.pcB    := retireB.pc
+    debug.readyA := readyA
+    debug.readyB := readyB
+    debug.instA    := retireA.inst
+    debug.instB    := retireB.inst
+    debug.mem_val  := retireA.mem_ctrl.mem_val
+    debug.mem_addr := retireA.alu_out
+    val regDebug = RegNext(debug)
+    val reg_target = RegNext(retireA.target)
+    val reg_redirect = RegNext(retireA.pc_sel =/= PC_4)
+    io.debug.pcA        := regDebug.pcA
+    io.debug.pcB        := regDebug.pcB
+    io.debug.readyA     := regDebug.readyA
+    io.debug.readyB     := regDebug.readyB
+    io.debug.instA      := regDebug.instA
+    io.debug.instB      := regDebug.instB
+    io.debug.mem_val    := regDebug.mem_val
+    io.debug.mem_addr   := regDebug.mem_addr
+    // retireA valid should handle almost all cases,
+    // if retireA is not valid, then all other rob invalid , 
+    // should speculate based on last retired
+    // last retireB valid should speculate retireB + 4
+    // last retireB invalid should speculate retireA + 4
+    io.debug.next_pc    := Mux(reg_redirect, reg_target,   
+                            Mux(retireA.valid,retireA.pc ,
+                            Mux(regDebug.readyB, regDebug.pcB+4.U, regDebug.pcA + 4.U)))
+                                
 }
 
 //input : 00101010110

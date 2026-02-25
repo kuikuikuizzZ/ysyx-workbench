@@ -14,6 +14,7 @@ void isa_reg_display(){
         printf("%4s:%.8x",csr_names[i],top_csr(i));
         (i%3==1)?printf("\n"):printf(" ");
     }
+    printf("\n");
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

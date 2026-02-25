@@ -73,6 +73,20 @@ typedef struct{
   uint32_t predict_count;
 } exe_perf_event_t;
 
+typedef struct 
+{
+  /* data */
+  uint32_t retireA_pc;
+  uint32_t retireB_pc;
+  uint32_t next_retire_pc;
+  bool readyA;
+  bool readyB;
+  uint32_t instA;
+  uint32_t instB;
+  bool mem_val;
+  uint32_t mem_addr;
+} retire_info_t;
+
 // extern uint32_t lsu_store_count;
 // extern uint32_t lsu_load_count ;
 // extern uint32_t ifu_fetch_count;
@@ -101,6 +115,8 @@ uint32_t top_inst();
 uint32_t top_dnpc();
 
 uint32_t top_wb_inst();
+
+retire_info_t top_retire_info();
 
 mem_access_t top_lsu_state();
 

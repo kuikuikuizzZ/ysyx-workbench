@@ -9,7 +9,7 @@
 
 static int is_batch_mode = false;
 #define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
-void ref_reg_display();
+void read_ref();
 void init_wp_pool();
 void init_regex();
 
@@ -65,7 +65,7 @@ static int cmd_info(char *args) {
 
   if (strcmp(ptr,"r")==0){
     isa_reg_display();
-    IFDEF(CONFIG_DIFFTEST, ref_reg_display());
+    IFDEF(CONFIG_DIFFTEST, read_ref());
   }else{
     printf("Usage: info r\n");
   }

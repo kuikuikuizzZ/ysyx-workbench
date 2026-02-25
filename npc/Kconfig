@@ -48,6 +48,15 @@ config PC_MAX_REPEAT
   int "same pc repeat max times"
   default 4096
 
+config PC_ADRESS_LIMIT
+  bool "Enable pc address limit"
+  default n
+config PC_ADRESS_MAX
+  depends on PC_ADRESS_LIMIT
+  hex "max pc address"
+  default 0xa0020000
+
+
 menu "Testing and Debugging"
 
 config TRACE

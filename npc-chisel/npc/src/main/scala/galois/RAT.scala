@@ -72,10 +72,10 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     io.arch_regfile     := arch_regfile.regfile
 
     when(retireA.wbaddr =/= retireB.wbaddr){
-        cmtTable.write(retireA.valid, retireA.wbaddr, retireA.prs_wbaddr)
+        cmtTable.write(retireA.valid  && retireA.finish, retireA.wbaddr, retireA.prs_wbaddr)
         arch_regfile.write(retireA.valid && retireA.finish, retireA.wbaddr, retireA.wb_data)
     }
-    cmtTable.write(retireB.valid, retireB.wbaddr, retireB.prs_wbaddr)
+    cmtTable.write(retireB.valid && retireB.finish, retireB.wbaddr, retireB.prs_wbaddr)
     arch_regfile.write(retireB.valid && retireB.finish, retireB.wbaddr, retireB.wb_data)
     
     prfCtrl.write(retireA.valid && retireA.finish,  retireA.prs_wbaddr, 3.U(2.W))

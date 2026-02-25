@@ -46,7 +46,7 @@ class LSUImplIO(implicit val conf: Config) extends CacheBundle {
 }
 
 
-class LSUImpl(implicit val conf: Config) extends Module {
+class LSUImpl(implicit val conf: Config) extends OOOModule {
     val io = IO(new LSUImplIO())
     io := DontCare
     io.debug := DontCare
@@ -55,7 +55,7 @@ class LSUImpl(implicit val conf: Config) extends Module {
     val load_unit    = Module(new LoadUnit())
     val store_unit   = Module(new StoreUnit())
     val retire_is_store = io.retire_store.bits.mem_ctrl.mem_val && io.retire_store.bits.mem_ctrl.mem_fcn === M_XWR
-    val queue        = Module(new Queue(new InstCtrlBlock, 2,pipe = true,flow=true, hasFlush = true))
+    val queue        = Module(new Queue(new InstCtrlBlock, LSQ_SIZE,pipe = true,flow=true, hasFlush = true))
 
     axi_arb.io.out <> io.axi_bus.req
     axi_arb.io.in(0)            <> load_unit.io.axi_bus.req   
