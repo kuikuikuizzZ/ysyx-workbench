@@ -33,12 +33,11 @@ class RegMap (implicit val conf: Config)extends OOOModule {
 
     val io = IO(new RegMapIO())
     val dec_rm_fire = RegNext(io.dec_rm.fire)
-    io.rm_dp.valid  := dec_rm_fire
-    io.dec_rm.ready := io.rm_dp.ready
-
     val mapTable = new RAT()
     val cmtTable = new RAT()
     val prfCtrl  = new PhyRegCtrl()
+    io.rm_dp.valid  := dec_rm_fire
+    io.dec_rm.ready := io.rm_dp.ready && !prfCtrl.prf_full()
 
     val instA = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 
     val instB = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 

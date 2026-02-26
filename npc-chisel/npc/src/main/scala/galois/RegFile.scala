@@ -93,6 +93,10 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
     PriorityEncoder(bitVector)
   }
   
+  def prf_full(): Bool = {
+    PriorityEncoder(genFreeList) === (PRF_SIZE - 1).U  
+  }
+
   //NOTE: should be optimize by bypass network 
   def freePhyRegisterA: UInt = findFirstFree(genFreeList)
   

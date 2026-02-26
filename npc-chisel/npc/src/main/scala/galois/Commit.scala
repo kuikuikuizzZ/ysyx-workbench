@@ -103,10 +103,12 @@ class Commit (implicit val conf: Config) extends OOOModule{
         when(readyB){ rob(dequeue_ptr + 1.U) := WireInit(0.U.asTypeOf(new InstCtrlBlock())) }
     }
 
+    // val findHitQueue = Module(new FindLastHit(ROB_SIZE))
     val hitVector = GenHitVec()
+    
     val hit = hitVector =/= 0.U
     val circularHitVec = VecInit.tabulate(ROB_SIZE) { j =>
-    val index = Mux(j.U < ROB_SIZE.U - enqueue_ptr, enqueue_ptr + j.U, j.U - (ROB_SIZE.U - enqueue_ptr))
+        val index = Mux(j.U < ROB_SIZE.U - enqueue_ptr, enqueue_ptr + j.U, j.U - (ROB_SIZE.U - enqueue_ptr))
         hitVector(index)
     }.asUInt
 
@@ -170,4 +172,77 @@ object lowbit {
     def apply(data: UInt): UInt = {
         data & (~data+1.U)
     }
+}
+
+// find the nearest hit entry from enq_ptr in circular order
+// 1. rotate queue to make enq_ptr - 1 in the highest bit
+// 2. calculate valid queue mask
+// 3. rotate queue & mask 
+// 4. find the higgest 1 bit
+// 5. rotate back to get the original index
+class FindLastHit(size: Int) extends Module {
+  require(size > 0, "Size must be positive")
+  
+  val io = IO(new Bundle {
+    val queue = Input(UInt(size.W))
+    val enqPtr = Input(UInt(log2Ceil(size).W))
+    val deqPtr = Input(UInt(log2Ceil(size).W))
+    val nearestIdx = Output(UInt(log2Ceil(size).W))
+    val found = Output(Bool())
+  })
+  
+  // 计算enqPtr-1，处理循环
+  val enqPrev = Wire(UInt(log2Ceil(size).W))
+  when(io.enqPtr === 0.U) {
+    enqPrev := (size - 1).U
+  }.otherwise {
+    enqPrev := io.enqPtr - 1.U
+  }
+  
+  // 方法1: 循环左移，使enqPrev在最高位
+  val rotateLeft = (size - 1).U - enqPrev
+  
+  // 循环左移函数
+  def rotateLeftFunc(data: UInt, amt: UInt): UInt = {
+    val amtInt = amt.litValue.toInt
+    val shifted = (data << amt) | (data >> (size.U - amt))
+    shifted(size-1, 0)
+  }
+  
+  val rotatedQueue = rotateLeftFunc(io.queue, rotateLeft)
+  
+  // 计算有效长度：从enqPrev到deqPtr（不包括deqPtr）的元素个数
+  val validLength = Wire(UInt(log2Ceil(size+1).W))
+  when(enqPrev >= io.deqPtr) {
+    validLength := enqPrev - io.deqPtr
+  }.otherwise {
+    validLength := enqPrev + size.U - io.deqPtr
+  }
+  
+  // 生成掩码：高位validLength位为1
+  val mask = Wire(UInt(size.W))
+  when(validLength === 0.U) {
+    mask := 0.U
+  }.otherwise {
+    // 创建(1 << validLength) - 1，然后左移使高位为1
+    val ones = (1.U << validLength) - 1.U
+    mask := ones << (size.U - validLength)
+  }
+  
+  val maskedQueue = rotatedQueue & mask
+  
+  // has hit
+  val found = maskedQueue.orR
+  
+  // find the highest 1 bit
+  val reversed = Reverse(maskedQueue)
+  val lowestInReversed = PriorityEncoder(reversed)
+  val highestInRotated = (size - 1).U - lowestInReversed
+  
+  // return orginal index
+  val tempIdx = highestInRotated - rotateLeft
+  val nearestIdx = Mux(tempIdx < 0.S(size.W).asUInt, tempIdx + size.U, tempIdx)
+  
+  io.nearestIdx := Mux(found, nearestIdx, 0.U)
+  io.found := found
 }

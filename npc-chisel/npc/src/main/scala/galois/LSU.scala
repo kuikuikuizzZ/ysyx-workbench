@@ -57,8 +57,9 @@ class LSUImpl(implicit val conf: Config) extends OOOModule {
     val retire_is_store = io.retire_store.bits.mem_ctrl.mem_val && io.retire_store.bits.mem_ctrl.mem_fcn === M_XWR
     val queue        = Module(new Queue(new InstCtrlBlock, LSQ_SIZE,pipe = true,flow=true, hasFlush = true))
 
-    axi_arb.io.out <> io.axi_bus.req
-    axi_arb.io.in(0)            <> load_unit.io.axi_bus.req   
+    axi_arb.io.out   <> io.axi_bus.req
+    axi_arb.io.in(0) <> store_unit.io.axi_bus.req 
+    axi_arb.io.in(1) <> load_unit.io.axi_bus.req   
 
     val deq_is_load     = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XRD
     val deq_is_store    = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XWR
@@ -83,7 +84,6 @@ class LSUImpl(implicit val conf: Config) extends OOOModule {
     load_unit.io.out.ready      := true.B
     load_unit.io.axi_bus.req.ready      := axi_arb.io.in(0).ready
 
-    axi_arb.io.in(1) <> store_unit.io.axi_bus.req 
     store_unit.io.axi_bus.req.ready      := axi_arb.io.in(1).ready
     store_unit.io.debug                  := DontCare
     // should add 1 cycle latency
@@ -136,7 +136,6 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
 
     val exception   = Wire(UInt(EXC_NORMAL.getWidth.W))
 
-    val fire            = io.in.fire
     val addr            = io.in.bits.alu_out
     val inst            = Mux(io.in.valid, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val inst_is_load    = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XRD
@@ -200,14 +199,18 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
 
 
     // forward load
-    val w_typ = io.forward_store.mem_ctrl.mem_typ
-    val waddr = io.forward_store.alu_out
-    val wmask = Mux(io.forward_store.valid, Mux(w_typ === MT_B,1.U << waddr(1,0),
+    // forward store return and used in next cycle
+    io.forward_load := Mux(io.in.fire && inst_is_load, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
+    // forward store should be flush by redirect or axi_bus.resp.valid
+    val reg_forward_store = RegEnable(io.forward_store, io.forward_store.valid || io.redirect || io.axi_bus.resp.valid) 
+    val w_typ = reg_forward_store.mem_ctrl.mem_typ
+    val waddr = reg_forward_store.alu_out
+    val wmask = Mux(reg_forward_store.valid, Mux(w_typ === MT_B,1.U << waddr(1,0),
                                Mux(w_typ === MT_H,3.U << waddr(1,0),15.U)), 
                                0.U)
     val byteMasks = VecInit(Seq.tabulate(4)(i => Fill(8, wmask(i))))
     val byteMask = Cat(byteMasks(3), byteMasks(2), byteMasks(1), byteMasks(0))
-    val wdata = Mux(io.forward_store.valid, io.forward_store.rs2_data, 0.U)
+    val wdata = Mux(reg_forward_store.valid, reg_forward_store.rs2_data, 0.U)
      
     val d_data      = (io.axi_bus.resp.bits.data & ~byteMask) | (wdata & byteMask)
     
@@ -253,7 +256,6 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
                                  wb_data = Some(wbdata), finish= Some(finish),
                                  exception = Some(exception))
     io.out.bits     := out_block
-    io.forward_load := Mux(inst_is_load, out_block,0.U.asTypeOf(out_block))
     /////////// Debug Port
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
     io.debug.mem_en     := mem_en
