@@ -77,8 +77,18 @@ class Commit (implicit val conf: Config) extends OOOModule{
     io.retireB      := Mux(readyB, retireB, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
     io.retire_store.valid   := is_store && retireA.valid && retireA.finish
     io.retire_store.bits    := Mux(is_store,  retireA, WireInit(0.U.asTypeOf(new InstCtrlBlock())))
-    val Aenter = !rob_full && io.rm_rob.bits.instA.valid
-    val Benter = Aenter && io.rm_rob.bits.instB.valid
+
+    // NOTE: enter ROB should make sure prf is not full
+    // val rm_instA = io.rm_rob.bits.instA
+    // val rm_instB = io.rm_rob.bits.instB
+    // val AhasWb = rm_instA.wb_ctrl.rf_wen && (rm_instA.prs_wbaddr =/= 0.U || rm_instA.wbaddr === 0.U)
+    // val BhasWb = rm_instB.wb_ctrl.rf_wen && (rm_instB.prs_wbaddr =/= 0.U || rm_instB.wbaddr === 0.U)
+    // val Aenter = !rob_full && io.rm_rob.bits.instA.valid && (AhasWb || !rm_instA.wb_ctrl.rf_wen)
+    // val Benter = Aenter && io.rm_rob.bits.instB.valid && (BhasWb || !rm_instB.wb_ctrl.rf_wen)
+
+    val Aenter = io.rm_rob.valid && !rob_full && io.rm_rob.bits.instA.valid
+    val Benter = io.rm_rob.valid && Aenter && io.rm_rob.bits.instB.valid 
+
 
     when(io.redirect){
         for(i <- 0 to ROB_SIZE-1){

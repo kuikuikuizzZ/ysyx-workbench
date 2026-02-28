@@ -58,8 +58,8 @@ class LSUImpl(implicit val conf: Config) extends OOOModule {
     val queue        = Module(new Queue(new InstCtrlBlock, LSQ_SIZE,pipe = true,flow=true, hasFlush = true))
 
     axi_arb.io.out   <> io.axi_bus.req
-    axi_arb.io.in(0) <> store_unit.io.axi_bus.req 
-    axi_arb.io.in(1) <> load_unit.io.axi_bus.req   
+    axi_arb.io.in(0) <> load_unit.io.axi_bus.req   
+    axi_arb.io.in(1) <> store_unit.io.axi_bus.req 
 
     val deq_is_load     = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XRD
     val deq_is_store    = queue.io.deq.bits.mem_ctrl.mem_val && queue.io.deq.bits.mem_ctrl.mem_fcn === M_XWR

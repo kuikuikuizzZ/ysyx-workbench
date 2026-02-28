@@ -122,6 +122,8 @@ mem_access_t top_lsu_state();
 
 void clear_top_lsu_state();
 
+uint32_t display_assign_count() ;
+
 void delete_top();
 
 void watch_top();

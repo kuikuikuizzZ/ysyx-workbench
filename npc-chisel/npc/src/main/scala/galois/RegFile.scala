@@ -93,8 +93,9 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
     PriorityEncoder(bitVector)
   }
   
-  def prf_full(): Bool = {
-    PriorityEncoder(genFreeList) === (PRF_SIZE - 1).U  
+  def is_full(): Bool = {
+    (PriorityEncoder(genFreeList) === (PRF_SIZE - 1).U ) || 
+    (PriorityEncoder(genFreeList) === (PRF_SIZE - 2).U ) 
   }
 
   //NOTE: should be optimize by bypass network 
@@ -110,6 +111,10 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
   
   def ready_list: UInt = {
     VecInit(state.map(s => s(1))).asUInt
+  }
+
+  def read(addr: UInt): UInt = {
+    state(addr)
   }
 
   def write(wen: Bool, addr: UInt, data: UInt): Unit = { 
@@ -131,4 +136,8 @@ class PhyRegCtrl(implicit val conf: Config) extends HasOOOParams {
     state := newStates
   }
 
+  def count_assigned(): UInt = {
+      val assignedCount = PopCount(state.map(_ === State.Assigned))
+      assignedCount
+  }
 }

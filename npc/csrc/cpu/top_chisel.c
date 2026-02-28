@@ -36,6 +36,12 @@ static uint32_t gpr[32]         = {0};
 // retire info 
 static retire_info_t Top_retire_info = {0};
 
+// rm info 
+static uint32_t rm_assign_count = 0;
+static uint32_t temp_last_pc  = 0;
+static uint32_t temp_last_count = 32;
+
+
 //// PERF_EVENTS COUNTER
 static uint32_t lsu_store_count     = 0;
 static uint32_t lsu_load_count      = 0;
@@ -84,6 +90,10 @@ extern "C" void dpi_gpr(const uint32_t* in_gpr){
     for (int i=0;i<gpr_size;i++){
         gpr[i] = in_gpr[i];
     }
+}
+
+extern "C" void rm_dpi(uint32_t assign_count){
+    rm_assign_count = assign_count;
 }
 extern "C" void lsu_port(bool en ,bool fcn, int typ, int addr, int data){
     if (en){
@@ -177,6 +187,14 @@ Top* top() {
     return _top;
 }
 
+uint32_t display_assign_count() {
+    if (rm_assign_count > 32 && rm_assign_count != temp_last_count && temp_last_pc != top_pc()) {
+        temp_last_count = rm_assign_count;
+        temp_last_pc = top_pc();
+        Log("rm assign count: %d, pc: %08x", rm_assign_count, top_pc());
+    }
+    return 0;
+}
 
 typedef struct {
     uint32_t inst;

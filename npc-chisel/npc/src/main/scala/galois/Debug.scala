@@ -24,6 +24,7 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
         val instA       = Input(UInt(32.W))
         val instB       = Input(UInt(32.W))
         val retire      = Flipped(new CommitDebug())
+        val rm          = Flipped(new RegMapDebug())
         // val lsu_port = Flipped(new LSUDebugPort()) 
      })
 
@@ -35,6 +36,7 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
                 input int readyA, input int readyB, 
                 input int retire_next_pc, input int retire_mem_val, 
                 input int retire_mem_addr);
+     import "DPI-C" function void rm_dpi(input int rm_assign_count);
 
     //  import "DPI-C" function void lsu_port(input enable,  input fcn, input int lsu_port_typ,input int addr, input int data);
      module DebugPort(
@@ -55,7 +57,8 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
         input retire_readyB,
         input [31:0] retire_next_pc,
         input retire_mem_val,
-        input [31:0] retire_mem_addr
+        input [31:0] retire_mem_addr,
+        input [31:0] rm_assign_count
         // input [31:0] lsu_port_addr,
         // input [31:0] lsu_port_rdata,
         // input [31:0] lsu_port_wdata,
@@ -80,6 +83,10 @@ class DebugPort() (implicit val conf: Config)extends BlackBox with HasBlackBoxIn
                 retire_instA, retire_instB, 
                 expand_readyA, expand_readyB, 
                 retire_next_pc, expand_retire_mem_val, retire_mem_addr);
+        end
+
+        always @(*) begin
+            rm_dpi(rm_assign_count);
         end
         // wire [31:0] expand_typ   = {30'b0,lsu_port_typ};
         // always @(posedge clock) begin

@@ -75,11 +75,14 @@ void trace_and_difftest(Decode* s, vaddr_t dnpc){
             npc_state.state = NPC_ABORT;
             npc_state.halt_pc = s->pc;
             Log("pc %0.8x reach max address!!!",s->pc);
-        }   
+        } 
+          
     #endif
 
     #ifdef CONFIG_DIFFTEST
     difftest_step(s->pc,dnpc);
+   
+    display_assign_count();
     #endif
     #ifdef CONFIG_ITRACE
     if (s->pc != dnpc) itrace_once(s);

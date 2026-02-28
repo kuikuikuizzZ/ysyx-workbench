@@ -162,6 +162,7 @@ class Core(implicit val conf: Config)extends Module
     debug.io.instA          := cmt.io.retireA.inst
     debug.io.instB          := cmt.io.retireB.inst
     debug.io.retire         := cmt.io.debug
+    debug.io.rm             := rm.io.debug
     // debug.io.lsu_port       := wbu.io.mem_wb.bits.debug
     
 

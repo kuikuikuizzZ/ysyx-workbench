@@ -101,8 +101,8 @@ class InstCtrlBlock (implicit val conf: Config) extends OOOBundle {
 }
 
 class BlockLineIO (implicit val conf: Config) extends OOOBundle {
-    val instA = Input(new InstCtrlBlock)
-    val instB = Input(new InstCtrlBlock)
+    val instA = (new InstCtrlBlock)
+    val instB = (new InstCtrlBlock)
 }
 
 
