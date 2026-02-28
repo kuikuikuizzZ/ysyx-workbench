@@ -35,9 +35,10 @@ class Commit (implicit val conf: Config) extends OOOModule{
         val cmtF            = Input(new InstCtrlBlock)
         val cmtG            = Input(new InstCtrlBlock)
 
-        val rob_numA = Output(UInt(ROB_BITS.W))
-        val rob_numB = Output(UInt(ROB_BITS.W))
-        val redirect = Output(Bool())
+        val rob_numA        = Output(UInt(ROB_BITS.W))
+        val rob_numB        = Output(UInt(ROB_BITS.W))
+        val rob_full        = Output(Bool())
+        val redirect        = Output(Bool())
 
         val forward_load    = Input(new InstCtrlBlock())
         val forward_store   = Output(new InstCtrlBlock())
@@ -48,6 +49,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
     val dequeue_ptr = RegInit(0.U(ROB_BITS.W)) 
     val rob_full = ((enqueue_ptr + 1.U ) === dequeue_ptr) || ((enqueue_ptr + 2.U ) === dequeue_ptr)
     io.rm_rob.ready := !rob_full
+    io.rob_full := rob_full
     io.rob_numA := enqueue_ptr
     io.rob_numB := enqueue_ptr + 1.U
 
@@ -88,7 +90,6 @@ class Commit (implicit val conf: Config) extends OOOModule{
 
     val Aenter = io.rm_rob.valid && !rob_full && io.rm_rob.bits.instA.valid
     val Benter = io.rm_rob.valid && Aenter && io.rm_rob.bits.instB.valid 
-
 
     when(io.redirect){
         for(i <- 0 to ROB_SIZE-1){

@@ -29,6 +29,7 @@ class RegMapIO(implicit val conf: Config) extends OOOBundle {
 
     val rob_numA        = Input(UInt(ROB_BITS.W))
     val rob_numB        = Input(UInt(ROB_BITS.W))
+    val rob_full        = Input(Bool())
     val phyreg_states   = Output(UInt(PRF_SIZE.W))
     val arch_regfile    = Output(Vec(ARC_SIZE,UInt(conf.xlen.W)))
     val debug           = Output(new RegMapDebug())
@@ -62,13 +63,14 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val AWBvalid = AhasWb || !instAwen
     val BWBvalid = BhasWb || !instBwen
 
+
     val cmtWbaddrA = mapTable.read(instA.wbaddr)
     val cmtWbaddrB = Mux(instA.wbaddr === instB.wbaddr,prsWbaddrA, mapTable.read(instB.wbaddr))
 
     queue.io.flush.get          := io.redirect
     queue.io.enq.valid          := dec_rm_fire
     queue.io.enq.bits           <> io.dec_rm.bits 
-    queue.io.deq.ready          := io.rm_dp.ready && (AWBvalid && BWBvalid) && !prfCtrl.is_full()
+    queue.io.deq.ready          := io.rm_dp.ready && (AWBvalid && BWBvalid) && !prfCtrl.is_full() && !io.rob_full
     
     // solve RAW hazard in same block
     val prs1_addrA = WireInit(0.U)

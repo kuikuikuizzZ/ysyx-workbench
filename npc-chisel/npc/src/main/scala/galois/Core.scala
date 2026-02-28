@@ -89,6 +89,7 @@ class Core(implicit val conf: Config)extends Module
   rm.io.cmtE      := lsu.io.cmtE
   rm.io.rob_numA  := cmt.io.rob_numA
   rm.io.rob_numB  := cmt.io.rob_numB
+  rm.io.rob_full  := cmt.io.rob_full
   rm.io.retireA   := cmt.io.retireA
   rm.io.retireB   := cmt.io.retireB
   // ? = rm.io.arch_regfile

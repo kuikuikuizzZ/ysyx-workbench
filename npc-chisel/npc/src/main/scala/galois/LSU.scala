@@ -66,6 +66,7 @@ class LSUImpl(implicit val conf: Config) extends OOOModule {
     val store_inst      = Mux(deq_is_store && queue.io.deq.valid, queue.io.deq.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val load_inst       = Mux(deq_is_load && queue.io.deq.valid, queue.io.deq.bits, 0.U.asTypeOf(new InstCtrlBlock))
     val store_out       = InstCtrlBlock.copy(base=store_inst,finish= Some(true.B))
+    // val enq_fire        = RegEnable(queue.io.enq.fire, queue.io.enq.ready)
     io.exe_mem.ready            := queue.io.enq.ready
     queue.io.flush.get          := io.redirect
     queue.io.enq.bits           <> io.exe_mem.bits
