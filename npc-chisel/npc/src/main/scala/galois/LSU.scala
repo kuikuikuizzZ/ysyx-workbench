@@ -155,18 +155,11 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
             when(inst_is_load){
                 when(is_bus_req &&  io.axi_bus.req.fire){
                     state :=s_bus_req
-                } .elsewhen(is_clint_req ){
-                    state := s_clint_req
-                }
+                } 
             }
         }
         is(s_bus_req) {
             when(io.axi_bus.resp.valid){
-                state := s_idle
-            }
-        }
-        is(s_clint_req) {
-            when(io.clintIO.dr.ready){
                 state := s_idle
             }
         }
@@ -224,14 +217,13 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     ))
 
  
-    when (is_clint_req ){
+    when (in_clint ){
         when (mem_ctrl.mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := addr
         } .otherwise{
             io.clintIO.dr.en := false.B
             io.clintIO.dr.addr := addr
-
         }
     }.otherwise{
         io.clintIO.dr.en := false.B
@@ -251,9 +243,9 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
             Mux(mem_ctrl.mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(mem_ctrl.mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL)
     val finish = mem_resp_valid 
-
+    val out_inst = Mux(in_clint, inst_redirect, reg_inst)
     io.out.valid := finish                             
-    val out_block = InstCtrlBlock.copy(base = (reg_inst),
+    val out_block = InstCtrlBlock.copy(base = (out_inst),
                                  wb_data = Some(wbdata), finish= Some(finish),
                                  exception = Some(exception))
     io.out.bits     := out_block

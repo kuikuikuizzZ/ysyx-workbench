@@ -42,7 +42,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val mapTable    = new RAT()
     val cmtTable    = new RAT()
     val prfCtrl     = new PhyRegCtrl()
-    val queue       = Module(new Queue(new BlockLineIO, 8,pipe = true,flow=true, hasFlush = true))
+    val queue       = Module(new Queue(new BlockLineIO, RMQ_SIZE,pipe = true,flow=true, hasFlush = true))
     
 
     val instA = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 

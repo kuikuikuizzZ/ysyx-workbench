@@ -14,6 +14,7 @@ trait HasOOOParams{
     val IQ_SIZE = 16
     val LSQ_SIZE = 32
     val SQ_SIZE = 16
+    val RMQ_SIZE = 8
     val PRF_SIZE = 128
     val ARC_SIZE = 32
     val PRF_BITS = log2Ceil(PRF_SIZE)

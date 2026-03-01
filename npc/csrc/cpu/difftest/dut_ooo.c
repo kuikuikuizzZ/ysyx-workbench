@@ -81,7 +81,8 @@ bool isa_difftest_checkregs_o2(const diff_context *ref_r, vaddr_t retireA_pc, va
 void memory_access_skip_ref_o2(vaddr_t mem_addr, bool mem_val) {
     // 这里可以根据具体的MMIO地址范围来判断是否需要跳过检查
     // 例如，如果0x10000000-0x10000FFF是MMIO地址范围：
-    if (mem_val && (mem_addr >= 0x10000000 && mem_addr <= 0x10000FFF)) {
+    if (mem_val && (mem_addr >= 0x10000000 && mem_addr <= 0x1000FFFF) ||
+        (mem_addr >= 0x020000000 && mem_addr <= 0x0200FFFF)) {
         diff_state.is_skip_ref = true;  // 只有当有有效的内存访问时才跳过检查
     }
   // IFDEF(CONFIG_HAS_UART,diff_state.is_skip_ref = diff_state.is_skip_ref || in_uart(mem_addr) );
