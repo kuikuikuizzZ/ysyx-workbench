@@ -19,7 +19,7 @@ class DispatchIO (implicit val conf: Config) extends OOOBundle {
 class Dispatch (implicit val conf: Config) extends OOOModule { 
     val io = IO(new DispatchIO())
 
-    val rm_dp_fire = RegNext(io.rm_dp.fire)
+    val rm_dp_fire = (io.rm_dp.fire)
     val intQueue = Module(new IntQueue())
     val memQueue = Module(new MemQueue())
     val is_memA = io.rm_dp.bits.instA.mem_ctrl.mem_val
@@ -123,6 +123,7 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     for (i <- 0 until IQ_SIZE) {
       free_vec(i) := !bank(i).valid  
     }
+    dontTouch(free_vec)
     free_vec.asUInt & index0_mask  // 确保第0项永不空闲
   }
 
@@ -134,15 +135,16 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
                      (!entry.alu_ctrl.rs1_oen || entry.rs1_addr === 0.U || (entry.alu_ctrl.rs1_oen && io.phyreg_states(entry.prs1_addr))) &&
                       (!entry.alu_ctrl.rs2_oen || entry.rs2_addr === 0.U || io.phyreg_states(entry.prs2_addr))
     }
+    dontTouch(ready_vec)
     ready_vec.asUInt & index0_mask  // 确保第0项永不就绪
   }
 
   val free_list = gen_free_list()
   val ready_list = gen_ready_list()
 
-  val free_idx_a = PriorityEncoder(free_list)
+  val free_idx_a = Log2(lowbit(free_list))
   val free_list_after_a = free_list & ~(1.U << free_idx_a)  // 清除第一个找到的位
-  val free_idx_b = PriorityEncoder(free_list_after_a)
+  val free_idx_b = Log2(lowbit(free_list_after_a))
   
   val ready_idx_a = PriorityEncoder(ready_list)
   val ready_list_after_a = ready_list & ~(1.U << ready_idx_a)
@@ -155,17 +157,17 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
     io.dequeue_a := 0.U.asTypeOf(new InstCtrlBlock())
     io.dequeue_b := 0.U.asTypeOf(new InstCtrlBlock())
   }.otherwise {
-    when(free_idx_a =/= 0.U) { bank(free_idx_a) := io.enqueue_a }
-    when(free_idx_b =/= 0.U) { bank(free_idx_b) := io.enqueue_b }
+    when(free_idx_a =/= 0.U ) { bank(free_idx_a) := io.enqueue_a }
+    when(free_idx_b =/= 0.U ) { bank(free_idx_b) := io.enqueue_b }
 
-    when(ready_idx_a =/= 0.U) { 
+    when(ready_idx_a =/= 0.U ) { 
       io.dequeue_a := bank(ready_idx_a)
       bank(ready_idx_a) := 0.U.asTypeOf(new InstCtrlBlock())  // 清空条目
     }.otherwise {
       io.dequeue_a := 0.U.asTypeOf(new InstCtrlBlock())
     }
 
-    when(ready_idx_b =/= 0.U) { 
+    when(ready_idx_b =/= 0.U ) { 
       io.dequeue_b := bank(ready_idx_b)
       bank(ready_idx_b) := 0.U.asTypeOf(new InstCtrlBlock())
     }.otherwise {

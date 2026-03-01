@@ -42,7 +42,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     val mapTable    = new RAT()
     val cmtTable    = new RAT()
     val prfCtrl     = new PhyRegCtrl()
-    val queue       = Module(new Queue(new BlockLineIO, 2,pipe = true,flow=true, hasFlush = true))
+    val queue       = Module(new Queue(new BlockLineIO, 8,pipe = true,flow=true, hasFlush = true))
     
 
     val instA = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 
@@ -142,7 +142,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
             reorder_num = Some(io.rob_numB)
         )
         io.rm_dp.bits.instA := Mux(AWBvalid, instA_out, 0.U.asTypeOf(new InstCtrlBlock())) 
-        io.rm_dp.bits.instB := Mux(AWBvalid&&BWBvalid, instB_out, 0.U.asTypeOf(new InstCtrlBlock()))
+        io.rm_dp.bits.instB := Mux(BWBvalid, instB_out, 0.U.asTypeOf(new InstCtrlBlock()))
     }
 
     prfCtrl.write(retireA.valid && retireA.finish,  retireA.prs_wbaddr, 3.U(2.W))

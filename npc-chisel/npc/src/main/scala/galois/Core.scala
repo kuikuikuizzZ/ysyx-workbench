@@ -126,12 +126,17 @@ class Core(implicit val conf: Config)extends Module
 
   pipelineConnect(inst_fetch.io.ifu_dec, decoder.io.ifu_dec,cmt.io.redirect)
   pipelineConnect(decoder.io.dec_rm, rm.io.dec_rm, cmt.io.redirect)
-  pipelineConnect(rm.io.rm_dp, dp.io.rm_dp, cmt.io.redirect)
+  // pipelineConnect(rm.io.rm_dp, dp.io.rm_dp, cmt.io.redirect)
+  // connect by queue, no need to pipelineConnect
+  rm.io.rm_dp <> dp.io.rm_dp
   pipelineConnect(dp.io.dp_rr, rr.io.dp_rr, cmt.io.redirect)
   pipelineConnect(dp.io.dp_rr_mem, rr.io.dp_rr_mem, cmt.io.redirect)
   pipelineConnect(rr.io.rr_exe, exu.io.rr_exe, cmt.io.redirect)
   pipelineConnect(rr.io.rr_exe_mem, exu.io.rr_exe_mem, cmt.io.redirect)
   pipelineConnect(exu.io.exe_mem, lsu.io.exe_mem, cmt.io.redirect)
+  // connect by queue, no need to pipelineConnect
+  // exu.io.exe_mem <> lsu.io.exe_mem
+
   // io.halt :=  exu.io.ebreak would lead to conflicts in same cycle
   val halt = Mux(io.ebreak, true.B, false.B)
   io.core.slave.ar.ready := false.B
