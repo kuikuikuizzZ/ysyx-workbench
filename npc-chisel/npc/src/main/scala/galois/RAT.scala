@@ -38,11 +38,11 @@ class RegMapIO(implicit val conf: Config) extends OOOBundle {
 class RegMap (implicit val conf: Config)extends OOOModule { 
 
     val io = IO(new RegMapIO())
-    val dec_rm_fire = RegNext(io.dec_rm.fire)
+    val dec_rm_fire = io.dec_rm.fire
     val mapTable    = new RAT()
     val cmtTable    = new RAT()
     val prfCtrl     = new PhyRegCtrl()
-    val queue       = Module(new Queue(new BlockLineIO, RMQ_SIZE,pipe = true,flow=true, hasFlush = true))
+    val queue       = Module(new Queue(new BlockLineIO, RMQ_SIZE,pipe = true,hasFlush = true))
     
 
     val instA = WireInit(0.U.asTypeOf(new InstCtrlBlock())) 
@@ -52,6 +52,7 @@ class RegMap (implicit val conf: Config)extends OOOModule {
     instA := Mux(queue.io.deq.valid, queue.io.deq.bits.instA, 0.U.asTypeOf(new InstCtrlBlock()))
     instB := Mux(queue.io.deq.valid, queue.io.deq.bits.instB, 0.U.asTypeOf(new InstCtrlBlock()))
 
+    // make sure freeA freeB is 0 when the phy reg is allocated in this cycle
     val freeA = prfCtrl.read(prfCtrl.freePhyRegisterA) === 0.U
     val freeB = prfCtrl.read(prfCtrl.freePhyRegisterB) === 0.U
     val prsWbaddrA = Mux(instA.wbaddr =/= 0.U && freeA , prfCtrl.freePhyRegisterA, 0.U)

@@ -38,6 +38,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 include $(NPC_HOME)/scripts/verilog-npc.mk
 include $(NPC_HOME)/scripts/verilog-soc.mk
 include $(NPC_HOME)/scripts/iverilog-npc.mk
+include $(NPC_HOME)/scripts/verilog-galois.mk
 
 
 

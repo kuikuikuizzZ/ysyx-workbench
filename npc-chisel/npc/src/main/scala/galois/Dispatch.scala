@@ -143,12 +143,12 @@ class IntQueue(implicit val conf: Config) extends OOOModule {
   val ready_list = gen_ready_list()
 
   val free_idx_a = Log2(lowbit(free_list))
-  val free_list_after_a = free_list & ~(1.U << free_idx_a)  // 清除第一个找到的位
+  val free_list_after_a = free_list - lowbit(free_list)  // 清除第一个找到的位
   val free_idx_b = Log2(lowbit(free_list_after_a))
   
-  val ready_idx_a = PriorityEncoder(ready_list)
-  val ready_list_after_a = ready_list & ~(1.U << ready_idx_a)
-  val ready_idx_b = PriorityEncoder(ready_list_after_a)
+  val ready_idx_a = Log2(lowbit(ready_list))
+  val ready_list_after_a = ready_list - lowbit(ready_list)
+  val ready_idx_b = Log2(lowbit(ready_list_after_a))
 
   io.queue_full := !free_list.orR || !free_list_after_a.orR
 
