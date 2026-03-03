@@ -71,7 +71,7 @@ class LSUImpl(implicit val conf: Config) extends OOOModule {
     queue.io.flush.get          := io.redirect
     queue.io.enq.bits           <> io.exe_mem.bits
     queue.io.enq.valid          := RegNext(io.exe_mem.valid)
-    queue.io.deq.ready          := load_unit.io.in.ready || deq_is_store
+    queue.io.deq.ready          := load_unit.io.in.ready 
 
 
     load_unit.io.in.bits        := load_inst
@@ -137,13 +137,14 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
 
     val exception   = Wire(UInt(EXC_NORMAL.getWidth.W))
 
-    val addr            = io.in.bits.alu_out
     val inst            = Mux(io.in.valid, io.in.bits, 0.U.asTypeOf(new InstCtrlBlock))
+    val addr            = inst.alu_out
     val inst_is_load    = inst.mem_ctrl.mem_val && inst.mem_ctrl.mem_fcn === M_XRD
     val mem_ctrl        = io.in.bits.mem_ctrl
     val mem_en          = mem_ctrl.mem_val
 
     val in_clint = addr >= CLINT_BASE && addr < (CLINT_BASE + CLINT_SIZE)
+    val in_clint_fire = in_clint && mem_en && io.in.fire
     val is_bus_req = mem_en && !in_clint
     val is_clint_req = in_clint && mem_en
 
@@ -156,6 +157,9 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
                 when(is_bus_req &&  io.axi_bus.req.fire){
                     state :=s_bus_req
                 } 
+                // .elsewhen(is_clint_req && io.clintIO.dr.en){
+                //     state := s_clint_req
+                // }
             }
         }
         is(s_bus_req) {
@@ -163,6 +167,13 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
                 state := s_idle
             }
         }
+        // is(s_clint_req) {
+        //     when(inst_is_load && is_bus_req &&  io.axi_bus.req.fire){
+        //         state := s_bus_req
+        //     } .otherwise{
+        //         state := s_idle
+        //     }
+        // }
     }
 
     val to_axi_fire = io.axi_bus.req.fire.asBool
@@ -217,7 +228,7 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
     ))
 
  
-    when (in_clint ){
+    when (in_clint_fire ){
         when (mem_ctrl.mem_fcn === M_XRD){
             io.clintIO.dr.en := true.B
             io.clintIO.dr.addr := addr
@@ -229,12 +240,13 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
         io.clintIO.dr.en := false.B
         io.clintIO.dr.addr := 0.U
     }
-
+    // val state_clint = state === s_clint_req
+    // val reg_clint_data = RegEnable(io.clintIO.dr.data, state === s_idle)
     val mem_port_resp_valid = io.axi_bus.resp.valid && state === s_bus_req 
-    val mem_resp_valid  = Mux(in_clint, io.clintIO.dr.ready,    mem_port_resp_valid)
-    val mem_exception   = Mux(in_clint, 0.U,                    (io.axi_bus.resp.bits.resp))
+    val mem_resp_valid  = Mux(in_clint_fire, io.clintIO.dr.ready,    mem_port_resp_valid)
+    val mem_exception   = Mux(in_clint_fire, 0.U,                    (io.axi_bus.resp.bits.resp))
     val mem_data        = Wire(UInt(conf.xlen.W))
-    mem_data            := Mux(in_clint, io.clintIO.dr.data ,    (resp_data ))
+    mem_data            := Mux(in_clint_fire, io.clintIO.dr.data,    (resp_data ))
     dontTouch(mem_data)
     // WB Mux
     val wbdata = Mux(reg_wb_ctrl.wb_sel === WB_MEM, mem_data,reg_inst.alu_out)
@@ -243,12 +255,12 @@ class LoadUnit (implicit val conf: Config) extends OOOModule {
             Mux(mem_ctrl.mem_typ === M_XRD, EXC_LOAD_ACCESS_FAULT, 
             Mux(mem_ctrl.mem_typ === M_XWR, EXC_STORE_ACCESS_FAULT,EXC_NORMAL)), EXC_NORMAL)
     val finish = mem_resp_valid 
-    val out_inst = Mux(in_clint, inst_redirect, reg_inst)
+    val out_inst = Mux(in_clint_fire, inst_redirect, reg_inst)
     io.out.valid := finish                             
     val out_block = InstCtrlBlock.copy(base = (out_inst),
                                  wb_data = Some(wbdata), finish= Some(finish),
                                  exception = Some(exception))
-    io.out.bits     := out_block
+    io.out.bits := out_block   
     /////////// Debug Port
     val loadCnt         = RegInit(0.U(conf.perfCountBits.W))
     io.debug.mem_en     := mem_en
