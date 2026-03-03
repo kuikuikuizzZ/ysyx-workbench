@@ -17,7 +17,6 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
   rtc[1] = inl(MTIME_HIGH);
   now = ((rtc[1]<<32)|rtc[0]);
   uptime->us = now-start;
-  // uptime->us = 1000;
   return ;
 }
 

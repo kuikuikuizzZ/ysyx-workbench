@@ -153,8 +153,6 @@ class Core(implicit val conf: Config)extends Module
   io.core.slave.b.id := 0.U
   io.core.master.ar.bits.id := 0.U
   
-  val gpr_port = Module(new GPRPort())
-  gpr_port.io.gpr := rm.io.arch_regfile
 
   // ///// debug port
   if (conf.ENABLE_DEBUG) {
@@ -171,7 +169,8 @@ class Core(implicit val conf: Config)extends Module
     debug.io.retire         := cmt.io.debug
     debug.io.rm             := rm.io.debug
     // debug.io.lsu_port       := wbu.io.mem_wb.bits.debug
-    
+    val gpr_port = Module(new GPRPort())
+    gpr_port.io.gpr := rm.io.arch_regfile
 
     // val perfEvent = Module(new PerfEventPort())
     // perfEvent.io.clock      := clock
