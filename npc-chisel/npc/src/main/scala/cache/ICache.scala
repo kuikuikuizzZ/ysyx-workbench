@@ -266,13 +266,12 @@ class FakeICache(implicit val conf: Config) extends ICacheModule {
           should_in_miss := true.B
         }
     } .elsewhen(state === wait_miss_resp){
-        when(io.resp.fire) { 
+        when(missUnit.io.bus.req.fire) { 
           state := miss_idle 
           should_in_miss := false.B
         }.elsewhen(io.stop) {
           state := should_stop
         }
-      
     } .elsewhen(state === should_stop){
       when(missUnit.io.bus.resp.valid) { 
         state := miss_idle 
@@ -283,24 +282,28 @@ class FakeICache(implicit val conf: Config) extends ICacheModule {
       should_in_miss := false.B
     }
 
-    missUnit.io.refill_req          := DontCare
-    missUnit.io.bus.stall           := DontCare
-    missUnit.io.bus.req             := DontCare
-    missUnit.io.debug               := DontCare
-    missUnit.io.bus.resp            := DontCare
-    missUnit.io.axi_bus             <> io.axi_bus
-    missUnit.io.bus.req.valid       := io.req.valid
-    missUnit.io.bus.req.bits.addr   := io.req.bits.addr
-    missUnit.io.bus.req.bits.store  := io.req.bits.rw
-    missUnit.io.bus.resp.ready      := io.resp.ready
+    missUnit.io.refill_req                := DontCare
+    missUnit.io.debug                     := DontCare
+    missUnit.io.bus.stall                 := io.stop
+    missUnit.io.bus.req.bits.store_data   := VecInit(Seq.fill(blockRows)(0.U))
+    missUnit.io.bus.req.bits.store_wmask  := VecInit(Seq.fill(blockRows)(0.U))
+    missUnit.io.bus.req.bits.burst        := false.B
+    missUnit.io.bus.req.bits.waymask      := 0.U
+    missUnit.io.bus.req.valid             := io.req.valid
+    missUnit.io.bus.req.bits.addr         := io.req.bits.addr
+    missUnit.io.bus.req.bits.vaddr        := io.req.bits.addr
+    missUnit.io.bus.req.bits.store        := false.B
+    missUnit.io.bus.resp.ready            := io.resp.ready
+    missUnit.io.axi_bus                   <> io.axi_bus
     
     val resp = missUnit.io.bus.resp
-    val miss_data = resp.bits.data(getWordIdx(resp.bits.addr))
-    val resp_addr = ResultHoldBypass(missUnit.io.bus.resp.bits.addr,resp.valid)
-    val data      = ResultHoldBypass(miss_data,resp.valid)
+    val miss_data = resp.bits.data
+    val resp_addr = ResultHoldBypass(missUnit.io.bus.req.bits.addr,missUnit.io.bus.req.fire)
+    val data      = miss_data.asTypeOf(Vec(blockRows,UInt(rowBits.W)))
+    val bubbles =  VecInit(Seq.fill(blockRows)(BUBBLE))
     io.req.ready            := state === miss_idle && missUnit.io.bus.req.ready
     io.resp.valid           := resp.valid && should_in_miss
-    io.resp.bits.data       := Mux(io.stop,BUBBLE,data)
+    io.resp.bits.data       := Mux(io.stop,bubbles,data)
     io.resp.bits.miss       := resp.bits.miss
     io.resp.bits.pc         := resp_addr
     io.resp.bits.exception  := resp.bits.resp

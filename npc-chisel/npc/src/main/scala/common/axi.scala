@@ -298,7 +298,7 @@ class AXI4Master (implicit val conf: Config) extends Module{
     io.resp.bits := DontCare
 
     val accept_read = (rstate === rs_idle) && io.req.bits.ren && io.req.fire
-    val accept_write = !accept_read && (wstate === ws_idle) && io.req.bits.wen && io.req.fire
+    val accept_write = (wstate === ws_idle) && io.req.bits.wen && io.req.fire
     val is_read = Mux((rstate === rs_idle), accept_read, RegEnable (accept_read,false.B,(rstate === rs_idle)))
     val is_write = Mux((wstate === ws_idle), accept_write, RegEnable (accept_write,false.B,(wstate === ws_idle)))
     val awfire = RegInit(false.B)
@@ -417,7 +417,7 @@ class TopAXI4LiteSlave (implicit val conf: Config) extends Module{
     val s_idle :: s_inflight :: s_wait_rready_bready :: Nil = Enum(3)
     val state = RegInit(s_idle)
     val accept_read = (state === s_idle) && io.axi_io.ar.valid
-    val accept_write = !accept_read && (state === s_idle) && io.axi_io.aw.valid && io.axi_io.w.valid
+    val accept_write = (state === s_idle) && io.axi_io.aw.valid && io.axi_io.w.valid
     val is_write = Mux((state === s_idle), accept_write, RegEnable(accept_write,false.B,(state === s_idle)))
     io.debug.state := state
 
@@ -502,14 +502,17 @@ class TopAXI4Slave (implicit val conf: Config) extends Module{
     io.out.dw.data    := wdata
     io.out.dw.mask    := wstrb
 
-
+    val reg_write = RegEnable(io.axi_io.aw.fire, io.axi_io.aw.fire || (state === s_idle ))
     val resp        =   0.U  // OKAY
     val resp_hold = Mux((state === s_inflight),resp, RegNext(resp))  
 
-    io.axi_io.r.valid   := !is_write && (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
+    // io.axi_io.r.valid   := !is_write && (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
+    io.axi_io.r.valid        := !reg_write && ((state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready))
+    io.axi_io.r.valid        := (state === s_inflight && io.out.dr.ready) || (state === s_wait_rready_bready)
     io.axi_io.r.bits.resp    := resp_hold
     io.axi_io.r.bits.data    := Mux((state === s_inflight),io.out.dr.data, RegEnable(io.out.dr.data,(state === s_inflight)))  
     io.axi_io.r.bits.last    := io.axi_io.r.valid 
-    io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
+    // io.axi_io.b.valid   := is_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
+    io.axi_io.b.valid        := reg_write && (((state === s_inflight) && io.out.dw.ready ) || (state === s_wait_rready_bready))
     io.axi_io.b.bits.resp    := resp_hold
 }

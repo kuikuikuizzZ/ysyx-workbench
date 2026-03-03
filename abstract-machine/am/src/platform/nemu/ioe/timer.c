@@ -12,12 +12,10 @@ void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  // rtc[0] = inl(RTC_ADDR);
-  // rtc[1] = inl(RTC_ADDR+4);
-  // now = (rtc[1]<<32)+rtc[0];
-  // uptime->us = now-start;
-
-  uptime->us = 0;
+  rtc[0] = inl(RTC_ADDR);
+  rtc[1] = inl(RTC_ADDR+4);
+  now = (rtc[1]<<32)+rtc[0];
+  uptime->us = now-start;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

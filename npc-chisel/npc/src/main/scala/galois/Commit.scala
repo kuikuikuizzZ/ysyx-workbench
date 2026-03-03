@@ -60,7 +60,9 @@ class Commit (implicit val conf: Config) extends OOOModule{
     val readyA = WireInit(false.B)
     retireA := rob(dequeue_ptr)
     retireB := rob(dequeue_ptr + 1.U)
-    readyA := retireA.valid && retireA.finish && (!is_store || (is_store && io.retire_store.fire))
+    val readyANotStore = retireA.valid && retireA.finish && !is_store
+    val readyAstore = retireA.valid && retireA.finish && (is_store && io.retire_store.fire)
+    readyA := readyANotStore || readyAstore
     dontTouch(readyA)
     dontTouch(retireA)
     dontTouch(retireB)
@@ -68,7 +70,7 @@ class Commit (implicit val conf: Config) extends OOOModule{
     when (retireA.exception =/= EXC_NORMAL){
         retireA.pc_sel := PC_EXC 
     }
-    io.redirect := readyA && ((retireA.bju_out.should_redirect) || retireA.pc_sel =/= PC_4)
+    io.redirect := readyANotStore && ((retireA.bju_out.should_redirect) || retireA.pc_sel =/= PC_4)
 
     val retireB_exception   = retireB.exception =/= EXC_NORMAL
     val retireB_redirect    = retireB.bju_out.should_redirect || retireB.pc_sel =/= PC_4
