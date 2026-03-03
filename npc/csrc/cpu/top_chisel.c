@@ -204,8 +204,12 @@ typedef struct {
 Watch_top *wt = NULL;
 
 uint32_t* get_gpr_ptr(struct VysyxSoCFull___024root* _rootp, int i) {
-    uint32_t* base_addr = &(_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__rm__DOT__regfile_mem_0);
+    uint32_t* base_addr = NULL;
+    #ifdef CONFIG_GALOIS
+    base_addr = &(_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__rm__DOT__regfile_mem_0);
+    #endif
     return base_addr + i;
+    
 }
 
 
@@ -256,7 +260,7 @@ uint32_t top_pc() {
     if (!_rootp) return 0;
     uint32_t tpc ;
     IFDEF(CONFIG_GALOIS,return Top_retire_info.retireA_pc;)
-    IFNDEF(CONFIG_GALOIS,(CONFIG_SOC,return (uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc));
+    IFNDEF(CONFIG_GALOIS,IFDEF(CONFIG_SOC,return (uint32_t)_rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc));
     IFNDEF(CONFIG_SOC,tpc = (uint32_t)_rootp->Top__DOT__core__DOT__core__DOT__decoder_io_ifu_dec_bits_rpc);
     IFDEF(CONFIG_DIFFTEST,tpc= top_wb_pc());
     return tpc;
