@@ -30,19 +30,34 @@ class ICacheDebugPort(implicit val conf: Config) extends CacheBundle {
 
 }
 
+// class ICacheReq (implicit val conf: Config) extends CacheBundle {
+//   val addr = UInt(conf.xprlen.W)
+// }
+
+// class ICacheResp (implicit val conf: Config) extends CacheBundle {
+//   val inst = UInt(conf.xlen.W)
+//   val pc   = UInt(conf.xprlen.W)
+// }
+
 class ICacheReq (implicit val conf: Config) extends CacheBundle {
-  val addr = UInt(conf.xprlen.W)
+  val addr      = Input(UInt(conf.xlen.W))
+  val rw        = Input(Bool())
+  val bpu_resp  = Input(new BPUResp)
 }
 
-class ICacheResp (implicit val conf: Config) extends CacheBundle {
-  val inst = UInt(conf.xlen.W)
-  val pc   = UInt(conf.xprlen.W)
+class ICacheResp(implicit val conf: Config) extends CacheBundle {
+  // val data      = Output(Vec(blockRows,UInt(rowBits.W)))
+  val data      = Output(Vec(blockRows,UInt(rowBits.W)))
+  val exception = Output(UInt(5.W))
+  val miss      = Output(Bool())
+  val pc        = Output(UInt(conf.xprlen.W))
+  val bpu_resp  = Output(new BPUResp)
 }
 
 
 class ICacheImplIO(implicit val conf: Config) extends CacheBundle {
-  val req           = Flipped(Decoupled(new L1Req))
-  val resp          = Decoupled(new L1Resp)
+  val req           = Flipped(Decoupled(new ICacheReq))
+  val resp          = Decoupled(new ICacheResp)
   val fencei        = Input(Bool())
   val stop          = Input(Bool())
   val axi_bus       = new AXI4Bus()
@@ -93,8 +108,8 @@ class ICacheImpl(implicit val conf: Config) extends ICacheModule {
 
 class LoadPipe (implicit val conf: Config) extends CacheModule  {
     val io = IO(new Bundle {
-    val req = Flipped(Decoupled(new L1Req))
-    val resp = Decoupled(new L1Resp)
+    val req = Flipped(Decoupled(new ICacheReq))
+    val resp = Decoupled(new ICacheResp)
     val metaRead = Flipped(new SRAMReadBus(new MetaBundle, nLines,nWays))
     val dataRead  = Flipped(new SRAMReadBus(new DataBundle, nLines,nWays))
     val missBus   = Flipped(new MissUnitBus)
@@ -291,7 +306,7 @@ class FakeICache(implicit val conf: Config) extends ICacheModule {
     missUnit.io.bus.req.bits.waymask      := 0.U
     missUnit.io.bus.req.valid             := io.req.valid
     missUnit.io.bus.req.bits.addr         := io.req.bits.addr
-    missUnit.io.bus.req.bits.vaddr        := io.req.bits.addr
+    // missUnit.io.bus.req.bits.vaddr        := io.req.bits.addr
     missUnit.io.bus.req.bits.store        := false.B
     missUnit.io.bus.resp.ready            := io.resp.ready
     missUnit.io.axi_bus                   <> io.axi_bus
