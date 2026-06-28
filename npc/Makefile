@@ -39,6 +39,7 @@ include $(NPC_HOME)/scripts/verilog-npc.mk
 include $(NPC_HOME)/scripts/verilog-soc.mk
 include $(NPC_HOME)/scripts/iverilog-npc.mk
 include $(NPC_HOME)/scripts/verilog-galois.mk
+include $(NPC_HOME)/scripts/verilog-galois-npc.mk
 
 
 
