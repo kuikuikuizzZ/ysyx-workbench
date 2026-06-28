@@ -51,7 +51,11 @@ class TopAXI4LiteMem(implicit val conf: Config) extends BlackBox with HasBlackBo
       val clock = Input(Clock())
       val reset = Input(Bool())
    }) 
-      
+
+   /* NOTE: here has a trick, pc starts from 0x30000000,
+    but the mem starts from 0x80000000,
+    so we add serval inst to jump to 0x80000000 */
+
    setInline("TopAXI4LiteMem.v",
    """module TopAXI4LiteMem #(
    |    ADDR_WIDTH = 32,

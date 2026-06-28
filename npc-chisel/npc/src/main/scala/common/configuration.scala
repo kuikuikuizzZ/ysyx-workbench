@@ -28,7 +28,9 @@ case class Config(
     val ICacheEnableBurst = if (EnableBurst) true.B else false.B
     val EnableSOC = sys.env.get("ENABLE_SOC").map(java.lang.Boolean.parseBoolean).getOrElse(true)
     val ENABLE_DEBUG =  sys.env.get("NPC_ENABLE_DEBUG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
+    // NOTE: no need to set start addr for npc, view devices/mem.scala for more details
     // val START_ADDR = if (EnableSOC) 0x30000000L.U(32.W) else 0x80000000L.U(32.W)
+    // println(s"ENABLE_SOC: ${sys.env.get("ENABLE_SOC")}, START_ADDR: 0x%08X".format(START_ADDR.litValue))
     val START_ADDR =  0x30000000L.U(32.W)
     val ENABLE_IVERILOG = sys.env.get("NPC_ENABLE_IVERILOG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
 

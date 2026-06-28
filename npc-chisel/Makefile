@@ -26,7 +26,7 @@ verilog_galois_build:
 
 verilog_npc_build:
 	$(call git_commit, "generate verilog")
-	@echo BURST_LENGTH $(BURST_LENGTH)
+	@echo BURST_LENGTH $(BURST_LENGTH) ENABLE_SOC $(ENABLE_SOC) 
 	mkdir -p $(NPC_HOME)/build/
 	mkdir -p $(NPC_BUILD_DIR)
 	mkdir -p $(NPC_HOME)/svsrc_no_soc
