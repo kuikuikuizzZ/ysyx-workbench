@@ -50,6 +50,10 @@ paddr_t host_to_sram(uint8_t *haddr);
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
+static inline bool in_init_pmem(paddr_t addr) {
+  return addr - CONFIG_INIT_MEM_BASE < CONFIG_INIT_MEM_SIZE;
+}
+
 static inline bool in_mrom_pmem(paddr_t addr) {
   bool res = false;
   IFDEF(CONFIG_HAS_MROM, res=addr - CONFIG_MROM_BASE < CONFIG_MROM_SIZE);

@@ -30,6 +30,12 @@ IFDEF(CONFIG_HAS_PSRAM,static uint8_t *psram =NULL);
 
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+
+#ifdef CONFIG_HAS_INIT_MEM
+static uint8_t init_pmem[CONFIG_INIT_MEM_SIZE] = {};
+#endif
+
+
 #ifdef CONFIG_HAS_MROM
   static uint8_t mrom[CONFIG_MROM_SIZE]  = {};
 #endif
@@ -54,8 +60,13 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-#ifdef CONFIG_HAS_MROM
 
+#ifdef CONFIG_HAS_INIT_MEM
+uint8_t* guest_to_init(paddr_t paddr) { return init_pmem + paddr - CONFIG_INIT_MEM_BASE; }
+paddr_t host_to_init(uint8_t *haddr) { return haddr - init_pmem + CONFIG_INIT_MEM_BASE; }
+#endif
+
+#ifdef CONFIG_HAS_MROM
 uint8_t* guest_to_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
 paddr_t host_to_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_BASE; }
 #endif
@@ -82,6 +93,9 @@ paddr_t host_to_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_SDRAM_BASE
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret;
   if (in_pmem(addr)) ret = host_read(guest_to_host(addr), len);
+  #ifdef CONFIG_HAS_INIT_MEM
+  else if (in_init_pmem(addr)) ret = host_read(guest_to_init(addr), len);
+  #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram_pmem(addr)) ret = host_read(guest_to_sram(addr), len);
   #endif
@@ -106,6 +120,9 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
     log_write("W\t0x%x\t%d\n",addr,len);
   #endif
   if (in_pmem(addr))   host_write(guest_to_host(addr), len, data);
+  #ifdef CONFIG_HAS_INIT_MEM
+  else if (in_init_pmem(addr))   host_write(guest_to_init(addr), len, data);
+  #endif
   #ifdef CONFIG_HAS_SRAM
   else if (in_sram_pmem(addr)) host_write(guest_to_sram(addr), len, data);
   #endif
@@ -166,6 +183,10 @@ void init_mem() {
   IFNDEF(COMFIG_HAS_MROM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 #endif
+#ifdef CONFIG_HAS_INIT_MEM
+  uint32_t init_mem_inst[2] = { 0x50000097,0x00008067 };
+  memcpy(init_pmem, init_mem_inst, sizeof(init_mem_inst));
+#endif
 }
 
 word_t paddr_read(paddr_t addr, int len) {
@@ -173,7 +194,7 @@ word_t paddr_read(paddr_t addr, int len) {
   #ifdef CONFIG_MTRACE
     log_write("R\t0x%x\t%d\n",addr,len);
   #endif
-  if (likely(in_pmem(addr))     || 
+  if (likely(in_pmem(addr))     || likely(in_init_pmem(addr)) ||
     likely(in_mrom_pmem(addr))  ||
     likely(in_sram_pmem(addr))  ||
     likely(in_flash_pmem(addr)) ||
@@ -187,7 +208,7 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr)) || 
+  if (likely(in_pmem(addr)) || likely(in_init_pmem(addr)) ||
     likely(in_mrom_pmem(addr)) ||
     likely(in_sram_pmem(addr)) ||
     likely(in_flash_pmem(addr)) ||

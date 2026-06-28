@@ -58,8 +58,11 @@ static const uint32_t img [] = {
 };
 static void restart() {
   /* Set the initial program counter. */
-  cpu.pc = RESET_VECTOR;
-
+  #ifdef CONFIG_HAS_INIT_MEM
+    cpu.pc = CONFIG_INIT_MEM_BASE;
+  #else
+    cpu.pc = RESET_VECTOR;
+  #endif
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
   cpu.csr[mvendorid] = 0x78797379;

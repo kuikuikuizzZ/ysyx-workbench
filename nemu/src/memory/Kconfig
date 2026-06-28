@@ -9,6 +9,21 @@ config MSIZE
   hex "Memory size"
   default 0x8000000
 
+
+config HAS_INIT_MEM
+   bool "Enable init memory "
+   default n
+
+config INIT_MEM_BASE 
+  depends on HAS_INIT_MEM
+  hex "INIT base address, should not enable flash"
+  default 0x30000000 
+
+config INIT_MEM_SIZE
+  depends on HAS_INIT_MEM
+  hex "INIT_MEM size"
+  default 0x2000
+
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
   default 0x100000 if ISA_x86

@@ -127,7 +127,6 @@ void read_ref(){
 }
 void difftest_step_pipeline(vaddr_t pc, vaddr_t pc_next) {
   diff_context ref_r;
- 
   if (skip_dut_nr_inst > 0) { 
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == pc_next) {
@@ -152,7 +151,7 @@ void difftest_step_pipeline(vaddr_t pc, vaddr_t pc_next) {
   }
   bool has_bubble = false;
   IFDEF(CONFIG_PIPELINE_PC,has_bubble=top_wb_inst()==0x00004033;);
-  if (pc != 0x0 && pc_next != 0x0 &&pc_next != pc ) {
+  if (pc != 0x0 && pc_next != 0x0 && pc_next != pc ) {
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     checkregs(&ref_r, pc);
@@ -160,6 +159,14 @@ void difftest_step_pipeline(vaddr_t pc, vaddr_t pc_next) {
 }
 
 void difftest_step(vaddr_t pc, vaddr_t pc_next) {  
+  // NOTE: to support npc mode will fetch mem from 0x30000000 then
+  // jump to 0x80000000, we need to skip the difftest for the first few instructions
+  // #ifndef CONFIG_SOC
+  // if (pc >= 0x30000000 && pc < 0x40000000) {
+  //   return;
+  // }
+  // #endif
+
   #ifdef CONFIG_GALOIS
   difftest_step_o2(pc, pc_next);
   #else
