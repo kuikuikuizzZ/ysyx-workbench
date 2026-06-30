@@ -33,7 +33,7 @@ case class Config(
     // println(s"ENABLE_SOC: ${sys.env.get("ENABLE_SOC")}, START_ADDR: 0x%08X".format(START_ADDR.litValue))
     val START_ADDR =  0x30000000L.U(32.W)
     val ENABLE_IVERILOG = sys.env.get("NPC_ENABLE_IVERILOG").map(java.lang.Boolean.parseBoolean).getOrElse(false)
-
+    val ENABLE_SIMFRONTEND = sys.env.get("ENABLE_SIMFRONTEND").map(java.lang.Boolean.parseBoolean).getOrElse(false)
     val fetchGroupSize =  if (HasICache) 2 else 1
     val fetchGroupBytes = fetchGroupSize * 4
 

@@ -10,6 +10,7 @@
 !.gitignore
 !Kconfig
 !README.md
+!docs/*.md
 !*.py
 build/
 obj_dir/

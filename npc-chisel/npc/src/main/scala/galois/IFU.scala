@@ -7,6 +7,10 @@ import npc._
 import npc.galois.Constants._
 import npc.common.UtilMethods.{ResultHoldBypass}
 
+abstract class IFUModule(implicit conf: Config) extends Module {
+  val io = IO(new InstFetchIo)
+}
+
 class IFUDebugPort(implicit val conf: Config)   extends Bundle() {
   val pc             = Output(UInt(conf.xprlen.W))
   val pc_next        = Output(UInt(conf.xprlen.W))
@@ -32,11 +36,7 @@ class InstFetchIo(implicit val conf: Config) extends CacheBundle {
 }
 
 
-class InstFetch(implicit conf: Config) extends Module {
-
-  val io = IO(
-    new InstFetchIo()
-  )
+class InstFetch(implicit conf: Config) extends IFUModule {
   io := DontCare
   // Instruction Fetch
   val bpu         = Module(new BPU())
@@ -140,4 +140,13 @@ class InstFetch(implicit conf: Config) extends Module {
   // io.debug.instFetchCount := instFetchCount
   
   ////////// end of debug 
+}
+
+
+
+object IFU {
+  def apply() (implicit conf: Config): IFUModule = {
+    val ifu = if(conf.ENABLE_SIMFRONTEND) Module(new SimFrontend()) else Module(new InstFetch())
+    ifu
+  }
 }

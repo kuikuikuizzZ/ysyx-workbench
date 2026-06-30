@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <utils.h>
 #include "monitor/sdb.h"
+#include <cpu/simfrontend.h>
 #include "verilated.h"
 
 char* img_file = NULL;
@@ -15,6 +16,7 @@ char* log_file = NULL;
 char* flash_img_file = NULL;
 char* diff_so_file = NULL;
 char* perf_file = NULL;
+char* simfront_trace_file = NULL;
 static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
@@ -73,12 +75,13 @@ static int parse_args(int argc, char **argv) {
     {"diff"       , required_argument, NULL, 'd'},
     {"port"       , required_argument, NULL, 'p'},
     {"flash_file" , required_argument, NULL, 'f'},
+    {"simfront-trace", required_argument, NULL, 'S'},
     // {"help"     , no_argument      , NULL, 'h'},
     // {"elf"      , required_argument, NULL, 'e'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:P:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:P:S:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
@@ -87,6 +90,7 @@ static int parse_args(int argc, char **argv) {
     //   case 'e': elf_file = optarg;break;
       case 'f': flash_img_file = optarg;break;
       case 'P': perf_file = optarg;break;
+      case 'S': simfront_trace_file = optarg;break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -95,7 +99,9 @@ static int parse_args(int argc, char **argv) {
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\t-P,--perf=perf_file     enable record perf for commit\n");
+        printf("\t-S,--simfront-trace=TRACE_FILE    use trace-driven galois SimFrontend\n");
         printf("\t-f,--flash_file=FLASH_FILE        run load FLASH_FILE into flash\n");
+        printf("\t--simfront-trace=TRACE_FILE       use trace-driven galois SimFrontend\n");
         printf("\n");
         exit(0);
     }
@@ -114,6 +120,11 @@ int main(int argc, char** argv) {
     init_isa();
     
     init_log(log_file);
+
+    if (simfront_trace_file != NULL) {
+        bool ok = init_galois_sim_frontend(simfront_trace_file);
+        assert(ok);
+    }
     
     #ifdef CONFIG_ITRACE
     init_itrace();

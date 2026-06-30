@@ -8,7 +8,7 @@ import npc.common._
 import npc.galois._
 import npc.galois.Constants._
 import npc.devices.{CLINT}
-
+ 
 class Galois extends Module { 
   implicit val conf = Config()
   val io = IO(new CoreIo())
@@ -48,7 +48,7 @@ class Core(implicit val conf: Config)extends Module
     val ebreak = Output(Bool())
     val core =  new CoreIo()
   })
-  val inst_fetch  = Module(new InstFetch())
+  val inst_fetch  = IFU()
   val decoder     = Module(new Decode())
   val rm          = Module(new RegMap())
   val dp          = Module(new Dispatch())

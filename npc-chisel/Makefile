@@ -11,14 +11,12 @@ test:
 
 verilog_build:
 	$(call git_commit, "generate verilog")
-	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build/
 	mill -i $(PRJ).runMain Elaborate 
 
 verilog_galois_build:
 	$(call git_commit, "generate verilog")
-	@echo ICACHE_SIZE_BITS $(ICACHE_SIZE_BITS)
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(NPC_HOME)/build/
 	mill -i $(PRJ).runMain ElaborateGalois 
